@@ -1,6 +1,6 @@
 // DO NOT DEPLOY TO MAINNET
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.0;
+pragma solidity 0.8.5;
 
 import '../pool/CoreV2.sol';
 
@@ -17,10 +17,7 @@ contract TestCoreV2 is CoreV2 {
         return swapQuoteFunc(Ax, Ay, Lx, Ly, D, Dx, A);
     }
 
-    function test_swapQuoteFunc(
-        int256 Dy,
-        int256 Ay
-    ) external pure returns (int256) {
+    function test_swapQuoteFunc(int256 Dy, int256 Ay) external pure returns (int256) {
         return _swapQuoteFunc(Dy, Ay);
     }
 
@@ -53,5 +50,4 @@ contract TestCoreV2 is CoreV2 {
     ) external pure returns (int256) {
         return _coefficientFunc(Lx, Ly, Rx, D, A);
     }
-
 }

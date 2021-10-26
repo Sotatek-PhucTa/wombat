@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.0;
+pragma solidity 0.8.5;
 
 import '../libraries/SignedSafeMath.sol';
 import 'hardhat/console.sol';
@@ -77,7 +77,7 @@ contract CoreV2 {
      */
     function _coverageYFunc(int256 b, int256 A) internal pure returns (int256) {
         // console.log("_coverageYFunc log: '%s'", 'hello');
-        int256 sqrtR = ((b ** 2).add(A * 4 * WAD));
+        int256 sqrtR = ((b**2).add(A * 4 * WAD));
         // console.logInt(sqrtR);
         int256 sqrtResult = sqrtR.sqrt();
         // console.logInt(sqrtResult);

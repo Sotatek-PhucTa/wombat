@@ -25,36 +25,37 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       })
       this.BSCAddress = testBSCDeployment.address
 
-    // Deploy WETH Forwarder
-    const WETHForwarderDeployResult = await deploy('WETHForwarder', {
-      from: deployer,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: [this.BSCAddress],
-    })
+      // Deploy WETH Forwarder
+      const WETHForwarderDeployResult = await deploy('WETHForwarder', {
+        from: deployer,
+        log: true,
+        skipIfAlreadyDeployed: true,
+        args: [this.BSCAddress],
+      })
 
-    /// Deploy ChainlinkProxyPriceProvider
-    const priceOracleDeployResult = await deploy('ChainlinkProxyPriceProvider', {
-      from: deployer,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: [[], []],
-    })
+      /// Deploy ChainlinkProxyPriceProvider
+      const priceOracleDeployResult = await deploy('ChainlinkProxyPriceProvider', {
+        from: deployer,
+        log: true,
+        skipIfAlreadyDeployed: true,
+        args: [[], []],
+      })
 
-    // Get freshly deployed price Oracle Contract
-    const priceOracle = await ethers.getContractAt('ChainlinkProxyPriceProvider', priceOracleDeployResult.address)
-    await priceOracle.setETHAddress(this.BSCAddress) // set WETH address on ChainLinkProxyProvider
+      // Get freshly deployed price Oracle Contract
+      const priceOracle = await ethers.getContractAt('ChainlinkProxyPriceProvider', priceOracleDeployResult.address)
+      await priceOracle.setETHAddress(this.BSCAddress) // set WETH address on ChainLinkProxyProvider
 
-    // Get freshly deployed Pool contract
-    const pool = await ethers.getContractAt('Pool', poolDeployResult.address)
+      // Get freshly deployed Pool contract
+      const pool = await ethers.getContractAt('Pool', poolDeployResult.address)
 
-    // Initialize pool
-    await pool.initialize(this.BSCAddress)
-    await pool.setWETHForwarder(WETHForwarderDeployResult.address)
-    await pool.setPriceOracle(priceOracle.address)
+      // Initialize pool
+      await pool.initialize(this.BSCAddress)
+      await pool.setWETHForwarder(WETHForwarderDeployResult.address)
+      await pool.setPriceOracle(priceOracle.address)
 
-    // Check dev account
-    // console.log(`Dev account is : ${await pool.getDev()}`)
+      // Check dev account
+      // console.log(`Dev account is : ${await pool.getDev()}`)
+    }
   }
 }
 

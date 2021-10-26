@@ -52,6 +52,7 @@
     "format:fix": "pretty-quick --pattern '**/*.*(sol|json)' --staged --verbose",
     "deploy_bsc": "hardhat deploy --network bsc",
     "deploy_localhost": "hardhat deploy --network hardhat",
+    "clean": "hardhat clean",
     "compile": "hardhat compile",
     "pretest": "yarn compile",
     "test": "hardhat test",

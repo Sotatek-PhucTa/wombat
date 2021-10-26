@@ -44,6 +44,12 @@ const config: HardhatUserConfig = {
     outDir: './build/typechain/',
     target: 'ethers-v5',
   },
+  paths: {
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './artifacts',
+  },
   mocha: {
     timeout: 200000,
   },

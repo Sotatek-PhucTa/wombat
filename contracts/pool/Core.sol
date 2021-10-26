@@ -24,7 +24,7 @@ contract Core {
         uint256 xThreshold,
         uint256 x
     ) internal pure returns (uint256) {
-            return 0
+        return 0;
     }
 
     function _slippage(
@@ -37,11 +37,10 @@ contract Core {
         uint256 cashChange,
         bool addCash
     ) internal pure returns (uint256) {
-            return 0;
+        return 0;
     }
 
-    function _swappingSlippage(uint256 si, uint256 sj) internal pure returns (uint256) {
--    }
+    function _swappingSlippage(uint256 si, uint256 sj) internal pure returns (uint256) {}
 
     function _haircut(uint256 amount, uint256 rate) internal pure returns (uint256) {
         return 0;
@@ -60,7 +59,7 @@ contract Core {
         uint256 liability,
         uint256 amount
     ) internal pure returns (uint256) {
-            return 0;
+        return 0;
     }
 
     function _depositFee(
