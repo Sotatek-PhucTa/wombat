@@ -14,6 +14,7 @@ describe('SignedSafeMath', function () {
     this.cal = await SignedSafeMath.deploy()
   })
 
+  // equivalent to 20000 wei + 33000 wei
   describe('[add] - adds 2 integers', function () {
     it('20000 + 33000 = 53000', async function () {
       expect(await this.cal.add(20000, 33000)).to.be.equal(53000)
@@ -34,7 +35,7 @@ describe('SignedSafeMath', function () {
     // lowest unit 'wei' does not allow decimals, i.e. 1.2 wei
     it('1.2 + 3.3 = throw underflow error', async function () {
       try {
-        await this.cal.add(1.1, 3.3)
+        await this.cal.add(1.2, 3.3)
         throw new Error('function did not throw as expected')
       } catch (err: any) {
         expect(err.code).to.eql('NUMERIC_FAULT')
@@ -46,10 +47,10 @@ describe('SignedSafeMath', function () {
 
   describe('[sub] - subtracts 2 integers', function () {
     it('53000 - 33000 = 20000', async function () {
-      expect(await this.cal.sub(parseUnits('5.3', 18), parseUnits('3.3', 18))).to.be.equal(parseUnits('2', 18))
+      expect(await this.cal.sub(53000, 33000)).to.be.equal(20000)
     })
 
-    it('53000 - 73000 = -20000', async function () {
+    it('53000 WAD - 73000 WAD = -20000 WAD', async function () {
       expect(await this.cal.sub(parseUnits('5.3', 18), parseUnits('7.3', 18))).to.be.equal(parseUnits('-2', 18))
     })
   })
@@ -80,8 +81,12 @@ describe('SignedSafeMath', function () {
   })
 
   describe('[sqrt] - square roots an integer', function () {
-    it('sqrt(9 WAD) = 3 WAD/ 2', async function () {
+    it('sqrt(9 WAD) = 3 * 10**9', async function () {
       expect(await this.cal.sqrt(parseUnits('9', 18))).to.be.equal(parseUnits('3', 9))
+    })
+
+    it('sqrt(81) = 9', async function () {
+      expect(await this.cal.sqrt(81)).to.be.equal(9)
     })
 
     // negative integer will default to 1 for square root function
