@@ -38,7 +38,7 @@ For BSC testnet network:
 
 ## High-level System Overview
 
-*TBD*
+![Wombat High-level System Design"](/diagrams/high-level-design-v1.png "High-level System Design")
 
 ## Protocol Design 👷‍♂️
 
