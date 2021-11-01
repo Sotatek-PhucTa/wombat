@@ -82,3 +82,7 @@ While Wombat protocol focuses on being a stableswap protocol, we can still imple
   * [Transparent vs UUPS Proxies](https://docs.openzeppelin.com/contracts/4.x/api/proxy#transparent-vs-uups)
 * [Solidity by Example](https://solidity-by-example.org/)
 * [Chainlink Feed Registry](https://docs.chain.link/docs/feed-registry/)
+* [BSC Ecosystem](https://github.com/binance-chain/bsc-ecosystem)
+  * [Deploy BSC contracts with Hardhat](https://docs.binance.org/smart-chain/developer/deploy/hardhat.html)
+  * [Verify BSC contracts with Hardhat](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html)
+* [Token Vesting Contract](https://docs.openzeppelin.com/contracts/2.x/api/drafts#TokenVesting)
