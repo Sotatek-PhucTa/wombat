@@ -2,6 +2,7 @@
 pragma solidity 0.8.5;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title AggregateAccount
@@ -31,6 +32,8 @@ contract AggregateAccount is Ownable {
      * @param accountName_ the new name
      */
     function setAccountName(string memory accountName_) external onlyOwner {
+        // console.log("accountName_ log: '%s'", accountName_);
+        // console.log("accountName_ log:", bytes(accountName_).length);
         require(bytes(accountName_).length > 0, 'Wombat: Aggregate account name cannot be zero');
         accountName = accountName_;
     }

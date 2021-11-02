@@ -34,7 +34,7 @@ describe('CoreV2', function () {
     // First, deploy and initialize pool
     this.CoreV2Test = await CoreV2Test.connect(owner).deploy()
 
-    // Wait for transaction to be deployed
+    // Wait for transaction to be mined
     await this.CoreV2Test.deployTransaction.wait()
 
     // Setup initial variables
