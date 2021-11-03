@@ -27,9 +27,7 @@ describe('AggregateAccount', function () {
     accountName = 'stables'
     isStable = true
 
-    // Get CoreV2Test
     AggregateAccountFactory = await ethers.getContractFactory('AggregateAccount')
-    // First, deploy and initialize pool
     AggregateAccount = await AggregateAccountFactory.connect(owner).deploy(accountName, isStable)
 
     // Wait for transaction to be mined

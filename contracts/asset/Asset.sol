@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Asset
@@ -86,11 +87,14 @@ contract Asset is Ownable, Initializable, ERC20 {
         return _pool;
     }
 
+
     /**
+     * TODO: move pool address setup within contract initialization
      * @notice Changes the pool. Can only be set by the contract owner.
      * @param pool_ new pool's address
      */
     function setPool(address pool_) external onlyOwner {
+        // console.log("pool_ log:", pool_, address(0));
         require(pool_ != address(0), 'Wombat: Pool address cannot be zero');
         _pool = pool_;
     }
@@ -139,7 +143,7 @@ contract Asset is Ownable, Initializable, ERC20 {
     }
 
     /**
-     * @notice Mint Asset Token, expect pool coordinates other state updates. Can only be called by Pool.
+     * @notice Mint ERC20 Asset LP Token, expect pool coordinates other state updates. Can only be called by Pool.
      * @param to address to transfer the token to
      * @param amount amount to transfer
      */
@@ -148,7 +152,7 @@ contract Asset is Ownable, Initializable, ERC20 {
     }
 
     /**
-     * @notice Burn Asset Token, expect pool coordinates other state updates. Can only be called by Pool.
+     * @notice Burn ERC20 Asset LP Token, expect pool coordinates other state updates. Can only be called by Pool.
      * @param to address holding the tokens
      * @param amount amount to burn
      */
