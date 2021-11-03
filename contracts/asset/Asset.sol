@@ -87,7 +87,6 @@ contract Asset is Ownable, Initializable, ERC20 {
         return _pool;
     }
 
-
     /**
      * TODO: move pool address setup within contract initialization
      * @notice Changes the pool. Can only be set by the contract owner.
