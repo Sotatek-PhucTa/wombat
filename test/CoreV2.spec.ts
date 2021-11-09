@@ -23,7 +23,6 @@ describe('CoreV2', function () {
   let Rx: BigNumber // asset coverage ratio of token x
   let D: BigNumber // invariant constant
   let Dx: BigNumber // delta for token x, i.e. token x amount inputted
-  let Dy: BigNumber // delta for token y
   let A: BigNumber // amplification factor
 
   beforeEach(async function () {
@@ -47,20 +46,11 @@ describe('CoreV2', function () {
     await CoreV2.deployTransaction.wait()
   })
 
-  describe('[swapQuoteFunc] - public swap quote function for _swapQuoteFunc', async function () {
+  describe('[swapQuoteFunc] - the swap quote function', async function () {
     it('Should return correct quote given initial variables', async function () {
-      const result = await CoreV2.testSwapQuoteFunc(Ax, Ay, Lx, Ly, D, Dx, A)
+      const result = await CoreV2.testSwapQuoteFunc(Ax, Ay, Lx, Ly, Dx, A)
       // console.log(52, result.toString()) // 99430096462356289000
 
-      expect(result).to.be.equal(parseUnits('99.430096462356289000', 18))
-    })
-  })
-
-  describe('[_swapQuoteFunc] - return quote for amount of token y swapped for token x amount inputted', async function () {
-    it('Should return correct quote given initial variables', async function () {
-      Dy = parseUnits('-99.430096462356289000', 18)
-      const result = await CoreV2.test_swapQuoteFunc(Dy, Ay)
-      // console.log(62, result.toString()) // 99430096462356289000
       expect(result).to.be.equal(parseUnits('99.430096462356289000', 18))
     })
   })
@@ -100,6 +90,15 @@ describe('CoreV2', function () {
       // console.log(99, result.toString()) // -845049504950495050
 
       expect(result).to.be.equal(parseUnits('-0.845049504950495050', 18))
+    })
+  })
+
+  describe('[_invariantFunc] - return the invariant constant ("D")', async function () {
+    it('Should return correct invariant constant between token x and y', async function () {
+      const result = await CoreV2.test_invariantFunc(Ax, Ay, Lx, Ly, A)
+      // console.log(99, result.toString()) // 10450000000000000000000
+
+      expect(result).to.be.equal(parseUnits('10450', 18))
     })
   })
 })

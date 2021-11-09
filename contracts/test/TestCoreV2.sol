@@ -6,19 +6,14 @@ import '../pool/CoreV2.sol';
 
 contract TestCoreV2 is CoreV2 {
     function testSwapQuoteFunc(
-        int256 Ax,
-        int256 Ay,
-        int256 Lx,
-        int256 Ly,
-        int256 D,
-        int256 Dx,
-        int256 A
-    ) public pure returns (int256) {
-        return swapQuoteFunc(Ax, Ay, Lx, Ly, D, Dx, A);
-    }
-
-    function test_swapQuoteFunc(int256 Dy, int256 Ay) external pure returns (int256) {
-        return _swapQuoteFunc(Dy, Ay);
+        uint256 Ax,
+        uint256 Ay,
+        uint256 Lx,
+        uint256 Ly,
+        uint256 Dx,
+        uint256 A
+    ) external pure returns (uint256) {
+        return _swapQuoteFunc(Ax, Ay, Lx, Ly, Dx, A);
     }
 
     function test_deltaFunc(
@@ -49,5 +44,15 @@ contract TestCoreV2 is CoreV2 {
         int256 A
     ) external pure returns (int256) {
         return _coefficientFunc(Lx, Ly, Rx, D, A);
+    }
+
+    function test_invariantFunc(
+        int256 Ax,
+        int256 Ay,
+        int256 Lx,
+        int256 Ly,
+        int256 A
+    ) external pure returns (int256) {
+        return _invariantFunc(Ax, Ay, Lx, Ly, A);
     }
 }

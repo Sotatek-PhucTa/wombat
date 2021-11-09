@@ -10,28 +10,23 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 import '../libraries/DSMath.sol';
 import '../interfaces/IPriceOracleGetter.sol';
-import '../interfaces/IWETH.sol';
-import './WETHForwarder.sol';
 import '../asset/Asset.sol';
-import './Core.sol';
+import './CoreV2.sol';
 
 /**
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
  */
-contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, Core {
+contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, CoreV2 {
     using DSMath for uint256;
     using SafeERC20 for IERC20;
 
     /// @notice Wei in 1 ether
     uint256 private constant ETH_UNIT = 10**18;
 
-    /// @notice Slippage parameters K, N, C1 and xThreshold
-    uint256 private _slippageParamK = 5 * 10**13; // (1/20_000) * WAD
-    uint256 private _slippageParamN = 6; // 6
-    uint256 private _c1 = 366166321751524166; // ((k**(1/(n+1))) / (n**((n)/(n+1)))) + (k*n)**(1/(n+1)) ~ 0.36...
-    uint256 private _xThreshold = 313856847215592143; // (k*n)**(1/(n+1)) ~ 0.313...
+    /// @notice Slippage parameters K, N, ampFactor and xThreshold
+    uint256 private _ampFactor = 5 * 10**16; // 0.05 for amplification factor
 
     /// @notice Haircut rate
     uint256 private _haircutRate = 4 * 10**15; // 0.004 for intra-aggregate account swap
@@ -41,12 +36,6 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
     /// @notice Dev address
     address private _dev;
-
-    /// @notice Weth address
-    address private _weth;
-
-    /// @notice WETH Forwarder used to wrap and unwrap eth
-    WETHForwarder private _wethForwarder;
 
     /// @notice The price oracle interface used in swaps
     IPriceOracleGetter private _priceOracle;
@@ -87,36 +76,16 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
     /**
      * @notice Initializes pool. Dev is set to be the account calling this function.
-     * @param weth_ The weth address used to wrap eth (or BSC in our case) tokens by Pool.
      */
-    function initialize(address weth_) external initializer {
-        require(weth_ != address(0), 'Wombat: WETH address cannot be zero');
-
+    function initialize() external initializer {
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
         _dev = msg.sender;
-        _weth = weth_;
     }
 
     // Getters //
-
-    /**
-     * @notice Gets current WETH address
-     * @return The current WETH address for Pool
-     */
-    function getWETH() external view returns (address) {
-        return _weth;
-    }
-
-    /**
-     * @notice Gets current WETHForwarder address
-     * @return The current WETHForwarder address for Pool
-     */
-    function getWETHForwarder() external view returns (address) {
-        return address(_wethForwarder);
-    }
 
     /**
      * @notice Gets current Dev address
@@ -135,40 +104,16 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     }
 
     /**
-     * @notice Gets current C1 slippage parameter
-     * @return The current C1 slippage parameter in Pool
+     * @notice Gets current amplification factor parameter
+     * @return The current amplification factor parameter in Pool
      */
-    function getC1() external view onlyOwner returns (uint256) {
-        return _c1;
+    function getAmpFactor() external view onlyOwner returns (uint256) {
+        return _ampFactor;
     }
 
     /**
-     * @notice Gets current XThreshold slippage parameter
-     * @return The current XThreshold slippage parameter in Pool
-     */
-    function getXThreshold() external view onlyOwner returns (uint256) {
-        return _xThreshold;
-    }
-
-    /**
-     * @notice Gets current K slippage parameter
-     * @return The current K slippage parameter in Pool
-     */
-    function getSlippageParamK() external view onlyOwner returns (uint256) {
-        return _slippageParamK;
-    }
-
-    /**
-     * @notice Gets current N slippage parameter
-     * @return The current N slippage parameter in Pool
-     */
-    function getSlippageParamN() external view onlyOwner returns (uint256) {
-        return _slippageParamN;
-    }
-
-    /**
-     * @notice Gets current Haircut parameter
-     * @return The current Haircut parameter in Pool
+     * @notice Gets current haircut parameter
+     * @return The current haircut parameter in Pool
      */
     function getHaircutRate() external view onlyOwner returns (uint256) {
         return _haircutRate;
@@ -207,53 +152,12 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     }
 
     /**
-     * @notice Changes the pools WETH. Can only be set by the contract owner.
-     * @param weth_ new pool's WETH address
+     * @notice Changes the pools amplification factor. Can only be set by the contract owner.
+     * @param ampFactor_ new pool's amplification factor
      */
-    function setWETH(address weth_) external onlyOwner {
-        require(weth_ != address(0), 'Wombat: WETH address cannot be zero');
-        _weth = weth_;
-    }
-
-    /**
-     * @notice Changes the pools WETHForwarder. Can only be set by the contract owner.
-     * @param wethForwarder new pool's WETHForwarder address
-     */
-    function setWETHForwarder(address payable wethForwarder) external onlyOwner nonReentrant {
-        _wethForwarder = WETHForwarder(wethForwarder);
-    }
-
-    /**
-     * @notice Changes the pools slippage param K. Can only be set by the contract owner.
-     * @param k_ new pool's slippage param K
-     */
-    function setSlippageParamK(uint256 k_) external onlyOwner {
-        require(k_ <= ETH_UNIT); // k should not be set bigger than 1
-        _slippageParamK = k_;
-    }
-
-    /**
-     * @notice Changes the pools slippage param N. Can only be set by the contract owner.
-     * @param n_ new pool's slippage param N
-     */
-    function setSlippageParamN(uint256 n_) external onlyOwner {
-        _slippageParamN = n_;
-    }
-
-    /**
-     * @notice Changes the pools slippage param C1. Can only be set by the contract owner.
-     * @param c1_ new pool's slippage param C1
-     */
-    function setC1(uint256 c1_) external onlyOwner {
-        _c1 = c1_;
-    }
-
-    /**
-     * @notice Changes the pools slippage param xThreshold. Can only be set by the contract owner.
-     * @param xThreshold_ new pool's slippage param xThreshold
-     */
-    function setXThreshold(uint256 xThreshold_) external onlyOwner {
-        _xThreshold = xThreshold_;
+    function setAmpFactor(uint256 ampFactor_) external onlyOwner {
+        require(ampFactor_ <= ETH_UNIT, 'Wombat: ampFactor should be <= 1'); // ampFactor_ should not be set bigger than 1
+        _ampFactor = ampFactor_;
     }
 
     /**
@@ -261,7 +165,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
      * @param haircutRate_ new pool's haircutRate_
      */
     function setHaircutRate(uint256 haircutRate_) external onlyOwner {
-        require(haircutRate_ <= ETH_UNIT); // haircutRate_ should not be set bigger than 1
+        require(haircutRate_ <= ETH_UNIT, 'Wombat: haircutRate should be <= 1'); // haircutRate_ should not be set bigger than 1
         _haircutRate = haircutRate_;
     }
 
@@ -270,7 +174,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
      * @param retentionRatio_ new pool's retentionRatio
      */
     function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
-        require(retentionRatio_ <= ETH_UNIT); // retentionRatio_ should not be set bigger than 1
+        require(retentionRatio_ <= ETH_UNIT, 'Wombat: retentionRatio should be <= 1'); // retentionRatio_ should not be set bigger than 1
         _retentionRatio = retentionRatio_;
     }
 
@@ -332,15 +236,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 totalSupply = asset.totalSupply();
         uint256 liability = asset.liability();
 
-        uint256 fee = _depositFee(
-            _slippageParamK,
-            _slippageParamN,
-            _c1,
-            _xThreshold,
-            asset.cash(),
-            asset.liability(),
-            amount
-        );
+        uint256 fee = _depositFee(asset.cash(), asset.liability(), amount);
 
         // Calculate amount of LP to mint : ( deposit - fee ) * TotalAssetSupply / Liability
         liquidity = (liability == 0 ? (amount - fee) : ((amount - fee) * totalSupply) / liability);
@@ -399,15 +295,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
         require(liabilityToBurn > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_BURNED');
 
-        fee = _withdrawalFee(
-            _slippageParamK,
-            _slippageParamN,
-            _c1,
-            _xThreshold,
-            asset.cash(),
-            asset.liability(),
-            liabilityToBurn
-        );
+        fee = _withdrawalFee(asset.cash(), asset.liability(), liabilityToBurn);
 
         // Prevent underflow in case withdrawal fees >= liabilityToBurn, user would only burn his underlying liability
         if (liabilityToBurn > fee) {
@@ -535,36 +423,13 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
         require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
-
-        uint256 slippageFrom = _slippage(
-            _slippageParamK,
-            _slippageParamN,
-            _c1,
-            _xThreshold,
-            fromAsset.cash(),
-            fromAsset.liability(),
-            fromAmount,
-            true
-        );
-        uint256 slippageTo = _slippage(
-            _slippageParamK,
-            _slippageParamN,
-            _c1,
-            _xThreshold,
-            toAsset.cash(),
-            toAsset.liability(),
-            idealToAmount,
-            false
-        );
-        uint256 swappingSlippage = _swappingSlippage(slippageFrom, slippageTo);
-        uint256 toAmount = idealToAmount.wmul(swappingSlippage);
-        haircut = _haircut(toAmount, _haircutRate);
-        actualToAmount = toAmount - haircut;
+        haircut = _haircut(idealToAmount, _haircutRate);
+        actualToAmount = idealToAmount - haircut;
     }
 
     /**
      * @notice Quotes the ideal amount in case of swap
-     * @dev Does not take into account slippage parameters nor haircut
+     * @dev Does not take into haircut or other fees
      * @param fromAsset The initial asset
      * @param toAsset The asset wanted by user
      * @param fromAmount The amount to quote
@@ -575,11 +440,12 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         Asset toAsset,
         uint256 fromAmount
     ) private view returns (uint256 idealToAmount) {
-        idealToAmount = (((fromAmount * _priceOracle.getAssetPrice(fromAsset.underlyingToken())).wmul(
-            _priceOracle.getETHPriceInAsset(toAsset.underlyingToken())
-        ) * 10**toAsset.decimals()) /
-            10**fromAsset.decimals() /
-            ETH_UNIT);
+        uint256 Ax = fromAsset.cash();
+        uint256 Lx = fromAsset.liability();
+        uint256 Ay = toAsset.cash();
+        uint256 Ly = toAsset.liability();
+
+        idealToAmount = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmount, _ampFactor);
     }
 
     /**
