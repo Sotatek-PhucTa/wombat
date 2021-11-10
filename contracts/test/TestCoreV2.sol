@@ -55,4 +55,12 @@ contract TestCoreV2 is CoreV2 {
     ) external pure returns (int256) {
         return _invariantFunc(Ax, Ay, Lx, Ly, A);
     }
+
+    function test_depositFee(
+        uint256 cash,
+        uint256 liability,
+        uint256 amount
+    ) external pure returns (uint256) {
+        return 0;
+    }
 }

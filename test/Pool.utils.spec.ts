@@ -10,7 +10,6 @@ chai.use(solidity)
 
 describe('Pool', function () {
   let owner: SignerWithAddress
-  let pool: SignerWithAddress
   let user: SignerWithAddress
   let AssetFactory: ContractFactory
   let TestERC20Factory: ContractFactory
@@ -26,7 +25,6 @@ describe('Pool', function () {
   beforeEach(async function () {
     const [first, ...rest] = await ethers.getSigners()
     owner = first
-    pool = rest[0]
     user = rest[1]
 
     // Get Factories
@@ -52,8 +50,8 @@ describe('Pool', function () {
     await poolContract.deployTransaction.wait()
 
     // set pool address
-    await asset0.setPool(pool.address)
-    await asset1.setPool(pool.address)
+    await asset0.setPool(poolContract.address)
+    await asset1.setPool(poolContract.address)
 
     // initialize pool contract
     poolContract.connect(owner).initialize()
