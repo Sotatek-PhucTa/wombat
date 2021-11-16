@@ -63,4 +63,12 @@ contract TestCoreV2 is CoreV2 {
     ) external pure returns (uint256) {
         return 0;
     }
+
+    function test_convertToWAD(uint8 d, uint256 Dx) external pure returns (uint256) {
+        return _convertToWAD(d, Dx);
+    }
+
+    function test_convertFromWAD(uint8 d, uint256 Dx) external pure returns (uint256) {
+        return _convertFromWAD(d, Dx);
+    }
 }

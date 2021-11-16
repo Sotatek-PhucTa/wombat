@@ -53,6 +53,18 @@ describe('CoreV2', function () {
 
       expect(result).to.be.equal(parseUnits('99.430096462356289000', 18))
     })
+
+    it('Should return correct quote given very large amount swap', async function () {
+      const result = await CoreV2.testSwapQuoteFunc(Ax, Ay, Lx, Ly, parseUnits('1000', 18), A)
+
+      expect(result).to.be.equal(parseUnits('819.083679854033719000', 18))
+    })
+
+    it('Should return very poor quote if input amount x > asset of token x by 2 times', async function () {
+      const result = await CoreV2.testSwapQuoteFunc(Ax, Ay, Lx, Ly, parseUnits('2000', 18), A)
+
+      expect(result).to.be.equal(parseUnits('957.477770583431159000', 18))
+    })
   })
 
   describe('[_deltaFunc] - return the delta for token y ("Dy") based on its asset coverage ratio', async function () {
@@ -99,6 +111,38 @@ describe('CoreV2', function () {
       // console.log(99, result.toString()) // 10450000000000000000000
 
       expect(result).to.be.equal(parseUnits('10450', 18))
+    })
+  })
+
+  describe('[_convertToWAD] - return the token amount in WAD units', async function () {
+    it('Should return correct token amount for 8 decimal ERC20 token with 18 digit decimal precision', async function () {
+      const tokenAmountIn8Decimals = parseUnits('99.43009646', 8) // 9943009646
+      const result = await CoreV2.test_convertToWAD(8, tokenAmountIn8Decimals) // 99430096460000000000
+
+      expect(result).to.be.equal(parseUnits('99.43009646', 18))
+    })
+
+    it('Should return correct token amount for 24 decimal ERC20 token with 18 digit decimal precision', async function () {
+      const tokenAmountIn24Decimals = parseUnits('99.430096464300964643912258', 24) // 99430096464300964643912258
+      const result = await CoreV2.test_convertToWAD(24, tokenAmountIn24Decimals) // 99430096464300964643
+
+      expect(result).to.be.equal(parseUnits('99.430096464300964643', 18))
+    })
+  })
+
+  describe('[_convertFromWAD] - return original token amount with correct decimal numbers', async function () {
+    it('Should return correct token amount for 8 decimal ERC20 token', async function () {
+      const tokenAmountIn18Decimals = parseUnits('99.430096464300964643', 18) // 9943009646
+      const result = await CoreV2.test_convertFromWAD(8, tokenAmountIn18Decimals) // 99430096460000000000
+
+      expect(result).to.be.equal(parseUnits('99.43009646', 8))
+    })
+
+    it('Should return correct token amount for 24 decimal ERC20 token', async function () {
+      const tokenAmountIn18Decimals = parseUnits('99.430096464300964643', 18) // 99430096464300964643912258
+      const result = await CoreV2.test_convertFromWAD(24, tokenAmountIn18Decimals) // 99430096464300964643
+
+      expect(result).to.be.equal(parseUnits('99.430096464300964643000000', 24))
     })
   })
 })

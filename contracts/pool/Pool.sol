@@ -9,7 +9,6 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 import '../libraries/DSMath.sol';
-import '../interfaces/IPriceOracleGetter.sol';
 import '../asset/Asset.sol';
 import './CoreV2.sol';
 import 'hardhat/console.sol';
@@ -37,9 +36,6 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
     /// @notice Dev address
     address private _dev;
-
-    /// @notice The price oracle interface used in swaps
-    IPriceOracleGetter private _priceOracle;
 
     /// @notice A record of assets inside Pool
     mapping(address => Asset) private _assets;
@@ -94,14 +90,6 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
      */
     function getDev() external view returns (address) {
         return _dev;
-    }
-
-    /**
-     * @notice Gets current Price Oracle address
-     * @return The current Price Oracle address for Pool
-     */
-    function getPriceOracle() external view returns (address) {
-        return address(_priceOracle);
     }
 
     /**
@@ -177,14 +165,6 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
         require(retentionRatio_ <= ETH_UNIT, 'Wombat: retentionRatio should be <= 1'); // retentionRatio_ should not be set bigger than 1
         _retentionRatio = retentionRatio_;
-    }
-
-    /**
-     * @notice Changes the pools priceOracle. Can only be set by the contract owner.
-     * @param priceOracle new pool's priceOracle addres
-     */
-    function setPriceOracle(address priceOracle) external onlyOwner nonReentrant {
-        _priceOracle = IPriceOracleGetter(priceOracle);
     }
 
     /**
@@ -424,10 +404,14 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         Asset toAsset,
         uint256 fromAmount
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
+        uint8 dTo = toAsset.decimals();
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
         require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
-        haircut = _haircut(idealToAmount, _haircutRate);
-        actualToAmount = idealToAmount - haircut;
+
+        haircut = _haircut(_convertToWAD(dTo, idealToAmount), _haircutRate);
+        actualToAmount = idealToAmount - _convertFromWAD(dTo, haircut);
+        // console.log(haircut);
+        // console.log(actualToAmount);
     }
 
     /**
@@ -443,12 +427,17 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         Asset toAsset,
         uint256 fromAmount
     ) private view returns (uint256 idealToAmount) {
-        uint256 Ax = fromAsset.cash();
-        uint256 Lx = fromAsset.liability();
-        uint256 Ay = toAsset.cash();
-        uint256 Ly = toAsset.liability();
+        uint8 dFrom = fromAsset.decimals();
+        uint8 dTo = toAsset.decimals();
 
-        idealToAmount = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmount, _ampFactor);
+        uint256 Ax = _convertToWAD(dFrom, fromAsset.cash());
+        uint256 Lx = _convertToWAD(dFrom, fromAsset.liability());
+        uint256 Ay = _convertToWAD(dTo, toAsset.cash());
+        uint256 Ly = _convertToWAD(dTo, toAsset.liability());
+        uint256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
+
+        uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, _ampFactor);
+        idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
     }
 
     /**

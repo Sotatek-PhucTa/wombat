@@ -155,6 +155,38 @@ contract CoreV2 {
     }
 
     /**
+     * @notice Equation to convert token amount to WAD units, i.e. decimal number with 18 digits
+     * @dev Converts amount to WAD units
+     * @param d decimal of token x
+     * @param Dx delta x, i.e. token x amount inputted
+     * @return The token amount in WAD units
+     */
+    function _convertToWAD(uint8 d, uint256 Dx) internal pure returns (uint256) {
+        if (d < 18) {
+            return Dx * 10**(18 - d);
+        } else if (d > 18) {
+            return (Dx / (10**(d - 18)));
+        }
+        return Dx;
+    }
+
+    /**
+     * @notice Equation to convert WAD units back to original token amount with correct decimal numbers
+     * @dev Converts WAD units to original amount
+     * @param d decimal of token x
+     * @param Dx delta x, i.e. token x amount inputted
+     * @return The original token amount with correct decimals
+     */
+    function _convertFromWAD(uint8 d, uint256 Dx) internal pure returns (uint256) {
+        if (d < 18) {
+            return (Dx / (10**(18 - d)));
+        } else if (d > 18) {
+            return Dx * 10**(d - 18);
+        }
+        return Dx;
+    }
+
+    /**
      * @notice Equation to get minting amount of LP tokens for token x
      * @dev Calculates LP tokens to be minted
      * @param Sx total supply of token x
@@ -172,7 +204,7 @@ contract CoreV2 {
         if (Lx == 0) {
             return Dx.sub(Fee);
         } else {
-            return (Dx.sub(Fee).wmul(Sx)).wdiv(Lx);
+            return ((Dx.sub(Fee)).wmul(Sx)).wdiv(Lx);
         }
     }
 
