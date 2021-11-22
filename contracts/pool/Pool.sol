@@ -29,7 +29,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     uint256 private _ampFactor = 5 * 10**16; // 0.05 for amplification factor
 
     /// @notice Haircut rate
-    uint256 private _haircutRate = 4 * 10**15; // 0.004 for intra-aggregate account swap
+    uint256 private _haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
 
     /// @notice Retention ratio
     uint256 private _retentionRatio = ETH_UNIT; // 1
