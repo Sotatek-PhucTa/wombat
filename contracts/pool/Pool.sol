@@ -25,7 +25,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     /// @notice Wei in 1 ether
     uint256 private constant ETH_UNIT = 10**18;
 
-    /// @notice Slippage parameters K, N, ampFactor and xThreshold
+    /// @notice Amplification factor
     uint256 private _ampFactor = 5 * 10**16; // 0.05 for amplification factor
 
     /// @notice Haircut rate

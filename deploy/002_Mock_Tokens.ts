@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 
 interface IUSDTokens {
-  [token: string]: any[]
+  [token: string]: unknown[]
 }
 
 export const USD_TOKENS_ARGS: IUSDTokens = {
