@@ -16,15 +16,54 @@ _Requires `node@>=14`, visit [node.js](https://nodejs.org/en/) for more details.
 
 > You may want to run `yarn clean` first if you encounter contract code recompiling issues.
 
-## Deployment
+## Deployment 🚁
 
-For local hardhat network 🚁
+### For BSC testnet network
 
-- Run `yarn deploy`
+- Run `yarn deploy_bsc_testnet` and that's it.
+- Run `yarn bsc_testnet_demo` to run a demo of core smart contracts interactions via scripts.
 
-For BSC testnet network:
+Behind the scenes:
 
-- _TBD_
+- [hardhat-deploy](https://github.com/wighawag/tutorial-hardhat-deploy) is used to help make the whole deployment flow easier and more robust
+- deployment configs are set up at `hardhat.config.ts`
+- accounts/ api keys are loaded from `secrets.json` (**testnet only**)
+- scripts within the `deploy` folder are run in alphabetical order, i.e. 001*, 002*, etc.
+- deployed contracts info, e.g. addresses located within the `deployments` folder
+
+Hardhat Verify:
+
+- Follow steps at [Binance Chain Docs](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html) on verifying contracts on bscscan.com such that you can `read/write` directly with your web3 metamask wallet.
+- E.g. `npx hardhat verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
+
+Deployed contracts (BSC Testnet):
+
+- Wombat Core
+
+  - Pool (Main entry) => `0xDa01302C86ECcd5bc94c1086777acF3c3Af7EF63`
+  - Account (USD_Aggregate) => `0xEc61d2E5780dC9636dF55ab761D8748F7899298f`
+  - Asset (LP-BUSD) => `0x421aa41e85d240237582864DfA6f66E1A734356a`
+  - Asset (LP-USDC) => `0x41FDf92c5E3E86931c3Bcb9a8F0f5362b7C2ab95`
+  - Asset (LP-USDT) => `0xc265451A429909BD980dee9f0362FaD4b674F8Ac`
+  - Asset (LP-DAI) => `0x0aD0599bCB1670ea1350f05C6daafC2b949eDB79`
+  - Asset (LP-TUSD) => `0x6dA135D8D8bd55c1A191F2c6c2F05FCc8FA8dE73`
+  - Asset (LP-vUSDC) => `0xdB94436080Df9C5a2736c878D686D096d8d7a14C`
+
+- Mock ERC20 Stablecoins
+
+  - BUSD => `0x326335BA4e70cb838Ee55dEB18027A6570E5144d`
+  - USDC => `0x254dF1f8A8Fa9B7bFAd9e25bF912ea71484332cE`
+  - USDT => `0x6E847Cc3383525Ad33bEDd260139c1e097546B60`
+  - DAI => `0x735d905451c0B4ac4BBe5Ab323Cf5D6Ad7e3A030`
+  - TUSD => `0xFE9AbD3dC0975f00e5C4ca6B148a992758F6A819`
+  - vUSDC => `0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8`
+
+### For BSC mainnet network
+
+- Run `deploy_bsc_mainnet`
+- Update accounts deployer private key at `hardhat.config.ts`
+- Deploy the `AggregateAccount` and `Asset` contracts individually as shown in `003_Assets.ts`
+- Safeguard the `deployer private key` or `transferOwnership` to multisig (e.g. Gnosis Safe)
 
 ## Git Workflow
 
@@ -51,6 +90,8 @@ The operations `deposit`, `swap`, and `withdraw` all adopts the `Approve/Transfe
 ### Adding new accounts & assets
 
 `Account.sol` needs only be deployed once for each asset grouping, e.g. USD-Stablecoins. `Asset.sol` then can be deployed for each and every asset falling under that account group, e.g. BUSD, USDC, USDT, etc. Repeat previous steps for any subsequent new account groupings, e.g. EUR-Stablecoins, and asset additions, e.g. aEUR, bEUR, etc.
+
+Each asset must be added into the `pool` contract once they are created. This is done by invoking the `addAsset(address token, address asset)` function where `token` is the underlying ERC20 token and `asset` is the corresponding ERC20-LP token.
 
 ## Protocol Design 👷‍♂️
 
