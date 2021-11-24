@@ -16,6 +16,15 @@ _Requires `node@>=14`, visit [node.js](https://nodejs.org/en/) for more details.
 
 > You may want to run `yarn clean` first if you encounter contract code recompiling issues.
 
+## Git Workflow
+
+- Create new branches named `feature/xxx` or `fix/xxx` for new features or bug fixes respectively; they should branch out from the `develop` branch
+- If it's a quick fix, branch off master with `hotfix/xxx` and merge into master
+- After your new code is completed, go back to `develop` and merge the new branch
+- Do not commit to `master` branch directly to maintain a proper workflow
+
+> A simple Github Actions CI workflow is adopted where `linting` and `testing` would be run each time a commit has been pushed.
+
 ## Deployment 🚁
 
 ### For BSC testnet network
@@ -27,7 +36,7 @@ Behind the scenes:
 
 - [hardhat-deploy](https://github.com/wighawag/tutorial-hardhat-deploy) is used to help make the whole deployment flow easier and more robust
 - deployment configs are set up at `hardhat.config.ts`
-- accounts/ api keys are loaded from `secrets.json` (**testnet only**)
+- wallet accounts/ api keys are loaded from `secrets.json` (**testnet only**)
 - scripts within the `deploy` folder are run in alphabetical order, i.e. 001*, 002*, etc.
 - deployed contracts info, e.g. addresses located within the `deployments` folder
 
@@ -37,6 +46,12 @@ Hardhat Verify:
 - E.g. `npx hardhat verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
 
 Deployed contracts (BSC Testnet):
+
+- BSC Wallet Accounts
+
+  - Deployer (owner) => `0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452`
+  - User 1 => `0x1d39a90dAC4596b36D60682B6cec147Eb758AF90`
+  - User 2 => `0x67F6e6EEB3e61e23Ee765905F5a04a2Bbd0E3a73`
 
 - Wombat Core
 
@@ -60,19 +75,10 @@ Deployed contracts (BSC Testnet):
 
 ### For BSC mainnet network
 
-- Run `deploy_bsc_mainnet`
 - Update accounts deployer private key at `hardhat.config.ts`
+- Run `yarn deploy_bsc_mainnet`
 - Deploy the `AggregateAccount` and `Asset` contracts individually as shown in `003_Assets.ts`
 - Safeguard the `deployer private key` or `transferOwnership` to multisig (e.g. Gnosis Safe)
-
-## Git Workflow
-
-- Create new branches named `feature/xxx` or `fix/xxx` for new features or bug fixes respectively; they should branch out from the `develop` branch
-- If it's a quick fix, branch off master with `hotfix/xxx` and merge into master
-- After your new code is completed, go back to `develop` and merge the new branch
-- Do not commit to `master` branch directly to maintain a proper workflow
-
-> A simple Github Actions CI workflow is adopted where `linting` and `testing` would be run each time a commit has been pushed.
 
 ## High-level System Overview
 

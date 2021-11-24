@@ -10,7 +10,7 @@ import 'hardhat/console.sol';
  * @dev Aggregate Account needs to be set for Asset
  */
 contract AggregateAccount is Ownable {
-    /// @notice name of the account. E.g BTC for aggregate account containing zBTC, BTC.e, ETH etc.
+    /// @notice name of the account. E.g USD for aggregate account containing BUSD, USDC, USDT, etc.
     string public accountName;
 
     /// @notice true if the assets represented by the aggregate are stablecoins
