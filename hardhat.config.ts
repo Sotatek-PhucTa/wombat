@@ -2,6 +2,7 @@ import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-solhint'
+import '@nomiclabs/hardhat-etherscan'
 import 'solidity-coverage'
 import 'hardhat-deploy'
 import 'hardhat-gas-reporter'
@@ -11,6 +12,7 @@ import '@hardhat-docgen/markdown'
 
 import { HardhatUserConfig } from 'hardhat/config'
 import dotenv from 'dotenv'
+import secrets from './secrets.json' // BSC TESTNET ONLY!
 
 dotenv.config()
 
@@ -21,11 +23,23 @@ const config: HardhatUserConfig = {
       url: process.env.ALCHEMY_API || '',
       gasPrice: 140 * 1000000000,
     },
+    bsc_testnet: {
+      url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
+    },
     bsc_mainnet: {
       url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
-      gasPrice: 5000000000,
+      gasPrice: 20000000000,
+      accounts: [], // replace with mainnet wallet private key
     },
+  },
+  etherscan: {
+    // Your API key for BSCscan
+    // Obtain one at https://bscscan.io/
+    apiKey: secrets.bscscan_api_key,
   },
   solidity: {
     compilers: [
@@ -49,13 +63,22 @@ const config: HardhatUserConfig = {
     tests: './test',
     cache: './cache',
     artifacts: './artifacts',
+    deploy: 'deploy',
+    deployments: 'deployments',
+    imports: 'imports',
   },
   mocha: {
     timeout: 200000,
   },
   namedAccounts: {
-    deployer: {
+    owner: {
       default: 0,
+    },
+    user1: {
+      default: 1,
+    },
+    user2: {
+      default: 2,
     },
   },
   docgen: {
