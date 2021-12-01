@@ -2,6 +2,7 @@
 pragma solidity 0.8.5;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title AggregateAccount
@@ -9,7 +10,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
  * @dev Aggregate Account needs to be set for Asset
  */
 contract AggregateAccount is Ownable {
-    /// @notice name of the account. E.g BTC for aggregate account containing zBTC, BTC.e, ETH etc.
+    /// @notice name of the account. E.g USD for aggregate account containing BUSD, USDC, USDT, etc.
     string public accountName;
 
     /// @notice true if the assets represented by the aggregate are stablecoins
@@ -31,6 +32,8 @@ contract AggregateAccount is Ownable {
      * @param accountName_ the new name
      */
     function setAccountName(string memory accountName_) external onlyOwner {
+        // console.log("accountName_ log: '%s'", accountName_);
+        // console.log("accountName_ log:", bytes(accountName_).length);
         require(bytes(accountName_).length > 0, 'Wombat: Aggregate account name cannot be zero');
         accountName = accountName_;
     }
