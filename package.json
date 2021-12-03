@@ -16,6 +16,7 @@
     "@typechain/hardhat": "^2.2.0",
     "@types/mocha": "^8.2.3",
     "@types/node": "^15.14.5",
+    "@types/utf8": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
     "chai": "^4.3.4",
@@ -63,5 +64,8 @@
     "coverage": "hardhat coverage",
     "generate_uml": "sol2uml ./contracts",
     "generate_docs": "yarn run hardhat docgen --theme markdown"
+  },
+  "dependencies": {
+    "utf8": "^3.0.0"
   }
 }
