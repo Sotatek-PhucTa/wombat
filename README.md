@@ -64,6 +64,10 @@ Deployed contracts (BSC Testnet):
   - Asset (LP-TUSD) => `0x6dA135D8D8bd55c1A191F2c6c2F05FCc8FA8dE73`
   - Asset (LP-vUSDC) => `0xdB94436080Df9C5a2736c878D686D096d8d7a14C`
 
+- Wombat Token
+
+  - WOM (ERC20) => `0x37ffd749977ace830d6f061d43199fcdfd34b41e`
+
 - Mock ERC20 Stablecoins
 
   - BUSD => `0x326335BA4e70cb838Ee55dEB18027A6570E5144d`

@@ -71,7 +71,7 @@ const config: HardhatUserConfig = {
     timeout: 200000,
   },
   namedAccounts: {
-    owner: {
+    deployer: {
       default: 0,
     },
     user1: {

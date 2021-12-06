@@ -56,6 +56,7 @@
     "deploy_bsc_mainnet": "hardhat deploy --network bsc_mainnet",
     "deploy_localhost": "hardhat deploy --network hardhat",
     "bsc_testnet_demo": "npx hardhat run ./scripts/demo.ts --network bsc_testnet",
+    "bsc_testnet_wom_demo": "npx hardhat run ./scripts/wom-demo.ts --network bsc_testnet",
     "clean": "hardhat clean",
     "compile": "hardhat compile",
     "pretest": "yarn compile",
