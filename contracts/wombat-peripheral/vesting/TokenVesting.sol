@@ -9,12 +9,12 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import 'hardhat/console.sol';
 
 /**
- * @title VestingWallet (extended for WOMB Token Vesting), from OpenZeppelin Contracts v4.4.0 (finance/VestingWallet.sol)
- * @dev This contract handles the vesting of WOMB, a ERC20 token for a list of admin-settable beneficiaries.
+ * @title VestingWallet (extended for WOM Token Vesting), from OpenZeppelin Contracts v4.4.0 (finance/VestingWallet.sol)
+ * @dev This contract handles the vesting of WOM, a ERC20 token for a list of admin-settable beneficiaries.
  * This contract will release the token to the beneficiary following a given vesting schedule.
  * The vesting schedule is customizable through the {vestedAmount} function.
  *
- * WOMB token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
+ * WOM token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
  */
@@ -141,7 +141,7 @@ contract TokenVesting is Context, Ownable {
     }
 
     /**
-     * @dev Calculates the amount of WOMB tokens that has already vested. Default implementation is a linear vesting curve.
+     * @dev Calculates the amount of WOM tokens that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(address beneficiary, uint64 timestamp) public returns (uint256) {
         return _vestingSchedule(_beneficiaryInfo[beneficiary]._allocationBalance + released(beneficiary), timestamp);
@@ -172,7 +172,7 @@ contract TokenVesting is Context, Ownable {
     }
 
     /**
-     * @dev Calculates the amount of WOMB tokens that has already vested. Default implementation is a linear vesting curve.
+     * @dev Calculates the amount of WOM tokens that has already vested. Default implementation is a linear vesting curve.
      */
     function _checkUnlockAmount(uint64 timestamp) internal view returns (bool) {
         uint64 timeElapsed = timestamp - _start;
