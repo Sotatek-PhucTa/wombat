@@ -33,7 +33,6 @@ describe('WombatERC20', function () {
     await tokenContract.deployTransaction.wait()
   })
 
-  // TODO: move pool address setup within contract initialization
   describe('[initial deploy]', function () {
     it('Should return correct name', async function () {
       expect(await tokenContract.name()).to.equal('Wombat Token')
