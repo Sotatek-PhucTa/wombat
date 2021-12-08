@@ -200,7 +200,7 @@ Outputs
 
 ***Asset.burn(to, amount) ***
 
-> Notice: Burn Asset Token, expect pool coordinates other state updates. Can only be called by Pool.
+> Notice: Burn ERC20 Asset LP Token, expect pool coordinates other state updates. Can only be called by Pool.
 
 Arguments
 
@@ -318,7 +318,7 @@ Outputs
 
 ***Asset.mint(to, amount) ***
 
-> Notice: Mint Asset Token, expect pool coordinates other state updates. Can only be called by Pool.
+> Notice: Mint ERC20 Asset LP Token, expect pool coordinates other state updates. Can only be called by Pool.
 
 Arguments
 
@@ -411,7 +411,7 @@ Arguments
 
 ***Asset.setPool(pool_) ***
 
-> Notice: Changes the pool. Can only be set by the contract owner.
+> Notice: TODO: move pool address setup within contract initializationChanges the pool. Can only be set by the contract owner.
 
 Arguments
 
