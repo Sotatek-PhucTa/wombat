@@ -32,15 +32,15 @@ contract TokenVesting is Context, Ownable {
 
     address[] private _beneficiaryAddresses;
     mapping(address => BeneficiaryInfo) private _beneficiaryInfo;
-    uint256 private immutable _start;
-    uint256 private immutable _duration;
-    uint256 private _totalAllocationBalance;
 
-    // Number of unlock intervals, i.e. unlock every 6 months for 60 months, max = 10
-    uint256 private _unlockIntervalsCount = 0;
+    uint256 private immutable _start; // start timestamp in seconds
+    uint256 private immutable _duration; // end timestamp in seconds
 
-    // Duration of unlock intervals, i.e. 6 months in seconds = (60 * 60 * 24 * 365) / 2
-    uint256 private _unlockDurationSeconds = 15768000;
+    // Duration of unlock intervals, i.e. 6 months in seconds = (60 * 60 * 24 * 365) / 2 = 15768000
+    uint256 private immutable _unlockDurationSeconds;
+
+    uint256 private _totalAllocationBalance; // total WOM allocated amongst beneficiaries
+    uint256 private _unlockIntervalsCount = 0; // Number of unlock intervals
 
     /**
      * @dev Set the vested token address, start timestamp and vesting duration of the vesting period.
@@ -48,11 +48,13 @@ contract TokenVesting is Context, Ownable {
     constructor(
         address vestedTokenAddress,
         uint256 startTimestamp,
-        uint256 durationSeconds
+        uint256 durationSeconds,
+        uint256 unlockDurationSeconds
     ) {
         vestedToken = IERC20(vestedTokenAddress);
         _start = startTimestamp;
         _duration = durationSeconds;
+        _unlockDurationSeconds = unlockDurationSeconds;
     }
 
     /**
@@ -77,21 +79,6 @@ contract TokenVesting is Context, Ownable {
     }
 
     /**
-     * @dev Getter for the releaseable amount of all beneficiaries.
-     * Loop over array of beneficiary addresses to sum up total releasable amount
-     * totalReleasableBalance should always be <= totalUnderlyingBalance
-     */
-    function totalReleasableBalance() external view returns (uint256) {
-        uint256 totalReleasableBalance = 0;
-        for (uint8 i = 0; i < _beneficiaryAddresses.length; i++) {
-            totalReleasableBalance +=
-                _beneficiaryInfo[_beneficiaryAddresses[i]]._allocationReleased +
-                _beneficiaryInfo[_beneficiaryAddresses[i]]._allocationBalance;
-        }
-        return totalReleasableBalance;
-    }
-
-    /**
      * @dev Getter for the beneficiary address.
      */
     function totalUnderlyingBalance() external view returns (uint256) {
@@ -113,7 +100,7 @@ contract TokenVesting is Context, Ownable {
     }
 
     /**
-     * @dev Amount of token already released
+     * @dev Amount of token already released for a beneficiary
      */
     function released(address beneficiary) public view returns (uint256) {
         return _beneficiaryInfo[beneficiary]._allocationReleased;
@@ -152,8 +139,6 @@ contract TokenVesting is Context, Ownable {
             _beneficiaryInfo[beneficiary]._allocationBalance + released(beneficiary),
             uint256(timestamp)
         );
-        console.log('151');
-        console.log(_vestedAmount);
         return _vestedAmount;
     }
 
@@ -166,41 +151,25 @@ contract TokenVesting is Context, Ownable {
      */
     function _vestingSchedule(uint256 totalAllocation, uint256 timestamp) internal returns (uint256) {
         if (timestamp < start()) {
-            console.log('160');
             return 0;
         } else if (timestamp > start() + duration()) {
-            console.log('163');
-            console.log(totalAllocation);
             return totalAllocation;
         } else if (timestamp == uint256(block.timestamp)) {
             uint256 currentInterval = _calculateInterval(timestamp);
             bool isUnlocked = currentInterval > _unlockIntervalsCount;
-            console.log('168');
-            console.log(totalAllocation);
-            console.log(isUnlocked);
-            console.log(_unlockIntervalsCount);
             if (isUnlocked) {
-                console.log('173');
                 _unlockIntervalsCount = currentInterval;
-                console.log(_unlockIntervalsCount);
-                uint256 releasableAmount = (totalAllocation * _unlockIntervalsCount * 10) / 100;
-                console.log(releasableAmount);
-                return releasableAmount;
+                return (totalAllocation * _unlockIntervalsCount * 10) / 100;
             }
         } else {
-            console.log('183');
             return ((totalAllocation * _calculateInterval(timestamp) * 10) / 100);
         }
     }
 
     /**
-     * @dev Calculates the interval .
+     * @dev Calculates the number of intervals unlocked
      */
     function _calculateInterval(uint256 timestamp) internal view returns (uint256) {
-        uint256 timeElapsed = timestamp - start();
-        console.log('220');
-        console.log(timeElapsed);
-        console.log(timeElapsed / _unlockDurationSeconds);
-        return timeElapsed / _unlockDurationSeconds;
+        return (timestamp - start()) / _unlockDurationSeconds;
     }
 }

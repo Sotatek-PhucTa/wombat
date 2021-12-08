@@ -9,9 +9,10 @@ import '../vesting/TokenVesting.sol';
 contract TestTokenVesting is TokenVesting {
     constructor(
         address vestedTokenAddress,
-        uint64 startTimestamp,
-        uint64 durationSeconds
-    ) TokenVesting(vestedTokenAddress, startTimestamp, durationSeconds) {}
+        uint256 startTimestamp,
+        uint256 durationSeconds,
+        uint256 unlockDurationSeconds
+    ) TokenVesting(vestedTokenAddress, startTimestamp, durationSeconds, unlockDurationSeconds) {}
 
     function test_vestingSchedule(uint256 totalAllocation, uint256 timestamp) external returns (uint256) {
         return _vestingSchedule(totalAllocation, timestamp);

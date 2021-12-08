@@ -20,6 +20,7 @@ describe('TokenVesting', function () {
   let twentyMonthsSince: number
   let fiftyMonthsSince: number
   let sixtyMonthsSince: number
+  let sixMonths: number
   let startCliff: number
 
   // Declare initial variables
@@ -35,13 +36,15 @@ describe('TokenVesting', function () {
     // get last block time
     const lastBlock = await ethers.provider.getBlock('latest')
     lastBlockTime = lastBlock.timestamp
+    sixMonths = (60 * 60 * 24 * 365) / 2 // 15768000
+    startCliff = 60 * 60 * 24 * 30 // 30 days cliff
+    startTimestamp = lastBlockTime + startCliff // 30 days later, i.e. 30 days cliff
+    durationSeconds = 60 * 60 * 24 * 365 * 5 // 1825 days, i.e. 5 years vesting period
+
     tenMonthsSince = lastBlockTime + 60 * 60 * 24 * 300 // 10 months later, i.e. _unlockIntervalsCount = 1
     twentyMonthsSince = lastBlockTime + 60 * 60 * 24 * 600 // 20 months later, i.e. _unlockIntervalsCount = 3
     fiftyMonthsSince = lastBlockTime + 60 * 60 * 24 * 1500 // 50 months later, i.e. _unlockIntervalsCount = 8
     sixtyMonthsSince = lastBlockTime + 60 * 60 * 24 * 1825 // 60 months later, i.e. _unlockIntervalsCount = 10
-    startCliff = 60 * 60 * 24 * 30 // 30 days cliff
-    startTimestamp = lastBlockTime + startCliff // 30 days later, i.e. 30 days cliff
-    durationSeconds = 60 * 60 * 24 * 1825 // 1825 days, i.e. 5 years vesting period
 
     // Get Factories
     const TestWombatERC20Factory = await ethers.getContractFactory('WombatERC20')
@@ -52,7 +55,8 @@ describe('TokenVesting', function () {
     vestingContract = await TestTokenVestingFactory.connect(owner).deploy(
       tokenContract.address,
       startTimestamp,
-      durationSeconds
+      durationSeconds,
+      sixMonths
     )
 
     // wait for transactions to be mined
@@ -75,9 +79,6 @@ describe('TokenVesting', function () {
     })
     it('Should return 0 total allocation balance', async function () {
       expect(await vestingContract.totalAllocationBalance()).to.equal(0)
-    })
-    it('Should return 0 total releasable balance', async function () {
-      expect(await vestingContract.totalReleasableBalance()).to.equal(0)
     })
     it('Should return 0 released amount for user1', async function () {
       expect(await vestingContract.released(user1.address)).to.equal(0)
@@ -125,7 +126,7 @@ describe('TokenVesting', function () {
   })
 
   describe('[vestedAmount]', function () {
-    it('Should return the correct amount of vested WOM tokens for a beneficiary', async function () {
+    it('Should calculate the correct amount of vested WOM tokens for a beneficiary', async function () {
       // set user1 as beneficiary with 10000 WOM allocation
       const setBeneficiaryTx = await vestingContract
         .connect(owner)
@@ -168,7 +169,7 @@ describe('TokenVesting', function () {
         parseUnits('10000', 18)
       )
     })
-    it('Should return the correct 8 decimal amounts of vested WOM tokens for a beneficiary', async function () {
+    it('Should calculate the correct 8 decimal amounts of vested WOM tokens for a beneficiary', async function () {
       // set user1 as beneficiary with 1000.12345678 WOM allocation
       await vestingContract.connect(owner).setBeneficiary(user1.address, parseUnits('1000.12345678', 18))
 
@@ -208,7 +209,7 @@ describe('TokenVesting', function () {
         parseUnits('1000.12345678', 18)
       )
     })
-    it('Should increment correct unlock interval count and return correct amount of vested WOM tokens', async function () {
+    it('Should increment correct unlock interval count and transfer correct amount of vested WOM tokens', async function () {
       // set user1 as beneficiary with 10000 WOM allocation
       await vestingContract.connect(owner).setBeneficiary(user1.address, parseUnits('10000', 18))
 
@@ -222,7 +223,6 @@ describe('TokenVesting', function () {
       const blockNumBefore = await ethers.provider.getBlockNumber()
       const blockBefore = await ethers.provider.getBlock(blockNumBefore)
       const timestampBefore = blockBefore.timestamp
-      console.log(189, timestampBefore)
 
       await ethers.provider.send('evm_increaseTime', [startCliff * 10]) // fast forward 10 months
       await ethers.provider.send('evm_mine', [])
@@ -230,7 +230,6 @@ describe('TokenVesting', function () {
       const blockNumAfter = await ethers.provider.getBlockNumber()
       const blockAfter = await ethers.provider.getBlock(blockNumAfter)
       const timestampAfter = blockAfter.timestamp
-      console.log(190, timestampAfter)
 
       expect(blockNumAfter).to.be.equal(blockNumBefore + 1)
       expect(timestampAfter).to.be.equal(timestampBefore + startCliff * 10)
@@ -242,6 +241,7 @@ describe('TokenVesting', function () {
 
       expect(await vestingContract.released(user1.address)).to.equal(parseUnits('1000', 18))
       expect(await tokenContract.balanceOf(user1.address)).to.equal(parseUnits('1000', 18))
+      expect(await vestingContract.totalUnderlyingBalance()).to.equal(parseUnits('9000', 18))
 
       await ethers.provider.send('evm_increaseTime', [startCliff * 40]) // fast forward 40 months more
       await ethers.provider.send('evm_mine', [])
@@ -253,6 +253,7 @@ describe('TokenVesting', function () {
 
       expect(await vestingContract.released(user1.address)).to.equal(parseUnits('8000', 18))
       expect(await tokenContract.balanceOf(user1.address)).to.equal(parseUnits('8000', 18))
+      expect(await vestingContract.totalUnderlyingBalance()).to.equal(parseUnits('2000', 18))
 
       await ethers.provider.send('evm_increaseTime', [startCliff * 20]) // fast forward 20 months more
       await ethers.provider.send('evm_mine', [])
@@ -264,8 +265,8 @@ describe('TokenVesting', function () {
 
       expect(await vestingContract.released(user1.address)).to.equal(parseUnits('10000', 18))
       expect(await tokenContract.balanceOf(user1.address)).to.equal(parseUnits('10000', 18))
+      expect(await vestingContract.totalUnderlyingBalance()).to.equal(0)
     })
-
     it('Should not return any amount of vested WOM tokens if claim before cliff', async function () {
       // set user1 as beneficiary with 10000 WOM allocation
       await vestingContract.connect(owner).setBeneficiary(user1.address, parseUnits('10000', 18))
