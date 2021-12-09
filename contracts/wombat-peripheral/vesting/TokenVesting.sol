@@ -58,14 +58,14 @@ contract TokenVesting is Context, Ownable {
     }
 
     /**
-     * @dev Getter for the beneficiary address.
+     * @dev Getter for the number of beneficiaries.
      */
     function beneficiaryCount() external view returns (uint8) {
         return uint8(_beneficiaryAddresses.length);
     }
 
     /**
-     * @dev Getter for the beneficiary address.
+     * @dev Getter for the beneficiary allocation balance.
      */
     function beneficiaryBalance(address beneficiary) external view returns (uint256) {
         return _beneficiaryInfo[beneficiary]._allocationBalance;
@@ -79,7 +79,7 @@ contract TokenVesting is Context, Ownable {
     }
 
     /**
-     * @dev Getter for the beneficiary address.
+     * @dev Getter for the total WOM tokens allocated for vesting contract.
      */
     function totalUnderlyingBalance() external view returns (uint256) {
         return IERC20(vestedToken).balanceOf(address(this));
