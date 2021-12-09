@@ -67,6 +67,7 @@ Deployed contracts (BSC Testnet):
 - Wombat Token
 
   - WOM (ERC20) => `0x37ffd749977ace830d6f061d43199fcdfd34b41e`
+  - Token Vesting => `0xF33Fcb7EB28481d019A493F4fB5Db2D206A52A26`
 
 - Mock ERC20 Stablecoins
 

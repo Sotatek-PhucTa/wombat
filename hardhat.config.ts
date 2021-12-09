@@ -19,10 +19,6 @@ dotenv.config()
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
-    mainnet: {
-      url: process.env.ALCHEMY_API || '',
-      gasPrice: 140 * 1000000000,
-    },
     bsc_testnet: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
@@ -89,31 +85,8 @@ const config: HardhatUserConfig = {
   },
 }
 
-if (process.env.ACCOUNT_PRIVATE_KEYS) {
-  config.networks = {
-    ...config.networks,
-    mainnet: {
-      ...config.networks?.mainnet,
-      accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
-    },
-    bsc_mainnet: {
-      ...config.networks?.bsc_mainnet,
-      accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
-    },
-  }
-}
-
-if (process.env.FORK_MAINNET && config.networks) {
-  config.networks.hardhat = {
-    forking: {
-      url: process.env.ALCHEMY_API ? process.env.ALCHEMY_API : '',
-    },
-    chainId: 1,
-  }
-}
-
 config.gasReporter = {
-  enabled: process.env.REPORT_GAS ? true : false,
+  enabled: secrets.gas_breakdown_enabled,
 }
 
 export default config
