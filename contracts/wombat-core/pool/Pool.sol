@@ -403,6 +403,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         require(minimumToAmount <= actualToAmount, 'Wombat: AMOUNT_TOO_LOW');
 
+        // should not collect any fee if feeTo is not set
         uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, _retentionRatio) : 0;
         _feeCollected[toAsset] += dividend;
 
