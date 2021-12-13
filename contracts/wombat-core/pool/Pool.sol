@@ -172,7 +172,13 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         _retentionRatio = retentionRatio_;
     }
 
+    /**
+     * @notice Changes the fee beneficiary. Can only be set by the contract owner.
+     * This value cannot be set to 0 to avoid unsettled fee.
+     * @param feeTo_ new fee beneficiary
+     */
     function setFeeTo(address feeTo_) external onlyOwner {
+        require(feeTo_ != address(0), 'Wombat: set retention ratio instead!');
         feeTo = feeTo_;
     }
 
