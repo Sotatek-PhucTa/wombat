@@ -230,7 +230,7 @@ describe('Pool - Deposit', function () {
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('200'))
         expect(await asset0.totalSupply()).to.be.equal(parseEther('99.999200210048011000'))
 
-        expect(receipt3)
+        await expect(receipt3)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token0.address, parseEther('100'), parseEther('100'), user1.address)
       })

@@ -109,7 +109,7 @@ describe('Pool - Withdraw', function () {
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('30'))
         expect(await asset0.totalSupply()).to.be.equal(parseEther('30'))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token0.address, parseEther('70'), parseEther('70'), user1.address)
       })
@@ -163,7 +163,7 @@ describe('Pool - Withdraw', function () {
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('50.046387655462277100'))
         expect(await asset0.totalSupply()).to.be.equal(parseEther('90'))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token0.address, parseEther('9.953612344537722900'), parseEther('10'), user1.address)
       })
@@ -194,7 +194,7 @@ describe('Pool - Withdraw', function () {
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('26.338836782484758360'))
         expect(await asset0.totalSupply()).to.be.equal(parseEther('90'))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token0.address, parseEther('3.661163217515241640'), parseEther('10'), user1.address)
       })
@@ -361,7 +361,7 @@ describe('Pool - Withdraw', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('30', 8))
         expect(await asset1.totalSupply()).to.be.equal(parseUnits('30', 8))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token1.address, parseUnits('70', 8), parseUnits('70', 8), user1.address)
       })
@@ -423,7 +423,7 @@ describe('Pool - Withdraw', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('50.046387655462277100', 8))
         expect(await asset1.totalSupply()).to.be.equal(parseUnits('90', 8))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(
             user1.address,
@@ -459,7 +459,7 @@ describe('Pool - Withdraw', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('26.338836782484758360', 8))
         expect(await asset1.totalSupply()).to.be.equal(parseUnits('90', 8))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(
             user1.address,

@@ -135,7 +135,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.56990354', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -188,7 +188,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -242,7 +242,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -294,7 +294,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -345,7 +345,7 @@ describe('Pool - Swap', function () {
           fiveSecondsSince
         )
 
-        expect(swapReceipt)
+        await expect(swapReceipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -361,7 +361,7 @@ describe('Pool - Swap', function () {
           .connect(user1)
           .withdraw(token1.address, parseUnits('1000', 8), parseUnits('999', 8), user1.address, fiveSecondsSince)
 
-        expect(withdrawalReceipt)
+        await expect(withdrawalReceipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token1.address, parseUnits('999.999877', 8), parseUnits('1000', 8), user1.address)
       })
