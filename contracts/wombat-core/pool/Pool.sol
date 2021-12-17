@@ -178,7 +178,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
      * @param feeTo_ new fee beneficiary
      */
     function setFeeTo(address feeTo_) external onlyOwner {
-        require(feeTo_ != address(0), 'Wombat: set retention ratio instead!');
+        require(feeTo_ != address(0), 'Wombat: set retention ratio instead');
         feeTo = feeTo_;
     }
 
@@ -459,6 +459,9 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 Ay = _convertToWAD(dTo, toAsset.cash());
         uint256 Ly = _convertToWAD(dTo, toAsset.liability());
         uint256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
+
+        // in case div of 0
+        require(Lx > 0, 'Not enough from-asset');
 
         uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, _ampFactor);
         idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
