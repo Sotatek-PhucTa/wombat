@@ -79,17 +79,94 @@ describe('Pool - Fee', function () {
     // set retention ratio
     await poolContract.connect(owner).setRetentionRatio(parseEther('0.8'))
 
-    // set fee collection address
-    await poolContract.connect(owner).setFeeTo(user2.address)
-
     // Add BUSD & USDC assets to pool
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
   })
 
+  describe('Various Paths', function () {
+    it('should not set fee to 0', async function () {
+      await expect(
+        poolContract.connect(owner).setFeeTo('0x0000000000000000000000000000000000000000')
+      ).to.be.revertedWith('Wombat: set retention ratio instead')
+    })
+
+    it('fee should not collected if feeTo is 0', async function () {
+      // Transfer 100k of stables to user1
+      await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD
+      await token1.connect(owner).transfer(user1.address, parseUnits('100000', 8)) // 100k vUSDC
+      // Approve max allowance of tokens from users to pool
+      await token0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+
+      // deposit 10k BUSD and 1k vUSDC to pool
+      await poolContract.connect(user1).deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince)
+      await poolContract.connect(user1).deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince)
+
+      const beforeFromBalance = await token1.balanceOf(user1.address)
+      const beforeToBalance = await token0.balanceOf(user1.address)
+
+      const [quotedAmount] = await poolContract
+        .connect(user1)
+        .quotePotentialSwap(token1.address, token0.address, parseUnits('100', 8))
+
+      const receipt = await poolContract.connect(user1).swap(
+        token1.address,
+        token0.address,
+        parseUnits('100', 8),
+        parseEther('90'), //expect at least 90% of ideal quoted amount
+        user1.address,
+        fiveSecondsSince
+      )
+      const afterFromBalance = await token1.balanceOf(user1.address)
+      const afterToBalance = await token0.balanceOf(user1.address)
+
+      const tokenSent = afterFromBalance.sub(beforeFromBalance)
+      const tokenGot = afterToBalance.sub(beforeToBalance)
+      expect(tokenSent).to.be.equal(parseUnits('-100', 8))
+      expect(tokenGot).to.be.equal(parseEther('99.479655212388724896'))
+
+      //check if token got is equal to token quoted
+      expect(tokenGot).to.be.equal(quotedAmount)
+
+      // check BUSD post swap positions
+      expect(await asset0.cash()).to.be.equal(parseEther('9900.520344787611275104'))
+      expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+      expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104')) // should always equal cash
+
+      // check vUSDC post swap positions
+      expect(await asset1.cash()).to.be.equal(parseUnits('1100', 8))
+      expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
+      expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
+
+      await expect(receipt)
+        .to.emit(poolContract, 'Swap')
+        .withArgs(
+          user1.address,
+          token1.address,
+          token0.address,
+          parseUnits('100', 8),
+          parseEther('99.479655212388724896'),
+          user1.address
+        )
+
+      expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
+      expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+
+      await poolContract.mintFee(asset0.address)
+      await poolContract.mintFee(asset1.address)
+      expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+      expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
+      expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+    })
+  })
+
   describe('Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
     beforeEach(async function () {
+      // set fee collection address
+      await poolContract.connect(owner).setFeeTo(user2.address)
+
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD
       await token1.connect(owner).transfer(user1.address, parseUnits('100000', 8)) // 100k vUSDC
