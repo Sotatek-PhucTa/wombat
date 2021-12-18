@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { BigNumber, Contract, ContractFactory } from 'ethers'
+import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 const { expect } = chai
@@ -508,10 +508,7 @@ describe('Pool - Withdraw', function () {
 
         expect((await asset1.cash()) / (await asset1.liability())).to.equal(0.67231257) // cov = 0.67231257
 
-        const [quotedWithdrawal, , enoughCash] = await poolContract.quotePotentialWithdraw(
-          token1.address,
-          parseUnits('70', 8)
-        )
+        const [, , enoughCash] = await poolContract.quotePotentialWithdraw(token1.address, parseUnits('70', 8))
 
         expect(enoughCash).to.equal(false)
       })
