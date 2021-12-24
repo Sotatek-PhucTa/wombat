@@ -22,10 +22,12 @@ import 'hardhat/console.sol';
 contract TokenVesting is Context, Ownable {
     event ERC20Released(address indexed token, uint256 amount);
     event BeneficiaryAdded(address indexed beneficiary, uint256 amount);
+    event ReleasableAmount(address indexed beneficiary, uint256 amount);
 
     struct BeneficiaryInfo {
         uint256 _allocationBalance;
         uint256 _allocationReleased;
+        uint256 _unlockIntervalsCount; // Number of unlock intervals
     }
 
     IERC20 public vestedToken;
@@ -39,8 +41,8 @@ contract TokenVesting is Context, Ownable {
     // Duration of unlock intervals, i.e. 6 months in seconds = (60 * 60 * 24 * 365) / 2 = 15768000
     uint256 private immutable _unlockDurationSeconds;
 
-    uint256 private _totalAllocationBalance; // total WOM allocated amongst beneficiaries
-    uint256 private _unlockIntervalsCount = 0; // Number of unlock intervals
+    // Total WOM allocated amongst beneficiaries
+    uint256 private _totalAllocationBalance;
 
     /**
      * @dev Set the vested token address, start timestamp and vesting duration of the vesting period.
@@ -112,7 +114,7 @@ contract TokenVesting is Context, Ownable {
     function setBeneficiary(address beneficiary, uint256 allocation) external onlyOwner {
         require(beneficiary != address(0), 'Beneficiary: address cannot be zero');
         require(_beneficiaryInfo[beneficiary]._allocationBalance == 0, 'Beneficiary: allocation already set');
-        _beneficiaryInfo[beneficiary] = BeneficiaryInfo(allocation, 0);
+        _beneficiaryInfo[beneficiary] = BeneficiaryInfo(allocation, 0, 0);
         _totalAllocationBalance += allocation;
         _beneficiaryAddresses.push(beneficiary);
         emit BeneficiaryAdded(beneficiary, allocation);
@@ -136,9 +138,11 @@ contract TokenVesting is Context, Ownable {
      */
     function vestedAmount(address beneficiary, uint256 timestamp) public returns (uint256) {
         uint256 _vestedAmount = _vestingSchedule(
+            beneficiary,
             _beneficiaryInfo[beneficiary]._allocationBalance + released(beneficiary),
             uint256(timestamp)
         );
+        emit ReleasableAmount(beneficiary, _vestedAmount);
         return _vestedAmount;
     }
 
@@ -149,17 +153,21 @@ contract TokenVesting is Context, Ownable {
      * with the Total Number * of Tokens Purchased becoming fully unlocked 5 years from the Network Launch.
      * i.e. 6 months cliff from TGE, 10% unlock at month 6, 10% unlock at month 12, and final 10% unlock at month 60
      */
-    function _vestingSchedule(uint256 totalAllocation, uint256 timestamp) internal returns (uint256) {
+    function _vestingSchedule(
+        address beneficiary,
+        uint256 totalAllocation,
+        uint256 timestamp
+    ) internal returns (uint256) {
         if (timestamp < start()) {
             return 0;
         } else if (timestamp > start() + duration()) {
             return totalAllocation;
         } else if (timestamp == uint256(block.timestamp)) {
             uint256 currentInterval = _calculateInterval(timestamp);
-            bool isUnlocked = currentInterval > _unlockIntervalsCount;
+            bool isUnlocked = currentInterval > _beneficiaryInfo[beneficiary]._unlockIntervalsCount;
             if (isUnlocked) {
-                _unlockIntervalsCount = currentInterval;
-                return (totalAllocation * _unlockIntervalsCount * 10) / 100;
+                _beneficiaryInfo[beneficiary]._unlockIntervalsCount = currentInterval;
+                return (totalAllocation * currentInterval * 10) / 100;
             }
         } else {
             return ((totalAllocation * _calculateInterval(timestamp) * 10) / 100);

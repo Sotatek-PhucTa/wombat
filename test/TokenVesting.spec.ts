@@ -179,8 +179,7 @@ describe('TokenVesting', function () {
       expect(await vestingContract.totalUnderlyingBalance()).to.equal(parseUnits('1001', 18))
       expect(await vestingContract.beneficiaryBalance(user1.address)).to.equal(parseUnits('1000.12345678', 18))
       expect(await vestingContract.released(user1.address)).to.equal(0)
-      100012345678000000000
-      100123456780000000000
+
       // _unlockIntervalsCount = 0, unlocks 0% out of 1000.12345678 WOM allocation, hence 0 WOM tokens vested
       expect(await vestingContract.callStatic.vestedAmount(user1.address, startTimestamp)).to.equal(0)
 
@@ -266,6 +265,71 @@ describe('TokenVesting', function () {
       expect(await vestingContract.released(user1.address)).to.equal(parseUnits('10000', 18))
       expect(await tokenContract.balanceOf(user1.address)).to.equal(parseUnits('10000', 18))
       expect(await vestingContract.totalUnderlyingBalance()).to.equal(0)
+    })
+    it('Should transfer correct amount of vested WOM tokens for 2 new beneficiary address after multiple interval counts', async function () {
+      await vestingContract.connect(owner).setBeneficiary(user1.address, parseUnits('10000', 18))
+      await vestingContract.connect(owner).setBeneficiary(user2.address, parseUnits('1000.12345678', 18))
+
+      // transfer 11001 WOM tokens to vesting contract
+      await tokenContract.connect(owner).transfer(vestingContract.address, parseUnits('11001', 18))
+
+      await ethers.provider.send('evm_increaseTime', [startCliff * 20]) // fast forward 20 months, 3rd interval count
+      await ethers.provider.send('evm_mine', [])
+
+      const blockNumAfter = await ethers.provider.getBlockNumber()
+      await ethers.provider.getBlock(blockNumAfter)
+
+      // _unlockIntervalsCount = 3, unlocks total 30% out of 11001 WOM allocation,
+      // user 1 receives 3000 WOM
+      // user 2 receives 300.037037034 WOM
+      expect(await vestingContract.release(user1.address))
+        .to.emit(vestingContract, 'ERC20Released')
+        .withArgs(tokenContract.address, parseUnits('3000', 18))
+
+      expect(await vestingContract.released(user1.address)).to.equal(parseUnits('3000', 18))
+      expect(await tokenContract.balanceOf(user1.address)).to.equal(parseUnits('3000', 18))
+      expect(await vestingContract.beneficiaryBalance(user1.address)).to.equal(parseUnits('7000', 18))
+      // 11001 - 3000
+      expect(await vestingContract.totalUnderlyingBalance()).to.equal(parseUnits('8001', 18))
+
+      expect(await vestingContract.release(user2.address))
+        .to.emit(vestingContract, 'ERC20Released')
+        .withArgs(tokenContract.address, parseUnits('300.037037034', 18))
+
+      expect(await vestingContract.released(user2.address)).to.equal(parseUnits('300.037037034', 18))
+      expect(await tokenContract.balanceOf(user2.address)).to.equal(parseUnits('300.037037034', 18))
+      // 1000.12345678 - 300.037037034
+      expect(await vestingContract.beneficiaryBalance(user2.address)).to.equal(parseUnits('700.086419746', 18))
+      // 8001 - 300.037037034
+      expect(await vestingContract.totalUnderlyingBalance()).to.equal(parseUnits('7700.962962966', 18))
+
+      await ethers.provider.send('evm_increaseTime', [startCliff * 30]) // fast forward 40 months more
+      await ethers.provider.send('evm_mine', [])
+
+      // _unlockIntervalsCount = 8, unlocks total 80% out of 11001 WOM allocation,
+      // user 1 receives 5000 WOM
+      // user 2 receives 500.0617283900 WOM
+      expect(await vestingContract.release(user1.address))
+        .to.emit(vestingContract, 'ERC20Released')
+        .withArgs(tokenContract.address, parseUnits('5000', 18))
+
+      expect(await vestingContract.released(user1.address)).to.equal(parseUnits('8000', 18))
+      expect(await tokenContract.balanceOf(user1.address)).to.equal(parseUnits('8000', 18))
+      expect(await vestingContract.beneficiaryBalance(user1.address)).to.equal(parseUnits('2000', 18))
+      // 7700.962962966 - 5000
+      expect(await vestingContract.totalUnderlyingBalance()).to.equal(parseUnits('2700.962962966', 18))
+
+      expect(await vestingContract.release(user2.address))
+        .to.emit(vestingContract, 'ERC20Released')
+        .withArgs(tokenContract.address, parseUnits('500.0617283900', 18))
+
+      // 300.037037034 + 500.0617283900
+      expect(await vestingContract.released(user2.address)).to.equal(parseUnits('800.098765424', 18))
+      expect(await tokenContract.balanceOf(user2.address)).to.equal(parseUnits('800.098765424', 18))
+      // 1000.12345678 - 800.098765424
+      expect(await vestingContract.beneficiaryBalance(user2.address)).to.equal(parseUnits('200.024691356', 18))
+      // 2700.9629629660003 - 500.0617283900
+      expect(await vestingContract.totalUnderlyingBalance()).to.equal(parseUnits('2200.901234576', 18))
     })
     it('Should not return any amount of vested WOM tokens if claim before cliff', async function () {
       // set user1 as beneficiary with 10000 WOM allocation

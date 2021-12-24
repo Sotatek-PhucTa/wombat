@@ -14,8 +14,8 @@ contract TestTokenVesting is TokenVesting {
         uint256 unlockDurationSeconds
     ) TokenVesting(vestedTokenAddress, startTimestamp, durationSeconds, unlockDurationSeconds) {}
 
-    function test_vestingSchedule(uint256 totalAllocation, uint256 timestamp) external returns (uint256) {
-        return _vestingSchedule(totalAllocation, timestamp);
+    function test_vestingSchedule(address beneficiary, uint256 totalAllocation, uint256 timestamp) external returns (uint256) {
+        return _vestingSchedule(beneficiary, totalAllocation, timestamp);
     }
 
     function test_calculateInterval(uint256 timestamp) external view returns (uint256) {
