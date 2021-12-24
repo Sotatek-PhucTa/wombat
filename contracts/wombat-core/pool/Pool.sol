@@ -40,6 +40,11 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     /// @notice A record of assets inside Pool
     mapping(address => Asset) private _assets;
 
+    address public feeTo;
+
+    /// @notice Dividend collected by each asset (unit: underlying token)
+    mapping(Asset => uint256) private _feeCollected;
+
     /// @notice An event thats emitted when an asset is added to Pool
     event AssetAdded(address indexed token, address indexed asset);
 
@@ -168,6 +173,16 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     }
 
     /**
+     * @notice Changes the fee beneficiary. Can only be set by the contract owner.
+     * This value cannot be set to 0 to avoid unsettled fee.
+     * @param feeTo_ new fee beneficiary
+     */
+    function setFeeTo(address feeTo_) external onlyOwner {
+        require(feeTo_ != address(0), 'Wombat: set retention ratio instead');
+        feeTo = feeTo_;
+    }
+
+    /**
      * @notice Adds asset to pool, reverts if asset already exists in pool
      * @param token The address of token
      * @param asset The address of the Wombat Asset contract
@@ -213,6 +228,9 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         address to
     ) internal returns (uint256 liquidity) {
         require(to != address(0), 'Wombat: To user address cannot be zero');
+
+        // collect fee before deposit
+        _mintFee(asset);
 
         uint256 totalSupply = asset.totalSupply();
         uint256 liability = asset.liability();
@@ -307,6 +325,9 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 minimumAmount,
         address to
     ) private returns (uint256 amount) {
+        // collect fee before withdraw
+        _mintFee(asset);
+
         // request lp token from user
         IERC20(asset).safeTransferFrom(address(msg.sender), address(asset), liquidity);
 
@@ -382,10 +403,13 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         require(minimumToAmount <= actualToAmount, 'Wombat: AMOUNT_TOO_LOW');
 
+        // should not collect any fee if feeTo is not set
+        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, _retentionRatio) : 0;
+        _feeCollected[toAsset] += dividend;
+
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
         toAsset.removeCash(actualToAmount);
-        toAsset.addLiability(_dividend(haircut, _retentionRatio));
         toAsset.transferUnderlyingToken(to, actualToAmount);
 
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
@@ -408,8 +432,8 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
         require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
 
-        haircut = _haircut(_convertToWAD(dTo, idealToAmount), _haircutRate);
-        actualToAmount = idealToAmount - _convertFromWAD(dTo, haircut);
+        haircut = _haircut(idealToAmount, _haircutRate);
+        actualToAmount = idealToAmount - haircut;
         // console.log(haircut);
         // console.log(actualToAmount);
     }
@@ -435,6 +459,9 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 Ay = _convertToWAD(dTo, toAsset.cash());
         uint256 Ly = _convertToWAD(dTo, toAsset.liability());
         uint256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
+
+        // in case div of 0
+        require(Lx > 0, 'Not enough from-asset');
 
         uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, _ampFactor);
         idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
@@ -498,5 +525,29 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         } else {
             enoughCash = true;
         }
+    }
+
+    /**
+     * @notice Private function to send fee collected to the fee beneficiary
+     * @param asset The address of the asset to collect fee
+     */
+    function _mintFee(Asset asset) private {
+        if (address(feeTo) != address(0)) {
+            uint256 feeCollected = _feeCollected[asset];
+            if (feeCollected > 0) {
+                // call totalSupply() and liability() before mint()
+                asset.mint(feeTo, (feeCollected * asset.totalSupply()) / asset.liability());
+                asset.addLiability(feeCollected);
+                _feeCollected[asset] = 0;
+            }
+        }
+    }
+
+    /**
+     * @notice Send fee collected to the fee beneficiary
+     * @param asset The address of the asset to collect fee
+     */
+    function mintFee(Asset asset) external {
+        _mintFee(asset);
     }
 }

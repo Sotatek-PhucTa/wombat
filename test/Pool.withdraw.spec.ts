@@ -499,6 +499,19 @@ describe('Pool - Withdraw', function () {
         expect(await this.asset.underlyingTokenBalance()).to.be.equal(parseUnits('56.432538', 8))
         expect(await this.asset.totalSupply()).to.be.equal(parseUnits('89.185287', 8))
       })
+
+      it('cash not enough', async function () {
+        await asset1.connect(owner).setPool(owner.address)
+        await asset1.connect(owner).removeCash(parseUnits('32.768743', 8))
+        await asset1.connect(owner).transferUnderlyingToken(owner.address, parseUnits('32.768743', 8))
+        await asset1.connect(owner).setPool(poolContract.address)
+
+        expect((await asset1.cash()) / (await asset1.liability())).to.equal(0.67231257) // cov = 0.67231257
+
+        const [, , enoughCash] = await poolContract.quotePotentialWithdraw(token1.address, parseUnits('70', 8))
+
+        expect(enoughCash).to.equal(false)
+      })
     })
   })
 })
