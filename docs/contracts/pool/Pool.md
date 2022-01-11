@@ -115,6 +115,30 @@ Arguments
 
 
 
+## *function* WAD
+
+***Pool.WAD() view***
+
+Outputs
+
+| **name** | **type** | **description** |
+|-|-|-|
+|  | uint256 |  |
+
+
+
+## *function* WAD_i
+
+***Pool.WAD_i() view***
+
+Outputs
+
+| **name** | **type** | **description** |
+|-|-|-|
+|  | int256 |  |
+
+
+
 ## *function* addAsset
 
 ***Pool.addAsset(token, asset) ***
@@ -177,17 +201,17 @@ Outputs
 
 
 
-## *function* getC1
+## *function* getAmpFactor
 
-***Pool.getC1() view***
+***Pool.getAmpFactor() view***
 
-> Notice: Gets current C1 slippage parameter
+> Notice: Gets current amplification factor parameter
 
 Outputs
 
 | **name** | **type** | **description** |
 |-|-|-|
-|  | uint256 | The current C1 slippage parameter in Pool |
+|  | uint256 | The current amplification factor parameter in Pool |
 
 
 
@@ -209,27 +233,13 @@ Outputs
 
 ***Pool.getHaircutRate() view***
 
-> Notice: Gets current Haircut parameter
+> Notice: Gets current haircut parameter
 
 Outputs
 
 | **name** | **type** | **description** |
 |-|-|-|
-|  | uint256 | The current Haircut parameter in Pool |
-
-
-
-## *function* getPriceOracle
-
-***Pool.getPriceOracle() view***
-
-> Notice: Gets current Price Oracle address
-
-Outputs
-
-| **name** | **type** | **description** |
-|-|-|-|
-|  | address | The current Price Oracle address for Pool |
+|  | uint256 | The current haircut parameter in Pool |
 
 
 
@@ -247,87 +257,11 @@ Outputs
 
 
 
-## *function* getSlippageParamK
-
-***Pool.getSlippageParamK() view***
-
-> Notice: Gets current K slippage parameter
-
-Outputs
-
-| **name** | **type** | **description** |
-|-|-|-|
-|  | uint256 | The current K slippage parameter in Pool |
-
-
-
-## *function* getSlippageParamN
-
-***Pool.getSlippageParamN() view***
-
-> Notice: Gets current N slippage parameter
-
-Outputs
-
-| **name** | **type** | **description** |
-|-|-|-|
-|  | uint256 | The current N slippage parameter in Pool |
-
-
-
-## *function* getWETH
-
-***Pool.getWETH() view***
-
-> Notice: Gets current WETH address
-
-Outputs
-
-| **name** | **type** | **description** |
-|-|-|-|
-|  | address | The current WETH address for Pool |
-
-
-
-## *function* getWETHForwarder
-
-***Pool.getWETHForwarder() view***
-
-> Notice: Gets current WETHForwarder address
-
-Outputs
-
-| **name** | **type** | **description** |
-|-|-|-|
-|  | address | The current WETHForwarder address for Pool |
-
-
-
-## *function* getXThreshold
-
-***Pool.getXThreshold() view***
-
-> Notice: Gets current XThreshold slippage parameter
-
-Outputs
-
-| **name** | **type** | **description** |
-|-|-|-|
-|  | uint256 | The current XThreshold slippage parameter in Pool |
-
-
-
 ## *function* initialize
 
-***Pool.initialize(weth_) ***
+***Pool.initialize() ***
 
 > Notice: Initializes pool. Dev is set to be the account calling this function.
-
-Arguments
-
-| **name** | **type** | **description** |
-|-|-|-|
-| weth_ | address | The weth address used to wrap eth tokens by Pool. |
 
 
 
@@ -413,6 +347,7 @@ Outputs
 |-|-|-|
 | amount | uint256 | The potential amount user would receive |
 | fee | uint256 | The fee that would be applied |
+| enoughCash | bool | does the pool have enough cash? (cash >= liabilityToBurn - fee) |
 
 
 
@@ -424,17 +359,17 @@ Outputs
 
 
 
-## *function* setC1
+## *function* setAmpFactor
 
-***Pool.setC1(c1_) ***
+***Pool.setAmpFactor(ampFactor_) ***
 
-> Notice: Changes the pools slippage param C1. Can only be set by the contract owner.
+> Notice: Changes the pools amplification factor. Can only be set by the contract owner.
 
 Arguments
 
 | **name** | **type** | **description** |
 |-|-|-|
-| c1_ | uint256 | new pool's slippage param C1 |
+| ampFactor_ | uint256 | new pool's amplification factor |
 
 
 
@@ -466,20 +401,6 @@ Arguments
 
 
 
-## *function* setPriceOracle
-
-***Pool.setPriceOracle(priceOracle) ***
-
-> Notice: Changes the pools priceOracle. Can only be set by the contract owner.
-
-Arguments
-
-| **name** | **type** | **description** |
-|-|-|-|
-| priceOracle | address | new pool's priceOracle addres |
-
-
-
 ## *function* setRetentionRatio
 
 ***Pool.setRetentionRatio(retentionRatio_) ***
@@ -491,76 +412,6 @@ Arguments
 | **name** | **type** | **description** |
 |-|-|-|
 | retentionRatio_ | uint256 | new pool's retentionRatio |
-
-
-
-## *function* setSlippageParamK
-
-***Pool.setSlippageParamK(k_) ***
-
-> Notice: Changes the pools slippage param K. Can only be set by the contract owner.
-
-Arguments
-
-| **name** | **type** | **description** |
-|-|-|-|
-| k_ | uint256 | new pool's slippage param K |
-
-
-
-## *function* setSlippageParamN
-
-***Pool.setSlippageParamN(n_) ***
-
-> Notice: Changes the pools slippage param N. Can only be set by the contract owner.
-
-Arguments
-
-| **name** | **type** | **description** |
-|-|-|-|
-| n_ | uint256 | new pool's slippage param N |
-
-
-
-## *function* setWETH
-
-***Pool.setWETH(weth_) ***
-
-> Notice: Changes the pools WETH. Can only be set by the contract owner.
-
-Arguments
-
-| **name** | **type** | **description** |
-|-|-|-|
-| weth_ | address | new pool's WETH address |
-
-
-
-## *function* setWETHForwarder
-
-***Pool.setWETHForwarder(wethForwarder) ***
-
-> Notice: Changes the pools WETHForwarder. Can only be set by the contract owner.
-
-Arguments
-
-| **name** | **type** | **description** |
-|-|-|-|
-| wethForwarder | address | new pool's WETHForwarder address |
-
-
-
-## *function* setXThreshold
-
-***Pool.setXThreshold(xThreshold_) ***
-
-> Notice: Changes the pools slippage param xThreshold. Can only be set by the contract owner.
-
-Arguments
-
-| **name** | **type** | **description** |
-|-|-|-|
-| xThreshold_ | uint256 | new pool's slippage param xThreshold |
 
 
 
