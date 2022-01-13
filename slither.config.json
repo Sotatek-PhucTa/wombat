@@ -1,4 +1,4 @@
 {
   "compile_force_framework": "hardhat",
-  "filter_paths": "mocks|openzeppelin"
+  "filter_paths": "mocks|openzeppelin|test"
 }
