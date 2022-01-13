@@ -260,6 +260,33 @@ describe('Pool - Deposit', function () {
         ).to.be.revertedWith('Pausable: paused')
       })
 
+      it('reverts if asset paused', async function () {
+        await poolContract.connect(owner).pauseAsset(token0.address)
+        await expect(
+          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
+        ).to.be.revertedWith('Pausable: asset paused')
+      })
+
+      it('reverts if pause asset is invoked by non-owner', async function () {
+        await expect(poolContract.connect(user1).pauseAsset(token0.address)).to.be.revertedWith('Wombat: FORBIDDEN')
+      })
+
+      it('allows deposit if asset paused and unpaused after', async function () {
+        await poolContract.connect(owner).pauseAsset(token0.address)
+        await expect(
+          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
+        ).to.be.revertedWith('Pausable: asset paused')
+
+        await poolContract.connect(owner).unpauseAsset(token0.address)
+        const receipt = await poolContract
+          .connect(user1)
+          .deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
+
+        expect(receipt)
+          .to.emit(poolContract, 'Deposit')
+          .withArgs(user1.address, token0.address, parseEther('100'), parseEther('100'), user1.address)
+      })
+
       it('reverts if zero address provided', async function () {
         await expect(
           poolContract
