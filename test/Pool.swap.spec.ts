@@ -330,6 +330,54 @@ describe('Pool - Swap', function () {
         ).to.be.revertedWith('Wombat: INTERPOOL_SWAP_NOT_SUPPORTED')
       })
 
+      it('reverts if asset paused', async function () {
+        await poolContract.connect(owner).pauseAsset(token1.address)
+        await expect(
+          poolContract.connect(user1).swap(
+            token1.address,
+            token2.address,
+            parseUnits('100', 8),
+            parseEther('90'), //expect at least 90% of ideal quoted amount
+            user1.address,
+            fiveSecondsSince
+          )
+        ).to.be.revertedWith('Pausable: asset paused')
+      })
+
+      it('allows swap if asset paused and unpaused after', async function () {
+        await poolContract.connect(owner).pauseAsset(token1.address)
+        await expect(
+          poolContract.connect(user1).swap(
+            token1.address,
+            token2.address,
+            parseUnits('100', 8),
+            parseEther('90'), //expect at least 90% of ideal quoted amount
+            user1.address,
+            fiveSecondsSince
+          )
+        ).to.be.revertedWith('Pausable: asset paused')
+
+        await poolContract.connect(owner).unpauseAsset(token1.address)
+        const receipt = await poolContract.connect(user1).swap(
+          token1.address,
+          token0.address,
+          parseUnits('100', 8),
+          parseEther('90'), //expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+        expect(receipt)
+          .to.emit(poolContract, 'Swap')
+          .withArgs(
+            user1.address,
+            token1.address,
+            token0.address,
+            parseUnits('100', 8),
+            parseEther('99.479655212388724896'),
+            user1.address
+          )
+      })
+
       it.skip('allows swapping then withdrawing', async function () {
         // Approve spending by pool
         await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)

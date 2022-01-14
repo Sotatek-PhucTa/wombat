@@ -11,6 +11,7 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '../libraries/DSMath.sol';
 import '../asset/Asset.sol';
 import './CoreV2.sol';
+import './PausableAssets.sol';
 import 'hardhat/console.sol';
 
 /**
@@ -18,7 +19,14 @@ import 'hardhat/console.sol';
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
  */
-contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, CoreV2 {
+contract Pool is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
+    PausableAssets,
+    CoreV2
+{
     using DSMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -133,6 +141,20 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
      */
     function unpause() external onlyDev nonReentrant {
         _unpause();
+    }
+
+    /**
+     * @dev pause asset, restricting deposit and swap operations
+     */
+    function pauseAsset(address asset) external onlyDev nonReentrant {
+        _pauseAsset(asset);
+    }
+
+    /**
+     * @dev unpause asset, enabling deposit and swap operations
+     */
+    function unpauseAsset(address asset) external onlyDev nonReentrant {
+        _unpauseAsset(asset);
     }
 
     // Setters //
@@ -266,6 +288,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         require(amount > 0, 'Wombat: ZERO_AMOUNT');
         require(token != address(0), 'Wombat: ZERO_ADDRESS');
         require(to != address(0), 'Wombat: ZERO_ADDRESS');
+        requireAssetNotPaused(token);
 
         IERC20 erc20 = IERC20(token);
         Asset asset = _assetOf(token);
@@ -392,6 +415,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
         require(fromAmount > 0, 'Wombat: ZERO_FROM_AMOUNT');
         require(to != address(0), 'Wombat: ZERO_ADDRESS');
+        requireAssetNotPaused(fromToken);
 
         IERC20 fromERC20 = IERC20(fromToken);
         Asset fromAsset = _assetOf(fromToken);
