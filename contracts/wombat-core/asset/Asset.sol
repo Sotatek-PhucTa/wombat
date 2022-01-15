@@ -6,7 +6,6 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title Asset
@@ -93,7 +92,6 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @param pool_ new pool's address
      */
     function setPool(address pool_) external onlyOwner {
-        // console.log("pool_ log:", pool_, address(0));
         require(pool_ != address(0), 'Wombat: Pool address cannot be zero');
         _pool = pool_;
     }

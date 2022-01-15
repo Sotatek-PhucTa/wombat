@@ -12,7 +12,6 @@ import '../libraries/DSMath.sol';
 import '../asset/Asset.sol';
 import './CoreV2.sol';
 import './PausableAssets.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title Pool
@@ -256,13 +255,10 @@ contract Pool is
 
         uint256 totalSupply = asset.totalSupply();
         uint256 liability = asset.liability();
-
         uint256 fee = _depositFee(asset.cash(), asset.liability(), amount);
-        // console.log(fee);
 
         // Calculate amount of LP to mint : ( deposit - fee ) * TotalAssetSupply / Liability
         liquidity = (liability == 0 ? (amount - fee) : ((amount - fee) * totalSupply) / liability);
-        // console.log(liquidity);
         require(liquidity > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_MINTED');
 
         asset.addCash(amount);
@@ -458,8 +454,6 @@ contract Pool is
 
         haircut = _haircut(idealToAmount, _haircutRate);
         actualToAmount = idealToAmount - haircut;
-        // console.log(haircut);
-        // console.log(actualToAmount);
     }
 
     /**

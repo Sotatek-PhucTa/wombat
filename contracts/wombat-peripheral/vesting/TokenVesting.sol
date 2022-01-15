@@ -7,7 +7,6 @@ import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/Context.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title VestingWallet (extended for WOM Token Vesting), from OpenZeppelin Contracts v4.4.0 (finance/VestingWallet.sol)
