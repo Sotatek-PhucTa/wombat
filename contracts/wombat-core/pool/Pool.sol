@@ -8,7 +8,6 @@ import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
-import '../libraries/DSMath.sol';
 import '../asset/Asset.sol';
 import './CoreV2.sol';
 import './PausableAssets.sol';
@@ -26,7 +25,6 @@ contract Pool is
     PausableAssets,
     CoreV2
 {
-    using DSMath for uint256;
     using SafeERC20 for IERC20;
 
     /// @notice Wei in 1 ether

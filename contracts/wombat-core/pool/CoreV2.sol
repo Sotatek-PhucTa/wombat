@@ -178,28 +178,6 @@ contract CoreV2 {
     }
 
     /**
-     * @notice Equation to get minting amount of LP tokens for token x
-     * @dev Calculates LP tokens to be minted
-     * @param Sx total supply of token x
-     * @param Lx liability of token x
-     * @param Dx delta x, i.e. token x amount inputted
-     * @param Fee deposit fee of token x (if any)
-     * @return The LP token amount to mint ("liquidity")
-     */
-    function _mintLP(
-        uint256 Sx,
-        uint256 Lx,
-        uint256 Dx,
-        uint256 Fee
-    ) internal pure returns (uint256) {
-        if (Lx == 0) {
-            return Dx.sub(Fee);
-        } else {
-            return ((Dx.sub(Fee)).wmul(Sx)).wdiv(Lx);
-        }
-    }
-
-    /**
      * TODO BELOW
      */
 
