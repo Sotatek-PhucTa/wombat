@@ -427,12 +427,11 @@ contract Pool is
         uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, _retentionRatio) : 0;
         _feeCollected[toAsset] += dividend;
 
+        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
         toAsset.removeCash(actualToAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
-
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
     }
 
     /**
