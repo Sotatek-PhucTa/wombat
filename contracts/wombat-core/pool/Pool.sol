@@ -553,10 +553,10 @@ contract Pool is
         if (address(feeTo) != address(0)) {
             uint256 feeCollected = _feeCollected[asset];
             if (feeCollected > 0) {
+                _feeCollected[asset] = 0;
                 // call totalSupply() and liability() before mint()
                 asset.mint(feeTo, (feeCollected * asset.totalSupply()) / asset.liability());
                 asset.addLiability(feeCollected);
-                _feeCollected[asset] = 0;
             }
         }
     }
