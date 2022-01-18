@@ -41,6 +41,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     mapping(address => Asset) private _assets;
 
     address public feeTo;
+    bool public shouldDistributeRetention;
 
     /// @notice Dividend collected by each asset (unit: underlying token)
     mapping(Asset => uint256) private _feeCollected;
@@ -180,6 +181,12 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     function setFeeTo(address feeTo_) external onlyOwner {
         require(feeTo_ != address(0), 'Wombat: set retention ratio instead');
         feeTo = feeTo_;
+    }
+
+    function setShouldDistributeRetention(bool _shouldDistributeRetention) external onlyOwner {
+        require(_shouldDistributeRetention != shouldDistributeRetention, 'Wombat: what are you setting?');
+        // Question: do we need _mintFee() here?
+        shouldDistributeRetention = _shouldDistributeRetention;
     }
 
     /**
@@ -403,9 +410,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         require(minimumToAmount <= actualToAmount, 'Wombat: AMOUNT_TOO_LOW');
 
-        // should not collect any fee if feeTo is not set
-        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, _retentionRatio) : 0;
-        _feeCollected[toAsset] += dividend;
+        _feeCollected[toAsset] += haircut;
 
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
@@ -532,14 +537,17 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
      * @param asset The address of the asset to collect fee
      */
     function _mintFee(Asset asset) private {
-        if (address(feeTo) != address(0)) {
-            uint256 feeCollected = _feeCollected[asset];
-            if (feeCollected > 0) {
-                // call totalSupply() and liability() before mint()
-                asset.mint(feeTo, (feeCollected * asset.totalSupply()) / asset.liability());
-                asset.addLiability(feeCollected);
-                _feeCollected[asset] = 0;
-            }
+        uint256 feeCollected = _feeCollected[asset];
+        uint256 dividend = address(feeTo) != address(0) ? _dividend(feeCollected, _retentionRatio) : 0;
+        uint256 retention = feeCollected - dividend;
+        if (dividend > 0) {
+            // call totalSupply() and liability() before mint()
+            asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
+            asset.addLiability(dividend);
+        }
+        _feeCollected[asset] = 0;
+        if (retention > 0 && shouldDistributeRetention) {
+            asset.addLiability(retention);
         }
     }
 
