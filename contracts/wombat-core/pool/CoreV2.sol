@@ -4,7 +4,6 @@ pragma solidity 0.8.5;
 import '../libraries/DSMath.sol';
 import '../libraries/SignedSafeMath.sol';
 import '../libraries/SafeCast.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title CoreV2
@@ -77,13 +76,9 @@ contract CoreV2 {
      * @return The asset coverage ratio of token y ("Ry")
      */
     function _coverageYFunc(int256 b, int256 A) internal pure returns (int256) {
-        // console.log("_coverageYFunc log: '%s'", 'hello');
         int256 sqrtR = ((b**2).add(A * 4 * WAD_i));
-        // console.logInt(sqrtR);
         int256 sqrtResult = sqrtR.sqrt();
-        // console.logInt(sqrtResult);
         int256 numerator = sqrtResult.sub(b);
-        // console.logInt(numerator);
         return numerator.div(2);
     }
 
@@ -147,10 +142,6 @@ contract CoreV2 {
         int256 a = Lx.wdiv(Ly);
         int256 b = Rx.sub(A.wdiv(Rx));
         int256 c = D.wdiv(Ly);
-        // console.log("coefficientFunc log: '%s'", 'hello');
-        // console.logInt(a);
-        // console.logInt(b);
-        // console.logInt(c);
         return (a.wmul(b)).sub(c);
     }
 
@@ -184,28 +175,6 @@ contract CoreV2 {
             return Dx * 10**(d - 18);
         }
         return Dx;
-    }
-
-    /**
-     * @notice Equation to get minting amount of LP tokens for token x
-     * @dev Calculates LP tokens to be minted
-     * @param Sx total supply of token x
-     * @param Lx liability of token x
-     * @param Dx delta x, i.e. token x amount inputted
-     * @param Fee deposit fee of token x (if any)
-     * @return The LP token amount to mint ("liquidity")
-     */
-    function _mintLP(
-        uint256 Sx,
-        uint256 Lx,
-        uint256 Dx,
-        uint256 Fee
-    ) internal pure returns (uint256) {
-        if (Lx == 0) {
-            return Dx.sub(Fee);
-        } else {
-            return ((Dx.sub(Fee)).wmul(Sx)).wdiv(Lx);
-        }
     }
 
     /**

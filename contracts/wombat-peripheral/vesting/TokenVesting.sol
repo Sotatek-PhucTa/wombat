@@ -2,96 +2,87 @@
 pragma solidity 0.8.5;
 
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/Context.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import 'hardhat/console.sol';
 
 /**
- * @title VestingWallet (extended for WOMB Token Vesting), from OpenZeppelin Contracts v4.4.0 (finance/VestingWallet.sol)
- * @dev This contract handles the vesting of WOMB, a ERC20 token for a list of admin-settable beneficiaries.
+ * @title VestingWallet (extended for WOM Token Vesting), from OpenZeppelin Contracts v4.4.0 (finance/VestingWallet.sol)
+ * @dev This contract handles the vesting of WOM, a ERC20 token for a list of admin-settable beneficiaries.
  * This contract will release the token to the beneficiary following a given vesting schedule.
  * The vesting schedule is customizable through the {vestedAmount} function.
  *
- * WOMB token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
+ * WOM token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
  */
 contract TokenVesting is Context, Ownable {
     event ERC20Released(address indexed token, uint256 amount);
+    event BeneficiaryAdded(address indexed beneficiary, uint256 amount);
+    event ReleasableAmount(address indexed beneficiary, uint256 amount);
 
     struct BeneficiaryInfo {
         uint256 _allocationBalance;
         uint256 _allocationReleased;
+        uint256 _unlockIntervalsCount; // Number of unlock intervals
     }
 
     IERC20 public vestedToken;
 
     address[] private _beneficiaryAddresses;
     mapping(address => BeneficiaryInfo) private _beneficiaryInfo;
-    uint8 private _beneficiaryCount;
-    uint64 private immutable _start;
-    uint64 private immutable _duration;
+
+    uint256 private immutable _start; // start timestamp in seconds
+    uint256 private immutable _duration; // end timestamp in seconds
+
+    // Duration of unlock intervals, i.e. 6 months in seconds = (60 * 60 * 24 * 365) / 2 = 15768000
+    uint256 private immutable _unlockDurationSeconds;
+
+    // Total WOM allocated amongst beneficiaries
     uint256 private _totalAllocationBalance;
 
-    // Number of unlock intervals, i.e. unlock every 6 months for 60 months, max = 10
-    uint64 private _unlockIntervalsCount = 0;
-
-    // Duration of unlock intervals, i.e. 6 months in seconds = (60 * 60 * 24 * 365) / 2
-    uint64 private _unlockDurationSeconds = 15768000;
-
     /**
-     * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
+     * @dev Set the vested token address, start timestamp and vesting duration of the vesting period.
      */
     constructor(
         address vestedTokenAddress,
-        uint64 startTimestamp,
-        uint64 durationSeconds
+        uint256 startTimestamp,
+        uint256 durationSeconds,
+        uint256 unlockDurationSeconds
     ) {
         vestedToken = IERC20(vestedTokenAddress);
         _start = startTimestamp;
         _duration = durationSeconds;
+        _unlockDurationSeconds = unlockDurationSeconds;
     }
 
     /**
-     * @dev Getter for the beneficiary address.
+     * @dev Getter for the number of beneficiaries.
      */
-    function beneficiaryCount() public view returns (uint8) {
-        return _beneficiaryCount;
+    function beneficiaryCount() external view returns (uint8) {
+        return uint8(_beneficiaryAddresses.length);
     }
 
     /**
-     * @dev Getter for the beneficiary address.
+     * @dev Getter for the beneficiary allocation balance.
      */
-    function beneficiaryBalance(address beneficiary) public view returns (uint256) {
+    function beneficiaryBalance(address beneficiary) external view returns (uint256) {
         return _beneficiaryInfo[beneficiary]._allocationBalance;
     }
 
     /**
-     * @dev Getter for the beneficiary address.
+     * @dev Getter for the total allocation balance of vesting contract.
      */
-    function totalAllocationBalance() public view returns (uint256) {
+    function totalAllocationBalance() external view returns (uint256) {
         return _totalAllocationBalance;
     }
 
     /**
-     * @dev Getter for the releaseable amount of all beneficiaries.
-     * Loop over array of beneficiary addresses to sum up total releasable amount
-     * totalReleasableBalance should always be <= totalUnderlyingBalance
+     * @dev Getter for the total WOM tokens allocated for vesting contract.
      */
-    function totalReleasableBalance() public view returns (uint256) {
-        uint256 totalReleasableBalance = 0;
-        for (uint8 i = 0; i < _beneficiaryAddresses.length; i++) {
-            totalReleasableBalance += _beneficiaryInfo[_beneficiaryAddresses[i]]._allocationReleased;
-        }
-        return totalReleasableBalance;
-    }
-
-    /**
-     * @dev Getter for the beneficiary address.
-     */
-    function totalUnderlyingBalance() public view returns (uint256) {
+    function totalUnderlyingBalance() external view returns (uint256) {
         return IERC20(vestedToken).balanceOf(address(this));
     }
 
@@ -110,7 +101,7 @@ contract TokenVesting is Context, Ownable {
     }
 
     /**
-     * @dev Amount of token already released
+     * @dev Amount of token already released for a beneficiary
      */
     function released(address beneficiary) public view returns (uint256) {
         return _beneficiaryInfo[beneficiary]._allocationReleased;
@@ -122,10 +113,10 @@ contract TokenVesting is Context, Ownable {
     function setBeneficiary(address beneficiary, uint256 allocation) external onlyOwner {
         require(beneficiary != address(0), 'Beneficiary: address cannot be zero');
         require(_beneficiaryInfo[beneficiary]._allocationBalance == 0, 'Beneficiary: allocation already set');
-        _beneficiaryInfo[beneficiary] = BeneficiaryInfo(allocation, 0);
-        _beneficiaryCount++;
+        _beneficiaryInfo[beneficiary] = BeneficiaryInfo(allocation, 0, 0);
         _totalAllocationBalance += allocation;
         _beneficiaryAddresses.push(beneficiary);
+        emit BeneficiaryAdded(beneficiary, allocation);
     }
 
     /**
@@ -134,17 +125,24 @@ contract TokenVesting is Context, Ownable {
      * Emits a {TokensReleased} event.
      */
     function release(address beneficiary) external {
-        uint256 releasable = vestedAmount(beneficiary, uint64(block.timestamp)) - released(beneficiary);
+        uint256 releasable = vestedAmount(beneficiary, uint256(block.timestamp)) - released(beneficiary);
         _beneficiaryInfo[beneficiary]._allocationReleased += releasable;
+        _beneficiaryInfo[beneficiary]._allocationBalance -= releasable;
         emit ERC20Released(address(vestedToken), releasable);
         SafeERC20.safeTransfer(IERC20(vestedToken), beneficiary, releasable);
     }
 
     /**
-     * @dev Calculates the amount of WOMB tokens that has already vested. Default implementation is a linear vesting curve.
+     * @dev Calculates the amount of WOM tokens that has already vested. Default implementation is a linear vesting curve.
      */
-    function vestedAmount(address beneficiary, uint64 timestamp) public returns (uint256) {
-        return _vestingSchedule(_beneficiaryInfo[beneficiary]._allocationBalance + released(beneficiary), timestamp);
+    function vestedAmount(address beneficiary, uint256 timestamp) public returns (uint256) {
+        uint256 _vestedAmount = _vestingSchedule(
+            beneficiary,
+            _beneficiaryInfo[beneficiary]._allocationBalance + released(beneficiary),
+            uint256(timestamp)
+        );
+        emit ReleasableAmount(beneficiary, _vestedAmount);
+        return _vestedAmount;
     }
 
     /**
@@ -154,30 +152,31 @@ contract TokenVesting is Context, Ownable {
      * with the Total Number * of Tokens Purchased becoming fully unlocked 5 years from the Network Launch.
      * i.e. 6 months cliff from TGE, 10% unlock at month 6, 10% unlock at month 12, and final 10% unlock at month 60
      */
-    function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal returns (uint256) {
+    function _vestingSchedule(
+        address beneficiary,
+        uint256 totalAllocation,
+        uint256 timestamp
+    ) internal returns (uint256) {
         if (timestamp < start()) {
             return 0;
         } else if (timestamp > start() + duration()) {
             return totalAllocation;
-        } else {
-            bool isUnlocked = _checkUnlockAmount(timestamp);
-            console.log(isUnlocked);
-            console.log(_unlockIntervalsCount);
+        } else if (timestamp == uint256(block.timestamp)) {
+            uint256 currentInterval = _calculateInterval(timestamp);
+            bool isUnlocked = currentInterval > _beneficiaryInfo[beneficiary]._unlockIntervalsCount;
             if (isUnlocked) {
-                _unlockIntervalsCount++;
-                console.log(_unlockIntervalsCount);
-                return (totalAllocation * ((_unlockIntervalsCount * 10) / 100));
+                _beneficiaryInfo[beneficiary]._unlockIntervalsCount = currentInterval;
+                return (totalAllocation * currentInterval * 10) / 100;
             }
+        } else {
+            return ((totalAllocation * _calculateInterval(timestamp) * 10) / 100);
         }
     }
 
     /**
-     * @dev Calculates the amount of WOMB tokens that has already vested. Default implementation is a linear vesting curve.
+     * @dev Calculates the number of intervals unlocked
      */
-    function _checkUnlockAmount(uint64 timestamp) internal view returns (bool) {
-        uint64 timeElapsed = timestamp - _start;
-        console.log(timeElapsed);
-        console.log((timeElapsed / _unlockIntervalsCount));
-        return ((timeElapsed / _unlockIntervalsCount) == (_unlockIntervalsCount + 1));
+    function _calculateInterval(uint256 timestamp) internal view returns (uint256) {
+        return (timestamp - start()) / _unlockDurationSeconds;
     }
 }

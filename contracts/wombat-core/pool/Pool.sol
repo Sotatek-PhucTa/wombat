@@ -8,18 +8,23 @@ import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
-import '../libraries/DSMath.sol';
 import '../asset/Asset.sol';
 import './CoreV2.sol';
-import 'hardhat/console.sol';
+import './PausableAssets.sol';
 
 /**
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
  */
-contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, CoreV2 {
-    using DSMath for uint256;
+contract Pool is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
+    PausableAssets,
+    CoreV2
+{
     using SafeERC20 for IERC20;
 
     /// @notice Wei in 1 ether
@@ -136,6 +141,20 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         _unpause();
     }
 
+    /**
+     * @dev pause asset, restricting deposit and swap operations
+     */
+    function pauseAsset(address asset) external onlyDev nonReentrant {
+        _pauseAsset(asset);
+    }
+
+    /**
+     * @dev unpause asset, enabling deposit and swap operations
+     */
+    function unpauseAsset(address asset) external onlyDev nonReentrant {
+        _unpauseAsset(asset);
+    }
+
     // Setters //
     /**
      * @notice Changes the contract dev. Can only be set by the contract owner.
@@ -241,13 +260,10 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
         uint256 totalSupply = asset.totalSupply();
         uint256 liability = asset.liability();
-
         uint256 fee = _depositFee(asset.cash(), asset.liability(), amount);
-        // console.log(fee);
 
         // Calculate amount of LP to mint : ( deposit - fee ) * TotalAssetSupply / Liability
         liquidity = (liability == 0 ? (amount - fee) : ((amount - fee) * totalSupply) / liability);
-        // console.log(liquidity);
         require(liquidity > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_MINTED');
 
         asset.addCash(amount);
@@ -273,6 +289,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         require(amount > 0, 'Wombat: ZERO_AMOUNT');
         require(token != address(0), 'Wombat: ZERO_ADDRESS');
         require(to != address(0), 'Wombat: ZERO_ADDRESS');
+        requireAssetNotPaused(token);
 
         IERC20 erc20 = IERC20(token);
         Asset asset = _assetOf(token);
@@ -399,6 +416,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
         require(fromAmount > 0, 'Wombat: ZERO_FROM_AMOUNT');
         require(to != address(0), 'Wombat: ZERO_ADDRESS');
+        requireAssetNotPaused(fromToken);
 
         IERC20 fromERC20 = IERC20(fromToken);
         Asset fromAsset = _assetOf(fromToken);
@@ -412,12 +430,11 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
         _feeCollected[toAsset] += haircut;
 
+        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
         toAsset.removeCash(actualToAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
-
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
     }
 
     /**
@@ -439,8 +456,6 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
         haircut = _haircut(idealToAmount, _haircutRate);
         actualToAmount = idealToAmount - haircut;
-        // console.log(haircut);
-        // console.log(actualToAmount);
     }
 
     /**
@@ -538,14 +553,21 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
      */
     function _mintFee(Asset asset) private {
         uint256 feeCollected = _feeCollected[asset];
+        // early return
+        // we might set a threshold for min fee here to save gas cost
+        if (feeCollected == 0) {
+            return;
+        }
+
         uint256 dividend = address(feeTo) != address(0) ? _dividend(feeCollected, _retentionRatio) : 0;
         uint256 retention = feeCollected - dividend;
+        _feeCollected[asset] = 0;
+
         if (dividend > 0) {
             // call totalSupply() and liability() before mint()
             asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
             asset.addLiability(dividend);
         }
-        _feeCollected[asset] = 0;
         if (retention > 0 && shouldDistributeRetention) {
             asset.addLiability(retention);
         }

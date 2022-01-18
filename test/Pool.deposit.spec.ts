@@ -99,7 +99,7 @@ describe('Pool - Deposit', function () {
         expect(afterBalance).to.be.equal(parseEther('99900')) // 100k - 100
         expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('-100')) // 100k - 99.9k
 
-        await expect(receipt)
+        expect(receipt)
           .to.emit(poolContract, 'Deposit')
           .withArgs(user1.address, token0.address, parseEther('100'), parseEther('100'), user1.address)
       })
@@ -148,7 +148,7 @@ describe('Pool - Deposit', function () {
         expect(await asset0.totalSupply()).to.be.equal(parseEther('198.261997042643835411'))
         expect((await asset0.liability()) / (await asset0.totalSupply())).to.equal(1.0176874377649978)
 
-        await expect(receipt)
+        expect(receipt)
           .to.emit(poolContract, 'Deposit')
           .withArgs(
             user1.address,
@@ -176,7 +176,7 @@ describe('Pool - Deposit', function () {
         expect(await asset0.totalSupply()).to.be.equal(parseEther('100'))
         expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('-100'))
 
-        await expect(receipt)
+        expect(receipt)
           .to.emit(poolContract, 'Deposit')
           .withArgs(user1.address, token0.address, parseEther('100'), parseEther('100'), user1.address)
 
@@ -202,7 +202,7 @@ describe('Pool - Deposit', function () {
         expect(await asset0.totalSupply()).to.be.equal(parseEther('199.999200210048011000'))
         expect(afterBalance2.sub(beforeBalance)).to.be.equal(parseEther('-200'))
 
-        await expect(receipt)
+        expect(receipt)
           .to.emit(poolContract, 'Deposit')
           .withArgs(user1.address, token0.address, parseEther('100'), parseEther('100'), user1.address)
 
@@ -258,6 +258,33 @@ describe('Pool - Deposit', function () {
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
         ).to.be.revertedWith('Pausable: paused')
+      })
+
+      it('reverts if asset paused', async function () {
+        await poolContract.connect(owner).pauseAsset(token0.address)
+        await expect(
+          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
+        ).to.be.revertedWith('Pausable: asset paused')
+      })
+
+      it('reverts if pause asset is invoked by non-owner', async function () {
+        await expect(poolContract.connect(user1).pauseAsset(token0.address)).to.be.revertedWith('Wombat: FORBIDDEN')
+      })
+
+      it('allows deposit if asset paused and unpaused after', async function () {
+        await poolContract.connect(owner).pauseAsset(token0.address)
+        await expect(
+          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
+        ).to.be.revertedWith('Pausable: asset paused')
+
+        await poolContract.connect(owner).unpauseAsset(token0.address)
+        const receipt = await poolContract
+          .connect(user1)
+          .deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
+
+        expect(receipt)
+          .to.emit(poolContract, 'Deposit')
+          .withArgs(user1.address, token0.address, parseEther('100'), parseEther('100'), user1.address)
       })
 
       it('reverts if zero address provided', async function () {
@@ -345,7 +372,7 @@ describe('Pool - Deposit', function () {
         expect(await asset1.totalSupply()).to.be.equal(parseUnits('198.26199779', 8))
         expect((await asset1.liability()) / (await asset1.totalSupply())).to.equal(1.0176874300122525)
 
-        await expect(receipt)
+        expect(receipt)
           .to.emit(poolContract, 'Deposit')
           .withArgs(user2.address, token1.address, parseUnits('100', 8), parseUnits('98.26199779', 8), user2.address)
       })

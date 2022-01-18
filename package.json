@@ -16,6 +16,7 @@
     "@typechain/hardhat": "^2.2.0",
     "@types/mocha": "^8.2.3",
     "@types/node": "^15.14.5",
+    "@types/utf8": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
     "chai": "^4.3.4",
@@ -26,7 +27,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.4.3",
-    "hardhat": "^2.5.0",
+    "hardhat": "^2.8.2",
     "hardhat-dependency-compiler": "^1.1.1",
     "hardhat-deploy": "^0.8.11",
     "hardhat-docgen": "^1.1.2",
@@ -55,6 +56,7 @@
     "deploy_bsc_mainnet": "hardhat deploy --network bsc_mainnet",
     "deploy_localhost": "hardhat deploy --network hardhat",
     "bsc_testnet_demo": "npx hardhat run ./scripts/demo.ts --network bsc_testnet",
+    "bsc_testnet_wom_demo": "npx hardhat run ./scripts/wom-demo.ts --network bsc_testnet",
     "clean": "hardhat clean",
     "compile": "hardhat compile",
     "pretest": "yarn compile",
@@ -63,5 +65,8 @@
     "coverage": "hardhat coverage",
     "generate_uml": "sol2uml ./contracts",
     "generate_docs": "yarn run hardhat docgen --theme markdown"
+  },
+  "dependencies": {
+    "utf8": "^3.0.0"
   }
 }
