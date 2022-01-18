@@ -561,16 +561,17 @@ contract Pool is
 
         uint256 dividend = address(feeTo) != address(0) ? _dividend(feeCollected, _retentionRatio) : 0;
         uint256 retention = feeCollected - dividend;
+        uint256 liabilityToMint = dividend;
         _feeCollected[asset] = 0;
 
         if (dividend > 0) {
             // call totalSupply() and liability() before mint()
             asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
-            asset.addLiability(dividend);
         }
-        if (retention > 0 && shouldDistributeRetention) {
-            asset.addLiability(retention);
+        if (shouldDistributeRetention) {
+            liabilityToMint += retention;
         }
+        asset.addLiability(liabilityToMint);
     }
 
     /**
