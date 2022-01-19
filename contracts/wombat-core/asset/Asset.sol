@@ -31,6 +31,12 @@ contract Asset is Ownable, Initializable, ERC20 {
     string public _symbol;
     /// @notice Aggregate Account of the asset
     address private _aggregateAccount;
+    /// @notice maxSupply the maximum amount of asset the pool is allowed to mint.
+    /// @dev if 0, means asset has no max
+    uint256 public maxSupply;
+
+    /// @notice An event thats emitted when max supply is updated
+    event MaxSupplyUpdated(uint256 previousMaxSupply, uint256 newMaxSupply);
 
     /**
      * @notice Constructor.
@@ -97,6 +103,15 @@ contract Asset is Ownable, Initializable, ERC20 {
     }
 
     /**
+     * @notice Changes asset max supply. Can only be set by the contract owner.
+     * @param maxSupply_ the new asset's max supply
+     */
+    function setMaxSupply(uint256 maxSupply_) external onlyOwner {
+        emit MaxSupplyUpdated(maxSupply, maxSupply_);
+        maxSupply = maxSupply_;
+    }
+
+    /**
      * @notice Returns the address of the Aggregate Account 'holding' this asset
      * @return The current Aggregate Account address for Asset
      */
@@ -145,6 +160,10 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @param amount amount to transfer
      */
     function mint(address to, uint256 amount) external onlyPool {
+        if (this.maxSupply() != 0) {
+            // if maxSupply == 0, asset is uncapped.
+            require(amount + this.totalSupply() <= this.maxSupply(), 'Wombat: MAX_SUPPLY_REACHED');
+        }
         return _mint(to, amount);
     }
 
