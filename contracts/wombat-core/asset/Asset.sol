@@ -45,29 +45,20 @@ contract Asset is Ownable, Initializable, ERC20 {
         string memory symbol_,
         address aggregateAccount_
     ) ERC20(name_, symbol_) {
-        initialize(underlyingToken_, name_, symbol_, aggregateAccount_);
+        initialize(underlyingToken_, aggregateAccount_);
     }
 
     /**
      * @notice Initializer.
      * @dev _ suffix to avoid shadowing underlyingToken() name and  symbol
      * @param underlyingToken_ The token represented by the asset
-     * @param name_ The name of the asset
-     * @param symbol_ The symbol of the asset
      * @param aggregateAccount_ The aggregate account to which the the asset belongs
      */
-    function initialize(
-        address underlyingToken_,
-        string memory name_,
-        string memory symbol_,
-        address aggregateAccount_
-    ) public initializer {
+    function initialize(address underlyingToken_, address aggregateAccount_) public initializer {
         require(underlyingToken_ != address(0), 'Wombat: Token address cannot be zero');
         require(aggregateAccount_ != address(0), 'Wombat: Aggregate account address cannot be zero');
 
         _owner = msg.sender;
-        _name = name_;
-        _symbol = symbol_;
         underlyingToken = underlyingToken_;
         aggregateAccount = aggregateAccount_;
     }
