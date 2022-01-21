@@ -42,8 +42,15 @@ contract Pool is
     /// @notice Dev address
     address private _dev;
 
+    /// @notice Asset Map struct holds assets
+    struct AssetMap {
+        address[] keys;
+        mapping(address => Asset) values;
+        mapping(address => uint256) indexOf;
+    }
+
     /// @notice A record of assets inside Pool
-    mapping(address => Asset) private _assets;
+    AssetMap private _assets;
 
     address public feeTo;
 
@@ -208,12 +215,49 @@ contract Pool is
      */
     function addAsset(address token, address asset) external onlyOwner nonReentrant {
         require(token != address(0), 'Wombat: ZERO_ADDRESS');
-        require(asset != address(0), 'Wombat: ZERO_ADDRESS');
-        require(address(_assets[token]) == address(0), 'Wombat: ASSET_EXISTS');
+        _addAsset(token, asset);
+    }
 
-        _assets[token] = Asset(asset);
+    /**
+     * @notice Adds asset to pool, reverts if asset already exists in pool
+     * @param token The address of token
+     * @param asset The address of the Wombat Asset contract
+     */
+    function _addAsset(address token, address asset) private {
+        require(asset != address(0), 'Wombat: ZERO_ADDRESS');
+        require(!_containsAsset(token), 'Wombat: ASSET_EXISTS');
+
+        _assets.values[token] = Asset(asset);
+        _assets.indexOf[token] = _assets.keys.length;
+        _assets.keys.push(token);
 
         emit AssetAdded(token, asset);
+    }
+
+    /**
+     * @notice get length of asset list
+     * @return the size of the asset list
+     */
+    function _sizeOfAssetList() private view returns (uint256) {
+        return _assets.keys.length;
+    }
+
+    /**
+     * @notice Gets key (address) at index
+     * @param index the index
+     * @return the key of index
+     */
+    function _getKeyAtIndex(uint256 index) private view returns (address) {
+        return _assets.keys[index];
+    }
+
+    /**
+     * @notice Looks if the asset is contained by the list
+     * @param token The address of token to look for
+     * @return bool true if the asset is in asset list, false otherwise
+     */
+    function _containsAsset(address token) private view returns (bool) {
+        return _assets.values[token] != Asset(address(0));
     }
 
     /**
@@ -221,8 +265,8 @@ contract Pool is
      * @param token The address of ERC20 token
      */
     function _assetOf(address token) private view returns (Asset) {
-        require(address(_assets[token]) != address(0), 'Wombat: ASSET_NOT_EXIST');
-        return _assets[token];
+        require(_containsAsset(token), 'Wombat: ASSET_NOT_EXIST');
+        return _assets.values[token];
     }
 
     /**
