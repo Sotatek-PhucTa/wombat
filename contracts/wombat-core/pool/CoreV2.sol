@@ -49,7 +49,6 @@ contract CoreV2 {
         int256 Dy = _deltaFunc(Ay_i, Ly_i, Ry);
         int256 quote_i = Ay_i.sub(Ay_i.add(Dy));
         uint256 quote = SafeCast.toUint256(quote_i);
-
         return quote;
     }
 
