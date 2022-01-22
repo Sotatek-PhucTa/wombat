@@ -429,6 +429,7 @@ describe('Pool - Deposit', function () {
       await asset2.connect(owner).addLiability(parseEther('5000'))
       await asset2.connect(owner).setPool(poolContract.address)
 
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.equal(parseEther('1.062117492331304537'))
       const receipt = await poolContract
         .connect(user1)
         .deposit(token1.address, parseUnits('800', 8), user1.address, fiveSecondsSince)
@@ -436,6 +437,8 @@ describe('Pool - Deposit', function () {
       await expect(receipt)
         .to.emit(poolContract, 'Deposit')
         .withArgs(user1.address, token1.address, parseUnits('800', 8), parseUnits('813.31449527', 8), user1.address)
+
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.equal(parseEther('1.059118312727348279'))
     })
   })
 })

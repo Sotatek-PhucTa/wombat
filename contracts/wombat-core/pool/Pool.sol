@@ -670,6 +670,16 @@ contract Pool is
         // console.log('fee', fee);
     }
 
+    function globalEquilCovRatio() external view returns (uint256 er) {
+        int256 A = int256(_ampFactor);
+
+        int256 D;
+        int256 SL;
+        (D, SL) = _globalInvariantFunc(A);
+
+        er = uint256(_equilCovRatio(D, SL, A));
+    }
+
     function _globalInvariantFunc(int256 A) internal view returns (int256 D, int256 SL) {
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
             Asset asset = _getAsset(_getKeyAtIndex(i));

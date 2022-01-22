@@ -76,6 +76,7 @@ describe('Pool - Withdraw', function () {
     // Add BUSD & USDC assets to pool
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
+    await poolContract.connect(owner).addAsset(token2.address, asset2.address)
   })
 
   describe('Asset BUSD (18 decimals)', function () {
@@ -567,13 +568,17 @@ describe('Pool - Withdraw', function () {
       await asset2.connect(owner).addLiability(parseEther('5000'))
       await asset2.connect(owner).setPool(poolContract.address)
 
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.equal(parseEther('1.062117492331304537'))
+
       const receipt = await poolContract
         .connect(user1)
         .withdraw(token1.address, parseUnits('400', 8), 0, user1.address, fiveSecondsSince)
 
       await expect(receipt)
         .to.emit(poolContract, 'Withdraw')
-        .withArgs(user1.address, token1.address, parseUnits('357.72515162', 8), parseUnits('400', 8), user1.address)
+        .withArgs(user1.address, token1.address, parseUnits('357.76378286', 8), parseUnits('400', 8), user1.address)
+
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.equal(parseEther('1.063710248544495204'))
     })
   })
 })
