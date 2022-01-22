@@ -730,7 +730,7 @@ describe('Pool - Fee', function () {
         // deposit some token to pool
         await poolContract.connect(user1).deposit(token0.address, parseEther('1'), user1.address, fiveSecondsSince)
 
-        expect(await asset0.liability()).to.be.equal(parseEther('10001.007961557039807021'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10001.007966360357898115'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807021'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
       })
@@ -790,7 +790,7 @@ describe('Pool - Fee', function () {
         await asset1.connect(user1).approve(poolContract.address, parseUnits('10', 8))
         await poolContract
           .connect(user1)
-          .withdraw(token1.address, parseUnits('1', 8), parseUnits('1', 8), user1.address, fiveSecondsSince)
+          .withdraw(token1.address, parseUnits('1', 8), 0, user1.address, fiveSecondsSince)
 
         expect(await asset1.liability()).to.be.equal(parseUnits('999.00795441', 8))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))

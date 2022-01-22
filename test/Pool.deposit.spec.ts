@@ -19,8 +19,10 @@ describe('Pool - Deposit', function () {
   let poolContract: Contract
   let token0: Contract // BUSD
   let token1: Contract // USDC
+  let token2: Contract // CAKE
   let asset0: Contract // BUSD LP
   let asset1: Contract // USDC LP
+  let asset2: Contract // CAKE LP
   let aggregateAccount: Contract
   let lastBlockTime: number
   let fiveSecondsSince: number
@@ -47,22 +49,27 @@ describe('Pool - Deposit', function () {
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
     token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
+    token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
     aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('stables', true)
     asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
     asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP', aggregateAccount.address)
+    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP', aggregateAccount.address)
     poolContract = await PoolFactory.connect(owner).deploy()
 
     // wait for transactions to be mined
     await token0.deployTransaction.wait()
     await token1.deployTransaction.wait()
+    await token2.deployTransaction.wait()
     await aggregateAccount.deployTransaction.wait()
     await asset0.deployTransaction.wait()
     await asset1.deployTransaction.wait()
+    await asset2.deployTransaction.wait()
     await poolContract.deployTransaction.wait()
 
     // set pool address
     await asset0.setPool(poolContract.address)
     await asset1.setPool(poolContract.address)
+    await asset2.setPool(poolContract.address)
 
     // initialize pool contract
     poolContract.connect(owner).initialize()
@@ -70,6 +77,7 @@ describe('Pool - Deposit', function () {
     // Add BUSD & USDC assets to pool
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
+    await poolContract.connect(owner).addAsset(token2.address, asset2.address)
   })
 
   describe('Asset BUSD (18 decimals)', function () {
@@ -117,10 +125,10 @@ describe('Pool - Deposit', function () {
         const afterBalance2 = await token0.balanceOf(user2.address)
 
         expect(await asset0.cash()).to.be.equal(parseEther('200.123'))
-        expect(await asset0.liability()).to.be.equal(parseEther('200.123'))
+        expect(await asset0.liability()).to.be.equal(parseEther('200.123000000000000200'))
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('200.123'))
-        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('100.123'))
-        expect(await asset0.totalSupply()).to.be.equal(parseEther('200.123'))
+        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('100.123000000000000200'))
+        expect(await asset0.totalSupply()).to.be.equal(parseEther('200.123000000000000200'))
 
         expect(afterBalance1).to.be.equal(parseEther('99900')) // 100k - 100
         expect(afterBalance1.sub(beforeBalance1)).to.be.equal(parseEther('-100')) // 99.9 - 100k
@@ -143,9 +151,9 @@ describe('Pool - Deposit', function () {
           .connect(user1)
           .deposit(token0.address, parseEther('100'), user2.address, fiveSecondsSince)
 
-        expect(await asset0.liability()).to.be.equal(parseEther('201.768743776499783944'))
-        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('98.261997042643835411'))
-        expect(await asset0.totalSupply()).to.be.equal(parseEther('198.261997042643835411'))
+        expect(await asset0.liability()).to.be.equal(parseEther('201.768743776499784306'))
+        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('98.261997042643835766'))
+        expect(await asset0.totalSupply()).to.be.equal(parseEther('198.261997042643835766'))
         expect((await asset0.liability()) / (await asset0.totalSupply())).to.equal(1.0176874377649978)
 
         expect(receipt)
@@ -154,7 +162,7 @@ describe('Pool - Deposit', function () {
             user1.address,
             token0.address,
             parseEther('100'),
-            parseEther('98.261997042643835411'),
+            parseEther('98.261997042643835766'),
             user2.address
           )
       })
@@ -376,6 +384,58 @@ describe('Pool - Deposit', function () {
           .to.emit(poolContract, 'Deposit')
           .withArgs(user2.address, token1.address, parseUnits('100', 8), parseUnits('98.26199779', 8), user2.address)
       })
+    })
+  })
+
+  describe('3 assets', function () {
+    beforeEach(async function () {
+      // Transfer 100k from BUSD contract to users
+      await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100 k
+      await token0.connect(owner).transfer(user2.address, parseEther('600.123'))
+      // Approve max allowance from users to pool
+      await token0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token0.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
+
+      // Transfer 100k from vUSDC contract to users
+      await token1.connect(owner).transfer(user1.address, parseUnits('100000', 8)) // 100 k
+      await token1.connect(owner).transfer(user2.address, parseUnits('600.123', 8))
+      // Approve max allowance from users to pool
+      await token1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token1.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
+
+      // Transfer 100k from vUSDC contract to users
+      await token2.connect(owner).transfer(user1.address, parseEther('100000')) // 100 k
+      await token2.connect(owner).transfer(user2.address, parseEther('600.123'))
+      // Approve max allowance from users to pool
+      await token2.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token2.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
+    })
+
+    it('deposit reward', async function () {
+      // Faucet
+      await asset0.connect(owner).setPool(owner.address)
+      await asset0.connect(owner).addCash(parseEther('10516.66012'))
+      await asset0.connect(owner).addLiability(parseEther('10000'))
+      await asset0.connect(owner).setPool(poolContract.address)
+
+      await asset1.connect(owner).setPool(owner.address)
+      await asset1.connect(owner).addCash(parseUnits('506.4946', 8))
+      await asset1.connect(owner).mint(user1.address, parseUnits('1000', 8))
+      await asset1.connect(owner).addLiability(parseUnits('1000', 8))
+      await asset1.connect(owner).setPool(poolContract.address)
+
+      await asset2.connect(owner).setPool(owner.address)
+      await asset2.connect(owner).addCash(parseEther('6000'))
+      await asset2.connect(owner).addLiability(parseEther('5000'))
+      await asset2.connect(owner).setPool(poolContract.address)
+
+      const receipt = await poolContract
+        .connect(user1)
+        .deposit(token1.address, parseUnits('800', 8), user1.address, fiveSecondsSince)
+
+      await expect(receipt)
+        .to.emit(poolContract, 'Deposit')
+        .withArgs(user1.address, token1.address, parseUnits('800', 8), parseUnits('813.31449527', 8), user1.address)
     })
   })
 })
