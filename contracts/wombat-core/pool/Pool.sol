@@ -628,9 +628,7 @@ contract Pool is
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
         int256 A = int256(_ampFactor);
 
-        int256 D;
-        int256 SL;
-        (D, SL) = _globalInvariantFunc(A);
+        (int256 D, int256 SL) = _globalInvariantFunc(A);
 
         int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
 
@@ -696,7 +694,7 @@ contract Pool is
 
             int256 r_i = A_i.wdiv(L_i);
             SL += L_i;
-            D += L_i.wmul(r_i - A.wmul(L_i).wdiv(A_i));
+            D += L_i.wmul(r_i - A.wdiv(r_i));
         }
     }
 }
