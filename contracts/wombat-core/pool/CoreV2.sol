@@ -177,7 +177,8 @@ contract CoreV2 {
         int256 er_ = _newEquilCovRatio(er, SL, delta_i);
         int256 D_ = _newInvariantFunc(er_, A, SL, delta_i);
 
-        int256 b_ = (D - D_ - L_i.wmul(r_i - A.wdiv(r_i))).wdiv(L_i + delta_i);
+        // Summation of k∈T\{i} is D - L_i.wmul(r_i - A.wdiv(r_i))
+        int256 b_ = (D - L_i.wmul(r_i - A.wdiv(r_i)) - D_).wdiv(L_i + delta_i);
         r_i_ = _coverageYFunc(b_, A);
         // console.log('b_', uint256(-b_ / 1e18), '.', (uint256(-b_) % 1e18) / 1e12);
         // console.log('r_i_', uint256(r_i_));
@@ -207,9 +208,9 @@ contract CoreV2 {
         int256 er_,
         int256 A,
         int256 SL,
-        int256 amount
+        int256 delta_i
     ) internal pure returns (int256 D_) {
-        D_ = (SL + amount).wmul(er_ - A.wdiv(er_));
+        D_ = (SL + delta_i).wmul(er_ - A.wdiv(er_));
         // console.log('D_', uint256(D_) / 1e18);
     }
 
