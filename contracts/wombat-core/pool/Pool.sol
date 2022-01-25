@@ -25,6 +25,7 @@ contract Pool is
     PausableAssets,
     CoreV2
 {
+    using DSMath for uint256;
     using SafeERC20 for IERC20;
 
     /// @notice Wei in 1 ether
@@ -307,7 +308,8 @@ contract Pool is
         returns (
             uint256 amount,
             uint256 liabilityToBurn,
-            uint256 fee
+            uint256 fee,
+            bool enoughCash
         )
     {
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
@@ -320,12 +322,63 @@ contract Pool is
             if (asset.cash() < (liabilityToBurn - fee)) {
                 amount = asset.cash(); // When asset does not contain enough cash, just withdraw the remaining cash
                 fee = 0;
+                enoughCash = false;
             } else {
                 amount = liabilityToBurn - fee; // There is enough cash, standard withdrawal
+                enoughCash = true;
             }
         } else {
             amount = 0;
+            enoughCash = false;
         }
+    }
+
+    /**
+     * @notice Enables withdrawing liquidity from an asset using LP from a different asset in the same aggregate
+     * @param fromToken The corresponding token user holds the LP (Asset) from
+     * @param toToken The token wanting to be withdrawn (needs to be well covered)
+     * @param liquidity The liquidity to be withdrawn (in toToken decimal)
+     * @param minAmount The minimum amount that will be accepted by user
+     * @param receipient The user receiving the withdrawal
+     * @param deadline The deadline to be respected
+     * @dev fromToken and toToken assets' must be in the same aggregate
+     * @dev Also, coverage ratio of toAsset must be higher than 1 after withdrawal for this to be accepted
+     * @return amount The total amount withdrawn
+     */
+    function withdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity,
+        uint256 minAmount,
+        address receipient,
+        uint256 deadline
+    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
+        require(fromToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(toToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(receipient != address(0), 'Wombat: ZERO_ADDRESS');
+        require(liquidity > 0, 'Wombat: ZERO_LIQUIDITY');
+
+        Asset fromAsset = _assetOf(fromToken);
+        Asset toAsset = _assetOf(toToken);
+        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        bool enoughCash;
+        (amount, , , enoughCash) = _withdrawFrom(toAsset, liquidity);
+        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
+        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= ETH_UNIT, 'Wombat: COV_RATIO_LOW');
+        require(minAmount <= amount, 'Wombat: AMOUNT_TOO_LOW');
+
+        // Burn LP from user and trasnfer token.
+        // Note: Convert liquidity and liability to fromAsset decimal.
+        uint256 liquidityFromAsset = (liquidity * 10**fromAsset.decimals()) / (10**toAsset.decimals());
+        require(liquidityFromAsset > 0, 'Wombat: ZERO_LIQUIDITY');
+        IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidityFromAsset);
+        uint256 liabilityToBurn = (liquidityFromAsset * fromAsset.liability()) / toAsset.totalSupply();
+        fromAsset.burn(address(fromAsset), liquidityFromAsset);
+        fromAsset.removeLiability(liabilityToBurn);
+        toAsset.removeCash(amount);
+        toAsset.transferUnderlyingToken(receipient, amount);
+
+        emit Withdraw(msg.sender, toToken, amount, liquidityFromAsset, receipient);
     }
 
     /**
@@ -350,7 +403,7 @@ contract Pool is
 
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
-        (amount, liabilityToBurn, ) = _withdrawFrom(asset, liquidity);
+        (amount, liabilityToBurn, , ) = _withdrawFrom(asset, liquidity);
 
         require(minimumAmount <= amount, 'Wombat: AMOUNT_TOO_LOW');
 
@@ -445,7 +498,6 @@ contract Pool is
         Asset toAsset,
         uint256 fromAmount
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
-        uint8 dTo = toAsset.decimals();
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
         require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
 
@@ -511,6 +563,42 @@ contract Pool is
     }
 
     /**
+     * @notice Quotes potential withdrawal from other asset in the same aggregate
+     * @dev To be used by frontend. Reverts if not possible
+     * @param fromToken The users holds LP corresponding to this initial token
+     * @param toToken The token to be withdrawn by user
+     * @param liquidity The liquidity (amount of lp assets) to be withdrawn (in toToken decimal).
+     * @return amount The potential amount user would receive
+     * @return fee The fee that would be applied
+     */
+    function quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    )
+        external
+        view
+        whenNotPaused
+        returns (
+            uint256 amount,
+            uint256 fee,
+            bool enoughCash
+        )
+    {
+        require(fromToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(toToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
+        require(liquidity > 0, 'Wombat: ZERO_LIQUIDITY');
+
+        Asset fromAsset = _assetOf(fromToken);
+        Asset toAsset = _assetOf(toToken);
+        require(fromAsset.aggregateAccount() == toAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        (amount, , fee, enoughCash) = _withdrawFrom(toAsset, liquidity);
+        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
+        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= ETH_UNIT, 'Wombat: COV_RATIO_LOW');
+    }
+
+    /**
      * @notice Quotes potential withdrawal from pool
      * @dev To be used by frontend
      * @param token The token to be withdrawn by user
@@ -534,7 +622,7 @@ contract Pool is
 
         Asset asset = _assetOf(token);
         uint256 liabilityToBurn;
-        (amount, liabilityToBurn, fee) = _withdrawFrom(asset, liquidity);
+        (amount, liabilityToBurn, fee, ) = _withdrawFrom(asset, liquidity);
         if (amount < liabilityToBurn - fee) {
             enoughCash = false;
         } else {
