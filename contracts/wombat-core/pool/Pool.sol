@@ -307,14 +307,22 @@ contract Pool is
 
         uint256 totalSupply = asset.totalSupply();
         uint256 liability = asset.liability();
-        uint256 reward = _depositReward(amount, asset);
+
+        // TODO: confirm we don't do exact deposit?
+        int256 reward = -_depositReward(int256(amount), asset);
+        uint256 fee;
+        if (reward < 0) {
+            // currently we don't distribute deposit reward
+            // TODO: confirm this
+            fee = uint256(-reward);
+        }
 
         // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
-        liquidity = (liability == 0 ? (amount + reward) : ((amount + reward) * totalSupply) / liability);
+        liquidity = (liability == 0 ? (amount - fee) : ((amount - fee) * totalSupply) / liability);
         require(liquidity > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_MINTED');
 
         asset.addCash(amount);
-        asset.addLiability(amount + reward);
+        asset.addLiability(amount - fee);
         asset.mint(to, liquidity);
     }
 
@@ -362,27 +370,30 @@ contract Pool is
         returns (
             uint256 amount,
             uint256 liabilityToBurn,
-            uint256 fee,
+            int256 fee,
             bool enoughCash
         )
     {
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
         require(liabilityToBurn > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_BURNED');
 
-        uint256 fee = _withdrawFee(liabilityToBurn, asset);
+        // overflow is unrealistic
+        int256 L_i = int256(liabilityToBurn);
+
+        fee = _withdrawalFee(L_i, asset);
 
         // Prevent underflow in case withdrawal fees >= liabilityToBurn, user would only burn his underlying liability
-        if (liabilityToBurn > fee) {
-            if (asset.cash() < (liabilityToBurn - fee)) {
+        if (L_i > fee) {
+            if (asset.cash() < uint256(L_i - fee)) {
                 amount = asset.cash(); // When asset does not contain enough cash, just withdraw the remaining cash
                 fee = 0;
                 enoughCash = false;
             } else {
-                amount = liabilityToBurn - fee; // There is enough cash, standard withdrawal
+                amount = uint256(L_i - fee); // There is enough cash, standard withdrawal
                 enoughCash = true;
             }
         } else {
-            fee = liabilityToBurn;
+            fee = L_i;
             amount = 0;
             enoughCash = false;
         }
@@ -585,7 +596,7 @@ contract Pool is
         whenNotPaused
         returns (
             uint256 amount,
-            uint256 fee,
+            int256 fee,
             bool enoughCash
         )
     {
@@ -620,10 +631,12 @@ contract Pool is
         _mintFee(asset);
     }
 
-    function _depositReward(uint256 amount, Asset asset) internal view returns (uint256 reward) {
+    function _depositReward(int256 amount, Asset asset) internal view returns (int256 reward) {
         // overflow is unrealistic
         uint8 d = asset.decimals();
-        int256 delta_i = int256(_convertToWAD(d, amount));
+        int256 delta_i;
+        delta_i = _convertToWAD(d, amount);
+
         int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
         int256 A = int256(_ampFactor);
@@ -632,40 +645,12 @@ contract Pool is
 
         int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
 
-        // precision error
-        if (w >= -1e6 && w <= 0) {
-            return 0;
-        }
-        // security check
-        require(w > 0, 'Wombat: reward < 0?');
-
-        reward = _convertFromWAD(d, uint256(w));
-        // console.log('reward', reward);
+        reward = _convertFromWAD(d, w);
+        // console.log('reward', uint256(reward), uint256(-reward));
     }
 
-    function _withdrawFee(uint256 amount, Asset asset) internal view returns (uint256 fee) {
-        // overflow is unrealistic
-        uint8 d = asset.decimals();
-        int256 delta_i = -int256(_convertToWAD(d, amount));
-        int256 A_i = int256(_convertToWAD(d, asset.cash()));
-        int256 L_i = int256(_convertToWAD(d, asset.liability()));
-        int256 A = int256(_ampFactor);
-
-        int256 D;
-        int256 SL;
-        (D, SL) = _globalInvariantFunc(A);
-
-        int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
-
-        // precision error
-        if (w >= 0 && w <= 1e6) {
-            return 0;
-        }
-        // security check
-        require(w < 0, 'Wombat: fee < 0?');
-
-        fee = _convertFromWAD(d, uint256(-w));
-        // console.log('fee', fee);
+    function _withdrawalFee(int256 amount, Asset asset) internal view returns (int256 fee) {
+        fee = _depositReward(amount, asset);
     }
 
     function globalEquilCovRatio() external view returns (uint256 er) {
