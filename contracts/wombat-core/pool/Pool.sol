@@ -12,6 +12,8 @@ import '../asset/Asset.sol';
 import './CoreV2.sol';
 import './PausableAssets.sol';
 
+import 'hardhat/console.sol';
+
 /**
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
@@ -309,11 +311,11 @@ contract Pool is
         uint256 liability = asset.liability();
 
         // TODO: confirm we don't do exact deposit?
-        int256 reward = -_depositReward(int256(amount), asset);
+        int256 reward = _depositReward(int256(amount), asset);
+
         uint256 fee;
         if (reward < 0) {
-            // currently we don't distribute deposit reward
-            // TODO: confirm this
+            // TODO: confirm we don't distribute deposit reward
             fee = uint256(-reward);
         }
 
@@ -607,6 +609,10 @@ contract Pool is
         (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
     }
 
+    function quotePotentialDeposit(address token, uint256 amount) external view returns (uint256 liquidity) {
+        // TODO: implement
+    }
+
     /**
      * @notice Private function to send fee collected to the fee beneficiary
      * @param asset The address of the asset to collect fee
@@ -650,7 +656,7 @@ contract Pool is
     }
 
     function _withdrawalFee(int256 amount, Asset asset) internal view returns (int256 fee) {
-        fee = _depositReward(amount, asset);
+        fee = -_depositReward(-amount, asset);
     }
 
     function globalEquilCovRatio() external view returns (uint256 er) {

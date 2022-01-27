@@ -411,7 +411,7 @@ describe('Pool - Deposit', function () {
       await token2.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
     })
 
-    it('deposit reward', async function () {
+    it('r* > 1, deposit reward = 0', async function () {
       // Faucet
       await asset0.connect(owner).setPool(owner.address)
       await asset0.connect(owner).addCash(parseEther('10516.66012'))
@@ -436,7 +436,7 @@ describe('Pool - Deposit', function () {
 
       await expect(receipt)
         .to.emit(poolContract, 'Deposit')
-        .withArgs(user1.address, token1.address, parseUnits('800', 8), parseUnits('813.31449527', 8), user1.address)
+        .withArgs(user1.address, token1.address, parseUnits('800', 8), parseUnits('800', 8), user1.address)
 
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.equal(parseEther('1.059118312727348279'))
     })

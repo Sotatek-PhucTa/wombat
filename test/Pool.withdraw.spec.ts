@@ -103,7 +103,7 @@ describe('Pool - Withdraw', function () {
 
         const receipt = await poolContract
           .connect(user1)
-          .withdraw(token0.address, parseEther('70'), parseEther('70'), user1.address, fiveSecondsSince)
+          .withdraw(token0.address, parseEther('70'), 0, user1.address, fiveSecondsSince)
         const afterBalance = await token0.balanceOf(user1.address)
 
         // check that quoted withdrawal is the same as amount withdrawn
@@ -129,7 +129,7 @@ describe('Pool - Withdraw', function () {
 
         await poolContract
           .connect(user1)
-          .withdraw(token0.address, parseEther('100'), parseEther('100'), user1.address, fiveSecondsSince)
+          .withdraw(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince)
 
         const afterBalance = await token0.balanceOf(user1.address)
 
@@ -548,7 +548,7 @@ describe('Pool - Withdraw', function () {
       await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
     })
 
-    it('withdraw fee', async function () {
+    it('r* > 1, withdraw fee > 0', async function () {
       // Faucet
       await asset0.connect(owner).setPool(owner.address)
       await asset0.connect(owner).addCash(parseEther('10516.66012'))
