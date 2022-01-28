@@ -659,14 +659,29 @@ contract Pool is
         fee = -_depositReward(-amount, asset);
     }
 
-    function globalEquilCovRatio() external view returns (uint256 er) {
+    function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
         int256 A = int256(_ampFactor);
 
         int256 D;
         int256 SL;
         (D, SL) = _globalInvariantFunc(A);
 
-        er = uint256(_equilCovRatio(D, SL, A));
+        int256 er = _equilCovRatio(D, SL, A);
+        return (uint256(er), uint256(D));
+    }
+
+    function surplus() external view returns (int256 surplus) {
+        uint256 SA;
+        uint256 SL;
+        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+            Asset asset = _getAsset(_getKeyAtIndex(i));
+
+            // overflow is unrealistic
+            uint8 d = asset.decimals();
+            SA += _convertToWAD(d, asset.cash());
+            SL += _convertToWAD(d, asset.liability());
+        }
+        surplus = int256(SA) - int256(SL);
     }
 
     function _globalInvariantFunc(int256 A) internal view returns (int256 D, int256 SL) {
@@ -678,6 +693,7 @@ contract Pool is
             int256 A_i = int256(_convertToWAD(d, asset.cash()));
             int256 L_i = int256(_convertToWAD(d, asset.liability()));
 
+            // Assume when L_i == 0, A_i always == 0
             if (L_i == 0) {
                 // avoid division of 0
                 continue;

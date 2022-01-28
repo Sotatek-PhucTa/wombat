@@ -1,9 +1,9 @@
-import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { Contract, ContractFactory } from 'ethers'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { ethers } from 'hardhat'
 
 const { expect } = chai
 chai.use(solidity)
@@ -411,7 +411,7 @@ describe('Pool - Deposit', function () {
       await token2.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
     })
 
-    it('r* > 1, deposit reward = 0', async function () {
+    it('r* > 1, deposit reward > 0 (floored)', async function () {
       // Faucet
       await asset0.connect(owner).setPool(owner.address)
       await asset0.connect(owner).addCash(parseEther('10516.66012'))
@@ -429,7 +429,13 @@ describe('Pool - Deposit', function () {
       await asset2.connect(owner).addLiability(parseEther('5000'))
       await asset2.connect(owner).setPool(poolContract.address)
 
-      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.equal(parseEther('1.062117492331304537'))
+      const surplusBefore = await poolContract.connect(owner).surplus()
+      expect(surplusBefore).to.equal(parseEther('1023.15472'))
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
+        parseEther('1.062117492331304537'),
+        parseEther('16240.667538952096649000'),
+      ])
+
       const receipt = await poolContract
         .connect(user1)
         .deposit(token1.address, parseUnits('800', 8), user1.address, fiveSecondsSince)
@@ -438,7 +444,53 @@ describe('Pool - Deposit', function () {
         .to.emit(poolContract, 'Deposit')
         .withArgs(user1.address, token1.address, parseUnits('800', 8), parseUnits('800', 8), user1.address)
 
-      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.equal(parseEther('1.059118312727348279'))
+      const surplusAfter = await poolContract.connect(owner).surplus()
+      expect(surplusAfter).to.equal(parseEther('1023.15472'))
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
+        parseEther('1.059991006444461435'),
+        parseEther('17015.389354466000070200'),
+      ])
+    })
+
+    it('r* > 1, deposit reward < 0', async function () {
+      // Faucet
+      await asset0.connect(owner).setPool(owner.address)
+      await asset0.connect(owner).addCash(parseEther('10516.66012'))
+      await asset0.connect(owner).addLiability(parseEther('10000'))
+      await asset0.connect(owner).setPool(poolContract.address)
+
+      await asset1.connect(owner).setPool(owner.address)
+      await asset1.connect(owner).addCash(parseUnits('1000', 8))
+      await asset1.connect(owner).mint(user1.address, parseUnits('1000', 8))
+      await asset1.connect(owner).addLiability(parseUnits('1000', 8))
+      await asset1.connect(owner).setPool(poolContract.address)
+
+      await asset2.connect(owner).setPool(owner.address)
+      await asset2.connect(owner).addCash(parseEther('6000'))
+      await asset2.connect(owner).addLiability(parseEther('5000'))
+      await asset2.connect(owner).setPool(poolContract.address)
+
+      const surplusBefore = await poolContract.connect(owner).surplus()
+      expect(surplusBefore).to.equal(parseEther('1516.660120000000000000'))
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
+        parseEther('1.094609075215282560'),
+        parseEther('16782.890674540985455000'),
+      ])
+
+      const receipt = await poolContract
+        .connect(user1)
+        .deposit(token1.address, parseUnits('2000', 8), user1.address, fiveSecondsSince)
+
+      await expect(receipt)
+        .to.emit(poolContract, 'Deposit')
+        .withArgs(user1.address, token1.address, parseUnits('2000', 8), parseUnits('1999.36144104', 8), user1.address)
+
+      const surplusAfter = await poolContract.connect(owner).surplus()
+      expect(surplusAfter).to.equal(parseEther('1517.298678960000000000'))
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
+        parseEther('1.084099949472921683'),
+        parseEther('18682.954523641026364191'),
+      ])
     })
   })
 })
