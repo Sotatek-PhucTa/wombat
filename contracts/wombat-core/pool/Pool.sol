@@ -290,6 +290,32 @@ contract Pool is
         return address(_assetOf(token));
     }
 
+    function _depositTo(Asset asset, uint256 amount)
+        internal
+        view
+        returns (
+            uint256 liquidity,
+            uint256 liabilityToMint,
+            int256 fee
+        )
+    {
+        uint256 totalSupply = asset.totalSupply();
+        uint256 liability = asset.liability();
+
+        // TODO: confirm we don't do exact deposit?
+        int256 reward = _depositReward(int256(amount), asset);
+
+        if (reward < 0) {
+            // TODO: confirm we don't distribute deposit reward
+            fee = -reward;
+        }
+
+        liabilityToMint = uint256(int256(amount) - fee);
+
+        // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
+        liquidity = (liability == 0 ? liabilityToMint : (liabilityToMint * totalSupply) / liability);
+    }
+
     /**
      * @notice Deposits asset in Pool
      * @param asset The asset to be deposited
@@ -307,24 +333,13 @@ contract Pool is
         // collect fee before deposit
         _mintFee(asset);
 
-        uint256 totalSupply = asset.totalSupply();
-        uint256 liability = asset.liability();
+        uint256 liabilityToMint;
+        (liquidity, liabilityToMint, ) = _depositTo(asset, amount);
 
-        // TODO: confirm we don't do exact deposit?
-        int256 reward = _depositReward(int256(amount), asset);
-
-        uint256 fee;
-        if (reward < 0) {
-            // TODO: confirm we don't distribute deposit reward
-            fee = uint256(-reward);
-        }
-
-        // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
-        liquidity = (liability == 0 ? (amount - fee) : ((amount - fee) * totalSupply) / liability);
         require(liquidity > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_MINTED');
 
         asset.addCash(amount);
-        asset.addLiability(amount - fee);
+        asset.addLiability(liabilityToMint);
         asset.mint(to, liquidity);
     }
 
@@ -569,8 +584,6 @@ contract Pool is
         address toToken,
         uint256 fromAmount
     ) external view whenNotPaused returns (uint256 potentialOutcome, uint256 haircut) {
-        require(fromToken != address(0), 'Wombat: ZERO_ADDRESS');
-        require(toToken != address(0), 'Wombat: ZERO_ADDRESS');
         require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
         require(fromAmount > 0, 'Wombat: ZERO_FROM_AMOUNT');
 
@@ -602,39 +615,36 @@ contract Pool is
             bool enoughCash
         )
     {
-        require(token != address(0), 'Wombat: ZERO_ADDRESS');
         require(liquidity > 0, 'Wombat: liquidity must be greater than zero');
 
         Asset asset = _assetOf(token);
         (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
     }
 
-    function quotePotentialDeposit(address token, uint256 amount) external view returns (uint256 liquidity) {
-        // TODO: implement
+    /**
+     * @notice Quotes potential deposit from pool
+     * @dev To be used by frontend
+     * @param token The token to deposit by user
+     * @param amount The amount to deposit
+     * @return liquidity The potential liquidity user would receive
+     * @return fee The fee that would be applied
+     */
+    function quotePotentialDeposit(address token, uint256 amount)
+        external
+        view
+        returns (uint256 liquidity, int256 fee)
+    {
+        Asset asset = _assetOf(token);
+        (liquidity, , fee) = _depositTo(asset, amount);
     }
 
     /**
-     * @notice Private function to send fee collected to the fee beneficiary
-     * @param asset The address of the asset to collect fee
+     * @notice Returns the exchange rate of the LP token
+     * @param asset The address of the LP token
+     * @return exchangeRate
      */
-    function _mintFee(Asset asset) private {
-        if (address(feeTo) != address(0)) {
-            uint256 feeCollected = _feeCollected[asset];
-            if (feeCollected > 0) {
-                _feeCollected[asset] = 0;
-                // call totalSupply() and liability() before mint()
-                asset.mint(feeTo, (feeCollected * asset.totalSupply()) / asset.liability());
-                asset.addLiability(feeCollected);
-            }
-        }
-    }
-
-    /**
-     * @notice Send fee collected to the fee beneficiary
-     * @param asset The address of the asset to collect fee
-     */
-    function mintFee(Asset asset) external {
-        _mintFee(asset);
+    function exchangeRate(Asset asset) external view returns (uint256 exchangeRate) {
+        return asset.liability() / asset.totalSupply();
     }
 
     function _depositReward(int256 amount, Asset asset) internal view returns (int256 reward) {
@@ -703,5 +713,29 @@ contract Pool is
             SL += L_i;
             D += L_i.wmul(r_i - A.wdiv(r_i));
         }
+    }
+
+    /**
+     * @notice Private function to send fee collected to the fee beneficiary
+     * @param asset The address of the asset to collect fee
+     */
+    function _mintFee(Asset asset) private {
+        if (address(feeTo) != address(0)) {
+            uint256 feeCollected = _feeCollected[asset];
+            if (feeCollected > 0) {
+                _feeCollected[asset] = 0;
+                // call totalSupply() and liability() before mint()
+                asset.mint(feeTo, (feeCollected * asset.totalSupply()) / asset.liability());
+                asset.addLiability(feeCollected);
+            }
+        }
+    }
+
+    /**
+     * @notice Send fee collected to the fee beneficiary
+     * @param asset The address of the asset to collect fee
+     */
+    function mintFee(Asset asset) external {
+        _mintFee(asset);
     }
 }
