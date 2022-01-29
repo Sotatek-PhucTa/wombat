@@ -238,6 +238,27 @@ contract Pool is
     }
 
     /**
+     * @notice Removes asset from asset struct
+     * @dev Can only be called by owner
+     * @param key The address of token to remove
+     */
+    function removeAsset(address key) external onlyOwner {
+        require(_containsAsset(key), 'Wombat: ASSET_NOT_EXISTS');
+
+        delete _assets.values[key];
+
+        uint256 index = _assets.indexOf[key];
+        uint256 lastIndex = _assets.keys.length - 1;
+        address lastKey = _assets.keys[lastIndex];
+
+        _assets.indexOf[lastKey] = index;
+        delete _assets.indexOf[key];
+
+        _assets.keys[index] = lastKey;
+        _assets.keys.pop();
+    }
+
+    /**
      * @notice get length of asset list
      * @return the size of the asset list
      */
