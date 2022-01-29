@@ -34,7 +34,7 @@ contract Pool is
     uint256 private constant ETH_UNIT = 10**18;
 
     /// @notice Amplification factor
-    uint256 private _ampFactor = 5 * 10**16; // 0.05 for amplification factor
+    uint256 public ampFactor = 5 * 10**16; // 0.05 for amplification factor
 
     /// @notice Haircut rate
     uint256 private haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
@@ -113,14 +113,6 @@ contract Pool is
     }
 
     /**
-     * @notice Gets current amplification factor parameter
-     * @return The current amplification factor parameter in Pool
-     */
-    function getAmpFactor() external view onlyOwner returns (uint256) {
-        return _ampFactor;
-    }
-
-    /**
      * @notice Gets current haircut parameter
      * @return The current haircut parameter in Pool
      */
@@ -180,7 +172,7 @@ contract Pool is
      */
     function setAmpFactor(uint256 ampFactor_) external onlyOwner {
         require(ampFactor_ <= ETH_UNIT, 'Wombat: ampFactor should be <= 1'); // ampFactor_ should not be set bigger than 1
-        _ampFactor = ampFactor_;
+        ampFactor = ampFactor_;
     }
 
     /**
@@ -587,7 +579,7 @@ contract Pool is
         // in case div of 0
         require(Lx > 0, 'Not enough from-asset');
 
-        uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, _ampFactor);
+        uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, ampFactor);
         idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
     }
 
@@ -676,7 +668,7 @@ contract Pool is
 
         int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
-        int256 A = int256(_ampFactor);
+        int256 A = int256(ampFactor);
 
         (int256 D, int256 SL) = _globalInvariantFunc(A);
 
@@ -691,7 +683,7 @@ contract Pool is
     }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
-        int256 A = int256(_ampFactor);
+        int256 A = int256(ampFactor);
 
         int256 D;
         int256 SL;
