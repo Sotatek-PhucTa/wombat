@@ -13,7 +13,7 @@ import '../libraries/SafeCast.sol';
 contract CoreV2 {
     using DSMath for uint256;
     using SignedSafeMath for int256;
-    int256 public constant WAD_i = 10**18;
+    int256 public constant WAD_I = 10**18;
     uint256 public constant WAD = 10**18;
 
     /**
@@ -76,7 +76,7 @@ contract CoreV2 {
      * @return The asset coverage ratio of token y ("Ry")
      */
     function _coverageYFunc(int256 b, int256 A) internal pure returns (int256) {
-        int256 sqrtR = ((b**2).add(A * 4 * WAD_i));
+        int256 sqrtR = ((b**2).add(A * 4 * WAD_I));
         int256 sqrtResult = sqrtR.sqrt();
         int256 numerator = sqrtResult.sub(b);
         return numerator.div(2);
