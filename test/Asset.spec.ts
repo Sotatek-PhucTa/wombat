@@ -34,7 +34,7 @@ describe('Asset', function () {
     token2 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8))
     aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('stables', true)
     asset = await AssetFactory.deploy(token.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
-    asset2 = await AssetFactory.deploy(token.address, 'Venus USD LP', 'vUSDC-LP', aggregateAccount.address)
+    asset2 = await AssetFactory.deploy(token2.address, 'Venus USD LP', 'vUSDC-LP', aggregateAccount.address)
 
     // wait for transactions to be mined
     await token.deployTransaction.wait()
