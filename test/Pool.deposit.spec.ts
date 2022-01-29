@@ -125,10 +125,10 @@ describe('Pool - Deposit', function () {
         const afterBalance2 = await token0.balanceOf(user2.address)
 
         expect(await asset0.cash()).to.be.equal(parseEther('200.123'))
-        expect(await asset0.liability()).to.be.equal(parseEther('200.123000000000000200'))
+        expect(await asset0.liability()).to.be.equal(parseEther('200.123'))
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('200.123'))
-        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('100.123000000000000200'))
-        expect(await asset0.totalSupply()).to.be.equal(parseEther('200.123000000000000200'))
+        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('100.123'))
+        expect(await asset0.totalSupply()).to.be.equal(parseEther('200.123'))
 
         expect(afterBalance1).to.be.equal(parseEther('99900')) // 100k - 100
         expect(afterBalance1.sub(beforeBalance1)).to.be.equal(parseEther('-100')) // 99.9 - 100k
@@ -151,9 +151,9 @@ describe('Pool - Deposit', function () {
           .connect(user1)
           .deposit(token0.address, parseEther('100'), user2.address, fiveSecondsSince)
 
-        expect(await asset0.liability()).to.be.equal(parseEther('201.768743776499784306'))
-        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('98.261997042643835766'))
-        expect(await asset0.totalSupply()).to.be.equal(parseEther('198.261997042643835766'))
+        expect(await asset0.liability()).to.be.equal(parseEther('201.768743776499783944'))
+        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('98.261997042643835411'))
+        expect(await asset0.totalSupply()).to.be.equal(parseEther('198.261997042643835411'))
         expect((await asset0.liability()) / (await asset0.totalSupply())).to.equal(1.0176874377649978)
 
         expect(receipt)
@@ -162,7 +162,7 @@ describe('Pool - Deposit', function () {
             user1.address,
             token0.address,
             parseEther('100'),
-            parseEther('98.261997042643835766'),
+            parseEther('98.261997042643835411'),
             user2.address
           )
       })
@@ -249,10 +249,10 @@ describe('Pool - Deposit', function () {
         ).to.be.revertedWith('Wombat: EXPIRED')
       })
 
-      it.skip('reverts if liquidity to mint is too small', async function () {
+      it('reverts if liquidity to mint is too small', async function () {
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('0'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: INSUFFICIENT_LIQUIDITY_MINTED')
+        ).to.be.revertedWith('Wombat: ZERO_AMOUNT')
       })
 
       it('reverts if liquidity provider does not have enough balance', async function () {
@@ -387,7 +387,7 @@ describe('Pool - Deposit', function () {
     })
   })
 
-  describe('3 assets', function () {
+  describe('3 assets - deposit fee', function () {
     beforeEach(async function () {
       // Transfer 100k from BUSD contract to users
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100 k

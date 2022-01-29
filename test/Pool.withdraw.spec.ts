@@ -109,16 +109,16 @@ describe('Pool - Withdraw', function () {
         // check that quoted withdrawal is the same as amount withdrawn
         expect(afterBalance.sub(beforeBalance)).to.be.equal(quotedWithdrawal)
 
-        expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('70')) // 70 (withdrawn) - 0 (deposited 100 already)
+        expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('70.000000000000000030')) // 70 (withdrawn) - 0 (deposited 100 already)
         expect(await asset0.balanceOf(user1.address)).to.be.equal(parseEther('30'))
-        expect(await asset0.cash()).to.be.equal(parseEther('30'))
+        expect(await asset0.cash()).to.be.equal(parseEther('29.999999999999999970'))
         expect(await asset0.liability()).to.be.equal(parseEther('30'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('30'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('29.999999999999999970'))
         expect(await asset0.totalSupply()).to.be.equal(parseEther('30'))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
-          .withArgs(user1.address, token0.address, parseEther('70'), parseEther('70'), user1.address)
+          .withArgs(user1.address, token0.address, parseEther('70.000000000000000030'), parseEther('70'), user1.address)
       })
 
       it('works to withdraw all', async function () {
@@ -228,11 +228,11 @@ describe('Pool - Withdraw', function () {
         expect(enoughCash).to.be.true
         expect(afterBalance.sub(beforeBalance)).to.be.equal(quotedWithdrawal)
 
-        expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('10'))
+        expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('10.000000000000000200'))
         expect(await asset0.balanceOf(user1.address)).to.be.equal(parseEther('90'))
-        expect(await asset0.cash()).to.be.equal(parseEther('110'))
+        expect(await asset0.cash()).to.be.equal(parseEther('109.999999999999999800'))
         expect(await asset0.liability()).to.be.equal(parseEther('90'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('110'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('109.999999999999999800'))
         expect(await asset0.totalSupply()).to.be.equal(parseEther('90'))
       })
 
@@ -322,10 +322,13 @@ describe('Pool - Withdraw', function () {
         })
 
         it('works with 0 fee (cov >= 1)', async function () {
-          const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
+          const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(
+            token0.address,
+            parseEther('10.000000000000000090')
+          )
 
-          expect(actualAmount).to.be.equal(parseEther('10'))
-          expect(fee).to.be.equal(parseEther('0'))
+          expect(actualAmount).to.be.equal(parseEther('10.000000000000000180'))
+          expect(fee).to.be.equal(-90)
         })
       })
     })
@@ -548,7 +551,7 @@ describe('Pool - Withdraw', function () {
       await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
     })
 
-    it('r* > 1, withdraw fee > 0', async function () {
+    it('r* > 1, r < 1, withdraw fee > 0', async function () {
       // Faucet
       await asset0.connect(owner).setPool(owner.address)
       await asset0.connect(owner).addCash(parseEther('10516.66012'))
@@ -592,7 +595,7 @@ describe('Pool - Withdraw', function () {
       ])
     })
 
-    it('r* > 1, withdraw fee < 0', async function () {
+    it('r* > 1, r = 1, withdraw fee < 0', async function () {
       // Faucet
       await asset0.connect(owner).setPool(owner.address)
       await asset0.connect(owner).addCash(parseEther('10516.66012'))
