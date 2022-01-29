@@ -34,10 +34,10 @@ contract Pool is
     uint256 private _ampFactor = 5 * 10**16; // 0.05 for amplification factor
 
     /// @notice Haircut rate
-    uint256 private _haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
+    uint256 private haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
 
     /// @notice Retention ratio
-    uint256 private _retentionRatio = ETH_UNIT; // 1
+    uint256 private retentionRatio = ETH_UNIT; // 1
 
     /// @notice Dev address
     address private _dev;
@@ -115,7 +115,7 @@ contract Pool is
      * @return The current haircut parameter in Pool
      */
     function getHaircutRate() external view onlyOwner returns (uint256) {
-        return _haircutRate;
+        return haircutRate;
     }
 
     /**
@@ -123,7 +123,7 @@ contract Pool is
      * @return The current retention ratio parameter in Pool
      */
     function getRetentionRatio() external view onlyOwner returns (uint256) {
-        return _retentionRatio;
+        return retentionRatio;
     }
 
     /**
@@ -179,7 +179,7 @@ contract Pool is
      */
     function setHaircutRate(uint256 haircutRate_) external onlyOwner {
         require(haircutRate_ <= ETH_UNIT, 'Wombat: haircutRate should be <= 1'); // haircutRate_ should not be set bigger than 1
-        _haircutRate = haircutRate_;
+        haircutRate = haircutRate_;
     }
 
     /**
@@ -188,7 +188,7 @@ contract Pool is
      */
     function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
         require(retentionRatio_ <= ETH_UNIT, 'Wombat: retentionRatio should be <= 1'); // retentionRatio_ should not be set bigger than 1
-        _retentionRatio = retentionRatio_;
+        retentionRatio = retentionRatio_;
     }
 
     /**
@@ -422,7 +422,7 @@ contract Pool is
         require(minimumToAmount <= actualToAmount, 'Wombat: AMOUNT_TOO_LOW');
 
         // should not collect any fee if feeTo is not set
-        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, _retentionRatio) : 0;
+        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, retentionRatio) : 0;
         _feeCollected[toAsset] += dividend;
 
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
@@ -449,7 +449,7 @@ contract Pool is
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
         require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
 
-        haircut = _haircut(idealToAmount, _haircutRate);
+        haircut = _haircut(idealToAmount, haircutRate);
         actualToAmount = idealToAmount - haircut;
     }
 
