@@ -31,7 +31,7 @@ contract Asset is Ownable, Initializable, ERC20 {
     string public _symbol;
     /// @notice Aggregate Account of the asset
     address private _aggregateAccount;
-    /// @notice maxSupply the maximum amount of asset the pool is allowed to mint.
+    /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
     /// @dev if 0, means asset has no max
     uint256 public maxSupply;
 
@@ -103,7 +103,7 @@ contract Asset is Ownable, Initializable, ERC20 {
     }
 
     /**
-     * @notice Changes asset max supply. Can only be set by the contract owner.
+     * @notice Changes asset max supply. Can only be set by the contract owner. Decimals should respect the underlying token
      * @param maxSupply_ the new asset's max supply
      */
     function setMaxSupply(uint256 maxSupply_) external onlyOwner {
