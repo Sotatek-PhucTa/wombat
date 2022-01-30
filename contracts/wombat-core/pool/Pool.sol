@@ -553,24 +553,22 @@ contract Pool is
      */
     function _mintFee(Asset asset) private {
         uint256 feeCollected = _feeCollected[asset];
-        // early return
-        // we might set a threshold for min fee here to save gas cost
         if (feeCollected == 0) {
+            // early return
+            // we might set a threshold for min fee here to save gas cost
             return;
         }
 
         uint256 dividend = address(feeTo) != address(0) ? _dividend(feeCollected, _retentionRatio) : 0;
         uint256 retention = feeCollected - dividend;
-        uint256 liabilityToMint = dividend;
+        uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
         _feeCollected[asset] = 0;
 
         if (dividend > 0) {
             // call totalSupply() and liability() before mint()
             asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
         }
-        if (shouldDistributeRetention) {
-            liabilityToMint += retention;
-        }
+
         asset.addLiability(liabilityToMint);
     }
 
