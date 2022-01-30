@@ -132,14 +132,16 @@ contract MasterWombat is
         _unpause();
     }
 
-    // function setnewMasterWombat(IMasterWombat _newMasterWombat) external onlyOwner {
-    //     newMasterWombat = _newMasterWombat;
-    // }
+    function setnewMasterWombat(IMasterWombat _newMasterWombat) external onlyOwner {
+        newMasterWombat = _newMasterWombat;
+    }
 
     /// @notice returns pool length
     function poolLength() external view override returns (uint256) {
         return poolInfo.length;
     }
+
+    /* Pool Configuration */
 
     /// @notice Add a new lp to the pool. Can only be called by the owner.
     /// @dev Reverts if the same LP token is added more than once.
@@ -207,6 +209,28 @@ contract MasterWombat is
         }
         emit Set(pid, allocPoint, overwrite ? rewarder : poolInfo[pid].rewarder, overwrite);
     }
+
+    /// @notice updates emission rate
+    /// @param womPerSec wom amount to be updated
+    /// @dev Pancake has to add hidden dummy pools inorder to alter the emission,
+    /// @dev here we make it simple and transparent to all.
+    function updateEmissionRate(uint256 womPerSec) external onlyOwner {
+        massUpdatePools();
+        womPerSec = womPerSec;
+        emit UpdateEmissionRate(msg.sender, womPerSec);
+    }
+
+    /// @notice updates veWom address
+    /// @param _newVeWom the new veWom address
+    function setVeWom(IVeWom _newVeWom) external onlyOwner {
+        require(address(_newVeWom) != address(0));
+        massUpdatePools();
+        IVeWom oldVeWom = veWom;
+        veWom = _newVeWom;
+        emit UpdateVeWom(msg.sender, address(oldVeWom), address(_newVeWom));
+    }
+
+    /* Rewards */
 
     /// @notice View function to see pending WOMs on frontend.
     /// @param pid the pool id
@@ -317,6 +341,29 @@ contract MasterWombat is
         }
     }
 
+    /// @notice Deposit LP tokens to MasterWombat for WOM allocation.
+    /// @dev it is possible to call this function with amount == 0 to claim current rewards
+    /// @param pid the pool id
+    /// @param amount amount to deposit
+    function deposit(uint256 pid, uint256 amount)
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (uint256 rewards, uint256 additionalRewards)
+    {
+        PoolInfo storage pool = poolInfo[pid];
+        UserInfo storage user = userInfo[pid][msg.sender];
+        rewards = _claim(pid, msg.sender);
+
+        _updateAmount(pid, msg.sender, user.amount + amount, veWom.balanceOf(msg.sender));
+
+        additionalRewards = _onReward(pool.rewarder, msg.sender, user.amount);
+
+        pool.lpToken.safeTransferFrom(address(msg.sender), address(this), amount);
+        emit Deposit(msg.sender, pid, amount);
+    }
+
     /// @notice Deposit LP tokens to MasterWombat for WOM allocation on behalf of user
     /// @dev user must initiate transaction from MasterWombat
     /// @param pid the pool id
@@ -331,27 +378,17 @@ contract MasterWombat is
 
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][userAddress];
-        _claim(pid, userAddress);
+        uint256 rewards = _claim(pid, userAddress);
 
-        // update amount and factor
-        uint256 oldFactor = user.factor;
-        user.amount += amount;
-        user.factor = _getFactor(user.amount, veWom.balanceOf(userAddress));
-        pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
+        _updateAmount(pid, userAddress, user.amount + amount, veWom.balanceOf(userAddress));
 
-        // update reward debt
-        user.rewardDebt = user.factor * pool.accWomPerShare;
+        uint256 additionalRewards = _onReward(pool.rewarder, userAddress, user.amount);
 
         pool.lpToken.safeTransferFrom(msg.sender, address(this), amount);
         emit DepositFor(userAddress, pid, amount);
     }
 
-    function _getFactor(uint256 amount, uint256 veWomBal) internal pure returns (uint256) {
-        // TODO: implement
-        return amount + veWomBal * amount.sqrt().sqrt();
-    }
-
-    function _claim(uint256 pid, address userAddress) internal returns (uint256 rewards, uint256 additionalRewards) {
+    function _claim(uint256 pid, address userAddress) internal returns (uint256 rewards) {
         _updatePool(pid);
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][userAddress];
@@ -365,74 +402,72 @@ contract MasterWombat is
             // send reward
             rewards = safeWomTransfer(payable(userAddress), rewards);
             emit Harvest(userAddress, pid, rewards);
-
-            // if existant, get external rewarder rewards for pool
-            IRewarder rewarder = pool.rewarder;
-            if (address(rewarder) != address(0)) {
-                additionalRewards = rewarder.onReward(userAddress, user.amount);
-            }
         }
     }
 
-    /// @notice Deposit LP tokens to MasterWombat for WOM allocation.
-    /// @dev it is possible to call this function with amount == 0 to claim current rewards
-    /// @param pid the pool id
-    /// @param amount amount to deposit
-    function deposit(uint256 pid, uint256 amount)
-        external
-        override
-        nonReentrant
-        whenNotPaused
-        returns (uint256 rewards, uint256 additionalRewards)
-    {
+    function _updateAmount(
+        uint256 pid,
+        address userAddr,
+        uint256 newAmount,
+        uint256 veVomBalance
+    ) internal {
         PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][msg.sender];
-        (rewards, additionalRewards) = _claim(pid, msg.sender);
+        UserInfo storage user = userInfo[pid][userAddr];
 
         // update amount and factor
         uint256 oldFactor = user.factor;
-        user.amount += amount;
-        user.factor = _getFactor(user.amount, veWom.balanceOf(msg.sender));
+        user.amount = newAmount;
+        user.factor = _getFactor(user.amount, veVomBalance);
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
         user.rewardDebt = user.factor * pool.accWomPerShare;
+    }
 
-        pool.lpToken.safeTransferFrom(address(msg.sender), address(this), amount);
-        emit Deposit(msg.sender, pid, amount);
+    function _getFactor(uint256 amount, uint256 veWomBal) internal pure returns (uint256) {
+        // TODO: implement
+        return amount + veWomBal * amount.sqrt().sqrt();
+    }
+
+    function _onReward(
+        IRewarder rewarder,
+        address userAddress,
+        uint256 amount
+    ) internal returns (uint256 additionalRewards) {
+        // if exist, get external rewarder rewards for pool
+        if (address(rewarder) != address(0)) {
+            additionalRewards = rewarder.onReward(userAddress, amount);
+        }
     }
 
     /// @notice claims rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function multiClaim(uint256[] memory _pids)
+    function multiClaim(uint256[] calldata _pids)
         external
         override
         nonReentrant
         whenNotPaused
-        returns (
-            uint256,
-            uint256[] memory,
-            uint256[] memory
-        )
+        returns (uint256[] memory rewards, uint256[] memory additionalRewards)
     {
         return _multiClaim(_pids);
     }
 
     /// @notice private function to claim rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function _multiClaim(uint256[] memory _pids)
+    function _multiClaim(uint256[] calldata _pids)
         private
-        returns (
-            uint256 totalRewards,
-            uint256[] memory rewards,
-            uint256[] memory additionalRewards
-        )
+        returns (uint256[] memory rewards, uint256[] memory additionalRewards)
     {
         rewards = new uint256[](_pids.length);
         additionalRewards = new uint256[](_pids.length);
         for (uint256 i = 0; i < _pids.length; ++i) {
-            (rewards[i], additionalRewards[i]) = _claim(_pids[i], msg.sender);
-            totalRewards += rewards[i];
+            rewards[i] = _claim(_pids[i], msg.sender);
+
+            additionalRewards[i] = _onReward(
+                poolInfo[_pids[i]].rewarder,
+                msg.sender,
+                userInfo[_pids[i]][msg.sender].amount
+            );
         }
     }
 
@@ -450,15 +485,11 @@ contract MasterWombat is
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
         require(user.amount >= amount, 'withdraw: not good');
-        (rewards, additionalRewards) = _claim(pid, msg.sender);
+        rewards = _claim(pid, msg.sender);
 
-        uint256 oldFactor = user.factor;
-        user.amount -= amount;
-        user.factor = _getFactor(user.amount, veWom.balanceOf(msg.sender));
-        pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
+        _updateAmount(pid, msg.sender, user.amount - amount, veWom.balanceOf(msg.sender));
 
-        // update reward debt
-        user.rewardDebt = user.factor * pool.accWomPerShare;
+        additionalRewards = _onReward(pool.rewarder, msg.sender, user.amount);
 
         pool.lpToken.safeTransfer(address(msg.sender), amount);
         emit Withdraw(msg.sender, pid, amount);
@@ -501,24 +532,10 @@ contract MasterWombat is
         }
     }
 
-    /// @notice updates emission rate
-    /// @param womPerSec wom amount to be updated
-    /// @dev Pancake has to add hidden dummy pools inorder to alter the emission,
-    /// @dev here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 womPerSec) external onlyOwner {
-        massUpdatePools();
-        womPerSec = womPerSec;
-        emit UpdateEmissionRate(msg.sender, womPerSec);
-    }
-
-    /// @notice updates veWom address
-    /// @param _newVeWom the new veWom address
-    function setVeWom(IVeWom _newVeWom) external onlyOwner {
-        require(address(_newVeWom) != address(0));
-        massUpdatePools();
-        IVeWom oldVeWom = veWom;
-        veWom = _newVeWom;
-        emit UpdateVeWom(msg.sender, address(oldVeWom), address(_newVeWom));
+    /// @notice In case we need to manually migrate WOM funds from MasterWombat
+    /// Sends all remaining wom from the contract to the owner
+    function emergencyWomWithdraw() external onlyOwner {
+        wom.safeTransfer(address(msg.sender), wom.balanceOf(address(this)));
     }
 
     /// @notice updates factor after any veWom token operation (minting/burning)
@@ -531,9 +548,8 @@ contract MasterWombat is
 
         for (uint256 pid = 0; pid < length; ++pid) {
             UserInfo storage user = userInfo[pid][userAddress];
-
-            // skip if user doesn't have any deposit in the pool
             if (user.amount == 0) {
+                // skip if user doesn't have any deposit in the pool
                 continue;
             }
 
@@ -556,11 +572,5 @@ contract MasterWombat is
             // also, update sumOfFactors
             pool.sumOfFactors = pool.sumOfFactors + newFactor - oldFactor;
         }
-    }
-
-    /// @notice In case we need to manually migrate WOM funds from MasterWombat
-    /// Sends all remaining wom from the contract to the owner
-    function emergencyWomWithdraw() external onlyOwner {
-        wom.safeTransfer(address(msg.sender), wom.balanceOf(address(this)));
     }
 }

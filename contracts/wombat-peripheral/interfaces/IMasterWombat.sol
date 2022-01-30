@@ -30,11 +30,7 @@ interface IMasterWombat {
 
     function multiClaim(uint256[] memory _pids)
         external
-        returns (
-            uint256,
-            uint256[] memory,
-            uint256[] memory
-        );
+        returns (uint256[] memory rewards, uint256[] memory additionalRewards);
 
     function withdraw(uint256 _pid, uint256 _amount) external returns (uint256, uint256);
 
