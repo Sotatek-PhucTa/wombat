@@ -47,7 +47,7 @@ contract CoreV2 {
         int256 b = _coefficientFunc(Lx_i, Ly_i, Rx, D, A_i);
         int256 Ry = _coverageYFunc(b, A_i);
         int256 Dy = _deltaFunc(Ay_i, Ly_i, Ry);
-        int256 quote_i = Ay_i.sub(Ay_i.add(Dy));
+        int256 quote_i = Ay_i - Ay_i - Dy;
         uint256 quote = SafeCast.toUint256(quote_i);
         return quote;
     }
@@ -65,7 +65,7 @@ contract CoreV2 {
         int256 Ly,
         int256 Ry
     ) internal pure returns (int256) {
-        return Ly.wmul(Ry).sub(Ay);
+        return Ly.wmul(Ry) - Ay;
     }
 
     /**
@@ -76,10 +76,8 @@ contract CoreV2 {
      * @return The asset coverage ratio of token y ("Ry")
      */
     function _coverageYFunc(int256 b, int256 A) internal pure returns (int256) {
-        int256 sqrtR = ((b**2).add(A * 4 * WAD_I));
-        int256 sqrtResult = sqrtR.sqrt();
-        int256 numerator = sqrtResult.sub(b);
-        return numerator.div(2);
+        int256 sqrtResult = ((b**2) + (A * 4 * WAD_I)).sqrt();
+        return (sqrtResult - b) / 2;
     }
 
     /**
@@ -95,7 +93,7 @@ contract CoreV2 {
         int256 Lx,
         int256 Dx
     ) internal pure returns (int256) {
-        return (Ax.add(Dx)).wdiv(Lx);
+        return (Ax + Dx).wdiv(Lx);
     }
 
     /**
@@ -117,9 +115,9 @@ contract CoreV2 {
     ) internal pure returns (int256) {
         int256 Rx_0 = Ax.wdiv(Lx);
         int256 Ry_0 = Ay.wdiv(Ly);
-        int256 a = Lx.wmul(Rx_0).add(Ly.wmul(Ry_0));
-        int256 b = A.wmul(Lx.wdiv(Rx_0).add(Ly.wdiv(Ry_0)));
-        return a.sub(b);
+        int256 a = Lx.wmul(Rx_0) + Ly.wmul(Ry_0);
+        int256 b = A.wmul(Lx.wdiv(Rx_0) + Ly.wdiv(Ry_0));
+        return a - b;
     }
 
     /**
@@ -140,9 +138,9 @@ contract CoreV2 {
         int256 A
     ) internal pure returns (int256) {
         int256 a = Lx.wdiv(Ly);
-        int256 b = Rx.sub(A.wdiv(Rx));
+        int256 b = Rx - A.wdiv(Rx);
         int256 c = D.wdiv(Ly);
-        return (a.wmul(b)).sub(c);
+        return a.wmul(b) - c;
     }
 
     /**

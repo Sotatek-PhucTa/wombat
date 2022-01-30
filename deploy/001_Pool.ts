@@ -32,7 +32,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const pool = await ethers.getContractAt('Pool', poolDeployResult.address)
 
       // Check dev account
-      const dev = await pool.getDev()
+      const dev = await pool.dev()
       console.log(`Dev account is : ${dev}`)
       console.log(`Deployer account is: ${deployer}`)
 

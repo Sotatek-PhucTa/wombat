@@ -124,7 +124,7 @@ describe('Asset', function () {
 
     it('Should revert as restricted to only pool', async function () {
       await expect(asset.transferUnderlyingToken(owner.address, parseUnits('100', 18))).to.be.revertedWith(
-        'Wombat: FORBIDDEN'
+        'WOMBAT_FORBIDDEN'
       )
     })
   })
@@ -144,7 +144,7 @@ describe('Asset', function () {
 
     it('Should revert as restricted to only pool', async function () {
       await expect(asset.connect(owner).mint(user.address, parseUnits('100', 18))).to.be.revertedWith(
-        'Wombat: FORBIDDEN'
+        'WOMBAT_FORBIDDEN'
       )
     })
   })
@@ -165,7 +165,7 @@ describe('Asset', function () {
 
     it('Should revert as restricted to only pool', async function () {
       await expect((await asset.connect(owner)).burn(user.address, parseUnits('100', 18))).to.be.revertedWith(
-        'Wombat: FORBIDDEN'
+        'WOMBAT_FORBIDDEN'
       )
     })
   })
@@ -178,7 +178,7 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect((await asset.connect(owner)).addCash(parseUnits('100', 18))).to.be.revertedWith('Wombat: FORBIDDEN')
+      await expect((await asset.connect(owner)).addCash(parseUnits('100', 18))).to.be.revertedWith('WOMBAT_FORBIDDEN')
     })
   })
 
@@ -201,7 +201,7 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect(asset.removeCash(parseUnits('100', 18))).to.be.revertedWith('Wombat: FORBIDDEN')
+      await expect(asset.removeCash(parseUnits('100', 18))).to.be.revertedWith('WOMBAT_FORBIDDEN')
     })
   })
 
@@ -214,7 +214,7 @@ describe('Asset', function () {
 
     it('Should revert as restricted to only pool', async function () {
       await expect((await asset.connect(owner)).addLiability(parseUnits('100', 18))).to.be.revertedWith(
-        'Wombat: FORBIDDEN'
+        'WOMBAT_FORBIDDEN'
       )
     })
   })
@@ -238,7 +238,7 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect(asset.connect(owner).removeLiability(parseUnits('100', 18))).to.be.revertedWith('Wombat: FORBIDDEN')
+      await expect(asset.connect(owner).removeLiability(parseUnits('100', 18))).to.be.revertedWith('WOMBAT_FORBIDDEN')
     })
   })
 })

@@ -241,7 +241,7 @@ describe('Pool - Withdraw', function () {
           poolContract
             .connect(user1)
             .withdraw(token0.address, parseEther('100'), parseEther('100'), user1.address, fiveSecondsAgo)
-        ).to.be.revertedWith('Wombat: EXPIRED')
+        ).to.be.revertedWith('WOMBAT_EXPIRED')
       })
 
       it('reverts if liquidity provider does not have enough liquidity token', async function () {
@@ -290,7 +290,7 @@ describe('Pool - Withdraw', function () {
               user1.address,
               fiveSecondsSince
             )
-        ).to.be.revertedWith('Wombat: ZERO_ADDRESS')
+        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
       })
 
       it('reverts if asset not exist', async function () {
@@ -348,7 +348,7 @@ describe('Pool - Withdraw', function () {
           .withArgs(
             owner.address,
             token0.address,
-            parseUnits('10.000000000000000090'),
+            parseUnits('9.999269495807120390'),
             parseUnits('10', 8),
             owner.address
           )

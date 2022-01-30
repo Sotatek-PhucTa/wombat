@@ -68,15 +68,8 @@ describe('Pool - Utils', function () {
       await poolContract.connect(owner).setRetentionRatio(parseUnits('1', 18))
 
       expect(await poolContract.connect(owner).ampFactor()).to.be.equal(parseUnits('0.05', 18))
-      expect(await poolContract.connect(owner).getHaircutRate()).to.be.equal(parseUnits('0.004', 18))
-      expect(await poolContract.connect(owner).getRetentionRatio()).to.be.equal(parseUnits('1', 18))
-    })
-
-    it('Should revert if notOwner gets contract private parameters', async function () {
-      await expect(poolContract.connect(user).getHaircutRate()).to.be.revertedWith('Ownable: caller is not the owner')
-      await expect(poolContract.connect(user).getRetentionRatio()).to.be.revertedWith(
-        'Ownable: caller is not the owner'
-      )
+      expect(await poolContract.connect(owner).haircutRate()).to.be.equal(parseUnits('0.004', 18))
+      expect(await poolContract.connect(owner).retentionRatio()).to.be.equal(parseUnits('1', 18))
     })
 
     it('Should revert if notOwner sets contract private parameters', async function () {
@@ -94,13 +87,13 @@ describe('Pool - Utils', function () {
     it('Should revert if params are set outside out of their boundaries', async function () {
       // should not be bigger than 1
       await expect(poolContract.connect(owner).setAmpFactor(parseUnits('1.1', 18))).to.be.revertedWith(
-        'Wombat: ampFactor should be <= 1'
+        'WOMBAT_INVALID_VALUE'
       )
       await expect(poolContract.connect(owner).setHaircutRate(parseUnits('12.1', 18))).to.be.revertedWith(
-        'Wombat: haircutRate should be <= 1'
+        'WOMBAT_INVALID_VALUE'
       )
       await expect(poolContract.connect(owner).setRetentionRatio(parseUnits('1.0001', 18))).to.be.revertedWith(
-        'Wombat: retentionRatio should be <= 1'
+        'WOMBAT_INVALID_VALUE'
       )
     })
   })
@@ -131,13 +124,13 @@ describe('Pool - Utils', function () {
         // Add ERC20 token with zero address
         await expect(
           poolContract.connect(owner).addAsset(ethers.constants.AddressZero, mockAsset.address),
-          'Wombat: ZERO_ADDRESS'
+          'WOMBAT_ZERO_ADDRESS'
         ).to.be.reverted
 
         // Add Asset with zero address
         await expect(
           poolContract.connect(owner).addAsset(mockToken.address, ethers.constants.AddressZero)
-        ).to.be.revertedWith('Wombat: ZERO_ADDRESS')
+        ).to.be.revertedWith('WOMBAT_ZERO_ADDRESS')
 
         // Add existing asset
         await expect(poolContract.connect(owner).addAsset(token0.address, asset0.address)).to.be.revertedWith(
@@ -162,13 +155,13 @@ describe('Pool - Utils', function () {
 
   describe('getters', function () {
     it('works', async function () {
-      expect(await poolContract.getDev()).to.equal(owner.address)
+      expect(await poolContract.dev()).to.equal(owner.address)
     })
 
     it('can change pool dev', async function () {
       // Change pool's dev
       await poolContract.connect(owner).setDev(user.address)
-      expect(await poolContract.getDev()).to.equal(user.address)
+      expect(await poolContract.dev()).to.equal(user.address)
     })
   })
 
@@ -187,8 +180,8 @@ describe('Pool - Utils', function () {
     })
 
     it('restricts to only dev (deployer)', async function () {
-      await expect(poolContract.connect(user).pause(), 'Wombat: FORBIDDEN').to.be.reverted
-      await expect(poolContract.connect(user).unpause(), 'Wombat: FORBIDDEN').to.be.reverted
+      await expect(poolContract.connect(user).pause(), 'WOMBAT_FORBIDDEN').to.be.reverted
+      await expect(poolContract.connect(user).unpause(), 'WOMBAT_FORBIDDEN').to.be.reverted
     })
   })
 })

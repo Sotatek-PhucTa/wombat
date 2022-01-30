@@ -12,34 +12,6 @@ pragma solidity 0.8.5;
 library SignedSafeMath {
     int256 public constant WAD = 10**18;
 
-    /**
-     * @dev Returns the multiplication of two signed integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `*` operator.
-     *
-     * Requirements:
-     *
-     * - Multiplication cannot overflow.
-     */
-    function mul(int256 a, int256 b) internal pure returns (int256) {
-        return a * b;
-    }
-
-    /**
-     * @dev Returns the integer division of two signed integers. Reverts on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator.
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(int256 a, int256 b) internal pure returns (int256) {
-        return a / b;
-    }
-
     //rounds to zero if x*y < WAD / 2
     function wdiv(int256 x, int256 y) internal pure returns (int256) {
         return ((x * WAD) + (y / 2)) / y;
@@ -48,34 +20,6 @@ library SignedSafeMath {
     //rounds to zero if x*y < WAD / 2
     function wmul(int256 x, int256 y) internal pure returns (int256) {
         return ((x * y) + (WAD / 2)) / WAD;
-    }
-
-    /**
-     * @dev Returns the subtraction of two signed integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(int256 a, int256 b) internal pure returns (int256) {
-        return a - b;
-    }
-
-    /**
-     * @dev Returns the addition of two signed integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `+` operator.
-     *
-     * Requirements:
-     *
-     * - Addition cannot overflow.
-     */
-    function add(int256 a, int256 b) internal pure returns (int256) {
-        return a + b;
     }
 
     // Babylonian Method (typecast as int) as used also from Uniswap v2
