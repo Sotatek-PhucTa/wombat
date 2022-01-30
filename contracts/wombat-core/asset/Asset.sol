@@ -123,9 +123,9 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @param amount amount to transfer
      */
     function mint(address to, uint256 amount) external onlyPool {
-        if (this.maxSupply() != 0) {
+        if (maxSupply != 0) {
             // if maxSupply == 0, asset is uncapped.
-            require(amount + this.totalSupply() <= this.maxSupply(), 'Wombat: MAX_SUPPLY_REACHED');
+            require(amount + this.totalSupply() <= maxSupply, 'Wombat: MAX_SUPPLY_REACHED');
         }
         return _mint(to, amount);
     }

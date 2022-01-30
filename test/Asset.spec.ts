@@ -153,7 +153,8 @@ describe('Asset', function () {
         'Wombat: FORBIDDEN'
       )
     })
-    it('Should respect limit', async function () {
+
+    it('Should revert when max supply is exceeded', async function () {
       // initial LP tokens balance is 0
       expect(await asset2.balanceOf(user.address)).to.equal(parseUnits('0', 6))
 
