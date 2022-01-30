@@ -12,8 +12,6 @@ import '../asset/Asset.sol';
 import './CoreV2.sol';
 import './PausableAssets.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
@@ -657,7 +655,8 @@ contract Pool is
      * @return exchangeRate
      */
     function exchangeRate(Asset asset) external view returns (uint256 exchangeRate) {
-        return asset.liability() / asset.totalSupply();
+        if (asset.totalSupply() == 0) return 1;
+        return exchangeRate = asset.liability() / asset.totalSupply();
     }
 
     function _depositReward(int256 amount, Asset asset) internal view returns (int256 reward) {
@@ -675,7 +674,6 @@ contract Pool is
         int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
 
         reward = _convertFromWAD(d, w);
-        // console.log('reward', uint256(reward), uint256(-reward));
     }
 
     function _withdrawalFee(int256 amount, Asset asset) internal view returns (int256 fee) {
