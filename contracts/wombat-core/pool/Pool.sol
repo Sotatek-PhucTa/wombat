@@ -146,7 +146,7 @@ contract Pool is
      * @param ampFactor_ new pool's amplification factor
      */
     function setAmpFactor(uint256 ampFactor_) external onlyOwner {
-        if(ampFactor_ > WAD) revert WOMBAT_INVALID_VALUE(); // ampFactor_ should not be set bigger than 1
+        if (ampFactor_ > WAD) revert WOMBAT_INVALID_VALUE(); // ampFactor_ should not be set bigger than 1
         ampFactor = ampFactor_;
     }
 
@@ -155,7 +155,7 @@ contract Pool is
      * @param haircutRate_ new pool's haircutRate_
      */
     function setHaircutRate(uint256 haircutRate_) external onlyOwner {
-        if(haircutRate_ > WAD) revert WOMBAT_INVALID_VALUE(); // haircutRate_ should not be set bigger than 1
+        if (haircutRate_ > WAD) revert WOMBAT_INVALID_VALUE(); // haircutRate_ should not be set bigger than 1
         haircutRate = haircutRate_;
     }
 
@@ -164,7 +164,7 @@ contract Pool is
      * @param retentionRatio_ new pool's retentionRatio
      */
     function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
-        if(retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE();; // retentionRatio_ should not be set bigger than 1
+        if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be set bigger than 1
         retentionRatio = retentionRatio_;
     }
 
