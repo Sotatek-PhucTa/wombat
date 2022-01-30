@@ -305,31 +305,100 @@ describe('Pool - Withdraw', function () {
             .withdraw(mockToken.address, parseEther('100'), parseEther('100'), user1.address, fiveSecondsSince)
         ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
       })
+    })
 
-      describe('quotePotentialWithdraw', () => {
-        it.skip('works with fee', async function () {
-          // Adjust coverage ratio to around 0.6
-          await asset0.connect(owner).setPool(owner.address)
-          await asset0.connect(owner).removeCash(parseEther('40'))
-          await asset0.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
-          await asset0.connect(owner).addLiability(parseEther('1.768743776499783944'))
-          await asset0.connect(owner).setPool(poolContract.address)
+    describe('withdrawFromOtherAsset', function () {
+      it('reverts when cov < 1', async function () {
+        await expect(
+          poolContract
+            .connect(owner)
+            .withdrawFromOtherAsset(
+              token1.address,
+              token0.address,
+              parseEther('10'),
+              parseEther('0'),
+              user1.address,
+              fiveSecondsSince
+            )
+        ).to.be.revertedWith('Wombat: COV_RATIO_LOW')
+      })
 
-          const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
+      // TODO: merge withdrawal fee.
+      it('works with 0 fee (cov >= 1)', async function () {
+        await asset0.connect(owner).setPool(owner.address)
+        await asset0.connect(owner).addCash(parseEther('10'))
+        await asset0.connect(owner).setPool(poolContract.address)
 
-          expect(actualAmount).to.be.equal(parseEther('10.120767233297418226'))
-          expect(fee).to.be.equal(parseEther('0.056107144352560168'))
-        })
+        await token1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+        await asset1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+        await poolContract.connect(owner).deposit(token1.address, parseUnits('10', 8), owner.address, fiveSecondsSince)
 
-        it('works with 0 fee (cov >= 1)', async function () {
-          const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(
+        const receipt = await poolContract
+          .connect(owner)
+          .withdrawFromOtherAsset(
+            token1.address,
             token0.address,
-            parseEther('10.000000000000000090')
+            parseEther('10'),
+            parseEther('0'),
+            owner.address,
+            fiveSecondsSince
           )
+        expect(receipt)
+          .to.emit(poolContract, 'Withdraw')
+          .withArgs(
+            owner.address,
+            token0.address,
+            parseUnits('10.000000000000000090'),
+            parseUnits('10', 8),
+            owner.address
+          )
+      })
+    })
 
-          expect(actualAmount).to.be.equal(parseEther('10.000000000000000180'))
-          expect(fee).to.be.equal(-90)
-        })
+    describe('quotePotentialWithdraw', () => {
+      it.skip('works with fee', async function () {
+        // Adjust coverage ratio to around 0.6
+        await asset0.connect(owner).setPool(owner.address)
+        await asset0.connect(owner).removeCash(parseEther('40'))
+        await asset0.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
+        await asset0.connect(owner).addLiability(parseEther('1.768743776499783944'))
+        await asset0.connect(owner).setPool(poolContract.address)
+
+        const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
+
+        expect(actualAmount).to.be.equal(parseEther('10000000000000000090'))
+        expect(fee).to.be.equal(parseEther('0.056107144352560168'))
+      })
+
+      it('works with 0 fee (cov >= 1)', async function () {
+        const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
+
+        expect(actualAmount).to.be.equal(parseEther('10.000000000000000090'))
+        expect(fee).to.be.equal(-90)
+      })
+    })
+
+    describe('quotePotentialWithdrawFromOtherAsset', () => {
+      it('reverts when cov < 1', async function () {
+        await expect(
+          poolContract
+            .connect(owner)
+            .quotePotentialWithdrawFromOtherAsset(token1.address, token0.address, parseEther('10'))
+        ).to.be.revertedWith('Wombat: COV_RATIO_LOW')
+      })
+
+      // TODO: merge withdrawal fee.
+      it('works with 0 fee (cov >= 1)', async function () {
+        await asset0.connect(owner).setPool(owner.address)
+        await asset0.connect(owner).addCash(parseEther('10'))
+        await asset0.connect(owner).setPool(poolContract.address)
+        const [actualAmount, fee, enoughCash] = await poolContract
+          .connect(owner)
+          .quotePotentialWithdrawFromOtherAsset(token1.address, token0.address, parseEther('9'))
+
+        expect(actualAmount).to.be.equal(parseEther('9.000000000000000283'))
+        expect(fee).to.be.equal(-283)
+        expect(enoughCash).to.be.equal(true)
       })
     })
   })

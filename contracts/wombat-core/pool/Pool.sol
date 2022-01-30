@@ -12,6 +12,8 @@ import '../asset/Asset.sol';
 import './CoreV2.sol';
 import './PausableAssets.sol';
 
+import 'hardhat/console.sol';
+
 /**
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
@@ -25,8 +27,16 @@ contract Pool is
     PausableAssets,
     CoreV2
 {
+    using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
+
+    /// @notice Asset Map struct holds assets
+    struct AssetMap {
+        address[] keys;
+        mapping(address => Asset) values;
+        mapping(address => uint256) indexOf;
+    }
 
     /// @notice Wei in 1 ether
     uint256 private constant ETH_UNIT = 10**18;
@@ -35,20 +45,13 @@ contract Pool is
     uint256 public ampFactor = 5 * 10**16; // 0.05 for amplification factor
 
     /// @notice Haircut rate
-    uint256 private haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
+    uint256 public haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
 
     /// @notice Retention ratio
-    uint256 private retentionRatio = ETH_UNIT; // 1
+    uint256 public retentionRatio = ETH_UNIT; // 1
 
     /// @notice Dev address
-    address private _dev;
-
-    /// @notice Asset Map struct holds assets
-    struct AssetMap {
-        address[] keys;
-        mapping(address => Asset) values;
-        mapping(address => uint256) indexOf;
-    }
+    address public _dev;
 
     /// @notice A record of assets inside Pool
     AssetMap private _assets;
@@ -98,32 +101,6 @@ contract Pool is
         __Pausable_init_unchained();
 
         _dev = msg.sender;
-    }
-
-    // Getters //
-
-    /**
-     * @notice Gets current Dev address
-     * @return The current Dev address for Pool
-     */
-    function getDev() external view returns (address) {
-        return _dev;
-    }
-
-    /**
-     * @notice Gets current haircut parameter
-     * @return The current haircut parameter in Pool
-     */
-    function getHaircutRate() external view onlyOwner returns (uint256) {
-        return haircutRate;
-    }
-
-    /**
-     * @notice Gets current retention ratio parameter
-     * @return The current retention ratio parameter in Pool
-     */
-    function getRetentionRatio() external view onlyOwner returns (uint256) {
-        return retentionRatio;
     }
 
     /**
@@ -428,6 +405,54 @@ contract Pool is
     }
 
     /**
+     * @notice Enables withdrawing liquidity from an asset using LP from a different asset in the same aggregate
+     * @param fromToken The corresponding token user holds the LP (Asset) from
+     * @param toToken The token wanting to be withdrawn (needs to be well covered)
+     * @param liquidity The liquidity to be withdrawn (in toToken decimal)
+     * @param minAmount The minimum amount that will be accepted by user
+     * @param receipient The user receiving the withdrawal
+     * @param deadline The deadline to be respected
+     * @dev fromToken and toToken assets' must be in the same aggregate
+     * @dev Also, coverage ratio of toAsset must be higher than 1 after withdrawal for this to be accepted
+     * @return amount The total amount withdrawn
+     */
+    function withdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity,
+        uint256 minAmount,
+        address receipient,
+        uint256 deadline
+    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
+        require(fromToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(toToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(receipient != address(0), 'Wombat: ZERO_ADDRESS');
+        require(liquidity > 0, 'Wombat: ZERO_LIQUIDITY');
+
+        Asset fromAsset = _assetOf(fromToken);
+        Asset toAsset = _assetOf(toToken);
+        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        bool enoughCash;
+        (amount, , , enoughCash) = _withdrawFrom(toAsset, liquidity);
+        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
+        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= ETH_UNIT, 'Wombat: COV_RATIO_LOW');
+        require(minAmount <= amount, 'Wombat: AMOUNT_TOO_LOW');
+
+        // Burn LP from user and trasnfer token.
+        // Note: Convert liquidity and liability to fromAsset decimal.
+        uint256 liquidityFromAsset = (liquidity * 10**fromAsset.decimals()) / (10**toAsset.decimals());
+        require(liquidityFromAsset > 0, 'Wombat: ZERO_LIQUIDITY');
+        IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidityFromAsset);
+        uint256 liabilityToBurn = (liquidityFromAsset * fromAsset.liability()) / toAsset.totalSupply();
+        fromAsset.burn(address(fromAsset), liquidityFromAsset);
+        fromAsset.removeLiability(liabilityToBurn);
+        toAsset.removeCash(amount);
+        toAsset.transferUnderlyingToken(receipient, amount);
+
+        emit Withdraw(msg.sender, toToken, amount, liquidityFromAsset, receipient);
+    }
+
+    /**
      * @notice Withdraws liquidity amount of asset to `to` address ensuring minimum amount required
      * @param asset The asset to be withdrawn
      * @param liquidity The liquidity to be withdrawn
@@ -544,7 +569,6 @@ contract Pool is
         Asset toAsset,
         uint256 fromAmount
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
-        uint8 dTo = toAsset.decimals();
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
         require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
 
@@ -605,6 +629,43 @@ contract Pool is
         require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_SWAP_NOT_SUPPORTED');
 
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
+    }
+
+    /**
+     * @notice Quotes potential withdrawal from other asset in the same aggregate
+     * @dev To be used by frontend. Reverts if not possible
+     * @param fromToken The users holds LP corresponding to this initial token
+     * @param toToken The token to be withdrawn by user
+     * @param liquidity The liquidity (amount of lp assets) to be withdrawn (in toToken decimal).
+     * @return amount The potential amount user would receive
+     * @return fee The fee that would be applied
+     */
+    function quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    )
+        external
+        view
+        whenNotPaused
+        returns (
+            uint256 amount,
+            int256 fee,
+            bool enoughCash
+        )
+    {
+        require(fromToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(toToken != address(0), 'Wombat: ZERO_ADDRESS');
+        require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
+        require(liquidity > 0, 'Wombat: ZERO_LIQUIDITY');
+
+        Asset fromAsset = _assetOf(fromToken);
+        Asset toAsset = _assetOf(toToken);
+        require(fromAsset.aggregateAccount() == toAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        (amount, , fee, enoughCash) = _withdrawFrom(toAsset, liquidity);
+        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
+        console.log(toAsset.cash(), amount, toAsset.liability());
+        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= ETH_UNIT, 'Wombat: COV_RATIO_LOW');
     }
 
     /**
