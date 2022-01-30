@@ -1,5 +1,5 @@
 // Sourced from: https://github.com/dmihal/eth-permit/blob/master/src/rpc.ts
-/* eslint-disable */ 
+/* eslint-disable */
 
 const randomId = () => Math.floor(Math.random() * 10000000000)
 
