@@ -806,7 +806,7 @@ contract Pool is
             return;
         }
 
-        uint256 dividend = _dividend(feeCollected, _retentionRatio);
+        uint256 dividend = _dividend(feeCollected, retentionRatio);
         uint256 retention = feeCollected - dividend;
         uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
         _feeCollected[asset] = 0;
