@@ -67,13 +67,12 @@ describe('Pool - Utils', function () {
       await poolContract.connect(owner).setHaircutRate(parseUnits('0.004', 18))
       await poolContract.connect(owner).setRetentionRatio(parseUnits('1', 18))
 
-      expect(await poolContract.connect(owner).getAmpFactor()).to.be.equal(parseUnits('0.05', 18))
+      expect(await poolContract.connect(owner).ampFactor()).to.be.equal(parseUnits('0.05', 18))
       expect(await poolContract.connect(owner).getHaircutRate()).to.be.equal(parseUnits('0.004', 18))
       expect(await poolContract.connect(owner).getRetentionRatio()).to.be.equal(parseUnits('1', 18))
     })
 
     it('Should revert if notOwner gets contract private parameters', async function () {
-      await expect(poolContract.connect(user).getAmpFactor()).to.be.revertedWith('Ownable: caller is not the owner')
       await expect(poolContract.connect(user).getHaircutRate()).to.be.revertedWith('Ownable: caller is not the owner')
       await expect(poolContract.connect(user).getRetentionRatio()).to.be.revertedWith(
         'Ownable: caller is not the owner'
