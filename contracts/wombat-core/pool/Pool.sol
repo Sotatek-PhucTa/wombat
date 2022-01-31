@@ -53,6 +53,9 @@ contract Pool is
 
     address public feeTo;
 
+    /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
+    bool public shouldDistributeRetention;
+
     /// @notice Dividend collected by each asset (unit: underlying token)
     mapping(IAsset => uint256) private _feeCollected;
 
@@ -179,6 +182,15 @@ contract Pool is
     function setFeeTo(address feeTo_) external onlyOwner {
         require(feeTo_ != address(0), 'Wombat: set retention ratio instead');
         feeTo = feeTo_;
+    }
+
+    function setShouldDistributeRetention(bool _shouldDistributeRetention) external onlyOwner {
+        require(_shouldDistributeRetention != shouldDistributeRetention, 'Wombat: what are you setting?');
+        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+            IAsset asset = _getAsset(_getKeyAtIndex(i));
+            _mintFee(asset);
+        }
+        shouldDistributeRetention = _shouldDistributeRetention;
     }
 
     /* Assets */
@@ -672,9 +684,7 @@ contract Pool is
         (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         if (minimumToAmount > actualToAmount) revert WOMBAT_AMOUNT_TOO_LOW();
 
-        // should not collect any fee if feeTo is not set
-        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, retentionRatio) : 0;
-        _feeCollected[toAsset] += dividend;
+        _feeCollected[toAsset] += haircut;
 
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
@@ -795,15 +805,24 @@ contract Pool is
      * @param asset The address of the asset to collect fee
      */
     function _mintFee(IAsset asset) private {
-        if (address(feeTo) != address(0)) {
-            uint256 feeCollected = _feeCollected[asset];
-            if (feeCollected > 0) {
-                _feeCollected[asset] = 0;
-                // call totalSupply() and liability() before mint()
-                asset.mint(feeTo, (feeCollected * asset.totalSupply()) / asset.liability());
-                asset.addLiability(feeCollected);
-            }
+        uint256 feeCollected = _feeCollected[asset];
+        if (feeCollected == 0) {
+            // early return
+            // we might set a threshold for min fee here to save gas cost
+            return;
         }
+
+        uint256 dividend = _dividend(feeCollected, retentionRatio);
+        uint256 retention = feeCollected - dividend;
+        uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
+        _feeCollected[asset] = 0;
+
+        if (dividend > 0) {
+            // call totalSupply() and liability() before mint()
+            asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
+        }
+
+        asset.addLiability(liabilityToMint);
     }
 
     /**
