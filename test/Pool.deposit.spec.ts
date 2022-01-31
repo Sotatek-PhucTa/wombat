@@ -246,13 +246,13 @@ describe('Pool - Deposit', function () {
       it('reverts if passed deadline', async function () {
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsAgo)
-        ).to.be.revertedWith('Wombat: EXPIRED')
+        ).to.be.revertedWith('WOMBAT_EXPIRED')
       })
 
       it('reverts if liquidity to mint is too small', async function () {
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('0'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: ZERO_AMOUNT')
+        ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
       })
 
       it('reverts if liquidity provider does not have enough balance', async function () {
@@ -276,7 +276,7 @@ describe('Pool - Deposit', function () {
       })
 
       it('reverts if pause asset is invoked by non-owner', async function () {
-        await expect(poolContract.connect(user1).pauseAsset(token0.address)).to.be.revertedWith('Wombat: FORBIDDEN')
+        await expect(poolContract.connect(user1).pauseAsset(token0.address)).to.be.revertedWith('WOMBAT_FORBIDDEN')
       })
 
       it('allows deposit if asset paused and unpaused after', async function () {
@@ -300,7 +300,7 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(ethers.constants.AddressZero, parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: ZERO_ADDRESS')
+        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
       })
 
       it('reverts if asset not exist', async function () {

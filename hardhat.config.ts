@@ -1,17 +1,17 @@
-import '@nomiclabs/hardhat-waffle'
-import '@typechain/hardhat'
-import '@nomiclabs/hardhat-ethers'
-import '@nomiclabs/hardhat-solhint'
-import '@nomiclabs/hardhat-etherscan'
-import 'solidity-coverage'
-import 'hardhat-deploy'
-import 'hardhat-gas-reporter'
-import 'hardhat-docgen'
 import '@hardhat-docgen/core'
 import '@hardhat-docgen/markdown'
-
-import { HardhatUserConfig } from 'hardhat/config'
+import '@nomiclabs/hardhat-ethers'
+import '@nomiclabs/hardhat-etherscan'
+import '@nomiclabs/hardhat-solhint'
+import '@nomiclabs/hardhat-waffle'
+import '@typechain/hardhat'
 import dotenv from 'dotenv'
+import 'hardhat-contract-sizer'
+import 'hardhat-deploy'
+import 'hardhat-docgen'
+import 'hardhat-gas-reporter'
+import { HardhatUserConfig } from 'hardhat/config'
+import 'solidity-coverage'
 import secrets from './secrets.json' // BSC TESTNET ONLY!
 
 dotenv.config()
