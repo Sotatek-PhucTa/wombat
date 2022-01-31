@@ -1,5 +1,5 @@
 // Sourced from: https://github.com/dmihal/eth-permit/blob/master/src/eth-permit.ts
-/* eslint-disable */ 
+/* eslint-disable */
 import { getChainId, call, signData, RSV } from './rpc'
 import { hexToUtf8 } from './lib'
 

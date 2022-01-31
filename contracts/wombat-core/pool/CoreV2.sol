@@ -13,7 +13,7 @@ import '../libraries/SafeCast.sol';
 contract CoreV2 {
     using DSMath for uint256;
     using SignedSafeMath for int256;
-    int256 public constant WAD_i = 10**18;
+    int256 public constant WAD_I = 10**18;
     uint256 public constant WAD = 10**18;
 
     /**
@@ -76,7 +76,7 @@ contract CoreV2 {
      * @return The asset coverage ratio of token y ("Ry")
      */
     function _coverageYFunc(int256 b, int256 A) internal pure returns (int256) {
-        int256 sqrtR = ((b**2).add(A * 4 * WAD_i));
+        int256 sqrtR = ((b**2).add(A * 4 * WAD_I));
         int256 sqrtResult = sqrtR.sqrt();
         int256 numerator = sqrtResult.sub(b);
         return numerator.div(2);
@@ -146,6 +146,69 @@ contract CoreV2 {
     }
 
     /**
+     * @return w positive value indicates a reward and negative value indicates a fee
+     */
+    function depositRewardImpl(
+        int256 SL,
+        int256 delta_i,
+        int256 A_i,
+        int256 L_i,
+        int256 D,
+        int256 A
+    ) internal pure returns (int256 w) {
+        if (SL == 0 || L_i == 0 || L_i + delta_i == 0) {
+            return 0;
+        }
+
+        int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
+        w = (L_i.wmul(A_i).wdiv(L_i) + delta_i) - (L_i + delta_i).wmul(r_i_);
+    }
+
+    function _targetedCovRatio(
+        int256 SL,
+        int256 delta_i,
+        int256 A_i,
+        int256 L_i,
+        int256 D,
+        int256 A
+    ) internal pure returns (int256 r_i_) {
+        int256 r_i = A_i.wdiv(L_i);
+        int256 er = _equilCovRatio(D, SL, A);
+        int256 er_ = _newEquilCovRatio(er, SL, delta_i);
+        int256 D_ = _newInvariantFunc(er_, A, SL, delta_i);
+
+        // Summation of k∈T\{i} is D - L_i.wmul(r_i - A.wdiv(r_i))
+        int256 b_ = (D - L_i.wmul(r_i - A.wdiv(r_i)) - D_).wdiv(L_i + delta_i);
+        r_i_ = _coverageYFunc(b_, A);
+    }
+
+    function _equilCovRatio(
+        int256 D,
+        int256 SL,
+        int256 A
+    ) internal pure returns (int256 er) {
+        int256 b = -(D.wdiv(SL));
+        er = _coverageYFunc(b, A);
+    }
+
+    function _newEquilCovRatio(
+        int256 er,
+        int256 SL,
+        int256 delta_i
+    ) internal pure returns (int256 er_) {
+        er_ = (delta_i + SL.wmul(er)).wdiv(delta_i + SL);
+    }
+
+    function _newInvariantFunc(
+        int256 er_,
+        int256 A,
+        int256 SL,
+        int256 delta_i
+    ) internal pure returns (int256 D_) {
+        D_ = (SL + delta_i).wmul(er_ - A.wdiv(er_));
+    }
+
+    /**
      * @notice Equation to convert token amount to WAD units, i.e. decimal number with 18 digits
      * @dev Converts amount to WAD units
      * @param d decimal of token x
@@ -162,6 +225,18 @@ contract CoreV2 {
     }
 
     /**
+     * For signed integer
+     */
+    function _convertToWAD(uint8 d, int256 Dx) internal pure returns (int256) {
+        if (d < 18) {
+            return Dx * int256(10**(18 - d));
+        } else if (d > 18) {
+            return (Dx / int256(10**(d - 18)));
+        }
+        return Dx;
+    }
+
+    /**
      * @notice Equation to convert WAD units back to original token amount with correct decimal numbers
      * @dev Converts WAD units to original amount
      * @param d decimal of token x
@@ -173,6 +248,18 @@ contract CoreV2 {
             return (Dx / (10**(18 - d)));
         } else if (d > 18) {
             return Dx * 10**(d - 18);
+        }
+        return Dx;
+    }
+
+    /**
+     * For signed integer
+     */
+    function _convertFromWAD(uint8 d, int256 Dx) internal pure returns (int256) {
+        if (d < 18) {
+            return (Dx / int256(10**(18 - d)));
+        } else if (d > 18) {
+            return Dx * int256(10**(d - 18));
         }
         return Dx;
     }
@@ -200,37 +287,5 @@ contract CoreV2 {
      */
     function _dividend(uint256 amount, uint256 ratio) internal pure returns (uint256) {
         return amount.wmul(WAD - ratio);
-    }
-
-    /**
-     * @notice TODO (if any) from Yellow Paper (Withdrawal Fee)
-     * @dev Applies fee to prevent withdrawal arbitrage
-     * @param cash cash balance of asset
-     * @param liability liability position of asset
-     * @param amount amount to be withdrawn
-     * @return The final fee to be applied
-     */
-    function _withdrawalFee(
-        uint256 cash,
-        uint256 liability,
-        uint256 amount
-    ) internal pure returns (uint256) {
-        return 0;
-    }
-
-    /**
-     * @notice TODO (if any) from Yellow Paper (Deposit Fee)
-     * @dev Applies fee to prevent deposit arbitrage
-     * @param cash cash balance of asset
-     * @param liability liability position of asset
-     * @param amount amount to be deposited
-     * @return The final fee to be applied
-     */
-    function _depositFee(
-        uint256 cash,
-        uint256 liability,
-        uint256 amount
-    ) internal pure returns (uint256) {
-        return 0;
     }
 }

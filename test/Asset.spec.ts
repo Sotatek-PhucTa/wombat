@@ -13,7 +13,9 @@ describe('Asset', function () {
   let pool: SignerWithAddress
   let user: SignerWithAddress
   let token: Contract
+  let token2: Contract
   let asset: Contract
+  let asset2: Contract
   let aggregateAccount: Contract
 
   beforeEach(async function () {
@@ -29,16 +31,20 @@ describe('Asset', function () {
 
     // Deploy with factories
     token = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
+    token2 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8))
     aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('stables', true)
     asset = await AssetFactory.deploy(token.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
+    asset2 = await AssetFactory.deploy(token2.address, 'Venus USD LP', 'vUSDC-LP', aggregateAccount.address)
 
     // wait for transactions to be mined
     await token.deployTransaction.wait()
     await aggregateAccount.deployTransaction.wait()
     await asset.deployTransaction.wait()
+    await asset2.deployTransaction.wait()
 
     // set dummy pool address
     await asset.setPool(pool.address)
+    await asset2.setPool(pool.address)
   })
 
   // TODO: move pool address setup within contract initialization
@@ -146,6 +152,25 @@ describe('Asset', function () {
       await expect(asset.connect(owner).mint(user.address, parseUnits('100', 18))).to.be.revertedWith(
         'Wombat: FORBIDDEN'
       )
+    })
+
+    it('Should revert when max supply is exceeded', async function () {
+      // initial LP tokens balance is 0
+      expect(await asset2.balanceOf(user.address)).to.equal(parseUnits('0', 6))
+
+      await asset2.connect(owner).setMaxSupply(parseUnits('100', 6))
+
+      await asset2.connect(pool).mint(user.address, parseUnits('99', 6))
+      await asset2.connect(pool).mint(user.address, parseUnits('1', 6))
+
+      expect(await asset2.balanceOf(user.address)).to.equal(parseUnits('100', 6))
+      expect(await asset2.totalSupply()).to.equal(parseUnits('100', 6))
+
+      await expect(asset2.connect(pool).mint(user.address, parseUnits('1', 6))).to.be.revertedWith(
+        'Wombat: MAX_SUPPLY_REACHED'
+      )
+
+      expect(await asset2.totalSupply()).to.equal(parseUnits('100', 6))
     })
   })
 
