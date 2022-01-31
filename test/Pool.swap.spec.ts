@@ -424,7 +424,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsAgo
           )
-        ).to.be.revertedWith('Wombat: EXPIRED')
+        ).to.be.revertedWith('WOMBAT_EXPIRED')
       })
 
       it('reverts if amount to receive is less than expected', async function () {
@@ -437,7 +437,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: AMOUNT_TOO_LOW')
+        ).to.be.revertedWith('WOMBAT_AMOUNT_TOO_LOW')
       })
 
       it('reverts if pool paused', async function () {
@@ -464,7 +464,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: ZERO_ADDRESS')
+        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
 
         await expect(
           poolContract.connect(user1).swap(
@@ -475,7 +475,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: ZERO_ADDRESS')
+        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
       })
 
       it('reverts if asset not exist', async function () {

@@ -7,32 +7,40 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
+import '../interfaces/IAsset.sol';
+
 /**
  * @title Asset
  * @notice Contract presenting an asset in a pool
  * @dev Expect to be owned by Timelock for management, and pool links to Pool for coordination
  */
-contract Asset is Ownable, Initializable, ERC20 {
+contract Asset is Ownable, Initializable, ERC20, IAsset {
     using SafeERC20 for IERC20;
 
     /// @notice Aggregate Account of the asset
-    address public aggregateAccount;
+    address public override aggregateAccount;
     /// @notice The underlying underlyingToken represented by this asset
-    address public underlyingToken;
+    address public override underlyingToken;
     /// @notice The Pool
-    address public pool;
+    address public override pool;
     /// @notice Cash balance, normally it should align with IERC20(underlyingToken).balanceOf(address(this))
-    uint256 public cash;
+    uint256 public override cash;
     /// @notice Total liability, equals to the sum of deposit and dividend
-    uint256 public liability;
-    /// @notice Owner
-    address private _owner;
+    uint256 public override liability;
     /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
     /// @dev if 0, means asset has no max
     uint256 public maxSupply;
 
     /// @notice An event thats emitted when max supply is updated
     event MaxSupplyUpdated(uint256 previousMaxSupply, uint256 newMaxSupply);
+
+    error WOMBAT_FORBIDDEN();
+
+    /// @dev Modifier ensuring that certain function can only be called by pool
+    modifier onlyPool() {
+        if (msg.sender != pool) revert WOMBAT_FORBIDDEN();
+        _;
+    }
 
     /**
      * @notice Constructor.
@@ -60,15 +68,8 @@ contract Asset is Ownable, Initializable, ERC20 {
         require(underlyingToken_ != address(0), 'Wombat: Token address cannot be zero');
         require(aggregateAccount_ != address(0), 'Wombat: Aggregate account address cannot be zero');
 
-        _owner = msg.sender;
         underlyingToken = underlyingToken_;
         aggregateAccount = aggregateAccount_;
-    }
-
-    /// @dev Modifier ensuring that certain function can only be called by pool
-    modifier onlyPool() {
-        require(msg.sender == pool, 'Wombat: FORBIDDEN');
-        _;
     }
 
     /**
@@ -76,7 +77,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @notice Changes the pool. Can only be set by the contract owner.
      * @param pool_ new pool's address
      */
-    function setPool(address pool_) external onlyOwner {
+    function setPool(address pool_) external override onlyOwner {
         require(pool_ != address(0), 'Wombat: Pool address cannot be zero');
         pool = pool_;
     }
@@ -94,8 +95,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @notice Returns the decimals of ERC20 underlyingToken
      * @return The current decimals for underlying token
      */
-    function decimals() public view virtual override returns (uint8) {
-        // `decimals` not in IERC20
+    function decimals() public view virtual override(ERC20, IAsset) returns (uint8) {
         return ERC20(underlyingToken).decimals();
     }
 
@@ -103,7 +103,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @notice Get underlying Token Balance
      * @return Returns the actual balance of ERC20 underlyingToken
      */
-    function underlyingTokenBalance() external view returns (uint256) {
+    function underlyingTokenBalance() external view override returns (uint256) {
         return IERC20(underlyingToken).balanceOf(address(this));
     }
 
@@ -113,7 +113,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @param to address to transfer the token to
      * @param amount amount to transfer
      */
-    function transferUnderlyingToken(address to, uint256 amount) external onlyPool {
+    function transferUnderlyingToken(address to, uint256 amount) external override onlyPool {
         IERC20(underlyingToken).safeTransfer(to, amount);
     }
 
@@ -122,7 +122,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @param to address to transfer the token to
      * @param amount amount to transfer
      */
-    function mint(address to, uint256 amount) external onlyPool {
+    function mint(address to, uint256 amount) external override onlyPool {
         if (maxSupply != 0) {
             // if maxSupply == 0, asset is uncapped.
             require(amount + this.totalSupply() <= maxSupply, 'Wombat: MAX_SUPPLY_REACHED');
@@ -135,7 +135,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @param to address holding the tokens
      * @param amount amount to burn
      */
-    function burn(address to, uint256 amount) external onlyPool {
+    function burn(address to, uint256 amount) external override onlyPool {
         return _burn(to, amount);
     }
 
@@ -143,7 +143,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * @notice Adds cash, expects actual ERC20 underlyingToken got transferred in. Can only be called by Pool.
      * @param amount amount to add
      */
-    function addCash(uint256 amount) external onlyPool {
+    function addCash(uint256 amount) external override onlyPool {
         cash += amount;
     }
 
@@ -152,7 +152,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * Can only be called by Pool.
      * @param amount amount to remove
      */
-    function removeCash(uint256 amount) external onlyPool {
+    function removeCash(uint256 amount) external override onlyPool {
         require(cash >= amount, 'Wombat: INSUFFICIENT_CASH');
         cash -= amount;
     }
@@ -162,7 +162,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * Can only be called by Pool.
      * @param amount amount to add
      */
-    function addLiability(uint256 amount) external onlyPool {
+    function addLiability(uint256 amount) external override onlyPool {
         liability += amount;
     }
 
@@ -171,7 +171,7 @@ contract Asset is Ownable, Initializable, ERC20 {
      * Can only be called by Pool.
      * @param amount amount to remove
      */
-    function removeLiability(uint256 amount) external onlyPool {
+    function removeLiability(uint256 amount) external override onlyPool {
         require(liability >= amount, 'Wombat: INSUFFICIENT_LIABILITY');
         liability -= amount;
     }
