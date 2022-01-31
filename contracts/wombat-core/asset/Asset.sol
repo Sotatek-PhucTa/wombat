@@ -27,6 +27,12 @@ contract Asset is Ownable, Initializable, ERC20, IAsset {
     uint256 public override cash;
     /// @notice Total liability, equals to the sum of deposit and dividend
     uint256 public override liability;
+    /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
+    /// @dev if 0, means asset has no max
+    uint256 public maxSupply;
+
+    /// @notice An event thats emitted when max supply is updated
+    event MaxSupplyUpdated(uint256 previousMaxSupply, uint256 newMaxSupply);
 
     error WOMBAT_FORBIDDEN();
 
@@ -77,6 +83,15 @@ contract Asset is Ownable, Initializable, ERC20, IAsset {
     }
 
     /**
+     * @notice Changes asset max supply. Can only be set by the contract owner. Decimals should respect the underlying token
+     * @param maxSupply_ the new asset's max supply
+     */
+    function setMaxSupply(uint256 maxSupply_) external onlyOwner {
+        emit MaxSupplyUpdated(maxSupply, maxSupply_);
+        maxSupply = maxSupply_;
+    }
+
+    /**
      * @notice Returns the decimals of ERC20 underlyingToken
      * @return The current decimals for underlying token
      */
@@ -108,6 +123,10 @@ contract Asset is Ownable, Initializable, ERC20, IAsset {
      * @param amount amount to transfer
      */
     function mint(address to, uint256 amount) external override onlyPool {
+        if (maxSupply != 0) {
+            // if maxSupply == 0, asset is uncapped.
+            require(amount + this.totalSupply() <= maxSupply, 'Wombat: MAX_SUPPLY_REACHED');
+        }
         return _mint(to, amount);
     }
 
