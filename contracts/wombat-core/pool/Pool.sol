@@ -52,6 +52,8 @@ contract Pool is
     AssetMap private _assets;
 
     address public feeTo;
+
+    /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
     bool public shouldDistributeRetention;
 
     /// @notice Dividend collected by each asset (unit: underlying token)
@@ -184,7 +186,10 @@ contract Pool is
 
     function setShouldDistributeRetention(bool _shouldDistributeRetention) external onlyOwner {
         require(_shouldDistributeRetention != shouldDistributeRetention, 'Wombat: what are you setting?');
-        // Question: do we need _mintFee() here?
+        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+            IAsset asset = _getAsset(_getKeyAtIndex(i));
+            _mintFee(asset);
+        }
         shouldDistributeRetention = _shouldDistributeRetention;
     }
 
