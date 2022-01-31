@@ -77,6 +77,7 @@ describe('Pool - Fee', function () {
     await poolContract.connect(owner).initialize()
 
     // set retention ratio
+    await poolContract.connect(owner).setShouldEnableExactDeposit(false)
     await poolContract.connect(owner).setRetentionRatio(parseEther('0.8'))
 
     // Add BUSD & USDC assets to pool
@@ -732,7 +733,7 @@ describe('Pool - Fee', function () {
         // deposit some token to pool
         await poolContract.connect(user1).deposit(token0.address, parseEther('1'), user1.address, fiveSecondsSince)
 
-        expect(await asset0.liability()).to.be.equal(parseEther('10001.007966360381334071'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10001.007961557039807021'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807021'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
       })

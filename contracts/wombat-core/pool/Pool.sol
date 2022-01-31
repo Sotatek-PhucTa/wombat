@@ -43,7 +43,7 @@ contract Pool is
     uint256 public haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
 
     /// @notice Retention ratio
-    uint256 public retentionRatio = WAD; // 1
+    uint256 public retentionRatio = 0;
 
     /// @notice Dev address
     address public dev;
@@ -177,10 +177,17 @@ contract Pool is
 
     /**
      * @notice Changes the pools retentionRatio. Can only be set by the contract owner.
+     * If shouldEnableExactDeposit is true, retentionRatio_ must be 0;
      * @param retentionRatio_ new pool's retentionRatio
      */
-    function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
+    function setRetentionRatio(uint256 retentionRatio_) public onlyOwner {
         if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be set bigger than 1
+        if (shouldEnableExactDeposit && retentionRatio_ > 0) revert WOMBAT_FORBIDDEN();
+
+        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+            IAsset asset = _getAsset(_getKeyAtIndex(i));
+            _mintFee(asset);
+        }
         retentionRatio = retentionRatio_;
     }
 
@@ -205,11 +212,13 @@ contract Pool is
 
     /**
      * @notice Enable exact deposit
-     * Should only be enabled when r* = 1, and retention fee = 0
+     * Should only be enabled when r* = 1. Retention ratio will be set to 0
      */
     function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
-        if (retentionRatio != 0) revert WOMBAT_FORBIDDEN();
         shouldEnableExactDeposit = shouldEnableExactDeposit_;
+        if (shouldEnableExactDeposit_) {
+            setRetentionRatio(0);
+        }
     }
 
     /* Assets */

@@ -65,6 +65,7 @@ describe('Pool - Utils', function () {
     it('Should get and set correct params', async function () {
       await poolContract.connect(owner).setAmpFactor(parseUnits('0.05', 18))
       await poolContract.connect(owner).setHaircutRate(parseUnits('0.004', 18))
+      await poolContract.connect(owner).setShouldEnableExactDeposit(false)
       await poolContract.connect(owner).setRetentionRatio(parseUnits('1', 18))
 
       expect(await poolContract.connect(owner).ampFactor()).to.be.equal(parseUnits('0.05', 18))
