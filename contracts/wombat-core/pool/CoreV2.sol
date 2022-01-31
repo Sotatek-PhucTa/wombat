@@ -35,12 +35,12 @@ contract CoreV2 {
         uint256 Dx,
         uint256 A
     ) internal pure returns (uint256) {
-        int256 Ax_i = SafeCast.toInt256(Ax);
-        int256 Ay_i = SafeCast.toInt256(Ay);
-        int256 Lx_i = SafeCast.toInt256(Lx);
-        int256 Ly_i = SafeCast.toInt256(Ly);
-        int256 Dx_i = SafeCast.toInt256(Dx);
-        int256 A_i = SafeCast.toInt256(A);
+        int256 Ax_i = int256(Ax);
+        int256 Ay_i = int256(Ay);
+        int256 Lx_i = int256(Lx);
+        int256 Ly_i = int256(Ly);
+        int256 Dx_i = int256(Dx);
+        int256 A_i = int256(A);
 
         int256 Rx = _coverageXFunc(Ax_i, Lx_i, Dx_i);
         int256 D = _invariantFunc(Ax_i, Ay_i, Lx_i, Ly_i, A_i);
@@ -48,7 +48,7 @@ contract CoreV2 {
         int256 Ry = _coverageYFunc(b, A_i);
         int256 Dy = _deltaFunc(Ay_i, Ly_i, Ry);
         int256 quote_i = Ay_i - Ay_i - Dy;
-        uint256 quote = SafeCast.toUint256(quote_i);
+        uint256 quote = uint256(quote_i);
         return quote;
     }
 
@@ -76,7 +76,7 @@ contract CoreV2 {
      * @return The asset coverage ratio of token y ("Ry")
      */
     function _coverageYFunc(int256 b, int256 A) internal pure returns (int256) {
-        int256 sqrtResult = ((b**2) + (A * 4 * WAD_I)).sqrt();
+        int256 sqrtResult = ((b * b) + (A * 4 * WAD_I)).sqrt();
         return (sqrtResult - b) / 2;
     }
 
@@ -261,10 +261,6 @@ contract CoreV2 {
         }
         return Dx;
     }
-
-    /**
-     * TODO BELOW
-     */
 
     /**
      * @notice TODO (if any) from Yellow Paper (Haircut).

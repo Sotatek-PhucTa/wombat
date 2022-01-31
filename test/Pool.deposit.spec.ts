@@ -272,7 +272,7 @@ describe('Pool - Deposit', function () {
         await poolContract.connect(owner).pauseAsset(token0.address)
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Pausable: asset paused')
+        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
       })
 
       it('reverts if pause asset is invoked by non-owner', async function () {
@@ -283,7 +283,7 @@ describe('Pool - Deposit', function () {
         await poolContract.connect(owner).pauseAsset(token0.address)
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Pausable: asset paused')
+        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
 
         await poolContract.connect(owner).unpauseAsset(token0.address)
         const receipt = await poolContract
@@ -300,7 +300,7 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(ethers.constants.AddressZero, parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
+        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if asset not exist', async function () {
@@ -311,7 +311,7 @@ describe('Pool - Deposit', function () {
 
         await expect(
           poolContract.connect(user1).deposit(mockToken.address, parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
+        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
     })
   })

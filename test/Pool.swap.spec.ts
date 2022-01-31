@@ -327,7 +327,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: INTERPOOL_SWAP_NOT_SUPPORTED')
+        ).to.be.revertedWith('WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED')
       })
 
       it('reverts if asset paused', async function () {
@@ -341,7 +341,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Pausable: asset paused')
+        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
       })
 
       it('allows swap if asset paused and unpaused after', async function () {
@@ -355,7 +355,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Pausable: asset paused')
+        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
 
         await poolContract.connect(owner).unpauseAsset(token1.address)
         const receipt = await poolContract.connect(user1).swap(
@@ -464,7 +464,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
+        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
 
         await expect(
           poolContract.connect(user1).swap(
@@ -475,7 +475,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
+        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if asset not exist', async function () {
@@ -485,7 +485,7 @@ describe('Pool - Swap', function () {
           poolContract
             .connect(user1)
             .swap(pax.address, token1.address, parseEther('100'), parseUnits('90', 18), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
+        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if not have enough from tokens', async function () {

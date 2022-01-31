@@ -134,7 +134,7 @@ describe('Pool - Utils', function () {
 
         // Add existing asset
         await expect(poolContract.connect(owner).addAsset(token0.address, asset0.address)).to.be.revertedWith(
-          'Wombat: ASSET_EXISTS'
+          'WOMBAT_ASSET_EXIST'
         )
       })
 
