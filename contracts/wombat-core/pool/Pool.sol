@@ -801,7 +801,7 @@ contract Pool is
      * @notice Private function to send fee collected to the fee beneficiary
      * @param asset The address of the asset to collect fee
      */
-    function _mintFee(Asset asset) private {
+    function _mintFee(IAsset asset) private {
         uint256 feeCollected = _feeCollected[asset];
         if (feeCollected == 0) {
             // early return
