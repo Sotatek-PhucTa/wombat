@@ -437,7 +437,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: AMOUNT_TOO_LOW')
+        ).to.be.revertedWith('WOMBAT_AMOUNT_TOO_LOW')
       })
 
       it('reverts if pool paused', async function () {

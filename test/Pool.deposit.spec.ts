@@ -252,7 +252,7 @@ describe('Pool - Deposit', function () {
       it('reverts if liquidity to mint is too small', async function () {
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('0'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: ZERO_AMOUNT')
+        ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
       })
 
       it('reverts if liquidity provider does not have enough balance', async function () {

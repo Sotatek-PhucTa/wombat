@@ -257,7 +257,7 @@ describe('Pool - Withdraw', function () {
           poolContract
             .connect(user1)
             .withdraw(token0.address, parseEther('25'), parseEther('100'), user1.address, fiveSecondsSince),
-          'Wombat: AMOUNT_TOO_LOW'
+          'WOMBAT_AMOUNT_TOO_LOW'
         ).to.be.reverted
       })
 

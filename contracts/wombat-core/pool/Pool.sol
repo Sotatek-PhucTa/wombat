@@ -78,7 +78,10 @@ contract Pool is
     error WOMBAT_FORBIDDEN();
     error WOMBAT_EXPIRED();
     error WOMBAT_ZERO_ADDRESS();
+    error WOMBAT_ZERO_AMOUNT();
     error WOMBAT_INVALID_VALUE();
+    error WOMBAT_SAME_ADDRESS();
+    error WOMBAT_AMOUNT_TOO_LOW();
 
     /// @dev Modifier ensuring that certain function can only be called by developer
     modifier onlyDev() {
@@ -177,6 +180,8 @@ contract Pool is
         require(feeTo_ != address(0), 'Wombat: set retention ratio instead');
         feeTo = feeTo_;
     }
+
+    /* Assets */
 
     /**
      * @notice Adds asset to pool, reverts if asset already exists in pool
@@ -279,6 +284,8 @@ contract Pool is
         return address(_assetOf(token));
     }
 
+    /* Deposit */
+
     function _depositTo(IAsset asset, uint256 amount)
         internal
         view
@@ -347,7 +354,7 @@ contract Pool is
         address to,
         uint256 deadline
     ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 liquidity) {
-        require(amount > 0, 'Wombat: ZERO_AMOUNT');
+        if (amount == 0) revert WOMBAT_ZERO_AMOUNT();
         if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
         requireAssetNotPaused(token);
 
@@ -359,6 +366,25 @@ contract Pool is
 
         emit Deposit(msg.sender, token, amount, liquidity, to);
     }
+
+    /**
+     * @notice Quotes potential deposit from pool
+     * @dev To be used by frontend
+     * @param token The token to deposit by user
+     * @param amount The amount to deposit
+     * @return liquidity The potential liquidity user would receive
+     * @return fee The fee that would be applied
+     */
+    function quotePotentialDeposit(address token, uint256 amount)
+        external
+        view
+        returns (uint256 liquidity, int256 fee)
+    {
+        IAsset asset = _assetOf(token);
+        (liquidity, , fee) = _depositTo(asset, amount);
+    }
+
+    /* Withdraw */
 
     /**
      * @notice Calculates fee and liability to burn in case of withdrawal
@@ -405,51 +431,6 @@ contract Pool is
     }
 
     /**
-     * @notice Enables withdrawing liquidity from an asset using LP from a different asset in the same aggregate
-     * @param fromToken The corresponding token user holds the LP (Asset) from
-     * @param toToken The token wanting to be withdrawn (needs to be well covered)
-     * @param liquidity The liquidity to be withdrawn (in toToken decimal)
-     * @param minAmount The minimum amount that will be accepted by user
-     * @param receipient The user receiving the withdrawal
-     * @param deadline The deadline to be respected
-     * @dev fromToken and toToken assets' must be in the same aggregate
-     * @dev Also, coverage ratio of toAsset must be higher than 1 after withdrawal for this to be accepted
-     * @return amount The total amount withdrawn
-     */
-    function withdrawFromOtherAsset(
-        address fromToken,
-        address toToken,
-        uint256 liquidity,
-        uint256 minAmount,
-        address receipient,
-        uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
-        if (receipient == address(0)) revert WOMBAT_ZERO_ADDRESS();
-        require(liquidity > 0, 'Wombat: ZERO_LIQUIDITY');
-
-        IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
-        bool enoughCash;
-        (amount, , , enoughCash) = _withdrawFrom(toAsset, liquidity);
-        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
-        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= WAD, 'Wombat: COV_RATIO_LOW');
-        require(minAmount <= amount, 'Wombat: AMOUNT_TOO_LOW');
-
-        // Burn LP from user and trasnfer token.
-        // Note: Convert liquidity and liability to fromAsset decimal.
-        uint256 liquidityFromAsset = (liquidity * 10**fromAsset.decimals()) / (10**toAsset.decimals());
-        IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidityFromAsset);
-        uint256 liabilityToBurn = (liquidityFromAsset * fromAsset.liability()) / toAsset.totalSupply();
-        fromAsset.burn(address(fromAsset), liquidityFromAsset);
-        fromAsset.removeLiability(liabilityToBurn);
-        toAsset.removeCash(amount);
-        toAsset.transferUnderlyingToken(receipient, amount);
-
-        emit Withdraw(msg.sender, toToken, amount, liquidityFromAsset, receipient);
-    }
-
-    /**
      * @notice Withdraws liquidity amount of asset to `to` address ensuring minimum amount required
      * @param asset The asset to be withdrawn
      * @param liquidity The liquidity to be withdrawn
@@ -473,7 +454,7 @@ contract Pool is
         uint256 liabilityToBurn;
         (amount, liabilityToBurn, , ) = _withdrawFrom(asset, liquidity);
 
-        require(minimumAmount <= amount, 'Wombat: AMOUNT_TOO_LOW');
+        if (minimumAmount > amount) revert WOMBAT_AMOUNT_TOO_LOW();
 
         asset.burn(address(asset), liquidity);
         asset.removeCash(amount);
@@ -497,7 +478,7 @@ contract Pool is
         address to,
         uint256 deadline
     ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
-        require(liquidity > 0, 'Wombat: ZERO_ASSET_AMOUNT');
+        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
         if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
 
         IAsset asset = _assetOf(token);
@@ -507,67 +488,108 @@ contract Pool is
     }
 
     /**
-     * @notice Swap fromToken for toToken, ensures deadline and minimumToAmount and sends quoted amount to `to` address
-     * @param fromToken The token being inserted into Pool by user for swap
-     * @param toToken The token wanted by user, leaving the Pool
-     * @param fromAmount The amount of from token inserted
-     * @param minimumToAmount The minimum amount that will be accepted by user as result
-     * @param to The user receiving the result of swap
-     * @param deadline The deadline to be respected
+     * @notice Quotes potential withdrawal from pool
+     * @dev To be used by frontend
+     * @param token The token to be withdrawn by user
+     * @param liquidity The liquidity (amount of lp assets) to be withdrawn
+     * @return amount The potential amount user would receive
+     * @return fee The fee that would be applied
+     * @return enoughCash does the pool have enough cash? (cash >= liabilityToBurn - fee)
      */
-    function swap(
-        address fromToken,
-        address toToken,
-        uint256 fromAmount,
-        uint256 minimumToAmount,
-        address to,
-        uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused {
-        require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
-        require(fromAmount > 0, 'Wombat: ZERO_FROM_AMOUNT');
-        if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
-        requireAssetNotPaused(fromToken);
+    function quotePotentialWithdraw(address token, uint256 liquidity)
+        external
+        view
+        returns (
+            uint256 amount,
+            int256 fee,
+            bool enoughCash
+        )
+    {
+        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
 
-        IERC20 fromERC20 = IERC20(fromToken);
-        IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-
-        // Intrapool swapping only
-        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_SWAP_NOT_SUPPORTED');
-
-        (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
-        require(minimumToAmount <= actualToAmount, 'Wombat: AMOUNT_TOO_LOW');
-
-        // should not collect any fee if feeTo is not set
-        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, retentionRatio) : 0;
-        _feeCollected[toAsset] += dividend;
-
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
-        fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
-        fromAsset.addCash(fromAmount);
-        toAsset.removeCash(actualToAmount);
-        toAsset.transferUnderlyingToken(to, actualToAmount);
+        IAsset asset = _assetOf(token);
+        (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
     }
 
     /**
-     * @notice Quotes the actual amount user would receive in a swap, taking in account slippage and haircut
-     * @param fromAsset The initial asset
-     * @param toAsset The asset wanted by user
-     * @param fromAmount The amount to quote
-     * @return actualToAmount The actual amount user would receive
-     * @return haircut The haircut that will be applied
+     * @notice Enables withdrawing liquidity from an asset using LP from a different asset in the same aggregate
+     * @param fromToken The corresponding token user holds the LP (Asset) from
+     * @param toToken The token wanting to be withdrawn (needs to be well covered)
+     * @param liquidity The liquidity to be withdrawn (in toToken decimal)
+     * @param minimumAmount The minimum amount that will be accepted by user
+     * @param receipient The user receiving the withdrawal
+     * @param deadline The deadline to be respected
+     * @dev fromToken and toToken assets' must be in the same aggregate
+     * @dev Also, coverage ratio of toAsset must be higher than 1 after withdrawal for this to be accepted
+     * @return amount The total amount withdrawn
      */
-    function _quoteFrom(
-        IAsset fromAsset,
-        IAsset toAsset,
-        uint256 fromAmount
-    ) private view returns (uint256 actualToAmount, uint256 haircut) {
-        uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
-        require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
+    function withdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity,
+        uint256 minimumAmount,
+        address receipient,
+        uint256 deadline
+    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
+        if (receipient == address(0)) revert WOMBAT_ZERO_ADDRESS();
+        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
 
-        haircut = _haircut(idealToAmount, haircutRate);
-        actualToAmount = idealToAmount - haircut;
+        IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
+        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        bool enoughCash;
+        (amount, , , enoughCash) = _withdrawFrom(toAsset, liquidity);
+        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
+        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= WAD, 'Wombat: COV_RATIO_LOW');
+        if (minimumAmount > amount) revert WOMBAT_AMOUNT_TOO_LOW();
+
+        // Burn LP from user and trasnfer token.
+        // Note: Convert liquidity and liability to fromAsset decimal.
+        uint256 liquidityFromAsset = (liquidity * 10**fromAsset.decimals()) / (10**toAsset.decimals());
+        IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidityFromAsset);
+        uint256 liabilityToBurn = (liquidityFromAsset * fromAsset.liability()) / toAsset.totalSupply();
+        fromAsset.burn(address(fromAsset), liquidityFromAsset);
+        fromAsset.removeLiability(liabilityToBurn);
+        toAsset.removeCash(amount);
+        toAsset.transferUnderlyingToken(receipient, amount);
+
+        emit Withdraw(msg.sender, toToken, amount, liquidityFromAsset, receipient);
     }
+
+    /**
+     * @notice Quotes potential withdrawal from other asset in the same aggregate
+     * @dev To be used by frontend. Reverts if not possible
+     * @param fromToken The users holds LP corresponding to this initial token
+     * @param toToken The token to be withdrawn by user
+     * @param liquidity The liquidity (amount of lp assets) to be withdrawn (in toToken decimal).
+     * @return amount The potential amount user would receive
+     * @return fee The fee that would be applied
+     */
+    function quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    )
+        external
+        view
+        returns (
+            uint256 amount,
+            int256 fee,
+            bool enoughCash
+        )
+    {
+        if (fromToken == toToken) revert WOMBAT_SAME_ADDRESS();
+        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
+
+        IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
+        require(fromAsset.aggregateAccount() == toAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        (amount, , fee, enoughCash) = _withdrawFrom(toAsset, liquidity);
+        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
+        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= WAD, 'Wombat: COV_RATIO_LOW');
+    }
+
+    /* Swap */
 
     /**
      * @notice Quotes the ideal amount in case of swap
@@ -599,6 +621,69 @@ contract Pool is
     }
 
     /**
+     * @notice Quotes the actual amount user would receive in a swap, taking in account slippage and haircut
+     * @param fromAsset The initial asset
+     * @param toAsset The asset wanted by user
+     * @param fromAmount The amount to quote
+     * @return actualToAmount The actual amount user would receive
+     * @return haircut The haircut that will be applied
+     */
+    function _quoteFrom(
+        IAsset fromAsset,
+        IAsset toAsset,
+        uint256 fromAmount
+    ) private view returns (uint256 actualToAmount, uint256 haircut) {
+        uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
+        require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
+
+        haircut = _haircut(idealToAmount, haircutRate);
+        actualToAmount = idealToAmount - haircut;
+    }
+
+    /**
+     * @notice Swap fromToken for toToken, ensures deadline and minimumToAmount and sends quoted amount to `to` address
+     * @param fromToken The token being inserted into Pool by user for swap
+     * @param toToken The token wanted by user, leaving the Pool
+     * @param fromAmount The amount of from token inserted
+     * @param minimumToAmount The minimum amount that will be accepted by user as result
+     * @param to The user receiving the result of swap
+     * @param deadline The deadline to be respected
+     */
+    function swap(
+        address fromToken,
+        address toToken,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address to,
+        uint256 deadline
+    ) external ensure(deadline) nonReentrant whenNotPaused {
+        if (fromToken == toToken) revert WOMBAT_SAME_ADDRESS();
+        if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
+        if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
+        requireAssetNotPaused(fromToken);
+
+        IERC20 fromERC20 = IERC20(fromToken);
+        IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
+
+        // Intrapool swapping only
+        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_SWAP_NOT_SUPPORTED');
+
+        (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
+        if (minimumToAmount > actualToAmount) revert WOMBAT_AMOUNT_TOO_LOW();
+
+        // should not collect any fee if feeTo is not set
+        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, retentionRatio) : 0;
+        _feeCollected[toAsset] += dividend;
+
+        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
+        fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
+        fromAsset.addCash(fromAmount);
+        toAsset.removeCash(actualToAmount);
+        toAsset.transferUnderlyingToken(to, actualToAmount);
+    }
+
+    /**
      * @notice Quotes potential outcome of a swap given current state, taking in account slippage and haircut
      * @dev To be used by frontend
      * @param fromToken The initial ERC20 token
@@ -612,8 +697,8 @@ contract Pool is
         address toToken,
         uint256 fromAmount
     ) external view returns (uint256 potentialOutcome, uint256 haircut) {
-        require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
-        require(fromAmount > 0, 'Wombat: ZERO_FROM_AMOUNT');
+        if (fromToken == toToken) revert WOMBAT_SAME_ADDRESS();
+        if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
@@ -624,79 +709,7 @@ contract Pool is
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
     }
 
-    /**
-     * @notice Quotes potential withdrawal from other asset in the same aggregate
-     * @dev To be used by frontend. Reverts if not possible
-     * @param fromToken The users holds LP corresponding to this initial token
-     * @param toToken The token to be withdrawn by user
-     * @param liquidity The liquidity (amount of lp assets) to be withdrawn (in toToken decimal).
-     * @return amount The potential amount user would receive
-     * @return fee The fee that would be applied
-     */
-    function quotePotentialWithdrawFromOtherAsset(
-        address fromToken,
-        address toToken,
-        uint256 liquidity
-    )
-        external
-        view
-        returns (
-            uint256 amount,
-            int256 fee,
-            bool enoughCash
-        )
-    {
-        require(fromToken != toToken, 'Wombat: SAME_ADDRESS');
-        require(liquidity > 0, 'Wombat: ZERO_LIQUIDITY');
-
-        IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-        require(fromAsset.aggregateAccount() == toAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
-        (amount, , fee, enoughCash) = _withdrawFrom(toAsset, liquidity);
-        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
-        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= WAD, 'Wombat: COV_RATIO_LOW');
-    }
-
-    /**
-     * @notice Quotes potential withdrawal from pool
-     * @dev To be used by frontend
-     * @param token The token to be withdrawn by user
-     * @param liquidity The liquidity (amount of lp assets) to be withdrawn
-     * @return amount The potential amount user would receive
-     * @return fee The fee that would be applied
-     * @return enoughCash does the pool have enough cash? (cash >= liabilityToBurn - fee)
-     */
-    function quotePotentialWithdraw(address token, uint256 liquidity)
-        external
-        view
-        returns (
-            uint256 amount,
-            int256 fee,
-            bool enoughCash
-        )
-    {
-        require(liquidity > 0, 'Wombat: liquidity must be greater than zero');
-
-        IAsset asset = _assetOf(token);
-        (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
-    }
-
-    /**
-     * @notice Quotes potential deposit from pool
-     * @dev To be used by frontend
-     * @param token The token to deposit by user
-     * @param amount The amount to deposit
-     * @return liquidity The potential liquidity user would receive
-     * @return fee The fee that would be applied
-     */
-    function quotePotentialDeposit(address token, uint256 amount)
-        external
-        view
-        returns (uint256 liquidity, int256 fee)
-    {
-        IAsset asset = _assetOf(token);
-        (liquidity, , fee) = _depositTo(asset, amount);
-    }
+    /* Queries */
 
     /**
      * @notice Returns the exchange rate of the LP token
@@ -706,27 +719,6 @@ contract Pool is
     function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
         if (asset.totalSupply() == 0) return 1;
         return exchangeRate = asset.liability() / asset.totalSupply();
-    }
-
-    function _depositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
-        // overflow is unrealistic
-        uint8 d = asset.decimals();
-        int256 delta_i;
-        delta_i = _convertToWAD(d, amount);
-
-        int256 A_i = int256(_convertToWAD(d, asset.cash()));
-        int256 L_i = int256(_convertToWAD(d, asset.liability()));
-        int256 A = int256(ampFactor);
-
-        (int256 D, int256 SL) = _globalInvariantFunc(A);
-
-        int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
-
-        reward = _convertFromWAD(d, w);
-    }
-
-    function _withdrawalFee(int256 amount, IAsset asset) internal view returns (int256 fee) {
-        fee = -_depositReward(-amount, asset);
     }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
@@ -752,6 +744,29 @@ contract Pool is
             SL += _convertToWAD(d, asset.liability());
         }
         surplus = int256(SA) - int256(SL);
+    }
+
+    /* Utils */
+
+    function _depositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
+        // overflow is unrealistic
+        uint8 d = asset.decimals();
+        int256 delta_i;
+        delta_i = _convertToWAD(d, amount);
+
+        int256 A_i = int256(_convertToWAD(d, asset.cash()));
+        int256 L_i = int256(_convertToWAD(d, asset.liability()));
+        int256 A = int256(ampFactor);
+
+        (int256 D, int256 SL) = _globalInvariantFunc(A);
+
+        int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+
+        reward = _convertFromWAD(d, w);
+    }
+
+    function _withdrawalFee(int256 amount, IAsset asset) internal view returns (int256 fee) {
+        fee = -_depositReward(-amount, asset);
     }
 
     function _globalInvariantFunc(int256 A) internal view returns (int256 D, int256 SL) {
