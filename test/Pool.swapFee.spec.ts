@@ -92,7 +92,9 @@ describe('Pool - Fee', function () {
       ).to.be.revertedWith('Wombat: set retention ratio instead')
     })
 
-    it('fee should not collected if feeTo is 0', async function () {
+    it('fee should not collected if retention ratio is 1', async function () {
+      await poolContract.connect(owner).setRetentionRatio(parseEther('1.0'))
+
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD
       await token1.connect(owner).transfer(user1.address, parseUnits('100000', 8)) // 100k vUSDC

@@ -679,9 +679,7 @@ contract Pool is
         (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         if (minimumToAmount > actualToAmount) revert WOMBAT_AMOUNT_TOO_LOW();
 
-        // should not collect any fee if feeTo is not set
-        uint256 dividend = address(feeTo) != address(0) ? _dividend(haircut, retentionRatio) : 0;
-        _feeCollected[toAsset] += dividend;
+        _feeCollected[toAsset] += haircut;
 
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
