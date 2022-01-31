@@ -203,7 +203,12 @@ contract Pool is
         shouldDistributeRetention = shouldDistributeRetention_;
     }
 
+    /**
+     * @notice Enable exact deposit
+     * Should only be enabled when r* = 1, and retention fee = 0
+     */
     function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
+        if (retentionRatio != 0) revert WOMBAT_FORBIDDEN();
         shouldEnableExactDeposit = shouldEnableExactDeposit_;
     }
 
@@ -357,10 +362,8 @@ contract Pool is
         uint256 totalSupply = asset.totalSupply();
         uint256 liability = asset.liability();
 
-        int256 reward = _exactDepositReward(int256(amount), asset);
-        fee = -reward;
-
-        if (reward < 0) revert WOMBAT_INVALID_VALUE();
+        fee = -_exactDepositReward(int256(amount), asset);
+        if (fee > 0) revert WOMBAT_INVALID_VALUE();
 
         liabilityToMint = uint256(int256(amount) - fee);
 
