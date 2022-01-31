@@ -162,6 +162,20 @@ contract CoreV2 {
         w = (L_i.wmul(A_i).wdiv(L_i) + delta_i) - (L_i + delta_i).wmul(r_i_);
     }
 
+    function exactDepositRewardImpl(
+        int256 D_i,
+        int256 A_i,
+        int256 L_i,
+        int256 A
+    ) internal pure returns (int256 w) {
+        int256 r_i = A_i.wdiv(L_i);
+        int256 k = D_i + L_i.wmul(r_i);
+        int256 b = k.wmul(WAD_I - A) + 2 * A.wmul(L_i);
+        int256 c = k.wmul(L_i).wmul(r_i - A.wdiv(r_i)) - k.wmul(k) + A.wmul(L_i).wmul(L_i);
+        int256 l = b * b - 4 * A * c;
+        return (-b + (l).sqrt()).wdiv(A) / 2 - D_i;
+    }
+
     function _targetedCovRatio(
         int256 SL,
         int256 delta_i,

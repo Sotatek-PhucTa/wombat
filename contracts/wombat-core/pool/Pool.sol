@@ -56,6 +56,8 @@ contract Pool is
     /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
     bool public shouldDistributeRetention;
 
+    bool public shouldEnableExactDeposit = true;
+
     /// @notice Dividend collected by each asset (unit: underlying token)
     mapping(IAsset => uint256) private _feeCollected;
 
@@ -192,13 +194,17 @@ contract Pool is
         feeTo = feeTo_;
     }
 
-    function setShouldDistributeRetention(bool _shouldDistributeRetention) external onlyOwner {
-        if (_shouldDistributeRetention == shouldDistributeRetention) revert WOMBAT_INVALID_VALUE();
+    function setShouldDistributeRetention(bool shouldDistributeRetention_) external onlyOwner {
+        if (shouldDistributeRetention_ == shouldDistributeRetention) revert WOMBAT_INVALID_VALUE();
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));
             _mintFee(asset);
         }
-        shouldDistributeRetention = _shouldDistributeRetention;
+        shouldDistributeRetention = shouldDistributeRetention_;
+    }
+
+    function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
+        shouldEnableExactDeposit = shouldEnableExactDeposit_;
     }
 
     /* Assets */
@@ -337,6 +343,32 @@ contract Pool is
     }
 
     /**
+     * This function calculate the exactly amount of liquidity of the deposit. Assumes r* = 1
+     */
+    function _exactDepositTo(IAsset asset, uint256 amount)
+        internal
+        view
+        returns (
+            uint256 liquidity,
+            uint256 liabilityToMint,
+            int256 fee
+        )
+    {
+        uint256 totalSupply = asset.totalSupply();
+        uint256 liability = asset.liability();
+
+        int256 reward = _exactDepositReward(int256(amount), asset);
+        fee = -reward;
+
+        if (reward < 0) revert WOMBAT_INVALID_VALUE();
+
+        liabilityToMint = uint256(int256(amount) - fee);
+
+        // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
+        liquidity = (liability == 0 ? liabilityToMint : (liabilityToMint * totalSupply) / liability);
+    }
+
+    /**
      * @notice Deposits asset in Pool
      * @param asset The asset to be deposited
      * @param amount The amount to be deposited
@@ -354,7 +386,10 @@ contract Pool is
         _mintFee(asset);
 
         uint256 liabilityToMint;
-        (liquidity, liabilityToMint, ) = _depositTo(asset, amount);
+
+        (liquidity, liabilityToMint, ) = shouldEnableExactDeposit
+            ? _exactDepositTo(asset, amount)
+            : _depositTo(asset, amount);
 
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
@@ -782,6 +817,20 @@ contract Pool is
 
         (int256 D, int256 SL) = _globalInvariantFunc(A);
         int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+
+        reward = _convertFromWAD(d, w);
+    }
+
+    function _exactDepositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
+        // overflow is unrealistic
+        uint8 d = asset.decimals();
+        int256 L_i = int256(_convertToWAD(d, asset.liability()));
+        if (L_i == 0) return 0;
+        int256 A_i = int256(_convertToWAD(d, asset.cash()));
+        int256 D_i = _convertToWAD(d, amount);
+        int256 A = int256(ampFactor);
+
+        int256 w = exactDepositRewardImpl(D_i, A_i, L_i, A);
 
         reward = _convertFromWAD(d, w);
     }

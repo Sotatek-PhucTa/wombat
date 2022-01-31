@@ -151,9 +151,9 @@ describe('Pool - Deposit', function () {
           .connect(user1)
           .deposit(token0.address, parseEther('100'), user2.address, fiveSecondsSince)
 
-        expect(await asset0.liability()).to.be.equal(parseEther('201.768743776499783944'))
-        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('98.261997042643835411'))
-        expect(await asset0.totalSupply()).to.be.equal(parseEther('198.261997042643835411'))
+        expect(await asset0.liability()).to.be.equal(parseEther('201.769488019652669444'))
+        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('98.262728350828713840'))
+        expect(await asset0.totalSupply()).to.be.equal(parseEther('198.262728350828713840'))
         expect((await asset0.liability()) / (await asset0.totalSupply())).to.equal(1.0176874377649978)
 
         expect(receipt)
@@ -162,7 +162,7 @@ describe('Pool - Deposit', function () {
             user1.address,
             token0.address,
             parseEther('100'),
-            parseEther('98.261997042643835411'),
+            parseEther('98.262728350828713840'),
             user2.address
           )
       })
@@ -375,19 +375,19 @@ describe('Pool - Deposit', function () {
         const receipt = await poolContract
           .connect(user2)
           .deposit(token1.address, parseUnits('100', 8), user2.address, fiveSecondsSince)
-        expect(await asset1.liability()).to.be.equal(parseUnits('201.768743', 8))
-        expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('98.26199779', 8))
-        expect(await asset1.totalSupply()).to.be.equal(parseUnits('198.26199779', 8))
-        expect((await asset1.liability()) / (await asset1.totalSupply())).to.equal(1.0176874300122525)
+        expect(await asset1.liability()).to.be.equal(parseUnits('201.76948724', 8))
+        expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('98.26272909', 8))
+        expect(await asset1.totalSupply()).to.be.equal(parseUnits('198.26272909', 8))
+        expect((await asset1.liability()) / (await asset1.totalSupply())).to.equal(1.0176874300383918)
 
         expect(receipt)
           .to.emit(poolContract, 'Deposit')
-          .withArgs(user2.address, token1.address, parseUnits('100', 8), parseUnits('98.26199779', 8), user2.address)
+          .withArgs(user2.address, token1.address, parseUnits('100', 8), parseUnits('98.26272909', 8), user2.address)
       })
     })
   })
 
-  describe('3 assets - deposit fee', function () {
+  describe('3 assets - deposit fee (r* > 1)', function () {
     beforeEach(async function () {
       // Transfer 100k from BUSD contract to users
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100 k
@@ -409,6 +409,8 @@ describe('Pool - Deposit', function () {
       // Approve max allowance from users to pool
       await token2.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
       await token2.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
+
+      await poolContract.connect(owner).setShouldEnableExactDeposit(false)
     })
 
     it('r* > 1, deposit reward > 0 (floored)', async function () {
