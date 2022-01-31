@@ -43,7 +43,7 @@ contract Pool is
     uint256 public haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
 
     /// @notice Retention ratio
-    uint256 public retentionRatio = 0;
+    uint256 public retentionRatio = WAD;
 
     /// @notice Dev address
     address public dev;
@@ -177,12 +177,10 @@ contract Pool is
 
     /**
      * @notice Changes the pools retentionRatio. Can only be set by the contract owner.
-     * If shouldEnableExactDeposit is true, retentionRatio_ must be 0;
      * @param retentionRatio_ new pool's retentionRatio
      */
-    function setRetentionRatio(uint256 retentionRatio_) public onlyOwner {
-        if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be set bigger than 1
-        if (shouldEnableExactDeposit && retentionRatio_ > 0) revert WOMBAT_FORBIDDEN();
+    function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
+        if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be bigger than 1
 
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));
@@ -212,13 +210,10 @@ contract Pool is
 
     /**
      * @notice Enable exact deposit
-     * Should only be enabled when r* = 1. Retention ratio will be set to 0
+     * Should only be enabled when r* = 1
      */
     function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
         shouldEnableExactDeposit = shouldEnableExactDeposit_;
-        if (shouldEnableExactDeposit_) {
-            setRetentionRatio(0);
-        }
     }
 
     /* Assets */
@@ -880,12 +875,11 @@ contract Pool is
         uint256 feeCollected = _feeCollected[asset];
         if (feeCollected == 0) {
             // early return
-            // we might set a threshold for min fee here to save gas cost
+            // we might set a threshold to save gas cost
             return;
         }
 
         uint256 dividend = _dividend(feeCollected, retentionRatio);
-        uint256 retention = feeCollected - dividend;
         uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
         _feeCollected[asset] = 0;
 

@@ -80,6 +80,9 @@ describe('Pool - Utils', function () {
       await expect(poolContract.connect(user).setHaircutRate(parseUnits('0.004', 18))).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
+      await expect(poolContract.connect(user).setShouldEnableExactDeposit(false)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      )
       await expect(poolContract.connect(user).setRetentionRatio(parseUnits('1', 18))).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
