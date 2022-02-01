@@ -40,7 +40,7 @@ contract MasterWombat is
         // We do some fancy math here. Basically, any point in time, the amount of WOMs
         // entitled to a user but is pending to be distributed is:
         //
-        //   (user.factor * pool.accWomPerShare) - user.rewardDebt
+        //   (user.factor * pool.accWomPerShare) / 1e12 - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
         //   1. The pool's `accWomPerShare` and lastRewardTimestamp` gets updated.
@@ -54,7 +54,7 @@ contract MasterWombat is
         IERC20 lpToken; // Address of LP token contract.
         uint256 allocPoint; // How many allocation points assigned to this pool. WOMs to distribute per second.
         uint256 lastRewardTimestamp; // Last timestamp that WOMs distribution occurs.
-        uint256 accWomPerShare; // Accumulated WOMs per share
+        uint256 accWomPerShare; // Accumulated WOMs per share, times 1e12.
         IRewarder rewarder;
         uint256 sumOfFactors; // the sum of all factors by all of the users in the pool
     }
@@ -252,9 +252,9 @@ contract MasterWombat is
         if (block.timestamp > pool.lastRewardTimestamp && pool.sumOfFactors != 0) {
             uint256 secondsElapsed = block.timestamp - pool.lastRewardTimestamp;
             uint256 womReward = (secondsElapsed * womPerSec * pool.allocPoint) / totalAllocPoint;
-            accWomPerShare += womReward / pool.sumOfFactors;
+            accWomPerShare += (womReward * 1e12) / pool.sumOfFactors;
         }
-        pendingRewards = (user.factor * accWomPerShare) + pendingWom[pid][userAddress] - user.rewardDebt;
+        pendingRewards = (user.factor * accWomPerShare) / 1e12 + pendingWom[pid][userAddress] - user.rewardDebt;
 
         // If it's a double reward farm, we return info about the bonus token
         if (address(pool.rewarder) != address(0)) {
@@ -307,7 +307,7 @@ contract MasterWombat is
 
             // calculate wom reward
             uint256 womReward = (secondsElapsed * womPerSec * pool.allocPoint) / totalAllocPoint;
-            pool.accWomPerShare += womReward / pool.sumOfFactors;
+            pool.accWomPerShare += (womReward * 1e12) / pool.sumOfFactors;
 
             // update lastRewardTimestamp to now
             pool.lastRewardTimestamp = block.timestamp;
@@ -391,11 +391,11 @@ contract MasterWombat is
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][userAddress];
         if (user.amount > 0) {
-            rewards = (user.factor * pool.accWomPerShare) + pendingWom[pid][userAddress] - user.rewardDebt;
+            rewards = (user.factor * pool.accWomPerShare) / 1e12 + pendingWom[pid][userAddress] - user.rewardDebt;
             pendingWom[pid][userAddress] = 0;
 
             // update reward debt
-            user.rewardDebt = user.factor * pool.accWomPerShare;
+            user.rewardDebt = (user.factor * pool.accWomPerShare) / 1e12;
 
             // send reward
             rewards = safeWomTransfer(payable(userAddress), rewards);
@@ -419,7 +419,7 @@ contract MasterWombat is
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = user.factor * pool.accWomPerShare;
+        user.rewardDebt = (user.factor * pool.accWomPerShare) / 1e12;
     }
 
     function _getFactor(uint256 amount, uint256 veWomBal) internal pure returns (uint256) {
@@ -553,7 +553,7 @@ contract MasterWombat is
             // first, update pool
             _updatePool(pid);
             // calculate pending
-            uint256 pending = (user.factor * pool.accWomPerShare) - user.rewardDebt;
+            uint256 pending = (user.factor * pool.accWomPerShare) / 1e12 - user.rewardDebt;
             // increase pendingWom
             pendingWom[pid][userAddress] += pending;
             // get oldFactor
@@ -563,7 +563,7 @@ contract MasterWombat is
             // update user factor
             user.factor = newFactor;
             // update reward debt, take into account newFactor
-            user.rewardDebt = newFactor * pool.accWomPerShare;
+            user.rewardDebt = (newFactor * pool.accWomPerShare) / 1e12;
             // also, update sumOfFactors
             pool.sumOfFactors = pool.sumOfFactors + newFactor - oldFactor;
         }
