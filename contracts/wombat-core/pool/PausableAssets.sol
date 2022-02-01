@@ -19,7 +19,7 @@ contract PausableAssets {
 
     mapping(address => bool) private _pausedAssets;
 
-    error WOMBAT_ASSET_PAUSED();
+    error WOMBAT_ASSET_ALREADY_PAUSED();
     error WOMBAT_ASSET_NOT_PAUSED();
 
     /**
@@ -30,7 +30,7 @@ contract PausableAssets {
      * - The asset must not be paused.
      */
     function requireAssetNotPaused(address asset) internal {
-        if (_pausedAssets[asset]) revert WOMBAT_ASSET_PAUSED();
+        if (_pausedAssets[asset]) revert WOMBAT_ASSET_ALREADY_PAUSED();
     }
 
     /**
