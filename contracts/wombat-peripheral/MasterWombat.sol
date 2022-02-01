@@ -15,7 +15,7 @@ import './interfaces/IVeWom.sol';
 import './interfaces/IMasterWombat.sol';
 import './interfaces/IRewarder.sol';
 
-/// This contract rewards users in function of their amount of lp staked (dialuting pool) factor (non-dialuting pool)
+/// This contract rewards users in function of their amount of LP staked factor
 /// Factor and sumOfFactors are updated by contract veWom.sol after any veWom minting/burning (veERC20Upgradeable hook).
 /// Note that it's ownable and the owner wields tremendous power. The ownership
 /// will be transferred to a governance smart contract once Wombat is sufficiently
@@ -35,7 +35,7 @@ contract MasterWombat is
     struct UserInfo {
         uint256 amount; // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
-        uint256 factor; // factor = veWom.balanceOf()  / lpAmount
+        uint256 factor; // calculated by _getFactor()
         //
         // We do some fancy math here. Basically, any point in time, the amount of WOMs
         // entitled to a user but is pending to be distributed is:
@@ -56,7 +56,7 @@ contract MasterWombat is
         uint256 lastRewardTimestamp; // Last timestamp that WOMs distribution occurs.
         uint256 accWomPerShare; // Accumulated WOMs per share
         IRewarder rewarder;
-        uint256 sumOfFactors; // the sum of all non dialuting factors by all of the users in the pool
+        uint256 sumOfFactors; // the sum of all factors by all of the users in the pool
     }
 
     // WOM Token
@@ -307,8 +307,6 @@ contract MasterWombat is
 
             // calculate wom reward
             uint256 womReward = (secondsElapsed * womPerSec * pool.allocPoint) / totalAllocPoint;
-
-            // update accWomPerShare to reflect dialuting rewards
             pool.accWomPerShare += womReward / pool.sumOfFactors;
 
             // update lastRewardTimestamp to now
@@ -502,11 +500,8 @@ contract MasterWombat is
         UserInfo storage user = userInfo[pid][msg.sender];
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
 
-        // update non-dialuting factor
         pool.sumOfFactors = pool.sumOfFactors - user.factor;
         user.factor = 0;
-
-        // update dialuting factors
         user.amount = 0;
         user.rewardDebt = 0;
 
