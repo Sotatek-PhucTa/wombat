@@ -410,7 +410,6 @@ describe('Pool - Deposit', function () {
       await token2.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
       await token2.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
 
-      await poolContract.connect(owner).setRetentionRatio(0)
       await poolContract.connect(owner).setShouldEnableExactDeposit(false)
     })
 
