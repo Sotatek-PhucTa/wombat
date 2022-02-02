@@ -16,6 +16,8 @@ import './PausableAssets.sol';
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
+ * Note: There are 2 operating mode. Either set shouldEnableExactDeposit to true and maintain global cov ratio (r*) at 1.
+ * Or set shouldEnableExactDeposit to false, and allow r* to be any value > 1.
  */
 contract Pool is
     Initializable,
@@ -206,9 +208,9 @@ contract Pool is
      * Should only be enabled when r* = 1
      */
     function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
+        if (shouldEnableExactDeposit_ && !shouldDistributeRetention) revert WOMBAT_FORBIDDEN();
         shouldEnableExactDeposit = shouldEnableExactDeposit_;
         mintAllFee();
-        if (!shouldDistributeRetention) revert WOMBAT_FORBIDDEN();
     }
 
     /* Assets */
@@ -738,8 +740,15 @@ contract Pool is
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
-        toAsset.removeCash(actualToAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
+
+        if (shouldEnableExactDeposit) {
+            // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
+            toAsset.removeCash(actualToAmount + haircut);
+        } else {
+            // haircut is distributed in the form of LP token to beneficiary during _mintFee()
+            toAsset.removeCash(actualToAmount);
+        }
     }
 
     /**
@@ -874,16 +883,26 @@ contract Pool is
             return;
         }
 
-        uint256 dividend = _dividend(feeCollected, retentionRatio);
-        uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
-        _feeCollected[asset] = 0;
-
-        if (dividend > 0) {
-            // call totalSupply() and liability() before mint()
-            asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
+        if (shouldEnableExactDeposit) {
+            uint256 dividend = _dividend(feeCollected, retentionRatio);
+            if (feeCollected - dividend > 0) {
+                // strictly control r* to be 1
+                // increase the value of the LP token, i.e. assetsPerShare
+                (, uint256 liabilityToMint, ) = _exactDepositTo(asset, feeCollected - dividend);
+                asset.addLiability(liabilityToMint);
+                asset.addCash(feeCollected - dividend);
+            }
+            asset.transferUnderlyingToken(feeTo, dividend);
+        } else {
+            uint256 dividend = _dividend(feeCollected, retentionRatio);
+            uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
+            _feeCollected[asset] = 0;
+            if (dividend > 0) {
+                // call totalSupply() and liability() before mint()
+                asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
+            }
+            asset.addLiability(liabilityToMint);
         }
-
-        asset.addLiability(liabilityToMint);
     }
 
     function mintAllFee() internal {
