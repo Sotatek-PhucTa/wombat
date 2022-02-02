@@ -431,8 +431,8 @@ describe('Pool - Deposit', function () {
       await asset2.connect(owner).addLiability(parseEther('5000'))
       await asset2.connect(owner).setPool(poolContract.address)
 
-      const surplusBefore = await poolContract.connect(owner).surplus()
-      expect(surplusBefore).to.equal(parseEther('1023.15472'))
+      // const surplusBefore = await poolContract.connect(owner).surplus()
+      // expect(surplusBefore).to.equal(parseEther('1023.15472'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
         parseEther('1.062117492331304537'),
         parseEther('16240.667538952096649000'),
@@ -446,8 +446,8 @@ describe('Pool - Deposit', function () {
         .to.emit(poolContract, 'Deposit')
         .withArgs(user1.address, token1.address, parseUnits('800', 8), parseUnits('800', 8), user1.address)
 
-      const surplusAfter = await poolContract.connect(owner).surplus()
-      expect(surplusAfter).to.equal(parseEther('1023.15472'))
+      // const surplusAfter = await poolContract.connect(owner).surplus()
+      // expect(surplusAfter).to.equal(parseEther('1023.15472'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
         parseEther('1.059991006444461435'),
         parseEther('17015.389354466000070200'),
@@ -472,8 +472,8 @@ describe('Pool - Deposit', function () {
       await asset2.connect(owner).addLiability(parseEther('5000'))
       await asset2.connect(owner).setPool(poolContract.address)
 
-      const surplusBefore = await poolContract.connect(owner).surplus()
-      expect(surplusBefore).to.equal(parseEther('1516.660120000000000000'))
+      // const surplusBefore = await poolContract.connect(owner).surplus()
+      // expect(surplusBefore).to.equal(parseEther('1516.660120000000000000'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
         parseEther('1.094609075215282560'),
         parseEther('16782.890674540985455000'),
@@ -487,8 +487,8 @@ describe('Pool - Deposit', function () {
         .to.emit(poolContract, 'Deposit')
         .withArgs(user1.address, token1.address, parseUnits('2000', 8), parseUnits('1999.36144104', 8), user1.address)
 
-      const surplusAfter = await poolContract.connect(owner).surplus()
-      expect(surplusAfter).to.equal(parseEther('1517.298678960000000000'))
+      // const surplusAfter = await poolContract.connect(owner).surplus()
+      // expect(surplusAfter).to.equal(parseEther('1517.298678960000000000'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
         parseEther('1.084099949472921683'),
         parseEther('18682.954523641026364191'),
