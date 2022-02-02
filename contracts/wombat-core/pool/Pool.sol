@@ -181,11 +181,7 @@ contract Pool is
      */
     function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
         if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be bigger than 1
-
-        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
-            IAsset asset = _getAsset(_getKeyAtIndex(i));
-            _mintFee(asset);
-        }
+        mintAllFee();
         retentionRatio = retentionRatio_;
     }
 
@@ -201,10 +197,7 @@ contract Pool is
 
     function setShouldDistributeRetention(bool shouldDistributeRetention_) external onlyOwner {
         if (shouldDistributeRetention_ == shouldDistributeRetention) revert WOMBAT_INVALID_VALUE();
-        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
-            IAsset asset = _getAsset(_getKeyAtIndex(i));
-            _mintFee(asset);
-        }
+        mintAllFee();
         shouldDistributeRetention = shouldDistributeRetention_;
     }
 
@@ -214,6 +207,8 @@ contract Pool is
      */
     function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
         shouldEnableExactDeposit = shouldEnableExactDeposit_;
+        mintAllFee();
+        if (!shouldDistributeRetention) revert WOMBAT_FORBIDDEN();
     }
 
     /* Assets */
@@ -889,6 +884,13 @@ contract Pool is
         }
 
         asset.addLiability(liabilityToMint);
+    }
+
+    function mintAllFee() internal {
+        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+            IAsset asset = _getAsset(_getKeyAtIndex(i));
+            _mintFee(asset);
+        }
     }
 
     /**
