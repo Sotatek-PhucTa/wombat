@@ -78,6 +78,8 @@ describe('Pool - Swap', function () {
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
+
+    await poolContract.connect(owner).setShouldEnableExactDeposit(false)
   })
 
   describe('Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
