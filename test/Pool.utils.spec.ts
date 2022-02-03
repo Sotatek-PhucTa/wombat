@@ -125,7 +125,7 @@ describe('Pool - Utils', function () {
 
         // check if added and if event has been emitted
         expect(await poolContract.assetOf(mockToken.address)).to.equal(mockAsset.address)
-        expect(receipt).to.emit(poolContract, 'AssetAdded').withArgs(mockToken.address, mockAsset.address)
+        await expect(receipt).to.emit(poolContract, 'AssetAdded').withArgs(mockToken.address, mockAsset.address)
       })
 
       it('reverts for invalid params', async function () {
@@ -178,13 +178,13 @@ describe('Pool - Utils', function () {
       // Pause pool : expect to emit event and for state pause event to change
       const receipt1 = await poolContract.connect(owner).pause()
       expect(await poolContract.paused()).to.equal(true)
-      expect(receipt1).to.emit(poolContract, 'Paused').withArgs(owner.address)
+      await expect(receipt1).to.emit(poolContract, 'Paused').withArgs(owner.address)
 
       // Unpause pool : expect emit event and state change
       const receipt2 = await poolContract.connect(owner).unpause()
       expect(await poolContract.paused()).to.equal(false)
 
-      expect(receipt2).to.emit(poolContract, 'Unpaused').withArgs(owner.address)
+      await expect(receipt2).to.emit(poolContract, 'Unpaused').withArgs(owner.address)
     })
 
     it('restricts to only dev (deployer)', async function () {

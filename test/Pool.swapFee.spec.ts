@@ -24,7 +24,6 @@ describe('Pool - Fee', function () {
   let asset1: Contract // USDC LP
   let asset2: Contract // CAKE LP
   let aggregateAccount: Contract // stables
-  let aggregateAccount1: Contract // non-stables
   let lastBlockTime: number
   let fiveSecondsSince: number
 
@@ -181,6 +180,10 @@ describe('Pool - Fee', function () {
       // deposit 10k BUSD and 1k vUSDC to pool
       await poolContract.connect(user1).deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince)
       await poolContract.connect(user1).deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince)
+
+      // approve withdraw
+      await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
     })
 
     describe('single swap', function () {
@@ -224,7 +227,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.56990354', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -285,7 +288,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -344,7 +347,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -402,7 +405,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -416,9 +419,10 @@ describe('Pool - Fee', function () {
         expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
         expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('10000'))
 
-        await poolContract.mintFee(asset0.address)
-        await poolContract.mintFee(asset1.address)
-        expect(await asset0.liability()).to.be.equal(parseEther('10000.007961557039807021'))
+        // withdraw to mint fee
+        await poolContract.connect(user1).withdraw(token0.address, 1000000, 0, user1.address, fiveSecondsSince)
+        await poolContract.connect(user1).withdraw(token1.address, 1000, 0, user1.address, fiveSecondsSince)
+        expect(await asset0.liability()).to.be.equal(parseEther('10000.007961557038807021'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807021'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
       })
@@ -487,7 +491,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -540,7 +544,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('802.57968506', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -602,7 +606,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000.01579995', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('706.35041979', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -655,7 +659,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000.01579995', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('612.56343516', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -717,7 +721,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -777,7 +781,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -803,7 +807,7 @@ describe('Pool - Fee', function () {
     })
   })
 
-  describe('r* == 1: Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
+  describe('r* == 1: Asset BUSD (18 decimals), vUSDC (6 decimals) and CAKE (18 decimals)', function () {
     beforeEach(async function () {
       // set fee collection address
       await poolContract.connect(owner).setFeeTo(user2.address)
@@ -824,6 +828,10 @@ describe('Pool - Fee', function () {
 
       await poolContract.connect(owner).setShouldDistributeRetention(true)
       await poolContract.connect(owner).setShouldEnableExactDeposit(true)
+
+      // approve withdraw
+      await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
     })
 
     describe('single swap', function () {
@@ -867,7 +875,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.56990354', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -928,7 +936,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -945,7 +953,7 @@ describe('Pool - Fee', function () {
         await poolContract.mintFee(asset1.address)
         // liability and cash should increase
         expect(await asset0.cash()).to.be.equal(parseEther('9900.520344787611275104'))
-        expect(await asset0.liability()).to.be.equal(parseEther('10000.039807976551874270'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000.039807976551874150'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
@@ -991,7 +999,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -1016,7 +1024,7 @@ describe('Pool - Fee', function () {
         )
       })
 
-      it('works (vUSDC -> BUSD) with haircut fees and dividend', async function () {
+      it('works (vUSDC -> BUSD) with haircut fees and dividend + deposit to mint fee', async function () {
         const beforeFromBalance = await token1.balanceOf(user1.address)
         const beforeToBalance = await token0.balanceOf(user1.address)
 
@@ -1053,7 +1061,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -1066,14 +1074,77 @@ describe('Pool - Fee', function () {
 
         expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
 
-        await poolContract.mintFee(asset0.address)
-        await poolContract.mintFee(asset1.address)
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230571468083'))
-        expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381241622420'))
+        // deposit to mint fee
+        await poolContract.connect(user1).deposit(token0.address, 100000000, user1.address, fiveSecondsSince)
+        await poolContract.connect(user1).deposit(token1.address, 1000000, user1.address, fiveSecondsSince)
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230671468083'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381341622610'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
-          parseEther('.999999999999999999')
+          parseEther('1.000000000000606754')
+        )
+      })
+
+      it('works (vUSDC -> BUSD) with haircut fees and dividend + withdraw to mint fee', async function () {
+        const beforeFromBalance = await token1.balanceOf(user1.address)
+        const beforeToBalance = await token0.balanceOf(user1.address)
+
+        const [quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token1.address, token0.address, parseUnits('100', 8))
+
+        const receipt = await poolContract.connect(user1).swap(
+          token1.address,
+          token0.address,
+          parseUnits('100', 8),
+          parseEther('90'), //expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+        const afterFromBalance = await token1.balanceOf(user1.address)
+        const afterToBalance = await token0.balanceOf(user1.address)
+
+        const tokenSent = afterFromBalance.sub(beforeFromBalance)
+        const tokenGot = afterToBalance.sub(beforeToBalance)
+        expect(tokenSent).to.be.equal(parseUnits('-100', 8))
+        expect(tokenGot).to.be.equal(parseEther('99.479655212388724896'))
+
+        //check if token got is equal to token quoted
+        expect(tokenGot).to.be.equal(quotedAmount)
+
+        // check BUSD post swap positions
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104'))
+
+        // check vUSDC post swap positions
+        expect(await asset1.cash()).to.be.equal(parseUnits('1100', 8))
+        expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
+
+        await expect(receipt)
+          .to.emit(poolContract, 'Swap')
+          .withArgs(
+            user1.address,
+            token1.address,
+            token0.address,
+            parseUnits('100', 8),
+            parseEther('99.479655212388724896'),
+            user1.address
+          )
+
+        expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
+
+        // withdraw to mint fee
+        await poolContract.connect(user1).withdraw(token0.address, 1000000, 0, user1.address, fiveSecondsSince)
+        await poolContract.connect(user1).withdraw(token1.address, 1000, 0, user1.address, fiveSecondsSince)
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230570451694'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381240622307'))
+        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
+        expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
+          parseEther('0.999999999999754032')
         )
       })
     })
@@ -1128,7 +1199,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -1180,7 +1251,7 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('436.52402260', 8))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -1243,7 +1314,7 @@ describe('Pool - Fee', function () {
         expect(await asset2.liability()).to.be.equal(parseEther('5000'))
         expect(await asset2.underlyingTokenBalance()).to.be.equal(parseEther('4900.699062516209956544'))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -1295,7 +1366,7 @@ describe('Pool - Fee', function () {
         expect(await asset2.liability()).to.be.equal(parseEther('5000'))
         expect(await asset2.underlyingTokenBalance()).to.be.equal(parseEther('4801.674372315336444308'))
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -1316,7 +1387,7 @@ describe('Pool - Fee', function () {
         expect(await asset0.cash()).to.be.equal(parseEther('10800'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
         expect(await asset2.cash()).to.be.equal(parseEther('4801.658499916162001446'))
-        expect(await asset2.liability()).to.be.equal(parseEther('5000.063494738388558980'))
+        expect(await asset2.liability()).to.be.equal(parseEther('5000.063494738388559540'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset2.balanceOf(user2.address)).to.be.equal(parseEther('0'))
 

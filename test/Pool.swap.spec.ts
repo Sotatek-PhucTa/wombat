@@ -137,7 +137,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.56990354', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -190,7 +190,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -244,7 +244,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -296,7 +296,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -368,7 +368,7 @@ describe('Pool - Swap', function () {
           user1.address,
           fiveSecondsSince
         )
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
