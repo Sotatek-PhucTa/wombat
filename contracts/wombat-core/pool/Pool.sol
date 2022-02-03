@@ -883,8 +883,8 @@ contract Pool is
             return;
         }
 
+        uint256 dividend = _dividend(feeCollected, retentionRatio);
         if (shouldEnableExactDeposit) {
-            uint256 dividend = _dividend(feeCollected, retentionRatio);
             if (feeCollected - dividend > 0) {
                 // strictly control r* to be 1
                 // increase the value of the LP token, i.e. assetsPerShare
@@ -894,15 +894,14 @@ contract Pool is
             }
             asset.transferUnderlyingToken(feeTo, dividend);
         } else {
-            uint256 dividend = _dividend(feeCollected, retentionRatio);
             uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
-            _feeCollected[asset] = 0;
             if (dividend > 0) {
                 // call totalSupply() and liability() before mint()
                 asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
             }
             asset.addLiability(liabilityToMint);
         }
+        _feeCollected[asset] = 0;
     }
 
     function mintAllFee() internal {
