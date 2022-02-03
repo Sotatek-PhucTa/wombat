@@ -290,7 +290,7 @@ describe('Pool - Withdraw', function () {
               user1.address,
               fiveSecondsSince
             )
-        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
+        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if asset not exist', async function () {
@@ -303,7 +303,7 @@ describe('Pool - Withdraw', function () {
           poolContract
             .connect(user1)
             .withdraw(mockToken.address, parseEther('100'), parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('Wombat: ASSET_NOT_EXIST')
+        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
     })
 
@@ -320,7 +320,7 @@ describe('Pool - Withdraw', function () {
               user1.address,
               fiveSecondsSince
             )
-        ).to.be.revertedWith('Wombat: COV_RATIO_LOW')
+        ).to.be.revertedWith('WOMBAT_COV_RATIO_TOO_LOW')
       })
 
       it('works with 0 fee (cov >= 1)', async function () {
@@ -383,7 +383,7 @@ describe('Pool - Withdraw', function () {
           poolContract
             .connect(owner)
             .quotePotentialWithdrawFromOtherAsset(token1.address, token0.address, parseEther('10'))
-        ).to.be.revertedWith('Wombat: COV_RATIO_LOW')
+        ).to.be.revertedWith('WOMBAT_COV_RATIO_TOO_LOW')
       })
 
       it('works with 0 fee (cov >= 1)', async function () {

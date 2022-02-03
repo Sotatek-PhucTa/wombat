@@ -39,7 +39,7 @@ describe('PausableAssets', function () {
     it('Should revert when asset is paused', async function () {
       await PausableAssets.test_pauseAsset(token0.address)
       await expect(PausableAssets.connect(user1).testRequireAssetNotPaused(token0.address)).to.be.revertedWith(
-        'Pausable: asset paused'
+        'WOMBAT_ASSET_ALREADY_PAUSED'
       )
 
       // does not revert for other assets
@@ -55,7 +55,7 @@ describe('PausableAssets', function () {
 
     it('Would revert when asset does not exist', async function () {
       await expect(PausableAssets.connect(user1).testRequireAssetPaused(token0.address)).to.be.revertedWith(
-        'Pausable: asset not paused'
+        'WOMBAT_ASSET_NOT_PAUSED'
       )
     })
 
@@ -64,7 +64,7 @@ describe('PausableAssets', function () {
       await PausableAssets.test_pauseAsset(token1.address)
       await PausableAssets.test_unpauseAsset(token0.address)
       await expect(PausableAssets.connect(user1).testRequireAssetPaused(token0.address)).to.be.revertedWith(
-        'Pausable: asset not paused'
+        'WOMBAT_ASSET_NOT_PAUSED'
       )
 
       // does not revert for other assets

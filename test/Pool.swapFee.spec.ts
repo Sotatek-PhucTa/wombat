@@ -89,7 +89,7 @@ describe('Pool - Fee', function () {
     it('should not set fee to 0', async function () {
       await expect(
         poolContract.connect(owner).setFeeTo('0x0000000000000000000000000000000000000000')
-      ).to.be.revertedWith('Wombat: set retention ratio instead')
+      ).to.be.revertedWith('WOMBAT_INVALID_VALUE')
     })
 
     it('fee should not collected if retention ratio is 1', async function () {
@@ -431,7 +431,7 @@ describe('Pool - Fee', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('Wombat: INTERPOOL_SWAP_NOT_SUPPORTED')
+        ).to.be.revertedWith('WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED')
       })
     })
 

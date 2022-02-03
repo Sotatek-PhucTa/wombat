@@ -80,11 +80,19 @@ contract Pool is
 
     error WOMBAT_FORBIDDEN();
     error WOMBAT_EXPIRED();
+
+    error WOMBAT_ASSET_NOT_EXISTS();
+    error WOMBAT_ASSET_ALREADY_EXIST();
+
     error WOMBAT_ZERO_ADDRESS();
     error WOMBAT_ZERO_AMOUNT();
+    error WOMBAT_ZERO_LIQUIDITY();
     error WOMBAT_INVALID_VALUE();
     error WOMBAT_SAME_ADDRESS();
     error WOMBAT_AMOUNT_TOO_LOW();
+    error WOMBAT_COV_RATIO_TOO_LOW();
+    error WOMBAT_CASH_NOT_ENOUGH();
+    error WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
 
     /// @dev Modifier ensuring that certain function can only be called by developer
     modifier onlyDev() {
@@ -180,12 +188,12 @@ contract Pool is
      * @param feeTo_ new fee beneficiary
      */
     function setFeeTo(address feeTo_) external onlyOwner {
-        require(feeTo_ != address(0), 'Wombat: set retention ratio instead');
+        if (feeTo_ == address(0)) revert WOMBAT_INVALID_VALUE();
         feeTo = feeTo_;
     }
 
     function setShouldDistributeRetention(bool _shouldDistributeRetention) external onlyOwner {
-        require(_shouldDistributeRetention != shouldDistributeRetention, 'Wombat: what are you setting?');
+        if (_shouldDistributeRetention == shouldDistributeRetention) revert WOMBAT_INVALID_VALUE();
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));
             _mintFee(asset);
@@ -213,7 +221,7 @@ contract Pool is
      */
     function _addAsset(address token, address asset) private {
         if (asset == address(0)) revert WOMBAT_ZERO_ADDRESS();
-        require(!_containsAsset(token), 'Wombat: ASSET_EXISTS');
+        if (_containsAsset(token)) revert WOMBAT_ASSET_ALREADY_EXIST();
 
         _assets.values[token] = IAsset(asset);
         _assets.indexOf[token] = _assets.keys.length;
@@ -228,7 +236,7 @@ contract Pool is
      * @param key The address of token to remove
      */
     function removeAsset(address key) external onlyOwner {
-        require(_containsAsset(key), 'Wombat: ASSET_NOT_EXISTS');
+        if (!_containsAsset(key)) revert WOMBAT_ASSET_NOT_EXISTS();
 
         delete _assets.values[key];
 
@@ -283,7 +291,7 @@ contract Pool is
      * @param token The address of ERC20 token
      */
     function _assetOf(address token) private view returns (IAsset) {
-        require(_containsAsset(token), 'Wombat: ASSET_NOT_EXIST');
+        if (!_containsAsset(token)) revert WOMBAT_ASSET_NOT_EXISTS();
         return _assets.values[token];
     }
 
@@ -298,6 +306,10 @@ contract Pool is
 
     /* Deposit */
 
+    /**
+     * This functinos approximate the amount of liquidity of the deposit regardless of value of r*.
+     * Fee could be positive of negative
+     */
     function _depositTo(IAsset asset, uint256 amount)
         internal
         view
@@ -344,7 +356,7 @@ contract Pool is
         uint256 liabilityToMint;
         (liquidity, liabilityToMint, ) = _depositTo(asset, amount);
 
-        require(liquidity > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_MINTED');
+        if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
         asset.addCash(amount);
         asset.addLiability(liabilityToMint);
@@ -418,7 +430,7 @@ contract Pool is
         )
     {
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
-        require(liabilityToBurn > 0, 'Wombat: INSUFFICIENT_LIQUIDITY_BURNED');
+        if (liabilityToBurn == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
         // overflow is unrealistic
         int256 L_i = int256(liabilityToBurn);
@@ -490,7 +502,7 @@ contract Pool is
         address to,
         uint256 deadline
     ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
-        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
+        if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
         if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
 
         IAsset asset = _assetOf(token);
@@ -517,7 +529,7 @@ contract Pool is
             bool enoughCash
         )
     {
-        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
+        if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
         IAsset asset = _assetOf(token);
         (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
@@ -544,15 +556,15 @@ contract Pool is
         uint256 deadline
     ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
         if (receipient == address(0)) revert WOMBAT_ZERO_ADDRESS();
-        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
+        if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
-        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        if (toAsset.aggregateAccount() != fromAsset.aggregateAccount()) revert WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
         bool enoughCash;
         (amount, , , enoughCash) = _withdrawFrom(toAsset, liquidity);
-        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
-        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= WAD, 'Wombat: COV_RATIO_LOW');
+        if (!enoughCash) revert WOMBAT_CASH_NOT_ENOUGH();
+        if ((toAsset.cash() - amount).wdiv(toAsset.liability()) < WAD) revert WOMBAT_COV_RATIO_TOO_LOW();
         if (minimumAmount > amount) revert WOMBAT_AMOUNT_TOO_LOW();
 
         // Burn LP from user and trasnfer token.
@@ -591,14 +603,14 @@ contract Pool is
         )
     {
         if (fromToken == toToken) revert WOMBAT_SAME_ADDRESS();
-        if (liquidity == 0) revert WOMBAT_ZERO_AMOUNT();
+        if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
-        require(fromAsset.aggregateAccount() == toAsset.aggregateAccount(), 'Wombat: INTERPOOL_WITHDRAW_NOT_SUPPORTED');
+        if (fromAsset.aggregateAccount() != toAsset.aggregateAccount()) revert WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
         (amount, , fee, enoughCash) = _withdrawFrom(toAsset, liquidity);
-        require(enoughCash, 'Wombat: NOT_ENOUGH_CASH');
-        require((toAsset.cash() - amount).wdiv(toAsset.liability()) >= WAD, 'Wombat: COV_RATIO_LOW');
+        if (!enoughCash) revert WOMBAT_CASH_NOT_ENOUGH();
+        if ((toAsset.cash() - amount).wdiv(toAsset.liability()) < WAD) revert WOMBAT_COV_RATIO_TOO_LOW();
     }
 
     /* Swap */
@@ -626,7 +638,7 @@ contract Pool is
         uint256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
 
         // in case div of 0
-        require(Lx > 0, 'Not enough from-asset');
+        if (Lx == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
         uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, ampFactor);
         idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
@@ -646,9 +658,9 @@ contract Pool is
         uint256 fromAmount
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
-        require(toAsset.cash() >= idealToAmount, 'Wombat: INSUFFICIENT_CASH');
+        if (toAsset.cash() < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
 
-        haircut = _haircut(idealToAmount, haircutRate);
+        haircut = idealToAmount.wmul(haircutRate);
         actualToAmount = idealToAmount - haircut;
     }
 
@@ -679,7 +691,7 @@ contract Pool is
         IAsset toAsset = _assetOf(toToken);
 
         // Intrapool swapping only
-        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_SWAP_NOT_SUPPORTED');
+        if (fromAsset.aggregateAccount() != toAsset.aggregateAccount()) revert WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
 
         (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         if (minimumToAmount > actualToAmount) revert WOMBAT_AMOUNT_TOO_LOW();
@@ -714,7 +726,7 @@ contract Pool is
         IAsset toAsset = _assetOf(toToken);
 
         // Intrapool swapping only
-        require(toAsset.aggregateAccount() == fromAsset.aggregateAccount(), 'Wombat: INTERPOOL_SWAP_NOT_SUPPORTED');
+        if (fromAsset.aggregateAccount() != toAsset.aggregateAccount()) revert WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
 
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
     }
@@ -761,15 +773,14 @@ contract Pool is
     function _depositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
         // overflow is unrealistic
         uint8 d = asset.decimals();
-        int256 delta_i;
-        delta_i = _convertToWAD(d, amount);
-
-        int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
+        if (L_i == 0) return 0;
+
+        int256 delta_i = _convertToWAD(d, amount);
+        int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 A = int256(ampFactor);
 
         (int256 D, int256 SL) = _globalInvariantFunc(A);
-
         int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
 
         reward = _convertFromWAD(d, w);
