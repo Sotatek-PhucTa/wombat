@@ -17,9 +17,14 @@ interface IVeWom is IERC721Receiver {
 
     function claim() external;
 
-    function pending(address _addr) external view returns (uint256);
+    // shared amongst VeWom and MasterWombat
+    function pending(address _addr) external view virtual returns (uint256);
 
     function withdraw(uint256 _amount) external;
+
+    function unstakeNft() external;
+
+    function getStakedNft(address _addr) external view returns (uint256);
 
     function getStakedAmount(address _addr) external view returns (uint256);
 
