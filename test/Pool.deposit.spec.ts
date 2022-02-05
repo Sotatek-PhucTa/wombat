@@ -272,7 +272,7 @@ describe('Pool - Deposit', function () {
         await poolContract.connect(owner).pauseAsset(token0.address)
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
+        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
       })
 
       it('reverts if pause asset is invoked by non-owner', async function () {
@@ -283,7 +283,7 @@ describe('Pool - Deposit', function () {
         await poolContract.connect(owner).pauseAsset(token0.address)
         await expect(
           poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
+        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
 
         await poolContract.connect(owner).unpauseAsset(token0.address)
         const receipt = await poolContract

@@ -86,7 +86,7 @@ contract Pool is
     error WOMBAT_EXPIRED();
 
     error WOMBAT_ASSET_NOT_EXISTS();
-    error WOMBAT_ASSET_EXIST();
+    error WOMBAT_ASSET_ALREADY_EXIST();
 
     error WOMBAT_ZERO_ADDRESS();
     error WOMBAT_ZERO_AMOUNT();
@@ -224,7 +224,7 @@ contract Pool is
         if (asset == address(0)) revert WOMBAT_ZERO_ADDRESS();
         if (token == address(0)) revert WOMBAT_ZERO_ADDRESS();
 
-        if (_containsAsset(token)) revert WOMBAT_ASSET_EXIST();
+        if (_containsAsset(token)) revert WOMBAT_ASSET_ALREADY_EXIST();
         _assets.values[token] = IAsset(asset);
         _assets.indexOf[token] = _assets.keys.length;
         _assets.keys.push(token);

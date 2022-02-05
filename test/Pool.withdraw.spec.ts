@@ -326,7 +326,6 @@ describe('Pool - Withdraw', function () {
         ).to.be.revertedWith('WOMBAT_COV_RATIO_TOO_LOW')
       })
 
-      // TODO: merge withdrawal fee.
       it('works with 0 fee (cov >= 1)', async function () {
         await asset0.connect(owner).setPool(owner.address)
         await asset0.connect(owner).addCash(parseEther('10'))
@@ -390,7 +389,6 @@ describe('Pool - Withdraw', function () {
         ).to.be.revertedWith('WOMBAT_COV_RATIO_TOO_LOW')
       })
 
-      // TODO: merge withdrawal fee.
       it('works with 0 fee (cov >= 1)', async function () {
         await asset0.connect(owner).setPool(owner.address)
         await asset0.connect(owner).addCash(parseEther('10'))

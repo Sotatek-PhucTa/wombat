@@ -39,7 +39,7 @@ describe('PausableAssets', function () {
     it('Should revert when asset is paused', async function () {
       await PausableAssets.test_pauseAsset(token0.address)
       await expect(PausableAssets.connect(user1).testRequireAssetNotPaused(token0.address)).to.be.revertedWith(
-        'WOMBAT_ASSET_PAUSED'
+        'WOMBAT_ASSET_ALREADY_PAUSED'
       )
 
       // does not revert for other assets

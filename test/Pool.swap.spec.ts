@@ -343,7 +343,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
+        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
       })
 
       it('allows swap if asset paused and unpaused after', async function () {
@@ -357,7 +357,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_ASSET_PAUSED')
+        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
 
         await poolContract.connect(owner).unpauseAsset(token1.address)
         const receipt = await poolContract.connect(user1).swap(
