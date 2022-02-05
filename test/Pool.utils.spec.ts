@@ -65,6 +65,8 @@ describe('Pool - Utils', function () {
     it('Should get and set correct params', async function () {
       await poolContract.connect(owner).setAmpFactor(parseUnits('0.05', 18))
       await poolContract.connect(owner).setHaircutRate(parseUnits('0.004', 18))
+      await poolContract.connect(owner).setShouldEnableExactDeposit(false)
+      await poolContract.connect(owner).setShouldDistributeRetention(true)
       await poolContract.connect(owner).setRetentionRatio(parseUnits('1', 18))
 
       expect(await poolContract.connect(owner).ampFactor()).to.be.equal(parseUnits('0.05', 18))
@@ -77,6 +79,12 @@ describe('Pool - Utils', function () {
         'Ownable: caller is not the owner'
       )
       await expect(poolContract.connect(user).setHaircutRate(parseUnits('0.004', 18))).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      )
+      await expect(poolContract.connect(user).setShouldEnableExactDeposit(false)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      )
+      await expect(poolContract.connect(user).setShouldDistributeRetention(false)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
       await expect(poolContract.connect(user).setRetentionRatio(parseUnits('1', 18))).to.be.revertedWith(
@@ -117,7 +125,7 @@ describe('Pool - Utils', function () {
 
         // check if added and if event has been emitted
         expect(await poolContract.assetOf(mockToken.address)).to.equal(mockAsset.address)
-        expect(receipt).to.emit(poolContract, 'AssetAdded').withArgs(mockToken.address, mockAsset.address)
+        await expect(receipt).to.emit(poolContract, 'AssetAdded').withArgs(mockToken.address, mockAsset.address)
       })
 
       it('reverts for invalid params', async function () {
@@ -170,13 +178,13 @@ describe('Pool - Utils', function () {
       // Pause pool : expect to emit event and for state pause event to change
       const receipt1 = await poolContract.connect(owner).pause()
       expect(await poolContract.paused()).to.equal(true)
-      expect(receipt1).to.emit(poolContract, 'Paused').withArgs(owner.address)
+      await expect(receipt1).to.emit(poolContract, 'Paused').withArgs(owner.address)
 
       // Unpause pool : expect emit event and state change
       const receipt2 = await poolContract.connect(owner).unpause()
       expect(await poolContract.paused()).to.equal(false)
 
-      expect(receipt2).to.emit(poolContract, 'Unpaused').withArgs(owner.address)
+      await expect(receipt2).to.emit(poolContract, 'Unpaused').withArgs(owner.address)
     })
 
     it('restricts to only dev (deployer)', async function () {

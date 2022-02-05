@@ -16,6 +16,8 @@ import './PausableAssets.sol';
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
+ * Note: There are 2 operating mode. Either set shouldEnableExactDeposit to true and maintain global cov ratio (r*) at 1.
+ * Or set shouldEnableExactDeposit to false, and allow r* to be any value > 1.
  */
 contract Pool is
     Initializable,
@@ -43,7 +45,7 @@ contract Pool is
     uint256 public haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
 
     /// @notice Retention ratio
-    uint256 public retentionRatio = WAD; // 1
+    uint256 public retentionRatio = WAD;
 
     /// @notice Dev address
     address public dev;
@@ -55,6 +57,8 @@ contract Pool is
 
     /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
     bool public shouldDistributeRetention;
+
+    bool public shouldEnableExactDeposit = true;
 
     /// @notice Dividend collected by each asset (unit: underlying token)
     mapping(IAsset => uint256) private _feeCollected;
@@ -178,7 +182,8 @@ contract Pool is
      * @param retentionRatio_ new pool's retentionRatio
      */
     function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
-        if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be set bigger than 1
+        if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be bigger than 1
+        mintAllFee();
         retentionRatio = retentionRatio_;
     }
 
@@ -192,13 +197,20 @@ contract Pool is
         feeTo = feeTo_;
     }
 
-    function setShouldDistributeRetention(bool _shouldDistributeRetention) external onlyOwner {
-        if (_shouldDistributeRetention == shouldDistributeRetention) revert WOMBAT_INVALID_VALUE();
-        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
-            IAsset asset = _getAsset(_getKeyAtIndex(i));
-            _mintFee(asset);
-        }
-        shouldDistributeRetention = _shouldDistributeRetention;
+    function setShouldDistributeRetention(bool shouldDistributeRetention_) external onlyOwner {
+        if (shouldDistributeRetention_ == shouldDistributeRetention) revert WOMBAT_INVALID_VALUE();
+        mintAllFee();
+        shouldDistributeRetention = shouldDistributeRetention_;
+    }
+
+    /**
+     * @notice Enable exact deposit
+     * Should only be enabled when r* = 1
+     */
+    function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
+        if (shouldEnableExactDeposit_ && !shouldDistributeRetention) revert WOMBAT_FORBIDDEN();
+        shouldEnableExactDeposit = shouldEnableExactDeposit_;
+        mintAllFee();
     }
 
     /* Assets */
@@ -211,18 +223,8 @@ contract Pool is
     function addAsset(address token, address asset) external onlyOwner nonReentrant {
         if (asset == address(0)) revert WOMBAT_ZERO_ADDRESS();
         if (token == address(0)) revert WOMBAT_ZERO_ADDRESS();
-        _addAsset(token, asset);
-    }
 
-    /**
-     * @notice Adds asset to pool, reverts if asset already exists in pool
-     * @param token The address of token
-     * @param asset The address of the Wombat Asset contract
-     */
-    function _addAsset(address token, address asset) private {
-        if (asset == address(0)) revert WOMBAT_ZERO_ADDRESS();
         if (_containsAsset(token)) revert WOMBAT_ASSET_ALREADY_EXIST();
-
         _assets.values[token] = IAsset(asset);
         _assets.indexOf[token] = _assets.keys.length;
         _assets.keys.push(token);
@@ -319,21 +321,46 @@ contract Pool is
             int256 fee
         )
     {
-        uint256 totalSupply = asset.totalSupply();
-        uint256 liability = asset.liability();
-
-        // TODO: confirm we don't do exact deposit?
         int256 reward = _depositReward(int256(amount), asset);
-
+        // revert if value doesn't make sense in case of overflow
+        if (reward > int256(amount) || reward < -int256(amount)) {
+            revert WOMBAT_INVALID_VALUE();
+        }
         if (reward < 0) {
             // TODO: confirm we don't distribute deposit reward
             fee = -reward;
         }
 
-        liabilityToMint = uint256(int256(amount) - fee);
+        liabilityToMint = SafeCast.toUint256(int256(amount) - fee);
 
         // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
-        liquidity = (liability == 0 ? liabilityToMint : (liabilityToMint * totalSupply) / liability);
+        uint256 liability = asset.liability();
+        liquidity = (liability == 0 ? liabilityToMint : (liabilityToMint * asset.totalSupply()) / liability);
+    }
+
+    /**
+     * This function calculate the exactly amount of liquidity of the deposit. Assumes r* = 1
+     */
+    function _exactDepositTo(IAsset asset, uint256 amount)
+        internal
+        view
+        returns (
+            uint256 liquidity,
+            uint256 liabilityToMint,
+            int256 fee
+        )
+    {
+        fee = -_exactDepositReward(int256(amount), asset);
+        // revert if value doesn't make sense in case of overflow
+        if (fee >= int256(10**asset.decimals() / 1000000) || fee < -int256(amount)) {
+            revert WOMBAT_INVALID_VALUE();
+        }
+
+        liabilityToMint = SafeCast.toUint256(int256(amount) - fee);
+
+        // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
+        uint256 liability = asset.liability();
+        liquidity = (liability == 0 ? liabilityToMint : (liabilityToMint * asset.totalSupply()) / liability);
     }
 
     /**
@@ -348,13 +375,13 @@ contract Pool is
         uint256 amount,
         address to
     ) internal returns (uint256 liquidity) {
-        if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
-
         // collect fee before deposit
         _mintFee(asset);
 
         uint256 liabilityToMint;
-        (liquidity, liabilityToMint, ) = _depositTo(asset, amount);
+        (liquidity, liabilityToMint, ) = shouldEnableExactDeposit
+            ? _exactDepositTo(asset, amount)
+            : _depositTo(asset, amount);
 
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
 
@@ -404,8 +431,7 @@ contract Pool is
         view
         returns (uint256 liquidity, int256 fee)
     {
-        IAsset asset = _assetOf(token);
-        (liquidity, , fee) = _depositTo(asset, amount);
+        (liquidity, , fee) = _depositTo(_assetOf(token), amount);
     }
 
     /* Withdraw */
@@ -434,17 +460,21 @@ contract Pool is
 
         // overflow is unrealistic
         int256 L_i = int256(liabilityToBurn);
-
         fee = _withdrawalFee(L_i, asset);
+
+        // revert if value doesn't make sense in case of overflow
+        if (fee > L_i || fee < -L_i || (shouldEnableExactDeposit && fee <= -int256(10**asset.decimals() / 1000000))) {
+            revert WOMBAT_INVALID_VALUE();
+        }
 
         // Prevent underflow in case withdrawal fees >= liabilityToBurn, user would only burn his underlying liability
         if (L_i > fee) {
-            if (asset.cash() < uint256(L_i - fee)) {
+            if (asset.cash() < SafeCast.toUint256(L_i - fee)) {
                 amount = asset.cash(); // When asset does not contain enough cash, just withdraw the remaining cash
                 fee = 0;
                 enoughCash = false;
             } else {
-                amount = uint256(L_i - fee); // There is enough cash, standard withdrawal
+                amount = SafeCast.toUint256(L_i - fee); // There is enough cash, standard withdrawal
                 enoughCash = true;
             }
         } else {
@@ -471,13 +501,9 @@ contract Pool is
         // collect fee before withdraw
         _mintFee(asset);
 
-        // request lp token from user
-        IERC20(asset).safeTransferFrom(address(msg.sender), address(asset), liquidity);
-
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
         (amount, liabilityToBurn, , ) = _withdrawFrom(asset, liquidity);
-
         if (minimumAmount > amount) revert WOMBAT_AMOUNT_TOO_LOW();
 
         asset.burn(address(asset), liquidity);
@@ -506,6 +532,8 @@ contract Pool is
         if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
 
         IAsset asset = _assetOf(token);
+        // request lp token from user
+        IERC20(asset).safeTransferFrom(address(msg.sender), address(asset), liquidity);
         amount = _withdraw(asset, liquidity, minimumAmount, to);
 
         emit Withdraw(msg.sender, token, amount, liquidity, to);
@@ -701,8 +729,15 @@ contract Pool is
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
-        toAsset.removeCash(actualToAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
+
+        if (shouldEnableExactDeposit) {
+            // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
+            toAsset.removeCash(actualToAmount + haircut);
+        } else {
+            // haircut is distributed in the form of LP token to beneficiary during _mintFee()
+            toAsset.removeCash(actualToAmount);
+        }
     }
 
     /**
@@ -733,40 +768,37 @@ contract Pool is
 
     /* Queries */
 
-    /**
-     * @notice Returns the exchange rate of the LP token
-     * @param asset The address of the LP token
-     * @return exchangeRate
-     */
-    function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
-        if (asset.totalSupply() == 0) return 1;
-        return exchangeRate = asset.liability() / asset.totalSupply();
-    }
+    // /**
+    //  * @notice Returns the exchange rate of the LP token
+    //  * @param asset The address of the LP token
+    //  * @return exchangeRate
+    //  */
+    // function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
+    //     if (asset.totalSupply() == 0) return 1;
+    //     return exchangeRate = asset.liability() / asset.totalSupply();
+    // }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
         int256 A = int256(ampFactor);
 
-        int256 D;
-        int256 SL;
-        (D, SL) = _globalInvariantFunc(A);
-
+        (int256 D, int256 SL) = _globalInvariantFunc(A);
         int256 er = _equilCovRatio(D, SL, A);
         return (uint256(er), uint256(D));
     }
 
-    function surplus() external view returns (int256 surplus) {
-        uint256 SA;
-        uint256 SL;
-        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
-            IAsset asset = _getAsset(_getKeyAtIndex(i));
+    // function surplus() external view returns (int256 surplus) {
+    //     uint256 SA;
+    //     uint256 SL;
+    //     for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+    //         IAsset asset = _getAsset(_getKeyAtIndex(i));
 
-            // overflow is unrealistic
-            uint8 d = asset.decimals();
-            SA += _convertToWAD(d, asset.cash());
-            SL += _convertToWAD(d, asset.liability());
-        }
-        surplus = int256(SA) - int256(SL);
-    }
+    //         // overflow is unrealistic
+    //         uint8 d = asset.decimals();
+    //         SA += _convertToWAD(d, asset.cash());
+    //         SL += _convertToWAD(d, asset.liability());
+    //     }
+    //     surplus = int256(SA) - int256(SL);
+    // }
 
     /* Utils */
 
@@ -782,6 +814,21 @@ contract Pool is
 
         (int256 D, int256 SL) = _globalInvariantFunc(A);
         int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+
+        reward = _convertFromWAD(d, w);
+    }
+
+    function _exactDepositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
+        // overflow is unrealistic
+        uint8 d = asset.decimals();
+        int256 L_i = int256(_convertToWAD(d, asset.liability()));
+        if (L_i == 0) return 0;
+
+        int256 A_i = int256(_convertToWAD(d, asset.cash()));
+        int256 D_i = _convertToWAD(d, amount);
+        int256 A = int256(ampFactor);
+
+        int256 w = exactDepositRewardImpl(D_i, A_i, L_i, A);
 
         reward = _convertFromWAD(d, w);
     }
@@ -819,21 +866,36 @@ contract Pool is
         uint256 feeCollected = _feeCollected[asset];
         if (feeCollected == 0) {
             // early return
-            // we might set a threshold for min fee here to save gas cost
+            // we might set a threshold to save gas cost
             return;
         }
 
         uint256 dividend = _dividend(feeCollected, retentionRatio);
-        uint256 retention = feeCollected - dividend;
-        uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
-        _feeCollected[asset] = 0;
-
-        if (dividend > 0) {
-            // call totalSupply() and liability() before mint()
-            asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
+        if (shouldEnableExactDeposit) {
+            if (feeCollected - dividend > 0) {
+                // strictly control r* to be 1
+                // increase the value of the LP token, i.e. assetsPerShare
+                (, uint256 liabilityToMint, ) = _exactDepositTo(asset, feeCollected - dividend);
+                asset.addLiability(liabilityToMint);
+                asset.addCash(feeCollected - dividend);
+            }
+            asset.transferUnderlyingToken(feeTo, dividend);
+        } else {
+            uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
+            if (dividend > 0) {
+                // call totalSupply() and liability() before mint()
+                asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
+            }
+            asset.addLiability(liabilityToMint);
         }
+        _feeCollected[asset] = 0;
+    }
 
-        asset.addLiability(liabilityToMint);
+    function mintAllFee() internal {
+        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+            IAsset asset = _getAsset(_getKeyAtIndex(i));
+            _mintFee(asset);
+        }
     }
 
     /**

@@ -75,7 +75,7 @@ describe('PausableAssets', function () {
   describe('[_pauseAsset] - triggers pause state', async function () {
     it('Should pause an asset and emit a pause asset event', async function () {
       const receipt = await PausableAssets.connect(user1).test_pauseAsset(token0.address)
-      expect(receipt).to.emit(PausableAssets, 'PausedAsset').withArgs(token0.address, user1.address)
+      await expect(receipt).to.emit(PausableAssets, 'PausedAsset').withArgs(token0.address, user1.address)
     })
   })
 
@@ -83,7 +83,7 @@ describe('PausableAssets', function () {
     it('Should unpause an asset and emit an unpause asset event', async function () {
       await PausableAssets.connect(user1).test_pauseAsset(token0.address)
       const receipt = await PausableAssets.connect(user1).test_unpauseAsset(token0.address)
-      expect(receipt).to.emit(PausableAssets, 'UnpausedAsset').withArgs(token0.address, user1.address)
+      await expect(receipt).to.emit(PausableAssets, 'UnpausedAsset').withArgs(token0.address, user1.address)
     })
   })
 })

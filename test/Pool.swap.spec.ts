@@ -78,6 +78,8 @@ describe('Pool - Swap', function () {
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
+
+    await poolContract.connect(owner).setShouldEnableExactDeposit(false)
   })
 
   describe('Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
@@ -135,7 +137,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.56990354', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -188,7 +190,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -242,7 +244,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -294,7 +296,7 @@ describe('Pool - Swap', function () {
         expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,
@@ -366,7 +368,7 @@ describe('Pool - Swap', function () {
           user1.address,
           fiveSecondsSince
         )
-        expect(receipt)
+        await expect(receipt)
           .to.emit(poolContract, 'Swap')
           .withArgs(
             user1.address,

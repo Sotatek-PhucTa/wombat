@@ -48,7 +48,7 @@ contract CoreV2 {
         int256 Ry = _coverageYFunc(b, A_i);
         int256 Dy = _deltaFunc(Ay_i, Ly_i, Ry);
         int256 quote_i = Ay_i - Ay_i - Dy;
-        uint256 quote = uint256(quote_i);
+        uint256 quote = SafeCast.toUint256(quote_i);
         return quote;
     }
 
@@ -159,7 +159,21 @@ contract CoreV2 {
         }
 
         int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
-        w = (L_i.wmul(A_i).wdiv(L_i) + delta_i) - (L_i + delta_i).wmul(r_i_);
+        w = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
+    }
+
+    function exactDepositRewardImpl(
+        int256 D_i,
+        int256 A_i,
+        int256 L_i,
+        int256 A
+    ) internal pure returns (int256 w) {
+        int256 r_i = A_i.wdiv(L_i);
+        int256 k = D_i + A_i;
+        int256 b = k.wmul(WAD_I - A) + 2 * A.wmul(L_i);
+        int256 c = k.wmul(A_i - (A * L_i) / r_i) - k.wmul(k) + A.wmul(L_i).wmul(L_i);
+        int256 l = b * b - 4 * A * c;
+        return (-b + (l).sqrt()).wdiv(A) / 2 - D_i;
     }
 
     function _targetedCovRatio(
@@ -176,7 +190,7 @@ contract CoreV2 {
         int256 D_ = _newInvariantFunc(er_, A, SL, delta_i);
 
         // Summation of k∈T\{i} is D - L_i.wmul(r_i - A.wdiv(r_i))
-        int256 b_ = (D - L_i.wmul(r_i - A.wdiv(r_i)) - D_).wdiv(L_i + delta_i);
+        int256 b_ = (D - A_i + (L_i * A) / r_i - D_).wdiv(L_i + delta_i);
         r_i_ = _coverageYFunc(b_, A);
     }
 
