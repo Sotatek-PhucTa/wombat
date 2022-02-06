@@ -10,7 +10,7 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import '../wombat-core/libraries/DSMath.sol';
+import '../wombat-governance/libraries/DSMath.sol';
 import './interfaces/IVeWom.sol';
 import './interfaces/IMasterWombat.sol';
 import './interfaces/IRewarder.sol';
