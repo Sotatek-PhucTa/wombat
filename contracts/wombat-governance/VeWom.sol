@@ -8,7 +8,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 import './VeERC20Upgradeable.sol';
-import './Whitelist.sol';
+import './interfaces/IWhitelist.sol';
 import './interfaces/IMasterWombat.sol';
 import './libraries/DSMath.sol';
 import './interfaces/IVeWom.sol';
@@ -73,7 +73,7 @@ contract VeWom is
 
     /// @notice whitelist wallet checker
     /// @dev contract addresses are by default unable to stake wom, they must be previously whitelisted to stake wom
-    Whitelist public whitelist;
+    IWhitelist public whitelist;
 
     /// @notice user info mapping
     mapping(address => UserInfo) public users;
@@ -151,7 +151,7 @@ contract VeWom is
 
     /// @notice sets whitelist address
     /// @param _whitelist the new whitelist address
-    function setWhitelist(Whitelist _whitelist) external onlyOwner {
+    function setWhitelist(IWhitelist _whitelist) external onlyOwner {
         require(address(_whitelist) != address(0), 'zero address');
         whitelist = _whitelist;
     }

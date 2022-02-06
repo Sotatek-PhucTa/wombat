@@ -1,11 +1,9 @@
 // DO NOT DEPLOY TO MAINNET
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.5;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '../interfaces/IVeWom.sol';
 import '../interfaces/IWom.sol';
-import '../VeWom.sol';
 
 contract MockAttacker {
     IVeWom public veWom;

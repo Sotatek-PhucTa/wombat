@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.5;
 
 import '@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol';
@@ -44,8 +44,6 @@ interface IWombatNFT is IERC721Enumerable, IERC2981Royalties {
     function preSaleDeadline() external view returns (uint256);
 
     function usedPresaleTicket(address) external view returns (bool);
-
-    function withdrawLINK() external;
 
     function withdrawWOM() external;
 
