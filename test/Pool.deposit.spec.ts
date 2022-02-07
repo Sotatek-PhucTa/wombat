@@ -89,6 +89,15 @@ describe('Pool - Deposit', function () {
       await token0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
       await token0.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
     })
+
+    describe('quotePotentialDeposit', function () {
+      it('works', async function () {
+        const [liquidity, fee] = await poolContract.quotePotentialDeposit(token0.address, parseEther('100'))
+        expect(liquidity).to.be.equal(parseEther('100'))
+        expect(fee).to.be.equal(0)
+      })
+    })
+
     describe('deposit', function () {
       it('works (first LP)', async function () {
         // Get BUSD balance of user1
@@ -479,13 +488,17 @@ describe('Pool - Deposit', function () {
         parseEther('16782.890674540985455000'),
       ])
 
-      const receipt = await poolContract
-        .connect(user1)
-        .deposit(token1.address, parseUnits('2000', 8), user1.address, fiveSecondsSince)
+      const amount = parseUnits('2000', 8)
+      const [liquidity, fee] = await poolContract.quotePotentialDeposit(token1.address, amount)
+      expect(liquidity).to.equal(parseUnits('1999.36144104', 8))
+      expect(fee).to.equal(parseUnits('0.63855896', 8))
+      expect(liquidity.add(fee)).to.equal(amount)
+
+      const receipt = await poolContract.connect(user1).deposit(token1.address, amount, user1.address, fiveSecondsSince)
 
       await expect(receipt)
         .to.emit(poolContract, 'Deposit')
-        .withArgs(user1.address, token1.address, parseUnits('2000', 8), parseUnits('1999.36144104', 8), user1.address)
+        .withArgs(user1.address, token1.address, amount, liquidity, user1.address)
 
       // const surplusAfter = await poolContract.connect(owner).surplus()
       // expect(surplusAfter).to.equal(parseEther('1517.298678960000000000'))
