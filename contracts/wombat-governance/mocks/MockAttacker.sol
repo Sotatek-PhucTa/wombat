@@ -14,8 +14,8 @@ contract MockAttacker {
         veWom = _veWom;
     }
 
-    function deposit(uint256 _amount) public {
-        veWom.deposit(_amount);
+    function mint(uint256 amount, uint256 lockDays) public {
+        veWom.mint(amount, lockDays);
     }
 
     function approve(uint256 _amount) public {

@@ -28,8 +28,4 @@ contract MockVeWom is Initializable, VeWom {
     function burn(address _account, uint256 _amount) public {
         _burn(_account, _amount);
     }
-
-    function getVotes(address _account) external view virtual override returns (uint256) {
-        return balanceOf(_account);
-    }
 }
