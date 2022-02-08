@@ -19,7 +19,14 @@ import './PausableAssets.sol';
  * Note: There are 2 operating mode. Either set shouldEnableExactDeposit to true and maintain global cov ratio (r*) at 1.
  * Or set shouldEnableExactDeposit to false, and allow r* to be any value > 1.
  */
-contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, PausableAssets, CoreV2 {
+contract Pool is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
+    PausableAssets,
+    CoreV2
+{
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
@@ -680,17 +687,19 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint8 dFrom = fromAsset.decimals();
         uint8 dTo = toAsset.decimals();
 
-        uint256 Ax = _convertToWAD(dFrom, fromAsset.cash());
         uint256 Lx = _convertToWAD(dFrom, fromAsset.liability());
-        uint256 Ay = _convertToWAD(dTo, toAsset.cash());
-        uint256 Ly = _convertToWAD(dTo, toAsset.liability());
-        uint256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
 
         // in case div of 0
         _checkLiquidity(Lx);
 
-        uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, ampFactor);
-        idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
+        idealToAmount = _convertFromWAD(dTo, _swapQuoteFunc(
+            _convertToWAD(dFrom, fromAsset.cash()),
+            _convertToWAD(dTo, toAsset.cash()),
+            Lx,
+            _convertToWAD(dTo, toAsset.liability()),
+            _convertToWAD(dFrom, fromAmount),
+            ampFactor
+        ));
     }
 
     /**
@@ -735,7 +744,6 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         _checkAddress(to);
         requireAssetNotPaused(fromToken);
 
-        IERC20 fromERC20 = IERC20(fromToken);
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
@@ -748,7 +756,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         _feeCollected[toAsset] += haircut;
 
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
-        fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
+        IERC20(fromToken).safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
 
@@ -803,8 +811,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         int256 A = int256(ampFactor);
 
         (int256 D, int256 SL) = _globalInvariantFunc(A);
-        int256 er = _equilCovRatio(D, SL, A);
-        return (uint256(er), uint256(D));
+        return (uint256(_equilCovRatio(D, SL, A)), uint256(D));
     }
 
     // function surplus() external view returns (int256 surplus) {
@@ -829,12 +836,10 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
         if (L_i == 0) return 0;
 
-        int256 delta_i = _convertToWAD(d, amount);
-        int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 A = int256(ampFactor);
 
         (int256 D, int256 SL) = _globalInvariantFunc(A);
-        int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+        int256 w = depositRewardImpl(SL, _convertToWAD(d, amount), int256(_convertToWAD(d, asset.cash())), L_i, D, A);
 
         reward = _convertFromWAD(d, w);
     }
@@ -845,11 +850,8 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
         if (L_i == 0) return 0;
 
-        int256 A_i = int256(_convertToWAD(d, asset.cash()));
-        int256 D_i = _convertToWAD(d, amount);
         int256 A = int256(ampFactor);
-
-        int256 w = exactDepositRewardImpl(D_i, A_i, L_i, A);
+        int256 w = exactDepositRewardImpl(_convertToWAD(d, amount), int256(_convertToWAD(d, asset.cash())), L_i, A);
 
         reward = _convertFromWAD(d, w);
     }
@@ -864,7 +866,6 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
             // overflow is unrealistic
             uint8 d = asset.decimals();
-            int256 A_i = int256(_convertToWAD(d, asset.cash()));
             int256 L_i = int256(_convertToWAD(d, asset.liability()));
 
             // Assume when L_i == 0, A_i always == 0
@@ -873,7 +874,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
                 continue;
             }
 
-            int256 r_i = A_i.wdiv(L_i);
+            int256 r_i = (int256(_convertToWAD(d, asset.cash()))).wdiv(L_i);
             SL += L_i;
             D += L_i.wmul(r_i - A.wdiv(r_i));
         }
