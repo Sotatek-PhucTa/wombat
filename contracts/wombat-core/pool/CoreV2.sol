@@ -3,7 +3,6 @@ pragma solidity 0.8.5;
 
 import '../libraries/DSMath.sol';
 import '../libraries/SignedSafeMath.sol';
-import '../libraries/SafeCast.sol';
 
 /**
  * @title CoreV2
@@ -48,7 +47,7 @@ contract CoreV2 {
         int256 Ry = _coverageYFunc(b, A_i);
         int256 Dy = _deltaFunc(Ay_i, Ly_i, Ry);
         int256 quote_i = Ay_i - Ay_i - Dy;
-        uint256 quote = SafeCast.toUint256(quote_i);
+        uint256 quote = uint256(quote_i);
         return quote;
     }
 

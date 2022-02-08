@@ -19,6 +19,9 @@ dotenv.config()
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
+    hardhat: {
+      allowUnlimitedContractSize: false,
+    },
     bsc_testnet: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
@@ -44,7 +47,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 10000,
+            runs: 1000,
           },
         },
       },
