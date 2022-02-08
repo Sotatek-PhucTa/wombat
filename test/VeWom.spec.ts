@@ -225,6 +225,55 @@ describe('VeWOM', function () {
     await expect(this.veWom.connect(users[0]).mint(parseEther('1'), 7)).to.be.revertedWith('breed too much')
   })
 
+  it('burn should work', async function () {
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
+    // deposit 100 wom into veWOM
+    await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
+    await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
+
+    await this.veWom.connect(users[0]).mint(parseEther('10'), 7)
+    await this.veWom.connect(users[0]).mint(parseEther('20'), 7)
+    await this.veWom.connect(users[0]).mint(parseEther('5'), 7)
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('245'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('65'))
+
+    const secondsInDay = 86400
+    advanceTimeAndBlock(secondsInDay * 7)
+
+    await this.veWom.connect(users[0]).burn(0)
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('175'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('75'))
+
+    await this.veWom.connect(users[0]).burn(1)
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('35'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('95'))
+
+    await this.veWom.connect(users[0]).burn(0)
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('0'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
+
+    await expect(this.veWom.connect(users[0]).burn(0)).to.be.revertedWith('wut?')
+  })
+
+  it('burn should reject if time not reached yet', async function () {
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
+    // deposit 100 wom into veWOM
+    await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
+    await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
+
+    await this.veWom.connect(users[0]).mint(parseEther('10'), 10)
+
+    const secondsInDay = 86400
+    advanceTimeAndBlock(secondsInDay * 9)
+
+    await expect(this.veWom.connect(users[0]).burn(0)).to.be.revertedWith('not yet meh')
+
+    advanceTimeAndBlock(secondsInDay * 1)
+    await this.veWom.connect(users[0]).burn(0)
+  })
+
   it.skip('cannot stake nft if user has no wom staked', async function () {
     await this.nft.connect(users[8]).mint(Ability.DILIGENT, 30, 24, 4, 4, 4, 4, 4, 4)
     expect(await this.veWom.isUser(users[8].address)).to.be.false

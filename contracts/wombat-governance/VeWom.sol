@@ -242,8 +242,20 @@ contract VeWom is
     }
 
     function burn(uint256 slot) external override nonReentrant whenNotPaused {
-        require(slot < users[msg.sender].breedings.length, 'wut?');
-        // TODO: implement
+        uint256 length = users[msg.sender].breedings.length;
+        require(slot < length, 'wut?');
+
+        Breeding memory breeding = users[msg.sender].breedings[slot];
+        require(uint256(breeding.unlockTime) <= block.timestamp, 'not yet meh');
+
+        // remove slot
+        if (slot != length - 1) {
+            users[msg.sender].breedings[slot] = users[msg.sender].breedings[length - 1];
+        }
+        users[msg.sender].breedings.pop();
+
+        _burn(msg.sender, breeding.veWomAmount);
+        wom.transfer(msg.sender, breeding.WomAmount);
     }
 
     /// @notice asserts addres in param is not a smart contract.
