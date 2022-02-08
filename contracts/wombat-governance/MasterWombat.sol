@@ -94,19 +94,19 @@ contract MasterWombat is
 
     /// @dev Modifier ensuring that certain function can only be called by VeWom
     modifier onlyVeWom() {
-        require(address(veWom) == msg.sender, 'MasterWombat: ');
+        require(address(veWom) == msg.sender, 'MasterWombat: caller is not VeWom');
         _;
     }
 
     function initialize(
         IERC20 wom_,
         IVeWom veWom_,
-        uint256 womPerSec,
+        uint256 womPerSec_,
         uint256 startTimestamp_
     ) external initializer {
         require(address(wom_) != address(0), 'wom address cannot be zero');
         require(address(veWom_) != address(0), 'veWom address cannot be zero');
-        require(womPerSec != 0, 'wom per sec cannot be zero');
+        require(womPerSec_ != 0, 'wom per sec cannot be zero');
 
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
@@ -114,7 +114,7 @@ contract MasterWombat is
 
         wom = wom_;
         veWom = veWom_;
-        womPerSec = womPerSec;
+        womPerSec = womPerSec_;
         startTimestamp = startTimestamp_;
     }
 
@@ -132,7 +132,7 @@ contract MasterWombat is
         _unpause();
     }
 
-    function setnewMasterWombat(IMasterWombat _newMasterWombat) external onlyOwner {
+    function setNewMasterWombat(IMasterWombat _newMasterWombat) external onlyOwner {
         newMasterWombat = _newMasterWombat;
     }
 
@@ -211,12 +211,12 @@ contract MasterWombat is
     }
 
     /// @notice updates emission rate
-    /// @param womPerSec wom amount to be updated
+    /// @param womPerSec_ wom emission rate to be updated
     /// @dev Pancake has to add hidden dummy pools inorder to alter the emission,
     /// @dev here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 womPerSec) external onlyOwner {
+    function updateEmissionRate(uint256 womPerSec_) external onlyOwner {
         massUpdatePools();
-        womPerSec = womPerSec;
+        womPerSec = womPerSec_;
         emit UpdateEmissionRate(msg.sender, womPerSec);
     }
 
