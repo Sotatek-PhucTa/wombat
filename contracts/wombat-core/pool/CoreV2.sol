@@ -165,7 +165,7 @@ contract CoreV2 {
      * @dev should be used only when r* = 1
      * @return w positive value indicates a reward and negative value indicates a fee
      */
-    function depositRewardEquilImpl(
+    function depositRewardInEquilImpl(
         int256 delta_i,
         int256 A_i,
         int256 L_i,

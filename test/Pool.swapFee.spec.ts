@@ -83,7 +83,7 @@ describe('Pool - Fee', function () {
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
 
-    await poolContract.connect(owner).setShouldEnableExactDeposit(false)
+    await poolContract.connect(owner).setShouldMaintainGlobalEquil(false)
   })
 
   describe('Various Paths', function () {
@@ -827,7 +827,7 @@ describe('Pool - Fee', function () {
       await poolContract.connect(user1).deposit(token2.address, parseEther('5000'), user1.address, fiveSecondsSince)
 
       await poolContract.connect(owner).setShouldDistributeRetention(true)
-      await poolContract.connect(owner).setShouldEnableExactDeposit(true)
+      await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
 
       // approve withdraw
       await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
