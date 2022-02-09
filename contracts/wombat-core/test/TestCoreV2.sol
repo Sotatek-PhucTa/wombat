@@ -10,10 +10,10 @@ contract TestCoreV2 is CoreV2 {
         uint256 Ay,
         uint256 Lx,
         uint256 Ly,
-        uint256 Dx,
+        int256 Dx_i,
         uint256 A
     ) external pure returns (uint256) {
-        return _swapQuoteFunc(Ax, Ay, Lx, Ly, Dx, A);
+        return _swapQuoteFunc(Ax, Ay, Lx, Ly, Dx_i, A);
     }
 
     function test_deltaFunc(

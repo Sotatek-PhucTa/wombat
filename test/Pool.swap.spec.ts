@@ -19,9 +19,11 @@ describe('Pool - Swap', function () {
   let token0: Contract // BUSD
   let token1: Contract // USDC
   let token2: Contract // CAKE
+  let token3: Contract // USDT
   let asset0: Contract // BUSD LP
   let asset1: Contract // USDC LP
   let asset2: Contract // CAKE LP
+  let asset3: Contract // USDT LP
   let aggregateAccount: Contract // stables
   let aggregateAccount1: Contract // non-stables
   let lastBlockTime: number
@@ -49,36 +51,41 @@ describe('Pool - Swap', function () {
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
     token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
     token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
+    token3 = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('1000000', 18)) // 1 mil USDT
     aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('USD-Stablecoins', true)
     aggregateAccount1 = await AggregateAccountFactory.connect(owner).deploy('Non-Stablecoins', false)
     asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
     asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP', aggregateAccount.address)
     asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP', aggregateAccount1.address)
+    asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP', aggregateAccount.address)
     poolContract = await PoolFactory.connect(owner).deploy()
 
     // wait for transactions to be mined
     await token0.deployTransaction.wait()
     await token1.deployTransaction.wait()
     await token2.deployTransaction.wait()
+    await token3.deployTransaction.wait()
     await aggregateAccount.deployTransaction.wait()
     await asset0.deployTransaction.wait()
     await asset1.deployTransaction.wait()
     await asset2.deployTransaction.wait()
+    await asset3.deployTransaction.wait()
     await poolContract.deployTransaction.wait()
 
     // set pool address
     await asset0.setPool(poolContract.address)
     await asset1.setPool(poolContract.address)
     await asset2.setPool(poolContract.address)
+    await asset3.setPool(poolContract.address)
 
     // initialize pool contract
     poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
-    // Add BUSD & USDC assets to pool
+    // Add BUSD & USDC & USDT assets to pool
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
-
+    await poolContract.connect(owner).addAsset(token3.address, asset3.address)
     await poolContract.connect(owner).setShouldEnableExactDeposit(false)
   })
 
@@ -87,13 +94,16 @@ describe('Pool - Swap', function () {
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD
       await token1.connect(owner).transfer(user1.address, parseUnits('100000', 8)) // 100k vUSDC
+      await token3.connect(owner).transfer(user1.address, parseEther('100000')) // 100k USDT
       // Approve max allowance of tokens from users to pool
       await token0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
       await token1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token3.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
 
-      // deposit 10k BUSD and 1k vUSDC to pool
+      // deposit 10k BUSD and 1k vUSDC and 1k USDT to pool
       await poolContract.connect(user1).deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince)
       await poolContract.connect(user1).deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince)
+      await poolContract.connect(user1).deposit(token3.address, parseEther('1000'), user1.address, fiveSecondsSince)
     })
 
     describe('swap', function () {
@@ -309,6 +319,98 @@ describe('Pool - Swap', function () {
 
         expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
         expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+      })
+
+      it('works (BUSD -> exact vUSDC output) 18 and 8 decimals without haircut fees', async function () {
+        // set haircut rate to 0
+        poolContract.connect(owner).setHaircutRate(0)
+        const beforeFromBalance = await token0.balanceOf(user1.address)
+        const beforeToBalance = await token1.balanceOf(user1.address)
+
+        // output of -100 amount
+        const [quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token1.address, token0.address, parseUnits('-100', 8))
+
+        // console.log(324, quotedAmount)
+        // check if input token amount is correct
+        expect(quotedAmount).to.be.equal(parseEther('100.576790831788430000'))
+
+        await poolContract.connect(user1).swap(
+          token0.address, // input 1st token
+          token1.address,
+          parseEther('100.576790831788430000'), // input to get exact 100 output
+          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+        const afterFromBalance = await token0.balanceOf(user1.address)
+        const afterToBalance = await token1.balanceOf(user1.address)
+
+        const tokenSent = afterFromBalance.sub(beforeFromBalance)
+        const tokenGot = afterToBalance.sub(beforeToBalance)
+        expect(tokenSent).to.be.equal(parseEther('-100.576790831788430000'))
+        expect(tokenGot).to.be.equal(parseUnits('99.99999999', 8)) // rounding error
+      })
+
+      it('works (BUSD -> exact vUSDC output) 18 and 8 decimals with haircut fees', async function () {
+        // poolContract.connect(owner).setHaircutRate(parseEther('0.0001'))
+        const beforeFromBalance = await token0.balanceOf(user1.address)
+        const beforeToBalance = await token1.balanceOf(user1.address)
+
+        // output of -100 amount
+        const [quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token1.address, token0.address, parseUnits('-100', 8))
+
+        // check if input token amount is correct
+        expect(quotedAmount).to.be.equal(parseEther('100.617275942224310000'))
+
+        await poolContract.connect(user1).swap(
+          token0.address, // input 1st token
+          token1.address,
+          parseEther('100.617275942224310000'), // input to get exact 100 output
+          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+        const afterFromBalance = await token0.balanceOf(user1.address)
+        const afterToBalance = await token1.balanceOf(user1.address)
+
+        const tokenSent = afterFromBalance.sub(beforeFromBalance)
+        const tokenGot = afterToBalance.sub(beforeToBalance)
+        expect(tokenSent).to.be.equal(parseEther('-100.617275942224310000'))
+        expect(tokenGot).to.be.equal(parseUnits('99.99998399', 8)) // rounding error
+      })
+
+      it('works (BUSD -> exact USDT output) both 18 decimals with haircut fees', async function () {
+        // poolContract.connect(owner).setHaircutRate(parseEther('0.0001'))
+        const beforeFromBalance = await token0.balanceOf(user1.address)
+        const beforeToBalance = await token3.balanceOf(user1.address)
+
+        // output of -100 amount
+        const [quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token3.address, token0.address, parseUnits('-100', 18))
+
+        // check if input token amount is correct
+        expect(quotedAmount).to.be.equal(parseEther('100.617275942224310000'))
+
+        await poolContract.connect(user1).swap(
+          token0.address, // input 1st token
+          token3.address,
+          parseEther('100.617275942224310000'), // input to get exact 100 output
+          parseEther('90'), //expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+        const afterFromBalance = await token0.balanceOf(user1.address)
+        const afterToBalance = await token3.balanceOf(user1.address)
+
+        const tokenSent = afterFromBalance.sub(beforeFromBalance)
+        const tokenGot = afterToBalance.sub(beforeToBalance)
+        expect(tokenSent).to.be.equal(parseEther('-100.617275942224310000'))
+        expect(tokenGot).to.be.equal(parseUnits('99.999983999999990004', 18)) // rounding error
       })
 
       it.skip('Rewards actions that move BUSD coverage ratio (Rx) closer', async function () {
