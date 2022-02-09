@@ -19,7 +19,14 @@ import './PausableAssets.sol';
  * Note: There are 2 operating mode. Either set shouldEnableExactDeposit to true and maintain global cov ratio (r*) at 1.
  * Or set shouldEnableExactDeposit to false, and allow r* to be any value > 1.
  */
-contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, PausableAssets, CoreV2 {
+contract Pool is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
+    PausableAssets,
+    CoreV2
+{
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
@@ -833,8 +840,13 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 A = int256(ampFactor);
 
-        (int256 D, int256 SL) = _globalInvariantFunc(A);
-        int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+        int256 w;
+        if (shouldEnableExactDeposit) {
+            w = depositRewardEquilImpl(delta_i, A_i, L_i, A);
+        } else {
+            (int256 D, int256 SL) = _globalInvariantFunc(A);
+            w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+        }
 
         reward = _convertFromWAD(d, w);
     }
