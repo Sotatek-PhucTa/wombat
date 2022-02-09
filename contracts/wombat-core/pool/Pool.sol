@@ -38,6 +38,8 @@ contract Pool is
         mapping(address => uint256) indexOf;
     }
 
+    /* Storage */
+
     /// @notice Amplification factor
     uint256 public ampFactor;
 
@@ -50,9 +52,6 @@ contract Pool is
     /// @notice Dev address
     address public dev;
 
-    /// @notice A record of assets inside Pool
-    AssetMap private _assets;
-
     address public feeTo;
 
     /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
@@ -62,6 +61,11 @@ contract Pool is
 
     /// @notice Dividend collected by each asset (unit: underlying token)
     mapping(IAsset => uint256) private _feeCollected;
+
+    /// @notice A record of assets inside Pool
+    AssetMap private _assets;
+
+    /* Events */
 
     /// @notice An event thats emitted when an asset is added to Pool
     event AssetAdded(address indexed token, address indexed asset);
@@ -82,6 +86,8 @@ contract Pool is
         address indexed to
     );
 
+    /* Errors */
+
     error WOMBAT_FORBIDDEN();
     error WOMBAT_EXPIRED();
 
@@ -97,6 +103,8 @@ contract Pool is
     error WOMBAT_COV_RATIO_TOO_LOW();
     error WOMBAT_CASH_NOT_ENOUGH();
     error WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
+
+    /* Pesudo modifiers to safe gas */
 
     function _checkLiquidity(uint256 liquidity) private view {
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
@@ -126,17 +134,7 @@ contract Pool is
         if (dev != msg.sender) revert WOMBAT_FORBIDDEN();
     }
 
-    /// @dev Modifier ensuring that certain function can only be called by developer
-    modifier onlyDev() {
-        _onlyDev();
-        _;
-    }
-
-    /// @dev Modifier ensuring a certain deadline for a function to complete execution
-    modifier ensure(uint256 deadline) {
-        _ensure(deadline);
-        _;
-    }
+    /* Construtor and setters */
 
     /**
      * @notice Initializes pool. Dev is set to be the account calling this function.
@@ -155,28 +153,32 @@ contract Pool is
     /**
      * @dev pause pool, restricting certain operations
      */
-    function pause() external onlyDev nonReentrant {
+    function pause() external nonReentrant {
+        _onlyDev();
         _pause();
     }
 
     /**
      * @dev unpause pool, enabling certain operations
      */
-    function unpause() external onlyDev nonReentrant {
+    function unpause() external nonReentrant {
+        _onlyDev();
         _unpause();
     }
 
     /**
      * @dev pause asset, restricting deposit and swap operations
      */
-    function pauseAsset(address asset) external onlyDev nonReentrant {
+    function pauseAsset(address asset) external nonReentrant {
+        _onlyDev();
         _pauseAsset(asset);
     }
 
     /**
      * @dev unpause asset, enabling deposit and swap operations
      */
-    function unpauseAsset(address asset) external onlyDev nonReentrant {
+    function unpauseAsset(address asset) external nonReentrant {
+        _onlyDev();
         _unpauseAsset(asset);
     }
 
@@ -435,9 +437,10 @@ contract Pool is
         uint256 amount,
         address to,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 liquidity) {
+    ) external nonReentrant whenNotPaused returns (uint256 liquidity) {
         if (amount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
+        _ensure(deadline);
         requireAssetNotPaused(token);
 
         IERC20 erc20 = IERC20(token);
@@ -558,9 +561,10 @@ contract Pool is
         uint256 minimumAmount,
         address to,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
+    ) external nonReentrant whenNotPaused returns (uint256 amount) {
         _checkLiquidity(liquidity);
         _checkAddress(to);
+        _ensure(deadline);
 
         IAsset asset = _assetOf(token);
         // request lp token from user
@@ -613,9 +617,10 @@ contract Pool is
         uint256 minimumAmount,
         address receipient,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
+    ) external nonReentrant whenNotPaused returns (uint256 amount) {
         _checkAddress(receipient);
         _checkLiquidity(liquidity);
+        _ensure(deadline);
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
@@ -739,10 +744,11 @@ contract Pool is
         uint256 minimumToAmount,
         address to,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused {
+    ) external nonReentrant whenNotPaused {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
+        _ensure(deadline);
         requireAssetNotPaused(fromToken);
 
         IERC20 fromERC20 = IERC20(fromToken);
