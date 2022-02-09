@@ -1,5 +1,5 @@
 // DO NOT DEPLOY TO MAINNET
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.5;
 
 import '../interfaces/IVeWom.sol';
