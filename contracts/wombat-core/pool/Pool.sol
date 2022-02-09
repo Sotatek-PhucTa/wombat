@@ -19,7 +19,14 @@ import './PausableAssets.sol';
  * Note: There are 2 operating mode. Either set shouldEnableExactDeposit to true and maintain global cov ratio (r*) at 1.
  * Or set shouldEnableExactDeposit to false, and allow r* to be any value > 1.
  */
-contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, PausableAssets, CoreV2 {
+contract Pool is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
+    PausableAssets,
+    CoreV2
+{
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
@@ -31,20 +38,19 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         mapping(address => uint256) indexOf;
     }
 
+    /* Storage */
+
     /// @notice Amplification factor
-    uint256 public ampFactor = 5 * 10**16; // 0.05 for amplification factor
+    uint256 public ampFactor;
 
     /// @notice Haircut rate
-    uint256 public haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
+    uint256 public haircutRate;
 
     /// @notice Retention ratio
     uint256 public retentionRatio = WAD;
 
     /// @notice Dev address
     address public dev;
-
-    /// @notice A record of assets inside Pool
-    AssetMap private _assets;
 
     address public feeTo;
 
@@ -55,6 +61,11 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
 
     /// @notice Dividend collected by each asset (unit: underlying token)
     mapping(IAsset => uint256) private _feeCollected;
+
+    /// @notice A record of assets inside Pool
+    AssetMap private _assets;
+
+    /* Events */
 
     /// @notice An event thats emitted when an asset is added to Pool
     event AssetAdded(address indexed token, address indexed asset);
@@ -75,6 +86,8 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         address indexed to
     );
 
+    /* Errors */
+
     error WOMBAT_FORBIDDEN();
     error WOMBAT_EXPIRED();
 
@@ -90,6 +103,8 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     error WOMBAT_COV_RATIO_TOO_LOW();
     error WOMBAT_CASH_NOT_ENOUGH();
     error WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
+
+    /* Pesudo modifiers to safe gas */
 
     function _checkLiquidity(uint256 liquidity) private view {
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
@@ -119,25 +134,18 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         if (dev != msg.sender) revert WOMBAT_FORBIDDEN();
     }
 
-    /// @dev Modifier ensuring that certain function can only be called by developer
-    modifier onlyDev() {
-        _onlyDev();
-        _;
-    }
-
-    /// @dev Modifier ensuring a certain deadline for a function to complete execution
-    modifier ensure(uint256 deadline) {
-        _ensure(deadline);
-        _;
-    }
+    /* Construtor and setters */
 
     /**
      * @notice Initializes pool. Dev is set to be the account calling this function.
      */
-    function initialize() external initializer {
+    function initialize(uint256 ampFactor_, uint256 haircutRate_) external initializer {
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
+
+        ampFactor = ampFactor_;
+        haircutRate = haircutRate_;
 
         dev = msg.sender;
     }
@@ -145,28 +153,32 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     /**
      * @dev pause pool, restricting certain operations
      */
-    function pause() external onlyDev nonReentrant {
+    function pause() external nonReentrant {
+        _onlyDev();
         _pause();
     }
 
     /**
      * @dev unpause pool, enabling certain operations
      */
-    function unpause() external onlyDev nonReentrant {
+    function unpause() external nonReentrant {
+        _onlyDev();
         _unpause();
     }
 
     /**
      * @dev pause asset, restricting deposit and swap operations
      */
-    function pauseAsset(address asset) external onlyDev nonReentrant {
+    function pauseAsset(address asset) external nonReentrant {
+        _onlyDev();
         _pauseAsset(asset);
     }
 
     /**
      * @dev unpause asset, enabling deposit and swap operations
      */
-    function unpauseAsset(address asset) external onlyDev nonReentrant {
+    function unpauseAsset(address asset) external nonReentrant {
+        _onlyDev();
         _unpauseAsset(asset);
     }
 
@@ -425,9 +437,10 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 amount,
         address to,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 liquidity) {
+    ) external nonReentrant whenNotPaused returns (uint256 liquidity) {
         if (amount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
+        _ensure(deadline);
         requireAssetNotPaused(token);
 
         IERC20 erc20 = IERC20(token);
@@ -548,9 +561,10 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 minimumAmount,
         address to,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
+    ) external nonReentrant whenNotPaused returns (uint256 amount) {
         _checkLiquidity(liquidity);
         _checkAddress(to);
+        _ensure(deadline);
 
         IAsset asset = _assetOf(token);
         // request lp token from user
@@ -603,9 +617,10 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 minimumAmount,
         address receipient,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused returns (uint256 amount) {
+    ) external nonReentrant whenNotPaused returns (uint256 amount) {
         _checkAddress(receipient);
         _checkLiquidity(liquidity);
+        _ensure(deadline);
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
@@ -729,10 +744,11 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 minimumToAmount,
         address to,
         uint256 deadline
-    ) external ensure(deadline) nonReentrant whenNotPaused {
+    ) external nonReentrant whenNotPaused {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
+        _ensure(deadline);
         requireAssetNotPaused(fromToken);
 
         IERC20 fromERC20 = IERC20(fromToken);

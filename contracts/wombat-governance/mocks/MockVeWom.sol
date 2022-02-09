@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
 // DO NOT DEPLOY TO PRODUCTION
 pragma solidity 0.8.5;
 
