@@ -19,7 +19,14 @@ import './PausableAssets.sol';
  * Note: There are 2 operating mode. Either set shouldEnableExactDeposit to true and maintain global cov ratio (r*) at 1.
  * Or set shouldEnableExactDeposit to false, and allow r* to be any value > 1.
  */
-contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, PausableAssets, CoreV2 {
+contract Pool is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
+    PausableAssets,
+    CoreV2
+{
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
@@ -32,10 +39,10 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     }
 
     /// @notice Amplification factor
-    uint256 public ampFactor = 5 * 10**16; // 0.05 for amplification factor
+    uint256 public ampFactor;
 
     /// @notice Haircut rate
-    uint256 public haircutRate = 4 * 10**14; // 0.0004, i.e. 0.04% for intra-aggregate account stableswap
+    uint256 public haircutRate;
 
     /// @notice Retention ratio
     uint256 public retentionRatio = WAD;
@@ -134,10 +141,13 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     /**
      * @notice Initializes pool. Dev is set to be the account calling this function.
      */
-    function initialize() external initializer {
+    function initialize(uint256 ampFactor_, uint256 haircutRate_) external initializer {
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
+
+        ampFactor = ampFactor_;
+        haircutRate = haircutRate_;
 
         dev = msg.sender;
     }
