@@ -72,7 +72,7 @@ describe('Pool - Swap', function () {
     await asset2.setPool(poolContract.address)
 
     // initialize pool contract
-    poolContract.connect(owner).initialize()
+    poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
     // Add BUSD & USDC assets to pool
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)

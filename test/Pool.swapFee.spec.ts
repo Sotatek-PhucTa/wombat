@@ -73,7 +73,7 @@ describe('Pool - Fee', function () {
     await asset2.setPool(poolContract.address)
 
     // initialize pool contract
-    await poolContract.connect(owner).initialize()
+    await poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
     // set retention ratio
     await poolContract.connect(owner).setRetentionRatio(parseEther('0.8'))
