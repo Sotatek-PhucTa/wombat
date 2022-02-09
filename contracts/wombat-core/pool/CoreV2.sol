@@ -24,7 +24,7 @@ contract CoreV2 {
      * @param Ly liability of token y
      * @param Dx delta x, i.e. token x amount inputted
      * @param A amplification factor
-     * @return quote The quote for amount of token y swapped for token x amount inputted
+     * @return The quote for amount of token y swapped for token x amount inputted
      */
     function _swapQuoteFunc(
         uint256 Ax,
@@ -33,7 +33,7 @@ contract CoreV2 {
         uint256 Ly,
         uint256 Dx,
         uint256 A
-    ) internal pure returns (uint256 quote) {
+    ) internal pure returns (uint256) {
         int256 Ax_i = int256(Ax);
         int256 Ay_i = int256(Ay);
         int256 Lx_i = int256(Lx);
@@ -41,26 +41,14 @@ contract CoreV2 {
         int256 Dx_i = int256(Dx);
         int256 A_i = int256(A);
 
-        quote = uint256(
-            Ay_i -
-                Ay_i -
-                (
-                    _deltaFunc(
-                        Ay_i,
-                        Ly_i,
-                        _coverageYFunc(
-                            _coefficientFunc(
-                                Lx_i,
-                                Ly_i,
-                                _coverageXFunc(Ax_i, Lx_i, Dx_i),
-                                _invariantFunc(Ax_i, Ay_i, Lx_i, Ly_i, A_i),
-                                A_i
-                            ),
-                            A_i
-                        )
-                    )
-                )
-        );
+        int256 Rx = _coverageXFunc(Ax_i, Lx_i, Dx_i);
+        int256 D = _invariantFunc(Ax_i, Ay_i, Lx_i, Ly_i, A_i);
+        int256 b = _coefficientFunc(Lx_i, Ly_i, Rx, D, A_i);
+        int256 Ry = _coverageYFunc(b, A_i);
+        int256 Dy = _deltaFunc(Ay_i, Ly_i, Ry);
+        int256 quote_i = Ay_i - Ay_i - Dy;
+        uint256 quote = uint256(quote_i);
+        return quote;
     }
 
     /**
@@ -87,7 +75,8 @@ contract CoreV2 {
      * @return The asset coverage ratio of token y ("Ry")
      */
     function _coverageYFunc(int256 b, int256 A) internal pure returns (int256) {
-        return ((((b * b) + (A * 4 * WAD_I)).sqrt()) - b) / 2;
+        int256 sqrtResult = ((b * b) + (A * 4 * WAD_I)).sqrt();
+        return (sqrtResult - b) / 2;
     }
 
     /**
@@ -147,7 +136,10 @@ contract CoreV2 {
         int256 D,
         int256 A
     ) internal pure returns (int256) {
-        return (Lx.wdiv(Ly)).wmul((Rx - A.wdiv(Rx))) - (D.wdiv(Ly));
+        int256 a = Lx.wdiv(Ly);
+        int256 b = Rx - A.wdiv(Rx);
+        int256 c = D.wdiv(Ly);
+        return a.wmul(b) - c;
     }
 
     /**
@@ -164,7 +156,9 @@ contract CoreV2 {
         if (SL == 0 || L_i == 0 || L_i + delta_i == 0) {
             return 0;
         }
-        w = A_i + delta_i - (L_i + delta_i).wmul(_targetedCovRatio(SL, delta_i, A_i, L_i, D, A));
+
+        int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
+        w = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
     }
 
     function exactDepositRewardImpl(
@@ -190,10 +184,13 @@ contract CoreV2 {
         int256 A
     ) internal pure returns (int256 r_i_) {
         int256 r_i = A_i.wdiv(L_i);
-        int256 D_ = _newInvariantFunc(_newEquilCovRatio(_equilCovRatio(D, SL, A), SL, delta_i), A, SL, delta_i);
+        int256 er = _equilCovRatio(D, SL, A);
+        int256 er_ = _newEquilCovRatio(er, SL, delta_i);
+        int256 D_ = _newInvariantFunc(er_, A, SL, delta_i);
 
         // Summation of k∈T\{i} is D - L_i.wmul(r_i - A.wdiv(r_i))
-        r_i_ = _coverageYFunc((D - A_i + (L_i * A) / (r_i) - D_).wdiv(L_i + delta_i), A);
+        int256 b_ = (D - A_i + (L_i * A) / r_i - D_).wdiv(L_i + delta_i);
+        r_i_ = _coverageYFunc(b_, A);
     }
 
     function _equilCovRatio(
@@ -201,7 +198,8 @@ contract CoreV2 {
         int256 SL,
         int256 A
     ) internal pure returns (int256 er) {
-        er = _coverageYFunc((-(D.wdiv(SL))), A);
+        int256 b = -(D.wdiv(SL));
+        er = _coverageYFunc(b, A);
     }
 
     function _newEquilCovRatio(
