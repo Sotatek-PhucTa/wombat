@@ -675,7 +675,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     function _quoteIdealToAmount(
         IAsset fromAsset,
         IAsset toAsset,
-        uint256 fromAmount
+        int256 fromAmount
     ) private view returns (uint256 idealToAmount) {
         uint8 dFrom = fromAsset.decimals();
         uint8 dTo = toAsset.decimals();
@@ -684,10 +684,10 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         uint256 Lx = _convertToWAD(dFrom, fromAsset.liability());
         uint256 Ay = _convertToWAD(dTo, toAsset.cash());
         uint256 Ly = _convertToWAD(dTo, toAsset.liability());
-        uint256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
+        int256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
 
         // in case div of 0
-        _checkLiquidity(Lx);
+        fromAmount > 0 ? _checkLiquidity(Lx) : _checkLiquidity(Ly);
 
         uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, ampFactor);
         idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
@@ -704,13 +704,18 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     function _quoteFrom(
         IAsset fromAsset,
         IAsset toAsset,
-        uint256 fromAmount
+        int256 fromAmount
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
         uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
         if (toAsset.cash() < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
 
         haircut = idealToAmount.wmul(haircutRate);
-        actualToAmount = idealToAmount - haircut;
+        // exact output swap quote has added haircut already
+        if (fromAmount > 0) {
+            actualToAmount = idealToAmount - haircut;
+        } else {
+            actualToAmount = idealToAmount;
+        }
     }
 
     /**
@@ -742,7 +747,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         // Intrapool swapping only
         _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
 
-        (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
+        (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
         _checkAmount(minimumToAmount, actualToAmount);
 
         _feeCollected[toAsset] += haircut;
@@ -773,7 +778,7 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
     function quotePotentialSwap(
         address fromToken,
         address toToken,
-        uint256 fromAmount
+        int256 fromAmount
     ) external view returns (uint256 potentialOutcome, uint256 haircut) {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
@@ -784,6 +789,12 @@ contract Pool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, 
         // Intrapool swapping only
         _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
 
+        // exact output swap quote adds haircut
+        if (fromAmount < 0) {
+            uint256 haircut = uint256(-fromAmount).wmul(haircutRate);
+            fromAmount -= int256(haircut);
+        }
+        
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
     }
 
