@@ -162,6 +162,28 @@ contract CoreV2 {
         w = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
     }
 
+    /**
+     * @dev should be used only when r* = 1
+     * @return w positive value indicates a reward and negative value indicates a fee
+     */
+    function depositRewardEquilImpl(
+        int256 delta_i,
+        int256 A_i,
+        int256 L_i,
+        int256 A
+    ) internal pure returns (int256 w) {
+        if (L_i == 0 || L_i + delta_i == 0) {
+            return 0;
+        }
+
+        int256 r_i = A_i.wdiv(L_i);
+        int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
+        int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
+        int256 L_i_ = L_i + delta_i;
+        int256 A_i_ = beta + (beta * beta + A.wmul(L_i_ * L_i_)).sqrt();
+        w = delta_i + A_i - A_i_;
+    }
+
     function exactDepositRewardImpl(
         int256 D_i,
         int256 A_i,

@@ -1139,12 +1139,12 @@ describe('Pool - Fee', function () {
         // withdraw to mint fee
         await poolContract.connect(user1).withdraw(token0.address, 1000000, 0, user1.address, fiveSecondsSince)
         await poolContract.connect(user1).withdraw(token1.address, 1000, 0, user1.address, fiveSecondsSince)
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230570451694'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230570472666'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381240622307'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
-          parseEther('0.999999999999754032')
+          parseEther('0.999999999999754033')
         )
       })
     })

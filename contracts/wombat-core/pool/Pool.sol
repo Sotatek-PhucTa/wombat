@@ -860,8 +860,13 @@ contract Pool is
         int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 A = int256(ampFactor);
 
-        (int256 D, int256 SL) = _globalInvariantFunc(A);
-        int256 w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+        int256 w;
+        if (shouldEnableExactDeposit) {
+            w = depositRewardEquilImpl(delta_i, A_i, L_i, A);
+        } else {
+            (int256 D, int256 SL) = _globalInvariantFunc(A);
+            w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+        }
 
         reward = _convertFromWAD(d, w);
     }

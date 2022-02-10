@@ -707,5 +707,38 @@ describe('Pool - Withdraw', function () {
         parseEther('16022.577553146026439000'),
       ])
     })
+
+    it('r* == 1, r < 1, withdraw fee > 0', async function () {
+      // enableExactDeposit
+      await poolContract.connect(owner).setShouldDistributeRetention(true)
+      await poolContract.connect(owner).setShouldEnableExactDeposit(true)
+
+      // Faucet
+      await asset0.connect(owner).setPool(owner.address)
+      await asset0.connect(owner).addCash(parseEther('12000'))
+      await asset0.connect(owner).addLiability(parseEther('10000'))
+      await asset0.connect(owner).setPool(poolContract.address)
+
+      await asset1.connect(owner).setPool(owner.address)
+      await asset1.connect(owner).addCash(parseUnits('8038.660816', 8))
+      await asset1.connect(owner).addLiability(parseUnits('10000', 8))
+      await asset1.connect(owner).mint(user1.address, parseUnits('10000', 8))
+      await asset1.connect(owner).setPool(poolContract.address)
+
+      await token1.connect(owner).transfer(asset1.address, parseUnits('10000', 8))
+
+      await asset2.connect(owner).setPool(owner.address)
+      await asset2.connect(owner).addCash(parseEther('1000'))
+      await asset2.connect(owner).addLiability(parseEther('1000'))
+      await asset2.connect(owner).setPool(poolContract.address)
+
+      const receipt = await poolContract
+        .connect(user1)
+        .withdraw(token1.address, parseUnits('2000', 8), 0, user1.address, fiveSecondsSince)
+
+      await expect(receipt)
+        .to.emit(poolContract, 'Withdraw')
+        .withArgs(user1.address, token1.address, parseUnits('1992.71394474', 8), parseUnits('2000', 8), user1.address)
+    })
   })
 })
