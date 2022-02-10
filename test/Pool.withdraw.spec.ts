@@ -79,7 +79,7 @@ describe('Pool - Withdraw', function () {
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
 
     // We want to test when r* may be any value other than 1
-    await poolContract.connect(owner).setShouldEnableExactDeposit(false)
+    await poolContract.connect(owner).setShouldMaintainGlobalEquil(false)
   })
 
   describe('Asset BUSD (18 decimals)', function () {
@@ -711,7 +711,7 @@ describe('Pool - Withdraw', function () {
     it('r* == 1, r < 1, withdraw fee > 0', async function () {
       // enableExactDeposit
       await poolContract.connect(owner).setShouldDistributeRetention(true)
-      await poolContract.connect(owner).setShouldEnableExactDeposit(true)
+      await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
 
       // Faucet
       await asset0.connect(owner).setPool(owner.address)

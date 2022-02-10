@@ -16,8 +16,8 @@ import './PausableAssets.sol';
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
- * Note: There are 2 operating mode. Either set shouldEnableExactDeposit to true and maintain global cov ratio (r*) at 1.
- * Or set shouldEnableExactDeposit to false, and allow r* to be any value > 1.
+ * Note: There are 2 operating mode. Either set shouldMaintainGlobalEquil to true and maintain global cov ratio (r*) at 1.
+ * Or set shouldMaintainGlobalEquil to false, and allow r* to be any value > 1.
  */
 contract Pool is
     Initializable,
@@ -57,7 +57,7 @@ contract Pool is
     /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
     bool public shouldDistributeRetention;
 
-    bool public shouldEnableExactDeposit = true;
+    bool public shouldMaintainGlobalEquil = true;
 
     /// @notice Dividend collected by each asset (unit: underlying token)
     mapping(IAsset => uint256) private _feeCollected;
@@ -240,9 +240,9 @@ contract Pool is
      * @notice Enable exact deposit
      * Should only be enabled when r* = 1
      */
-    function setShouldEnableExactDeposit(bool shouldEnableExactDeposit_) external onlyOwner {
-        if (shouldEnableExactDeposit_ && !shouldDistributeRetention) revert WOMBAT_FORBIDDEN();
-        shouldEnableExactDeposit = shouldEnableExactDeposit_;
+    function setShouldMaintainGlobalEquil(bool shouldMaintainGlobalEquil_) external onlyOwner {
+        if (shouldMaintainGlobalEquil_ && !shouldDistributeRetention) revert WOMBAT_FORBIDDEN();
+        shouldMaintainGlobalEquil = shouldMaintainGlobalEquil_;
         mintAllFee();
     }
 
@@ -360,7 +360,7 @@ contract Pool is
             revert WOMBAT_INVALID_VALUE();
         }
         if (reward < 0) {
-            // TODO: confirm we don't distribute deposit reward
+            // TODO: confirm we don't distribute deposit reward if reward > 0
             fee = -reward;
         }
 
@@ -374,7 +374,7 @@ contract Pool is
     /**
      * This function calculate the exactly amount of liquidity of the deposit. Assumes r* = 1
      */
-    function _exactDepositTo(IAsset asset, uint256 amount)
+    function _exactDepositToInEquil(IAsset asset, uint256 amount)
         internal
         view
         returns (
@@ -383,7 +383,7 @@ contract Pool is
             int256 fee
         )
     {
-        fee = -_exactDepositReward(int256(amount), asset);
+        fee = -_exactDepositRewardInEquil(int256(amount), asset);
         // revert if value doesn't make sense in case of overflow
         if (fee >= int256(10**asset.decimals() / 1000000) || fee < -int256(amount)) {
             revert WOMBAT_INVALID_VALUE();
@@ -412,8 +412,8 @@ contract Pool is
         _mintFee(asset);
 
         uint256 liabilityToMint;
-        (liquidity, liabilityToMint, ) = shouldEnableExactDeposit
-            ? _exactDepositTo(asset, amount)
+        (liquidity, liabilityToMint, ) = shouldMaintainGlobalEquil
+            ? _exactDepositToInEquil(asset, amount)
             : _depositTo(asset, amount);
 
         _checkLiquidity(liquidity);
@@ -497,7 +497,7 @@ contract Pool is
         fee = _withdrawalFee(L_i, asset);
 
         // revert if value doesn't make sense in case of overflow
-        if (fee > L_i || fee < -L_i || (shouldEnableExactDeposit && fee <= -int256(10**asset.decimals() / 1000000))) {
+        if (fee > L_i || fee < -L_i || (shouldMaintainGlobalEquil && fee <= -int256(10**asset.decimals() / 1000000))) {
             revert WOMBAT_INVALID_VALUE();
         }
 
@@ -773,7 +773,7 @@ contract Pool is
         fromAsset.addCash(fromAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
 
-        if (shouldEnableExactDeposit) {
+        if (shouldMaintainGlobalEquil) {
             // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
             toAsset.removeCash(actualToAmount + haircut);
         } else {
@@ -816,15 +816,15 @@ contract Pool is
 
     /* Queries */
 
-    // /**
-    //  * @notice Returns the exchange rate of the LP token
-    //  * @param asset The address of the LP token
-    //  * @return exchangeRate
-    //  */
-    // function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
-    //     if (asset.totalSupply() == 0) return 1;
-    //     return exchangeRate = asset.liability() / asset.totalSupply();
-    // }
+    /**
+     * @notice Returns the exchange rate of the LP token
+     * @param asset The address of the LP token
+     * @return exchangeRate
+     */
+    function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
+        if (asset.totalSupply() == 0) return 1;
+        return exchangeRate = asset.liability() / asset.totalSupply();
+    }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
         int256 A = int256(ampFactor);
@@ -861,8 +861,8 @@ contract Pool is
         int256 A = int256(ampFactor);
 
         int256 w;
-        if (shouldEnableExactDeposit) {
-            w = depositRewardEquilImpl(delta_i, A_i, L_i, A);
+        if (shouldMaintainGlobalEquil) {
+            w = depositRewardInEquilImpl(delta_i, A_i, L_i, A);
         } else {
             (int256 D, int256 SL) = _globalInvariantFunc(A);
             w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
@@ -871,7 +871,7 @@ contract Pool is
         reward = _convertFromWAD(d, w);
     }
 
-    function _exactDepositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
+    function _exactDepositRewardInEquil(int256 amount, IAsset asset) internal view returns (int256 reward) {
         // overflow is unrealistic
         uint8 d = asset.decimals();
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
@@ -924,11 +924,11 @@ contract Pool is
         }
 
         uint256 dividend = _dividend(feeCollected, retentionRatio);
-        if (shouldEnableExactDeposit) {
+        if (shouldMaintainGlobalEquil) {
             if (feeCollected - dividend > 0) {
                 // strictly control r* to be 1
                 // increase the value of the LP token, i.e. assetsPerShare
-                (, uint256 liabilityToMint, ) = _exactDepositTo(asset, feeCollected - dividend);
+                (, uint256 liabilityToMint, ) = _exactDepositToInEquil(asset, feeCollected - dividend);
                 asset.addLiability(liabilityToMint);
                 asset.addCash(feeCollected - dividend);
             }
