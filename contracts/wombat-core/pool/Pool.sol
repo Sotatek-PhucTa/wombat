@@ -55,7 +55,7 @@ contract Pool is
     address public feeTo;
 
     /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
-    bool public shouldDistributeRetention;
+    bool public shouldDistributeRetention = true;
 
     bool public shouldMaintainGlobalEquil = true;
 
@@ -231,7 +231,6 @@ contract Pool is
     }
 
     function setShouldDistributeRetention(bool shouldDistributeRetention_) external onlyOwner {
-        if (shouldDistributeRetention_ == shouldDistributeRetention) revert WOMBAT_INVALID_VALUE();
         mintAllFee();
         shouldDistributeRetention = shouldDistributeRetention_;
     }
@@ -241,9 +240,11 @@ contract Pool is
      * Should only be enabled when r* = 1
      */
     function setShouldMaintainGlobalEquil(bool shouldMaintainGlobalEquil_) external onlyOwner {
-        if (shouldMaintainGlobalEquil_ && !shouldDistributeRetention) revert WOMBAT_FORBIDDEN();
-        shouldMaintainGlobalEquil = shouldMaintainGlobalEquil_;
         mintAllFee();
+        if (shouldMaintainGlobalEquil_) {
+            shouldDistributeRetention = true;
+        }
+        shouldMaintainGlobalEquil = shouldMaintainGlobalEquil_;
     }
 
     /* Assets */
@@ -443,10 +444,8 @@ contract Pool is
         _ensure(deadline);
         requireAssetNotPaused(token);
 
-        IERC20 erc20 = IERC20(token);
         IAsset asset = _assetOf(token);
-
-        erc20.safeTransferFrom(address(msg.sender), address(asset), amount);
+        IERC20(token).safeTransferFrom(address(msg.sender), address(asset), amount);
         liquidity = _deposit(asset, amount, to);
 
         emit Deposit(msg.sender, token, amount, liquidity, to);
@@ -810,7 +809,7 @@ contract Pool is
             uint256 haircut = uint256(-fromAmount).wmul(haircutRate);
             fromAmount -= int256(haircut);
         }
-        
+
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
     }
 

@@ -209,7 +209,7 @@ describe('Pool - Withdraw', function () {
           .withArgs(user1.address, token0.address, parseEther('3.661163217515241640'), parseEther('10'), user1.address)
       })
 
-      it('works without fee (cov >= 1)', async function () {
+      it('works without fee, rx = 1.2', async function () {
         // Adjust coverage ratio to 1.2
         await asset0.connect(owner).setPool(owner.address)
         await asset0.connect(owner).addCash(parseEther('20'))

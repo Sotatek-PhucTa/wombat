@@ -84,6 +84,7 @@ describe('Pool - Fee', function () {
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
 
     await poolContract.connect(owner).setShouldMaintainGlobalEquil(false)
+    await poolContract.connect(owner).setShouldDistributeRetention(false)
   })
 
   describe('Various Paths', function () {
