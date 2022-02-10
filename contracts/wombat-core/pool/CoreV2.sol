@@ -22,23 +22,22 @@ contract CoreV2 {
      * @param Ay asset of token y
      * @param Lx liability of token x
      * @param Ly liability of token y
-     * @param Dx delta x, i.e. token x amount inputted
+     * @param Dx_i delta x, i.e. token x amount inputted
      * @param A amplification factor
-     * @return The quote for amount of token y swapped for token x amount inputted
+     * @return quote The quote for amount of token y swapped for token x amount inputted
      */
     function _swapQuoteFunc(
         uint256 Ax,
         uint256 Ay,
         uint256 Lx,
         uint256 Ly,
-        uint256 Dx,
+        int256 Dx_i,
         uint256 A
-    ) internal pure returns (uint256) {
+    ) internal pure returns (uint256 quote) {
         int256 Ax_i = int256(Ax);
         int256 Ay_i = int256(Ay);
         int256 Lx_i = int256(Lx);
         int256 Ly_i = int256(Ly);
-        int256 Dx_i = int256(Dx);
         int256 A_i = int256(A);
 
         int256 Rx = _coverageXFunc(Ax_i, Lx_i, Dx_i);
@@ -46,9 +45,11 @@ contract CoreV2 {
         int256 b = _coefficientFunc(Lx_i, Ly_i, Rx, D, A_i);
         int256 Ry = _coverageYFunc(b, A_i);
         int256 Dy = _deltaFunc(Ay_i, Ly_i, Ry);
-        int256 quote_i = Ay_i - Ay_i - Dy;
-        uint256 quote = uint256(quote_i);
-        return quote;
+        if (Dy < 0) {
+            quote = uint256(-Dy);
+        } else {
+            quote = uint256(Dy);
+        }
     }
 
     /**
