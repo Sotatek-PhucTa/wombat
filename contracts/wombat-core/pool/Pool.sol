@@ -701,7 +701,8 @@ contract Pool is
         int256 fromAmountInWAD = _convertToWAD(dFrom, fromAmount);
 
         // in case div of 0
-        fromAmount > 0 ? _checkLiquidity(Lx) : _checkLiquidity(Ly);
+        _checkLiquidity(Lx);
+        _checkLiquidity(Ly);
 
         uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, ampFactor);
         idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);

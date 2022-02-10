@@ -119,7 +119,7 @@ describe('Pool - Fee', function () {
         token1.address,
         token0.address,
         parseUnits('100', 8),
-        parseEther('90'), //expect at least 90% of ideal quoted amount
+        parseEther('90'), // expect at least 90% of ideal quoted amount
         user1.address,
         fiveSecondsSince
       )
@@ -166,7 +166,7 @@ describe('Pool - Fee', function () {
     })
   })
 
-  describe('r* != 1: Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
+  describe('r* = 1.089: Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
     beforeEach(async function () {
       // set fee collection address
       await poolContract.connect(owner).setFeeTo(user2.address)
@@ -202,7 +202,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -264,7 +264,7 @@ describe('Pool - Fee', function () {
           token1.address,
           token0.address,
           parseUnits('100', 8),
-          parseEther('90'), //expect at least 90% of ideal quoted amount
+          parseEther('90'), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -322,7 +322,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -381,7 +381,7 @@ describe('Pool - Fee', function () {
           token1.address,
           token0.address,
           parseUnits('100', 8),
-          parseEther('90'), //expect at least 90% of ideal quoted amount
+          parseEther('90'), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -434,7 +434,7 @@ describe('Pool - Fee', function () {
             token1.address,
             token2.address,
             parseUnits('100', 8),
-            parseEther('90'), //expect at least 90% of ideal quoted amount
+            parseEther('90'), // expect at least 90% of ideal quoted amount
             user1.address,
             fiveSecondsSince
           )
@@ -465,7 +465,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -518,7 +518,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -580,7 +580,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -633,7 +633,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -697,7 +697,7 @@ describe('Pool - Fee', function () {
           token1.address,
           token0.address,
           parseUnits('100', 8),
-          parseEther('90'), //expect at least 90% of ideal quoted amount
+          parseEther('90'), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -756,7 +756,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -808,7 +808,7 @@ describe('Pool - Fee', function () {
     })
   })
 
-  describe('r* == 1: Asset BUSD (18 decimals), vUSDC (6 decimals) and CAKE (18 decimals)', function () {
+  describe('r* = 1: Asset BUSD (18 decimals), vUSDC (6 decimals) and CAKE (18 decimals)', function () {
     beforeEach(async function () {
       // set fee collection address
       await poolContract.connect(owner).setFeeTo(user2.address)
@@ -827,7 +827,6 @@ describe('Pool - Fee', function () {
       await poolContract.connect(user1).deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince)
       await poolContract.connect(user1).deposit(token2.address, parseEther('5000'), user1.address, fiveSecondsSince)
 
-      await poolContract.connect(owner).setShouldDistributeRetention(true)
       await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
 
       // approve withdraw
@@ -850,7 +849,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -912,7 +911,7 @@ describe('Pool - Fee', function () {
           token1.address,
           token0.address,
           parseUnits('100', 8),
-          parseEther('90'), //expect at least 90% of ideal quoted amount
+          parseEther('90'), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -974,7 +973,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -1037,7 +1036,7 @@ describe('Pool - Fee', function () {
           token1.address,
           token0.address,
           parseUnits('100', 8),
-          parseEther('90'), //expect at least 90% of ideal quoted amount
+          parseEther('90'), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -1099,7 +1098,7 @@ describe('Pool - Fee', function () {
           token1.address,
           token0.address,
           parseUnits('100', 8),
-          parseEther('90'), //expect at least 90% of ideal quoted amount
+          parseEther('90'), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -1173,7 +1172,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -1225,7 +1224,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token1.address,
           parseEther('500'),
-          parseUnits('460', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('460', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -1288,7 +1287,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token2.address,
           parseEther('100'),
-          parseUnits('90', 8), //expect at least 90% of ideal quoted amount
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -1340,7 +1339,7 @@ describe('Pool - Fee', function () {
           token0.address,
           token2.address,
           parseEther('100'),
-          parseEther('90'), //expect at least 90% of ideal quoted amount
+          parseEther('90'), // expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
         )
@@ -1395,6 +1394,216 @@ describe('Pool - Fee', function () {
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
           parseEther('1.000000000001467069')
         )
+      })
+    })
+  })
+
+  describe('r* = 1: 3 assets', function () {
+    beforeEach(async function () {
+      // set fee collection address
+      await poolContract.connect(owner).setFeeTo(user2.address)
+
+      await poolContract.connect(owner).setAmpFactor(parseEther('0.001'))
+      await poolContract.connect(owner).setHaircutRate(parseEther('0.0001'))
+      await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
+
+      // Transfer 100k of stables to user1
+      await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD
+      await token1.connect(owner).transfer(user1.address, parseUnits('100000', 8)) // 100k vUSDC
+      await token2.connect(owner).transfer(user1.address, parseEther('100000')) // 100k CAKE
+      // Approve max allowance of tokens from users to pool
+      await token0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token2.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+
+      // deposit 10k BUSD and 1k vUSDC to pool
+      await poolContract.connect(user1).deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince)
+      await poolContract.connect(user1).deposit(token1.address, parseUnits('5000', 8), user1.address, fiveSecondsSince)
+      await poolContract.connect(user1).deposit(token2.address, parseEther('1000'), user1.address, fiveSecondsSince)
+
+      // approve withdraw
+      await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+      await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+    })
+
+    describe('multiple swap', function () {
+      it('A = 0.001 and collect fee', async function () {
+        let beforeFromBalance,
+          beforeToBalance,
+          quotedAmount,
+          receipt,
+          afterFromBalance,
+          afterToBalance,
+          tokenSent,
+          tokenGot
+
+        // first swap
+
+        beforeFromBalance = await token0.balanceOf(user1.address)
+        beforeToBalance = await token1.balanceOf(user1.address)
+        ;[quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token0.address, token1.address, parseEther('2000'))
+
+        receipt = await poolContract.connect(user1).swap(
+          token0.address,
+          token1.address,
+          parseEther('2000'),
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+
+        afterFromBalance = await token0.balanceOf(user1.address)
+        afterToBalance = await token1.balanceOf(user1.address)
+
+        tokenSent = afterFromBalance.sub(beforeFromBalance)
+        tokenGot = afterToBalance.sub(beforeToBalance)
+
+        expect(tokenSent).to.be.equal(parseEther('-2000'))
+        expect(tokenGot).to.be.equal(parseUnits('1998.13811379', 8))
+
+        // check if quoted amount is the same to actual amount of token got
+        expect(tokenGot).to.be.equal(quotedAmount)
+
+        // check BUSD post swap positions
+        expect(await asset0.cash()).to.be.equal(parseEther('12000'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('12000')) // should always equal cash
+
+        // check vUSDC post swap positions
+        expect(await asset1.cash()).to.be.equal(parseUnits('3001.66205242', 8))
+        expect(await asset1.liability()).to.be.equal(parseUnits('5000', 8))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('3001.86188621', 8)) // should equals to cash + fee
+
+        await expect(receipt)
+          .to.emit(poolContract, 'Swap')
+          .withArgs(
+            user1.address,
+            token0.address,
+            token1.address,
+            parseEther('2000'),
+            parseUnits('1998.13811379', 8),
+            user1.address
+          )
+
+        expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+        expect(tokenGot.add(await asset1.cash())).to.be.equal(parseUnits('4999.80016621', 8))
+
+        // second swap
+
+        beforeFromBalance = await token0.balanceOf(user1.address)
+        beforeToBalance = await token1.balanceOf(user1.address)
+        ;[quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token0.address, token1.address, parseEther('2000'))
+
+        receipt = await poolContract.connect(user1).swap(
+          token0.address,
+          token1.address,
+          parseEther('2000'),
+          parseUnits('1800', 8), // expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+
+        afterFromBalance = await token0.balanceOf(user1.address)
+        afterToBalance = await token1.balanceOf(user1.address)
+
+        tokenSent = afterFromBalance.sub(beforeFromBalance)
+        tokenGot = afterToBalance.sub(beforeToBalance)
+
+        expect(tokenSent).to.be.equal(parseEther('-2000'))
+        expect(tokenGot).to.be.equal(parseUnits('1984.73210519', 8))
+
+        // check if quoted amount is the same to actual amount of token got
+        expect(tokenGot).to.be.equal(quotedAmount)
+
+        // check BUSD post swap positions
+        expect(await asset0.cash()).to.be.equal(parseEther('14000'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('14000')) // should always equal cash
+
+        // check vUSDC post swap positions
+        expect(await asset1.cash()).to.be.equal(parseUnits('1016.73145417', 8))
+        expect(await asset1.liability()).to.be.equal(parseUnits('5000', 8))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1017.12978102', 8)) // should always equal cash
+
+        await expect(receipt)
+          .to.emit(poolContract, 'Swap')
+          .withArgs(
+            user1.address,
+            token0.address,
+            token1.address,
+            parseEther('2000'),
+            parseUnits('1984.73210519', 8),
+            user1.address
+          )
+
+        expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('12000'))
+        expect(tokenGot.add(await asset1.cash())).to.be.equal(parseUnits('3001.46355936', 8))
+
+        // third swap
+        beforeFromBalance = await token2.balanceOf(user1.address)
+        beforeToBalance = await token0.balanceOf(user1.address)
+        ;[quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token2.address, token0.address, parseEther('0.01'))
+
+        receipt = await poolContract.connect(user1).swap(
+          token2.address,
+          token0.address,
+          parseEther('0.01'),
+          parseEther('0.008'), // expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+
+        afterFromBalance = await token2.balanceOf(user1.address)
+        afterToBalance = await token0.balanceOf(user1.address)
+
+        tokenSent = afterFromBalance.sub(beforeFromBalance)
+        tokenGot = afterToBalance.sub(beforeToBalance)
+
+        expect(tokenSent).to.be.equal(parseEther('-0.01'))
+        expect(tokenGot).to.be.equal(parseEther('0.010003894868374209'))
+
+        // check if quoted amount is the same to actual amount of token got
+        expect(tokenGot).to.be.equal(quotedAmount)
+
+        // check BUSD post swap positions
+        expect(await asset2.cash()).to.be.equal(parseEther('1000.01'))
+        expect(await asset2.liability()).to.be.equal(parseEther('1000'))
+        expect(await asset2.underlyingTokenBalance()).to.be.equal(parseEther('1000.01')) // should always equal cash
+
+        // check vUSDC post swap positions
+        expect(await asset0.cash()).to.be.equal(parseEther('13999.989995104642090000'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('13999.989996105131625791')) // should always equal cash
+
+        await expect(receipt)
+          .to.emit(poolContract, 'Swap')
+          .withArgs(
+            user1.address,
+            token2.address,
+            token0.address,
+            parseEther('0.01'),
+            parseEther('0.010003894868374209'),
+            user1.address
+          )
+
+        expect(tokenSent.add(await asset2.cash())).to.be.equal(parseEther('1000'))
+        expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('13999.999998999510464209'))
+
+        // collect fee
+        await poolContract.mintFee(asset0.address)
+        await poolContract.mintFee(asset1.address)
+        expect(await asset0.cash()).to.be.equal(parseEther('13999.989995905033718633'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000.000000800456938500'))
+        expect(await asset1.cash()).to.be.equal(parseUnits('1017.05011565', 8))
+        expect(await asset1.liability()).to.be.equal(parseUnits('5000.32350812', 8))
+        expect(await token0.balanceOf(user2.address)).to.be.equal(parseEther('0.000000200097907158'))
+        expect(await token1.balanceOf(user2.address)).to.be.equal(parseUnits('0.07966537', 8))
       })
     })
   })
