@@ -209,7 +209,7 @@ describe('Pool - Withdraw', function () {
           .withArgs(user1.address, token0.address, parseEther('3.661163217515241640'), parseEther('10'), user1.address)
       })
 
-      it('works without fee (cov >= 1)', async function () {
+      it('works without fee, rx = 1.2', async function () {
         // Adjust coverage ratio to 1.2
         await asset0.connect(owner).setPool(owner.address)
         await asset0.connect(owner).addCash(parseEther('20'))
@@ -646,7 +646,7 @@ describe('Pool - Withdraw', function () {
       await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
     })
 
-    it('r* > 1, r < 1, withdraw fee > 0', async function () {
+    it('r* > 1, r = 0.51, withdraw fee > 0', async function () {
       // Faucet
       await asset0.connect(owner).setPool(owner.address)
       await asset0.connect(owner).addCash(parseEther('10516.66012'))
@@ -733,9 +733,8 @@ describe('Pool - Withdraw', function () {
       ])
     })
 
-    it('r* == 1, r < 1, withdraw fee > 0', async function () {
+    it('r* = 1, r = 0.8, withdraw fee > 0', async function () {
       // enableExactDeposit
-      await poolContract.connect(owner).setShouldDistributeRetention(true)
       await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
 
       // Faucet
@@ -764,6 +763,44 @@ describe('Pool - Withdraw', function () {
       await expect(receipt)
         .to.emit(poolContract, 'Withdraw')
         .withArgs(user1.address, token1.address, parseUnits('1992.71394474', 8), parseUnits('2000', 8), user1.address)
+    })
+
+    it('r* = 1, r = 1.7, A = 0.001, withdraw fee > 0', async function () {
+      // enableExactDeposit
+      await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
+      await poolContract.connect(owner).setAmpFactor(parseEther('0.001'))
+
+      // Faucet
+      await asset0.connect(owner).setPool(owner.address)
+      await asset0.connect(owner).addCash(parseEther('3000'))
+      await asset0.connect(owner).addLiability(parseEther('10000'))
+      await asset0.connect(owner).setPool(poolContract.address)
+
+      await asset1.connect(owner).setPool(owner.address)
+      await asset1.connect(owner).addCash(parseUnits('17019.20904705', 8))
+      await asset1.connect(owner).addLiability(parseUnits('10000', 8))
+      await asset1.connect(owner).mint(user1.address, parseUnits('10000', 8))
+      await asset1.connect(owner).setPool(poolContract.address)
+
+      await token1.connect(owner).transfer(asset1.address, parseUnits('10000', 8))
+
+      await asset2.connect(owner).setPool(owner.address)
+      await asset2.connect(owner).addCash(parseEther('1000'))
+      await asset2.connect(owner).addLiability(parseEther('1000'))
+      await asset2.connect(owner).setPool(poolContract.address)
+
+      const receipt = await poolContract
+        .connect(user1)
+        .withdraw(token1.address, parseUnits('4000', 8), 0, user1.address, fiveSecondsSince)
+
+      await expect(receipt)
+        .to.emit(poolContract, 'Withdraw')
+        .withArgs(user1.address, token1.address, parseUnits('3999.11075763', 8), parseUnits('4000', 8), user1.address)
+
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
+        parseEther('1.000000000000064677'),
+        parseEther('16983.000000001100616000'),
+      ])
     })
   })
 })
