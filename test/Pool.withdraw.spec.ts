@@ -311,49 +311,97 @@ describe('Pool - Withdraw', function () {
     })
 
     describe('withdrawFromOtherAsset', function () {
-      it('reverts when cov < 1', async function () {
+      beforeEach(async function () {
+        await token1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+        await asset1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+      })
+
+      it('reverts when withdraw all liquidity', async function () {
+        await poolContract.connect(owner).deposit(token1.address, parseUnits('10', 8), owner.address, fiveSecondsSince)
+
         await expect(
           poolContract
             .connect(owner)
             .withdrawFromOtherAsset(
               token1.address,
               token0.address,
-              parseEther('10'),
-              parseEther('0'),
-              user1.address,
+              parseUnits('10', 8),
+              parseUnits('0', 8),
+              owner.address,
               fiveSecondsSince
             )
-        ).to.be.revertedWith('WOMBAT_COV_RATIO_TOO_LOW')
+        ).to.be.revertedWith('WOMBAT_ZERO_LIQUIDITY')
       })
 
-      it('works with 0 fee (cov >= 1)', async function () {
-        await asset0.connect(owner).setPool(owner.address)
-        await asset0.connect(owner).addCash(parseEther('10'))
-        await asset0.connect(owner).setPool(poolContract.address)
+      it('withdraw token0 from token1 works', async function () {
+        // The pool already has 100 token0 from user1.
+        // Deposit 10.1 token1 and withdraw 10 token1 as token0.
+        await poolContract
+          .connect(owner)
+          .deposit(token1.address, parseUnits('10.1', 8), owner.address, fiveSecondsSince)
 
-        await token1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
-        await asset1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
-        await poolContract.connect(owner).deposit(token1.address, parseUnits('10', 8), owner.address, fiveSecondsSince)
+        const actualAmount = await poolContract.callStatic.withdrawFromOtherAsset(
+          token1.address,
+          token0.address,
+          parseUnits('10', 8),
+          parseUnits('0', 8),
+          owner.address,
+          fiveSecondsSince
+        )
+        const expectedAmount = parseEther('9.477441515410387803')
+        expect(actualAmount).to.equal(expectedAmount)
 
+        const balanceBeforeWithdraw = await token0.balanceOf(owner.address)
         const receipt = await poolContract
           .connect(owner)
           .withdrawFromOtherAsset(
             token1.address,
             token0.address,
-            parseEther('10'),
-            parseEther('0'),
+            parseUnits('10', 8),
+            parseUnits('0', 8),
             owner.address,
             fiveSecondsSince
           )
         await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
-          .withArgs(
-            owner.address,
+          .withArgs(owner.address, token0.address, expectedAmount, parseUnits('10', 8), owner.address)
+
+        const balanceAfterWithdraw = await token0.balanceOf(owner.address)
+        expect(balanceAfterWithdraw.sub(balanceBeforeWithdraw)).to.equal(expectedAmount)
+      })
+
+      it('withdraw more token0 than available', async function () {
+        // The pool already has 100 token0 from user1.
+        // Owner deposits 10.1 token1 and user1 swaps out 5 token1
+        // Now owner wants to withdraw 10 token0.
+        await poolContract
+          .connect(owner)
+          .deposit(token1.address, parseUnits('10.1', 8), owner.address, fiveSecondsSince)
+
+        await poolContract
+          .connect(user1)
+          .swap(token0.address, token1.address, parseEther('5'), parseEther('0'), user1.address, fiveSecondsSince)
+        // not enough token1 for owner to withdraw
+        expect(await token1.balanceOf(asset1.address)).to.lt(parseUnits('10', 8))
+
+        const expectedAmount = parseEther('9.956378850508109743')
+        const balanceBeforeWithdraw = await token0.balanceOf(owner.address)
+        const receipt = await poolContract
+          .connect(owner)
+          .withdrawFromOtherAsset(
+            token1.address,
             token0.address,
-            parseUnits('9.999269495807120300'),
             parseUnits('10', 8),
-            owner.address
+            parseUnits('0', 8),
+            owner.address,
+            fiveSecondsSince
           )
+        await expect(receipt)
+          .to.emit(poolContract, 'Withdraw')
+          .withArgs(owner.address, token0.address, expectedAmount, parseUnits('10', 8), owner.address)
+
+        const balanceAfterWithdraw = await token0.balanceOf(owner.address)
+        expect(balanceAfterWithdraw.sub(balanceBeforeWithdraw)).to.equal(expectedAmount)
       })
     })
 
@@ -377,29 +425,6 @@ describe('Pool - Withdraw', function () {
 
         expect(actualAmount).to.be.equal(parseEther('10.000000000000000090'))
         expect(fee).to.be.equal(-90)
-      })
-    })
-
-    describe('quotePotentialWithdrawFromOtherAsset', () => {
-      it('reverts when cov < 1', async function () {
-        await expect(
-          poolContract
-            .connect(owner)
-            .quotePotentialWithdrawFromOtherAsset(token1.address, token0.address, parseEther('10'))
-        ).to.be.revertedWith('WOMBAT_COV_RATIO_TOO_LOW')
-      })
-
-      it('works with 0 fee (cov >= 1)', async function () {
-        await asset0.connect(owner).setPool(owner.address)
-        await asset0.connect(owner).addCash(parseEther('10'))
-        await asset0.connect(owner).setPool(poolContract.address)
-        const [actualAmount, fee, enoughCash] = await poolContract
-          .connect(owner)
-          .quotePotentialWithdrawFromOtherAsset(token1.address, token0.address, parseEther('9'))
-
-        expect(actualAmount).to.be.equal(parseEther('9.000000000000000192'))
-        expect(fee).to.be.equal(-192)
-        expect(enoughCash).to.be.equal(true)
       })
     })
   })

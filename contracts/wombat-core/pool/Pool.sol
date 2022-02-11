@@ -100,7 +100,6 @@ contract Pool is
     error WOMBAT_INVALID_VALUE();
     error WOMBAT_SAME_ADDRESS();
     error WOMBAT_AMOUNT_TOO_LOW();
-    error WOMBAT_COV_RATIO_TOO_LOW();
     error WOMBAT_CASH_NOT_ENOUGH();
     error WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
 
@@ -575,34 +574,10 @@ contract Pool is
     }
 
     /**
-     * @notice Quotes potential withdrawal from pool
-     * @dev To be used by frontend
-     * @param token The token to be withdrawn by user
-     * @param liquidity The liquidity (amount of lp assets) to be withdrawn
-     * @return amount The potential amount user would receive
-     * @return fee The fee that would be applied
-     * @return enoughCash does the pool have enough cash? (cash >= liabilityToBurn - fee)
-     */
-    function quotePotentialWithdraw(address token, uint256 liquidity)
-        external
-        view
-        returns (
-            uint256 amount,
-            int256 fee,
-            bool enoughCash
-        )
-    {
-        _checkLiquidity(liquidity);
-
-        IAsset asset = _assetOf(token);
-        (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
-    }
-
-    /**
      * @notice Enables withdrawing liquidity from an asset using LP from a different asset in the same aggregate
      * @param fromToken The corresponding token user holds the LP (Asset) from
      * @param toToken The token wanting to be withdrawn (needs to be well covered)
-     * @param liquidity The liquidity to be withdrawn (in toToken decimal)
+     * @param liquidity The liquidity to be withdrawn (in fromToken decimal)
      * @param minimumAmount The minimum amount that will be accepted by user
      * @param receipient The user receiving the withdrawal
      * @param deadline The deadline to be respected
@@ -625,39 +600,24 @@ contract Pool is
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
         _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
-        bool enoughCash;
-        (amount, , , enoughCash) = _withdrawFrom(toAsset, liquidity);
-        if (!enoughCash) revert WOMBAT_CASH_NOT_ENOUGH();
-        if ((toAsset.cash() - amount).wdiv(toAsset.liability()) < WAD) revert WOMBAT_COV_RATIO_TOO_LOW();
-        _checkAmount(minimumAmount, amount);
 
-        // Burn LP from user and trasnfer token.
-        // Note: Convert liquidity and liability to fromAsset decimal.
-        uint256 liquidityFromAsset = (liquidity * 10**fromAsset.decimals()) / (10**toAsset.decimals());
-        IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidityFromAsset);
-        uint256 liabilityToBurn = (liquidityFromAsset * fromAsset.liability()) / toAsset.totalSupply();
-        fromAsset.burn(address(fromAsset), liquidityFromAsset);
-        fromAsset.removeLiability(liabilityToBurn);
-        toAsset.removeCash(amount);
-        toAsset.transferUnderlyingToken(receipient, amount);
-
-        emit Withdraw(msg.sender, toToken, amount, liquidityFromAsset, receipient);
+        // Withdraw and swap
+        IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
+        uint256 fromAmount = _withdraw(fromAsset, liquidity, 0, address(msg.sender));
+        (amount, ) = _swap(fromToken, toToken, fromAmount, minimumAmount, receipient);
+        emit Withdraw(msg.sender, toToken, amount, liquidity, receipient);
     }
 
     /**
-     * @notice Quotes potential withdrawal from other asset in the same aggregate
-     * @dev To be used by frontend. Reverts if not possible
-     * @param fromToken The users holds LP corresponding to this initial token
-     * @param toToken The token to be withdrawn by user
-     * @param liquidity The liquidity (amount of lp assets) to be withdrawn (in toToken decimal).
+     * @notice Quotes potential withdrawal from pool
+     * @dev To be used by frontend
+     * @param token The token to be withdrawn by user
+     * @param liquidity The liquidity (amount of lp assets) to be withdrawn
      * @return amount The potential amount user would receive
      * @return fee The fee that would be applied
+     * @return enoughCash does the pool have enough cash? (cash >= liabilityToBurn - fee)
      */
-    function quotePotentialWithdrawFromOtherAsset(
-        address fromToken,
-        address toToken,
-        uint256 liquidity
-    )
+    function quotePotentialWithdraw(address token, uint256 liquidity)
         external
         view
         returns (
@@ -666,15 +626,10 @@ contract Pool is
             bool enoughCash
         )
     {
-        _checkSameAddress(fromToken, toToken);
         _checkLiquidity(liquidity);
 
-        IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-        _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
-        (amount, , fee, enoughCash) = _withdrawFrom(toAsset, liquidity);
-        if (!enoughCash) revert WOMBAT_CASH_NOT_ENOUGH();
-        if ((toAsset.cash() - amount).wdiv(toAsset.liability()) < WAD) revert WOMBAT_COV_RATIO_TOO_LOW();
+        IAsset asset = _assetOf(token);
+        (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
     }
 
     /* Swap */
@@ -749,13 +704,23 @@ contract Pool is
         uint256 minimumToAmount,
         address to,
         uint256 deadline
-    ) external nonReentrant whenNotPaused {
+    ) external nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
         _ensure(deadline);
         requireAssetNotPaused(fromToken);
+        (actualToAmount, haircut) = _swap(fromToken, toToken, fromAmount, minimumToAmount, to);
+        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
+    }
 
+    function _swap(
+        address fromToken,
+        address toToken,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address to
+    ) internal returns (uint256 actualToAmount, uint256 haircut) {
         IERC20 fromERC20 = IERC20(fromToken);
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
@@ -763,12 +728,11 @@ contract Pool is
         // Intrapool swapping only
         _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
 
-        (uint256 actualToAmount, uint256 haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
+        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
         _checkAmount(minimumToAmount, actualToAmount);
 
         _feeCollected[toAsset] += haircut;
 
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
         fromERC20.safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.addCash(fromAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
