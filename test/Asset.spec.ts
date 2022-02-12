@@ -4,6 +4,8 @@ import { parseUnits } from '@ethersproject/units'
 import { Contract } from 'ethers'
 import { solidity } from 'ethereum-waffle'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { signERC2612Permit } from '../contracts/wombat-peripheral/permit/eth-permit' // https://github.com/dmihal/eth-permit
+import secrets from '../secrets.json' // BSC TESTNET ONLY!
 
 chai.use(solidity)
 const { expect } = chai
@@ -171,6 +173,109 @@ describe('Asset', function () {
       )
 
       expect(await asset2.totalSupply()).to.equal(parseUnits('100', 6))
+    })
+
+    it('Should revert if Asset LP token transferFrom pool', async function () {
+      // asset mints 100 LP tokens to user
+      await asset.connect(pool).mint(user.address, parseUnits('200', 18))
+      await expect(
+        asset.connect(pool).transferFrom(user.address, asset.address, parseUnits('90', 18))
+      ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+    })
+
+    it('Should revert as invalid signature called for permitted allowance', async function () {
+      const wallet = new ethers.Wallet(secrets.deployer.privateKey, ethers.provider)
+      const senderAddress = await wallet.getAddress()
+
+      const result = await signERC2612Permit(
+        wallet,
+        asset.address,
+        senderAddress,
+        pool.address,
+        parseUnits('100', 18).toString()
+      )
+
+      // fails as invalid signature
+      await expect(
+        asset.connect(owner).permit(
+          senderAddress,
+          pool.address,
+          parseUnits('111', 18).toString(), // inconsistent value
+          result.deadline,
+          result.v,
+          result.r,
+          result.s
+        )
+      ).to.be.revertedWith('ERC20Permit: invalid signature')
+    })
+
+    it('Should revert as sender transferFrom above permitted allowance', async function () {
+      const wallet = new ethers.Wallet(secrets.deployer.privateKey, ethers.provider)
+      const senderAddress = await wallet.getAddress()
+
+      // asset mints 200 LP tokens to sender
+      await asset.connect(pool).mint(senderAddress, parseUnits('200', 18))
+
+      const result = await signERC2612Permit(
+        wallet,
+        asset.address,
+        senderAddress,
+        pool.address,
+        parseUnits('100', 18).toString()
+      )
+
+      await asset
+        .connect(owner)
+        .permit(
+          senderAddress,
+          pool.address,
+          parseUnits('100', 18).toString(),
+          result.deadline,
+          result.v,
+          result.r,
+          result.s
+        )
+
+      // pool transferFrom sender 110 Asset LP tokens but fails as > than permitted allowance
+      await expect(
+        asset.connect(pool).transferFrom(senderAddress, asset.address, parseUnits('110', 18))
+      ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+    })
+
+    it('Should transferFrom sender to pool if permitted allowance', async function () {
+      const wallet = new ethers.Wallet(secrets.deployer.privateKey, ethers.provider)
+      const senderAddress = await wallet.getAddress()
+
+      // asset mints 200 LP tokens to sender
+      await asset.connect(pool).mint(senderAddress, parseUnits('200', 18))
+
+      const result = await signERC2612Permit(
+        wallet,
+        asset.address,
+        senderAddress,
+        pool.address,
+        parseUnits('100', 18).toString()
+      )
+
+      await asset
+        .connect(owner)
+        .permit(
+          senderAddress,
+          pool.address,
+          parseUnits('100', 18).toString(),
+          result.deadline,
+          result.v,
+          result.r,
+          result.s
+        )
+
+      // pool transferFrom sender 90 Asset LP tokens and succeeds as < than permitted allowance
+      expect(await asset.allowance(senderAddress, pool.address)).to.equal(parseUnits('100', 18))
+      await asset.connect(pool).transferFrom(senderAddress, asset.address, parseUnits('90', 18))
+
+      // should return correct balances after
+      expect(await asset.balanceOf(senderAddress)).to.equal(parseUnits('110', 18))
+      expect(await asset.balanceOf(asset.address)).to.equal(parseUnits('90', 18))
     })
   })
 

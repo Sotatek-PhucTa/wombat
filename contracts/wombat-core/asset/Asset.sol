@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol';
 
 import '../interfaces/IAsset.sol';
 
@@ -14,7 +15,7 @@ import '../interfaces/IAsset.sol';
  * @notice Contract presenting an asset in a pool
  * @dev Expect to be owned by Timelock for management, and pool links to Pool for coordination
  */
-contract Asset is Ownable, Initializable, ERC20, IAsset {
+contract Asset is Ownable, Initializable, ERC20, IAsset, ERC20Permit {
     using SafeERC20 for IERC20;
 
     /// @notice Aggregate Account of the asset
@@ -54,7 +55,7 @@ contract Asset is Ownable, Initializable, ERC20, IAsset {
         string memory name_,
         string memory symbol_,
         address aggregateAccount_
-    ) ERC20(name_, symbol_) {
+    ) ERC20(name_, symbol_) ERC20Permit(name_) {
         initialize(underlyingToken_, aggregateAccount_);
     }
 
