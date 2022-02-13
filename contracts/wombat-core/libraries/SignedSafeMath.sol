@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.3.2 (utils/math/SignedSafeMath.sol)
 
 pragma solidity 0.8.5;
@@ -22,8 +22,7 @@ library SignedSafeMath {
         return ((x * y) + (WAD / 2)) / WAD;
     }
 
-    // Babylonian Method (typecast as int) as used also from Uniswap v2
-    // https://github.com/Uniswap/v2-core/blob/master/contracts/libraries/Math.sol
+    // Babylonian Method (typecast as int)
     function sqrt(int256 y) internal pure returns (int256 z) {
         if (y > 3) {
             z = y;

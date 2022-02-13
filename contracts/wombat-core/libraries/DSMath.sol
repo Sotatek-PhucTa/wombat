@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0
+
 /// math.sol -- mixin for inline numerical wizardry
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,15 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// SPDX-License-Identifier: GPL-3.0
 
 pragma solidity 0.8.5;
 
 library DSMath {
     uint256 public constant WAD = 10**18;
 
-    // Babylonian Method as used also from Uniswap v2
-    // https://github.com/Uniswap/v2-core/blob/master/contracts/libraries/Math.sol
+    // Babylonian Method
     function sqrt(uint256 y) internal pure returns (uint256 z) {
         if (y > 3) {
             z = y;

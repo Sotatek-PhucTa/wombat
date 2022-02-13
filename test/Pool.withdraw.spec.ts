@@ -384,7 +384,7 @@ describe('Pool - Withdraw', function () {
         // not enough token1 for owner to withdraw
         expect(await token1.balanceOf(asset1.address)).to.lt(parseUnits('10', 8))
 
-        const expectedAmount = parseEther('9.956378850508109743')
+        const expectedAmount = parseEther('9.958224630157949686')
         const balanceBeforeWithdraw = await token0.balanceOf(owner.address)
         const receipt = await poolContract
           .connect(owner)

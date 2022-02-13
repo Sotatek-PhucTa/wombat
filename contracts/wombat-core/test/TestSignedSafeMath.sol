@@ -1,6 +1,4 @@
-// DO NOT DEPLOY TO MAINNET
-// ONLY FOR TESTING PURPOSES
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.5;
 
 import '../libraries/SignedSafeMath.sol';
