@@ -180,6 +180,7 @@ contract CoreV2 {
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
         int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
         int256 L_i_ = L_i + delta_i;
+        if (L_i_ < 0) revert('Core: wut');
         int256 A_i_ = beta + (beta * beta + A.wmul(L_i_ * L_i_)).sqrt();
         w = delta_i + A_i - A_i_;
     }
