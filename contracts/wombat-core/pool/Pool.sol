@@ -595,6 +595,7 @@ contract Pool is
         _checkAddress(receipient);
         _checkLiquidity(liquidity);
         _ensure(deadline);
+        requireAssetNotPaused(fromToken);
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
