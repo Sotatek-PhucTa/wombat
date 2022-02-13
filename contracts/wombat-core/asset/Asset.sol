@@ -15,7 +15,7 @@ import '../interfaces/IAsset.sol';
  * @notice Contract presenting an asset in a pool
  * @dev Expect to be owned by Timelock for management, and pool links to Pool for coordination
  */
-contract Asset is Ownable, Initializable, ERC20, IAsset, ERC20Permit {
+contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     using SafeERC20 for IERC20;
 
     /// @notice Aggregate Account of the asset
