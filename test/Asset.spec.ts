@@ -1,9 +1,10 @@
 import { ethers } from 'hardhat'
 import chai from 'chai'
 import { parseUnits } from '@ethersproject/units'
-import { Contract } from 'ethers'
+import { Contract, Wallet } from 'ethers'
 import { solidity } from 'ethereum-waffle'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { signERC2612Permit } from '../contracts/wombat-peripheral/permit/eth-permit' // https://github.com/dmihal/eth-permit
 
 chai.use(solidity)
 const { expect } = chai
@@ -136,41 +137,124 @@ describe('Asset', function () {
   })
 
   describe('[mint]', function () {
+    let wallet: Wallet
+    let senderAddress: string
+    beforeEach(async function () {
+      wallet = ethers.Wallet.createRandom().connect(ethers.provider)
+      senderAddress = wallet.address
+
+      // asset mints 200 LP tokens to sender
+      await asset.connect(pool).mint(senderAddress, parseUnits('200', 18))
+    })
+
     it('Should mint ERC20 Asset LP tokens', async function () {
-      // initial LP tokens balance is 0
-      expect(await asset.balanceOf(user.address)).to.equal(parseUnits('0', 18))
-
-      // asset mints 100 LP tokens to user
-      await asset.connect(pool).mint(user.address, parseUnits('100', 18))
-
-      // should return correct balances after
-      expect(await asset.balanceOf(user.address)).to.equal(parseUnits('100', 18))
-      expect(await asset.totalSupply()).to.equal(parseUnits('100', 18))
+      // should return correct balances after minted 200 LP tokens
+      expect(await asset.balanceOf(senderAddress)).to.equal(parseUnits('200', 18))
+      expect(await asset.totalSupply()).to.equal(parseUnits('200', 18))
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect(asset.connect(owner).mint(user.address, parseUnits('100', 18))).to.be.revertedWith(
+      await expect(asset.connect(owner).mint(senderAddress, parseUnits('100', 18))).to.be.revertedWith(
         'WOMBAT_FORBIDDEN'
       )
     })
 
     it('Should revert when max supply is exceeded', async function () {
-      // initial LP tokens balance is 0
-      expect(await asset2.balanceOf(user.address)).to.equal(parseUnits('0', 6))
+      await asset.connect(owner).setMaxSupply(parseUnits('200', 18))
+      expect(await asset.balanceOf(senderAddress)).to.equal(parseUnits('200', 18))
+      expect(await asset.totalSupply()).to.equal(parseUnits('200', 18))
 
-      await asset2.connect(owner).setMaxSupply(parseUnits('100', 6))
-
-      await asset2.connect(pool).mint(user.address, parseUnits('99', 6))
-      await asset2.connect(pool).mint(user.address, parseUnits('1', 6))
-
-      expect(await asset2.balanceOf(user.address)).to.equal(parseUnits('100', 6))
-      expect(await asset2.totalSupply()).to.equal(parseUnits('100', 6))
-
-      await expect(asset2.connect(pool).mint(user.address, parseUnits('1', 6))).to.be.revertedWith(
+      await expect(asset.connect(pool).mint(senderAddress, parseUnits('1', 18))).to.be.revertedWith(
         'Wombat: MAX_SUPPLY_REACHED'
       )
 
-      expect(await asset2.totalSupply()).to.equal(parseUnits('100', 6))
+      expect(await asset.totalSupply()).to.equal(parseUnits('200', 18))
+    })
+
+    it('Should revert if Asset LP token transferFrom pool', async function () {
+      await expect(
+        asset.connect(pool).transferFrom(senderAddress, asset.address, parseUnits('90', 18))
+      ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+    })
+
+    it('Should revert as invalid signature called for permitted allowance', async function () {
+      const result = await signERC2612Permit(
+        wallet,
+        asset.address,
+        senderAddress,
+        pool.address,
+        parseUnits('100', 18).toString()
+      )
+
+      // fails as invalid signature
+      await expect(
+        asset.permit(
+          senderAddress,
+          pool.address,
+          parseUnits('111', 18).toString(), // inconsistent value
+          result.deadline,
+          result.v,
+          result.r,
+          result.s
+        )
+      ).to.be.revertedWith('ERC20Permit: invalid signature')
+    })
+
+    it('Should revert as sender transferFrom above permitted allowance', async function () {
+      const result = await signERC2612Permit(
+        wallet,
+        asset.address,
+        senderAddress,
+        pool.address,
+        parseUnits('100', 18).toString()
+      )
+
+      await asset
+        .connect(owner)
+        .permit(
+          senderAddress,
+          pool.address,
+          parseUnits('100', 18).toString(),
+          result.deadline,
+          result.v,
+          result.r,
+          result.s
+        )
+
+      // pool transferFrom sender 110 Asset LP tokens but fails as > than permitted allowance
+      await expect(
+        asset.connect(pool).transferFrom(senderAddress, asset.address, parseUnits('110', 18))
+      ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+    })
+
+    it('Should transferFrom sender to pool if permitted allowance', async function () {
+      const result = await signERC2612Permit(
+        wallet,
+        asset.address,
+        senderAddress,
+        pool.address,
+        parseUnits('100', 18).toString()
+      )
+
+      await asset
+        .connect(owner)
+        .permit(
+          senderAddress,
+          pool.address,
+          parseUnits('100', 18).toString(),
+          result.deadline,
+          result.v,
+          result.r,
+          result.s
+        )
+
+      // pool transferFrom sender 90 Asset LP tokens and succeeds as < than permitted allowance
+      expect(await asset.allowance(senderAddress, pool.address)).to.equal(parseUnits('100', 18))
+      await asset.connect(pool).transferFrom(senderAddress, asset.address, parseUnits('90', 18))
+
+      // should return correct balances after
+      expect(await asset.balanceOf(senderAddress)).to.equal(parseUnits('110', 18))
+      expect(await asset.balanceOf(asset.address)).to.equal(parseUnits('90', 18))
     })
   })
 
