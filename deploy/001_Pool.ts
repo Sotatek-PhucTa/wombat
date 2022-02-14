@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-import { parseUnits } from '@ethersproject/units'
+import { parseEther, parseUnits } from '@ethersproject/units'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -19,7 +19,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
     skipIfAlreadyDeployed: true,
   })
-  // console.log(22, poolDeployResult)
 
   if (poolDeployResult.newlyDeployed) {
     if (
@@ -38,12 +37,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
       // call initialize
       if (ethers.utils.getAddress(dev) != ethers.utils.getAddress(deployer)) {
-        await pool.connect(owner).initialize()
+        await pool.connect(owner).initialize(parseEther('0.001'), parseEther('0.0001'))
       }
 
       if (ethers.utils.getAddress(dev) == ethers.utils.getAddress(deployer)) {
-        await pool.connect(owner).setAmpFactor(parseUnits('0.05', 18), { gasLimit: 300000 }) // 5 * 10 ** 16
-        await pool.connect(owner).setHaircutRate(parseUnits('0.0004', 18), { gasLimit: 300000 }) // 4 * 10 ** 14
+        await pool.connect(owner).setAmpFactor(parseEther('0.001'), { gasLimit: 300000 })
+        await pool.connect(owner).setHaircutRate(parseEther('0.0001'), { gasLimit: 300000 })
 
         // Check setup config values
         const ampFactor = await pool.getAmpFactor()

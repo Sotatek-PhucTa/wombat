@@ -12,6 +12,7 @@ cache
 artifacts
 src/types/
 deployments/**/solcInputs
+deployments/localhost
 build
 
 # Mac
