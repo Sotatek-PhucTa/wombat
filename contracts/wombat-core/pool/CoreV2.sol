@@ -154,7 +154,7 @@ contract CoreV2 {
         int256 D,
         int256 A
     ) internal pure returns (int256 w) {
-        if (L_i == 0) {
+        if (L_i == 0 || delta_i + SL == 0) {
             return 0;
         }
         if (L_i + delta_i < 0) revert('Core: underflow');
