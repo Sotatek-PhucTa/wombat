@@ -154,6 +154,37 @@ describe('Pool - Utils', function () {
       })
     })
 
+    describe('Remove ERC20 Asset', function () {
+      it('works', async function () {
+        // Add mock token and asset to pool
+        await poolContract.connect(owner).addAsset(mockToken.address, mockAsset.address)
+
+        // Remove mock token and asset from pool
+        const receipt = await poolContract.connect(owner).removeAsset(mockToken.address)
+
+        // check if removed and if event has been emitted
+        await expect(receipt).to.emit(poolContract, 'AssetRemoved').withArgs(mockToken.address, mockAsset.address)
+
+        // expect to revert if remove mock token and asset again
+        await expect(poolContract.connect(owner).removeAsset(mockToken.address)).to.be.revertedWith(
+          'WOMBAT_ASSET_NOT_EXISTS()'
+        )
+      })
+
+      it('reverts for invalid params', async function () {
+        // Remove ERC20 token with zero address
+        await expect(poolContract.connect(owner).removeAsset(ethers.constants.AddressZero)).to.be.revertedWith(
+          'WOMBAT_ASSET_NOT_EXISTS()'
+        )
+      })
+
+      it('restricts to only owner', async function () {
+        await expect(poolContract.connect(user).removeAsset(mockToken.address)).to.be.revertedWith(
+          'Ownable: caller is not the owner'
+        )
+      })
+    })
+
     describe('assetOf', function () {
       it('returns the address of asset', async function () {
         expect(await poolContract.assetOf(token0.address)).to.equal(asset0.address)

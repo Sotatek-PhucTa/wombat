@@ -35,6 +35,9 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     /// @notice An event thats emitted when max supply is updated
     event MaxSupplyUpdated(uint256 previousMaxSupply, uint256 newMaxSupply);
 
+    /// @notice An event thats emitted when pool address is updated
+    event PoolUpdated(address previousPoolAddr, address newPoolAddr);
+
     error WOMBAT_FORBIDDEN();
 
     /// @dev Modifier ensuring that certain function can only be called by pool
@@ -80,6 +83,7 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      */
     function setPool(address pool_) external override onlyOwner {
         require(pool_ != address(0), 'Wombat: Pool address cannot be zero');
+        emit PoolUpdated(pool, pool_);
         pool = pool_;
     }
 

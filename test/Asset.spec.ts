@@ -57,7 +57,8 @@ describe('Asset', function () {
 
   describe('[setPool]', function () {
     it('Should change the pool address', async function () {
-      await asset.connect(owner).setPool(user.address)
+      const receipt = await asset.connect(owner).setPool(user.address)
+      await expect(receipt).to.emit(asset, 'PoolUpdated').withArgs(pool.address, user.address)
       expect(await asset.pool()).to.equal(user.address)
     })
 
