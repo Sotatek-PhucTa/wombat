@@ -573,14 +573,13 @@ contract Pool is
     }
 
     /**
-     * @notice Enables withdrawing liquidity from an asset using LP from a different asset in the same aggregate
+     * @notice Enables withdrawing liquidity from an asset using LP from a different asset
      * @param fromToken The corresponding token user holds the LP (Asset) from
      * @param toToken The token wanting to be withdrawn (needs to be well covered)
      * @param liquidity The liquidity to be withdrawn (in fromToken decimal)
      * @param minimumAmount The minimum amount that will be accepted by user
      * @param receipient The user receiving the withdrawal
      * @param deadline The deadline to be respected
-     * @dev fromToken and toToken assets' must be in the same aggregate
      * @dev Also, coverage ratio of toAsset must be higher than 1 after withdrawal for this to be accepted
      * @return amount The total amount withdrawn
      */
@@ -599,7 +598,6 @@ contract Pool is
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
-        _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
 
         // Withdraw and swap
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
@@ -726,9 +724,6 @@ contract Pool is
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
-        // Intrapool swapping only
-        _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
-
         (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
         _checkAmount(minimumToAmount, actualToAmount);
 
@@ -766,9 +761,6 @@ contract Pool is
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
-
-        // Intrapool swapping only
-        _checkAccount(fromAsset.aggregateAccount(), toAsset.aggregateAccount());
 
         // exact output swap quote adds haircut
         if (fromAmount < 0) {

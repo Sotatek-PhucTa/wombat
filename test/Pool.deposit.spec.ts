@@ -14,7 +14,6 @@ describe('Pool - Deposit', function () {
   let user2: SignerWithAddress
   let AssetFactory: ContractFactory
   let TestERC20Factory: ContractFactory
-  let AggregateAccountFactory: ContractFactory
   let PoolFactory: ContractFactory
   let poolContract: Contract
   let token0: Contract // BUSD
@@ -23,7 +22,6 @@ describe('Pool - Deposit', function () {
   let asset0: Contract // BUSD LP
   let asset1: Contract // USDC LP
   let asset2: Contract // CAKE LP
-  let aggregateAccount: Contract
   let lastBlockTime: number
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
@@ -43,24 +41,21 @@ describe('Pool - Deposit', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    AggregateAccountFactory = await ethers.getContractFactory('AggregateAccount')
     PoolFactory = await ethers.getContractFactory('Pool')
 
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
     token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
     token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
-    aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('stables', true)
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
-    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP', aggregateAccount.address)
-    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP', aggregateAccount.address)
+    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
+    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
     poolContract = await PoolFactory.connect(owner).deploy()
 
     // wait for transactions to be mined
     await token0.deployTransaction.wait()
     await token1.deployTransaction.wait()
     await token2.deployTransaction.wait()
-    await aggregateAccount.deployTransaction.wait()
     await asset0.deployTransaction.wait()
     await asset1.deployTransaction.wait()
     await asset2.deployTransaction.wait()
