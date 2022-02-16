@@ -72,7 +72,7 @@ describe('Pool - Withdraw', function () {
     await asset1.setPool(poolContract.address)
 
     // initialize pool contract
-    await poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+    await poolContract.connect(owner).initialize(parseEther('0.001'), parseEther('0.0001'))
 
     // Add BUSD & USDC assets to pool
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
@@ -232,11 +232,11 @@ describe('Pool - Withdraw', function () {
         expect(enoughCash).to.be.true
         expect(afterBalance.sub(beforeBalance)).to.be.equal(quotedWithdrawal)
 
-        expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('10.000000000000000200'))
+        expect(afterBalance.sub(beforeBalance)).to.be.equal(parseEther('10.000000000000000110'))
         expect(await asset0.balanceOf(user1.address)).to.be.equal(parseEther('90'))
-        expect(await asset0.cash()).to.be.equal(parseEther('109.999999999999999800'))
+        expect(await asset0.cash()).to.be.equal(parseEther('109.999999999999999890'))
         expect(await asset0.liability()).to.be.equal(parseEther('90'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('109.999999999999999800'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('109.999999999999999890'))
         expect(await asset0.totalSupply()).to.be.equal(parseEther('90'))
       })
 
@@ -315,7 +315,6 @@ describe('Pool - Withdraw', function () {
       beforeEach(async function () {
         await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
         await poolContract.connect(owner).setFeeTo(ethers.Wallet.createRandom().address)
-        await poolContract.connect(owner).setAmpFactor(parseEther('0.001'))
 
         await token0.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
         await token1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
@@ -391,7 +390,7 @@ describe('Pool - Withdraw', function () {
       })
 
       it('withdraw token0 from token1 works', async function () {
-        const expectedAmount = parseEther('9.985005874965736317')
+        const expectedAmount = parseEther('9.988002575408403104')
         {
           // callStatic has no side-effect on-chain
           const quoteAmount = await poolContract.callStatic.withdrawFromOtherAsset(
@@ -422,7 +421,7 @@ describe('Pool - Withdraw', function () {
         // verify there is not enough token1
         expect(await token1.balanceOf(asset1.address)).to.lt(parseUnits('10', 8))
 
-        const expectedAmount = parseEther('10.266544408769225636')
+        const expectedAmount = parseEther('10.356046670716057805')
         // verify withdrawFromOtherAsset is better than withdraw.
         const [withdrawAmount] = await poolContract.quotePotentialWithdraw(token1.address, parseUnits('10', 8))
         expect(withdrawAmount).to.lt(expectedAmount)
@@ -440,35 +439,35 @@ describe('Pool - Withdraw', function () {
           {
             // Expect the payout to be about the same in different cases.
             withdrawAmounts: ['10'],
-            expectedAmounts: ['10.266544408769225636'],
+            expectedAmounts: ['10.356046670716057805'],
           },
           {
             withdrawAmounts: ['5', '5'],
-            expectedAmounts: ['5.199433600324550419', '5.082394266622849506'],
+            expectedAmounts: ['5.200040350956531677', '5.076431047416210566'],
           },
           {
             withdrawAmounts: ['1', '9'],
-            expectedAmounts: ['1.050841959536554155', '9.215049126368004236'],
+            expectedAmounts: ['1.051043912849377385', '9.285274221227694615'],
           },
           {
             withdrawAmounts: ['0.1', '9.9'],
-            expectedAmounts: ['0.105330711818856103', '10.169467913208448418'],
+            expectedAmounts: ['0.105352718109420614', '10.160102492197850174'],
           },
           {
             withdrawAmounts: ['9', '1'],
-            expectedAmounts: ['9.260611330294734767', '1.001749664217498392'],
+            expectedAmounts: ['9.260991373719398105', '1.001767153519833714'],
           },
           {
             withdrawAmounts: ['9.9', '0.1'],
-            expectedAmounts: ['10.169401608443925535', '0.099906301368520311'],
+            expectedAmounts: ['10.184105087122809124', '0.099888455146772173'],
           },
           {
             withdrawAmounts: ['3', '3', '3', '1'],
             expectedAmounts: [
-              '3.136090863663857739',
-              '3.086782694167630135',
-              '3.037505114207779396',
-              '1.001749668843567724',
+              '3.136576249883519059',
+              '3.086906103246520001',
+              '3.037265804093042285',
+              '1.001767158354103339',
             ],
           },
         ].forEach(({ withdrawAmounts, expectedAmounts }) => {
@@ -761,8 +760,8 @@ describe('Pool - Withdraw', function () {
       // const surplusBefore = await poolContract.connect(owner).surplus()
       // expect(surplusBefore).to.equal(parseEther('1023.154720000000000000'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
-        parseEther('1.062117492331304537'),
-        parseEther('16240.667538952096649000'),
+        parseEther('1.063908991044413345'),
+        parseEther('17007.504976379041939000'),
       ])
 
       const receipt = await poolContract
@@ -771,14 +770,13 @@ describe('Pool - Withdraw', function () {
 
       await expect(receipt)
         .to.emit(poolContract, 'Withdraw')
-        .withArgs(user1.address, token1.address, parseUnits('357.76378286', 8), parseUnits('400', 8), user1.address)
+        .withArgs(user1.address, token1.address, parseUnits('398.25003085', 8), parseUnits('400', 8), user1.address)
 
       // const surplusAfter = await poolContract.connect(owner).surplus()
       // expect(surplusAfter).to.equal(parseEther('1065.390937140000000000'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
-        parseEther('1.063710248544495204'),
-
-        parseEther('15860.597481014408947400'),
+        parseEther('1.065547683122318807'),
+        parseEther('16607.903498283022370600'),
       ])
     })
 
@@ -805,8 +803,8 @@ describe('Pool - Withdraw', function () {
       // const surplusBefore = await poolContract.connect(owner).surplus()
       // expect(surplusBefore).to.equal(parseEther('1516.660120000000000000'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
-        parseEther('1.094609075215282560'),
-        parseEther('16782.890674540985455000'),
+        parseEther('1.094787464993246651'),
+        parseEther('17501.984731090819715000'),
       ])
 
       const receipt = await poolContract
@@ -815,13 +813,13 @@ describe('Pool - Withdraw', function () {
 
       await expect(receipt)
         .to.emit(poolContract, 'Withdraw')
-        .withArgs(user1.address, token1.address, parseUnits('800.29818965', 8), parseUnits('800', 8), user1.address)
+        .withArgs(user1.address, token1.address, parseUnits('800.00627769', 8), parseUnits('800', 8), user1.address)
 
       // const surplusAfter = await poolContract.connect(owner).surplus()
       // expect(surplusAfter).to.equal(parseEther('1516.361930350000000000'))
       expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
-        parseEther('1.099588500226792832'),
-        parseEther('16022.577553146026439000'),
+        parseEther('1.099776278940333379'),
+        parseEther('16702.778447122932661800'),
       ])
     })
 
@@ -854,7 +852,7 @@ describe('Pool - Withdraw', function () {
 
       await expect(receipt)
         .to.emit(poolContract, 'Withdraw')
-        .withArgs(user1.address, token1.address, parseUnits('1992.71394474', 8), parseUnits('2000', 8), user1.address)
+        .withArgs(user1.address, token1.address, parseUnits('1999.84178432', 8), parseUnits('2000', 8), user1.address)
     })
 
     it('r* = 1, r = 1.7, A = 0.001, withdraw fee > 0', async function () {
