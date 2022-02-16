@@ -14,7 +14,6 @@ describe('Pool - Utils', function () {
   let user: SignerWithAddress
   let AssetFactory: ContractFactory
   let TestERC20Factory: ContractFactory
-  let AggregateAccountFactory: ContractFactory
   let PoolFactory: ContractFactory
   let poolContract: Contract
   let token0: Contract // BUSD
@@ -31,21 +30,18 @@ describe('Pool - Utils', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    AggregateAccountFactory = await ethers.getContractFactory('AggregateAccount')
     PoolFactory = await ethers.getContractFactory('Pool')
 
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
     token1 = await TestERC20Factory.deploy('USD Coin', 'USDC', 18, parseUnits('1000000', 18)) // 1 mil USDC
-    aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('stables', true)
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
-    asset1 = await AssetFactory.deploy(token1.address, 'USD Coin LP', 'USDC-LP', aggregateAccount.address)
+    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+    asset1 = await AssetFactory.deploy(token1.address, 'USD Coin LP', 'USDC-LP')
     poolContract = await PoolFactory.connect(owner).deploy()
 
     // wait for transactions to be mined
     await token0.deployTransaction.wait()
     await token1.deployTransaction.wait()
-    await aggregateAccount.deployTransaction.wait()
     await asset0.deployTransaction.wait()
     await asset1.deployTransaction.wait()
     await poolContract.deployTransaction.wait()
@@ -116,7 +112,7 @@ describe('Pool - Utils', function () {
       mockToken = await TestERC20Factory.deploy('Tether', 'USDT', 18, parseUnits('1000000', 18)) // 1 mil USDT
 
       // Create new asset contract
-      mockAsset = await AssetFactory.deploy(mockToken.address, 'Tether', 'USDT-LP', aggregateAccount.address)
+      mockAsset = await AssetFactory.deploy(mockToken.address, 'Tether', 'USDT-LP')
     })
 
     describe('Add ERC20 Asset', function () {

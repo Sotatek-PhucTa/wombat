@@ -8,8 +8,6 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 interface IAsset is IERC20 {
-    function aggregateAccount() external view returns (address);
-
     function underlyingToken() external view returns (address);
 
     function pool() external view returns (address);
