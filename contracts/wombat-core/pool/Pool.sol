@@ -887,7 +887,7 @@ contract Pool is
         }
 
         // dividend to veWOM
-        uint256 dividend = feeCollected.wmul(1 ether - lpDividendRatio - retentionRatio);
+        uint256 dividend = feeCollected.wmul(WAD - lpDividendRatio - retentionRatio);
         // dividend to LP
         uint256 lpDividend = feeCollected.wmul(lpDividendRatio);
 
