@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { parseUnits } from '@ethersproject/units'
+import { parseEther, parseUnits } from '@ethersproject/units'
 import { BigNumber } from '@ethersproject/bignumber'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
@@ -124,6 +124,102 @@ describe('CoreV2', function () {
       const result = await CoreV2.test_convertFromWAD(24, tokenAmountIn18Decimals) // 99430096464300964643
 
       expect(result).to.be.equal(parseUnits('99.430096464300964643000000', 24))
+    })
+  })
+  describe('[depositRewardInEquilImpl] - return deposit reward in equil', async function () {
+    it('works with different edge cases', async function () {
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('1'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(0)
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(0)
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('10'),
+          parseEther('1'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('0.073392115446417669'))
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('10'),
+          parseEther('100'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('0.007363392929392812'))
+    })
+
+    it('withdrawal fee - edge cases', async function () {
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-9.9'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('0'))
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-9.99999'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('0'))
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-10'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(0)
+
+      // an unexpected case, should not trigger this code path
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-11'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('-1.001000000000000000'))
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-5'),
+          parseEther('1'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('-4.006095931530835498'))
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-5'),
+          parseEther('20'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('-0.001666481522622317'))
     })
   })
 })

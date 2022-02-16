@@ -54,4 +54,13 @@ contract TestCoreV2 is CoreV2 {
     function test_convertFromWAD(uint8 d, uint256 Dx) external pure returns (uint256) {
         return _convertFromWAD(d, Dx);
     }
+
+    function test_depositRewardInEquilImpl(
+        int256 delta_i,
+        int256 A_i,
+        int256 L_i,
+        int256 A
+    ) external pure returns (int256 v) {
+        return depositRewardInEquilImpl(delta_i, A_i, L_i, A);
+    }
 }

@@ -132,6 +132,8 @@ contract CoreV2 {
         if (L_i == 0 || L_i + delta_i == 0) {
             return 0;
         }
+        // If L_i + delta_i < 0, underflow happens
+        // However this should not happen in any code path
 
         int256 r_i = A_i.wdiv(L_i);
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
