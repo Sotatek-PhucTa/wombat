@@ -6,7 +6,7 @@ import '../libraries/SignedSafeMath.sol';
 
 /**
  * @title CoreV2
- * @notice Handles math operations of Wombat protocol.
+ * @notice Handles math operations of Wombat protocol. Assume all params are signed integer with 18 decimals
  * @dev Uses OpenZeppelin's SignedSafeMath and DSMath's WAD for calculations.
  */
 contract CoreV2 {
