@@ -798,20 +798,6 @@ contract Pool is
         return (uint256(er), uint256(D));
     }
 
-    // function surplus() external view returns (int256 surplus) {
-    //     uint256 SA;
-    //     uint256 SL;
-    //     for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
-    //         IAsset asset = _getAsset(_getKeyAtIndex(i));
-
-    //         // overflow is unrealistic
-    //         uint8 d = asset.decimals();
-    //         SA += _convertToWAD(d, asset.cash());
-    //         SL += _convertToWAD(d, asset.liability());
-    //     }
-    //     surplus = int256(SA) - int256(SL);
-    // }
-
     /* Utils */
 
     function _depositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
