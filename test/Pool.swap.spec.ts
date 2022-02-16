@@ -13,7 +13,6 @@ describe('Pool - Swap', function () {
   let user1: SignerWithAddress
   let AssetFactory: ContractFactory
   let TestERC20Factory: ContractFactory
-  let AggregateAccountFactory: ContractFactory
   let PoolFactory: ContractFactory
   let poolContract: Contract
   let token0: Contract // BUSD
@@ -24,8 +23,6 @@ describe('Pool - Swap', function () {
   let asset1: Contract // USDC LP
   let asset2: Contract // CAKE LP
   let asset3: Contract // USDT LP
-  let aggregateAccount: Contract // stables
-  let aggregateAccount1: Contract // non-stables
   let lastBlockTime: number
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
@@ -44,7 +41,6 @@ describe('Pool - Swap', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    AggregateAccountFactory = await ethers.getContractFactory('AggregateAccount')
     PoolFactory = await ethers.getContractFactory('Pool')
 
     // Deploy with factories
@@ -52,12 +48,10 @@ describe('Pool - Swap', function () {
     token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
     token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
     token3 = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('1000000', 18)) // 1 mil USDT
-    aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('USD-Stablecoins', true)
-    aggregateAccount1 = await AggregateAccountFactory.connect(owner).deploy('Non-Stablecoins', false)
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
-    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP', aggregateAccount.address)
-    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP', aggregateAccount1.address)
-    asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP', aggregateAccount.address)
+    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
+    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
+    asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP')
     poolContract = await PoolFactory.connect(owner).deploy()
 
     // wait for transactions to be mined
@@ -65,7 +59,6 @@ describe('Pool - Swap', function () {
     await token1.deployTransaction.wait()
     await token2.deployTransaction.wait()
     await token3.deployTransaction.wait()
-    await aggregateAccount.deployTransaction.wait()
     await asset0.deployTransaction.wait()
     await asset1.deployTransaction.wait()
     await asset2.deployTransaction.wait()
@@ -419,19 +412,6 @@ describe('Pool - Swap', function () {
 
       it.skip('Penalize actions that move BUSD coverage ratio (Rx) further away', async function () {
         // TODO
-      })
-
-      it('revert if assets are in 2 different aggregate pools', async function () {
-        await expect(
-          poolContract.connect(user1).swap(
-            token1.address,
-            token2.address,
-            parseUnits('100', 8),
-            parseEther('90'), //expect at least 90% of ideal quoted amount
-            user1.address,
-            fiveSecondsSince
-          )
-        ).to.be.revertedWith('WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED')
       })
 
       it('reverts if asset paused', async function () {

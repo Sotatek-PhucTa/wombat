@@ -17,7 +17,6 @@ describe('Asset', function () {
   let token2: Contract
   let asset: Contract
   let asset2: Contract
-  let aggregateAccount: Contract
 
   beforeEach(async function () {
     const [first, ...rest] = await ethers.getSigners()
@@ -28,18 +27,15 @@ describe('Asset', function () {
     // Get Factories
     const AssetFactory = await ethers.getContractFactory('Asset')
     const TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    const AggregateAccountFactory = await ethers.getContractFactory('AggregateAccount')
 
     // Deploy with factories
     token = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
     token2 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8))
-    aggregateAccount = await AggregateAccountFactory.connect(owner).deploy('stables', true)
-    asset = await AssetFactory.deploy(token.address, 'Binance USD LP', 'BUSD-LP', aggregateAccount.address)
-    asset2 = await AssetFactory.deploy(token2.address, 'Venus USD LP', 'vUSDC-LP', aggregateAccount.address)
+    asset = await AssetFactory.deploy(token.address, 'Binance USD LP', 'BUSD-LP')
+    asset2 = await AssetFactory.deploy(token2.address, 'Venus USD LP', 'vUSDC-LP')
 
     // wait for transactions to be mined
     await token.deployTransaction.wait()
-    await aggregateAccount.deployTransaction.wait()
     await asset.deployTransaction.wait()
     await asset2.deployTransaction.wait()
 
@@ -71,12 +67,6 @@ describe('Asset', function () {
       await expect(
         (await asset.connect(owner)).setPool('0x0000000000000000000000000000000000000000')
       ).to.be.revertedWith('Wombat: Pool address cannot be zero')
-    })
-  })
-
-  describe('[aggregateAccount]', function () {
-    it('Should return correct account address', async function () {
-      expect(await asset.aggregateAccount()).to.equal(aggregateAccount.address)
     })
   })
 

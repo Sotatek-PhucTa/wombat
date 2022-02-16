@@ -18,8 +18,6 @@ import '../interfaces/IAsset.sol';
 contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     using SafeERC20 for IERC20;
 
-    /// @notice Aggregate Account of the asset
-    address public override aggregateAccount;
     /// @notice The underlying underlyingToken represented by this asset
     address public override underlyingToken;
     /// @notice The Pool
@@ -48,29 +46,24 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      * @param underlyingToken_ The token represented by the asset
      * @param name_ The name of the asset
      * @param symbol_ The symbol of the asset
-     * @param aggregateAccount_ The aggregate account to which the the asset belongs
      */
     constructor(
         address underlyingToken_,
         string memory name_,
-        string memory symbol_,
-        address aggregateAccount_
+        string memory symbol_
     ) ERC20(name_, symbol_) ERC20Permit(name_) {
-        initialize(underlyingToken_, aggregateAccount_);
+        initialize(underlyingToken_);
     }
 
     /**
      * @notice Initializer.
      * @dev _ suffix to avoid shadowing underlyingToken() name and  symbol
      * @param underlyingToken_ The token represented by the asset
-     * @param aggregateAccount_ The aggregate account to which the the asset belongs
      */
-    function initialize(address underlyingToken_, address aggregateAccount_) public initializer {
+    function initialize(address underlyingToken_) public initializer {
         require(underlyingToken_ != address(0), 'Wombat: Token address cannot be zero');
-        require(aggregateAccount_ != address(0), 'Wombat: Aggregate account address cannot be zero');
 
         underlyingToken = underlyingToken_;
-        aggregateAccount = aggregateAccount_;
     }
 
     /**
