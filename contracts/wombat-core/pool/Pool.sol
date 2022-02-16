@@ -383,7 +383,7 @@ contract Pool is
             int256 fee
         )
     {
-        fee = -_exactDepositRewardInEquil(int256(amount), asset);
+        fee = -_exactDepositRewardInEquil(amount, asset);
         // revert if value doesn't make sense in case of overflow
         if (fee >= int256(10**asset.decimals() / 1000000) || fee < -int256(amount)) {
             revert WOMBAT_INVALID_VALUE();
@@ -821,14 +821,14 @@ contract Pool is
         reward = _convertFromWAD(d, v);
     }
 
-    function _exactDepositRewardInEquil(int256 amount, IAsset asset) internal view returns (int256 reward) {
+    function _exactDepositRewardInEquil(uint256 amount, IAsset asset) internal view returns (int256 reward) {
         // overflow is unrealistic
         uint8 d = asset.decimals();
         int256 L_i = int256(_convertToWAD(d, asset.liability()));
         if (L_i == 0) return 0;
 
         int256 A_i = int256(_convertToWAD(d, asset.cash()));
-        int256 D_i = _convertToWAD(d, amount);
+        int256 D_i = _convertToWAD(d, int256(amount));
         int256 A = int256(ampFactor);
 
         int256 v = exactDepositRewardImpl(D_i, A_i, L_i, A);

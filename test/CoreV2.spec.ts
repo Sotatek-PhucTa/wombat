@@ -126,8 +126,9 @@ describe('CoreV2', function () {
       expect(result).to.be.equal(parseUnits('99.430096464300964643000000', 24))
     })
   })
+
   describe('[depositRewardInEquilImpl] - return deposit reward in equil', async function () {
-    it('works with different edge cases', async function () {
+    it('deposit - edge cases', async function () {
       expect(
         await CoreV2.test_depositRewardInEquilImpl(
           parseEther('1'),
@@ -193,15 +194,14 @@ describe('CoreV2', function () {
         )
       ).to.equal(0)
 
-      // an unexpected case, should not trigger this code path
       expect(
         await CoreV2.test_depositRewardInEquilImpl(
-          parseEther('-11'),
+          parseEther('-15'),
           parseEther('10'),
           parseEther('10'),
           parseEther('0.001')
         )
-      ).to.equal(parseEther('-1.001000000000000000'))
+      ).to.equal(parseEther('-5.005000000000000000'))
 
       expect(
         await CoreV2.test_depositRewardInEquilImpl(
@@ -214,12 +214,98 @@ describe('CoreV2', function () {
 
       expect(
         await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-11'),
+          parseEther('1'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('-10.000099116877375817'))
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
           parseEther('-5'),
           parseEther('20'),
           parseEther('10'),
           parseEther('0.001')
         )
       ).to.equal(parseEther('-0.001666481522622317'))
+    })
+  })
+
+  describe('[exactDepositRewardImpl] - return deposit reward in equil', async function () {
+    it('deposit - edge cases', async function () {
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('1'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(0)
+
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(0)
+
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('10'),
+          parseEther('1'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('0.073442252809457000'))
+
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('10'),
+          parseEther('100'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('0.007368324804037000'))
+    })
+
+    it('withdrawal - edge cases', async function () {
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('-1'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(1)
+
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('-10'),
+          parseEther('10'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(1)
+
+      await expect(
+        CoreV2.test_exactDepositRewardImpl(parseEther('-11'), parseEther('10'), parseEther('10'), parseEther('0.001'))
+      ).to.be.revertedWith('CORE_UNDERFLOW')
+
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('-0.99'),
+          parseEther('1'),
+          parseEther('10'),
+          parseEther('0.001')
+        )
+      ).to.equal(parseEther('-3.236990666794535499'))
+
+      await expect(
+        CoreV2.test_exactDepositRewardImpl(parseEther('-3'), parseEther('1'), parseEther('10'), parseEther('0.001'))
+      ).to.be.revertedWith('CORE_UNDERFLOW')
     })
   })
 })

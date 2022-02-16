@@ -15,6 +15,8 @@ contract CoreV2 {
     int256 public constant WAD_I = 10**18;
     uint256 public constant WAD = 10**18;
 
+    error CORE_UNDERFLOW();
+
     /**
      * @notice Core Wombat stableswap equation
      * @dev This function always returns >= 0
@@ -112,9 +114,9 @@ contract CoreV2 {
         int256 A
     ) internal pure returns (int256 v) {
         if (L_i == 0 || delta_i + SL == 0) {
+            // early return in case of div of 0
             return 0;
         }
-        if (L_i + delta_i < 0) revert('Core: underflow');
 
         int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
         v = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
@@ -131,6 +133,7 @@ contract CoreV2 {
         int256 A
     ) internal pure returns (int256 v) {
         if (L_i == 0) {
+            // early return in case of div of 0
             return 0;
         }
 
@@ -151,6 +154,11 @@ contract CoreV2 {
         int256 L_i,
         int256 A
     ) internal pure returns (int256 v) {
+        if (A_i + D_i < 0) {
+            // impossible
+            revert CORE_UNDERFLOW();
+        }
+
         int256 r_i = A_i.wdiv(L_i);
         int256 k = D_i + A_i;
         int256 b = k.wmul(WAD_I - A) + 2 * A.wmul(L_i);
