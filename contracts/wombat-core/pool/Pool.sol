@@ -815,7 +815,7 @@ contract Pool is
             v = depositRewardInEquilImpl(delta_i, A_i, L_i, A);
         } else {
             (int256 D, int256 SL) = _globalInvariantFunc(A);
-            v = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+            v = depositRewardImpl(D, SL, delta_i, A_i, L_i, A);
         }
 
         reward = _convertFromWAD(d, v);

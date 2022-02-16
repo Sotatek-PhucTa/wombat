@@ -104,11 +104,11 @@ contract CoreV2 {
      * @return v positive value indicates a reward and negative value indicates a fee
      */
     function depositRewardImpl(
+        int256 D,
         int256 SL,
         int256 delta_i,
         int256 A_i,
         int256 L_i,
-        int256 D,
         int256 A
     ) internal pure returns (int256 v) {
         if (SL == 0 || L_i == 0 || L_i + delta_i == 0) {
@@ -143,12 +143,15 @@ contract CoreV2 {
         v = delta_i + A_i - A_i_;
     }
 
+    /**
+     * @notice return the deposit reward in token amount when target liquidity (LP amount) is known
+     */
     function exactDepositRewardImpl(
         int256 D_i,
         int256 A_i,
         int256 L_i,
         int256 A
-    ) internal pure returns (int256 w) {
+    ) internal pure returns (int256 v) {
         int256 r_i = A_i.wdiv(L_i);
         int256 k = D_i + A_i;
         int256 b = k.wmul(WAD_I - A) + 2 * A.wmul(L_i);
