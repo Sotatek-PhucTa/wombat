@@ -127,6 +127,27 @@ describe('CoreV2', function () {
     })
   })
 
+  describe('[depositRewardImpl]', async function () {
+    it('deposit - edge cases', async function () {
+      // TODO: add more
+    })
+
+    it('withdrawal - edge cases', async function () {
+      expect(
+        await CoreV2.test_depositRewardImpl(
+          parseEther('999'), // random number
+          parseEther('10'),
+          parseEther('-10'),
+          parseEther('8'),
+          parseEther('10'),
+          parseEther('2')
+        )
+      ).to.equal(parseEther('2'))
+
+      // TODO: add more tests
+    })
+  })
+
   describe('[depositRewardInEquilImpl] - return deposit reward in equil', async function () {
     it('deposit - edge cases', async function () {
       expect(
@@ -232,7 +253,7 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[exactDepositRewardImpl] - return deposit reward in equil', async function () {
+  describe('[exactDepositRewardImpl] - return exact deposit reward in equil', async function () {
     it('deposit - edge cases', async function () {
       expect(
         await CoreV2.test_exactDepositRewardImpl(

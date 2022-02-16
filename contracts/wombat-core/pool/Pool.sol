@@ -356,11 +356,12 @@ contract Pool is
     {
         int256 reward = _depositReward(int256(amount), asset);
         // revert if value doesn't make sense in case of overflow
-        if (reward > int256(amount) || reward < -int256(amount)) {
-            revert WOMBAT_INVALID_VALUE();
-        }
+        // if (reward > int256(amount) || reward < -int256(amount)) {
+        //     revert WOMBAT_INVALID_VALUE();
+        // }
+
+        // we don't distribute deposit reward if reward > 0
         if (reward < 0) {
-            // TODO: confirm we don't distribute deposit reward if reward > 0
             fee = -reward;
         }
 
@@ -495,9 +496,9 @@ contract Pool is
         fee = _withdrawalFee(L_i, asset);
 
         // revert if value doesn't make sense in case of overflow
-        if (fee > L_i || fee < -L_i || (shouldMaintainGlobalEquil && fee <= -int256(10**asset.decimals() / 1000000))) {
-            revert WOMBAT_INVALID_VALUE();
-        }
+        // if (fee > L_i || fee < -L_i || (shouldMaintainGlobalEquil && fee <= -int256(10**asset.decimals() / 1000000))) {
+        //     revert WOMBAT_INVALID_VALUE();
+        // }
 
         // Prevent underflow in case withdrawal fees >= liabilityToBurn, user would only burn his underlying liability
         if (L_i > fee) {

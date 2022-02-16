@@ -113,9 +113,12 @@ contract CoreV2 {
         int256 L_i,
         int256 A
     ) internal pure returns (int256 v) {
-        if (L_i == 0 || delta_i + SL == 0) {
+        if (L_i == 0) {
             // early return in case of div of 0
             return 0;
+        }
+        if (delta_i + SL == 0) {
+            return L_i - A_i;
         }
 
         int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
