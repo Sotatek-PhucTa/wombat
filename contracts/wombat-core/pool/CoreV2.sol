@@ -154,9 +154,10 @@ contract CoreV2 {
         int256 D,
         int256 A
     ) internal pure returns (int256 w) {
-        if (SL == 0 || L_i == 0 || L_i + delta_i == 0) {
+        if (L_i == 0 || delta_i + SL == 0) {
             return 0;
         }
+        if (L_i + delta_i < 0) revert('Core: underflow');
 
         int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
         w = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
@@ -172,14 +173,15 @@ contract CoreV2 {
         int256 L_i,
         int256 A
     ) internal pure returns (int256 w) {
-        if (L_i == 0 || L_i + delta_i == 0) {
+        if (L_i == 0) {
             return 0;
         }
 
+        int256 L_i_ = L_i + delta_i;
+        if (L_i_ < 0) revert('Core: underflow');
         int256 r_i = A_i.wdiv(L_i);
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
         int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
-        int256 L_i_ = L_i + delta_i;
         int256 A_i_ = beta + (beta * beta + A.wmul(L_i_ * L_i_)).sqrt();
         w = delta_i + A_i - A_i_;
     }
