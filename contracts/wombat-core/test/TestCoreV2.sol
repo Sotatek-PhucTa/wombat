@@ -12,27 +12,11 @@ contract TestCoreV2 is CoreV2 {
         int256 Dx_i,
         uint256 A
     ) external pure returns (uint256) {
-        return _swapQuoteFunc(Ax, Ay, Lx, Ly, Dx_i, A);
-    }
-
-    function test_deltaFunc(
-        int256 Ay,
-        int256 Ly,
-        int256 Ry
-    ) external pure returns (int256) {
-        return _deltaFunc(Ay, Ly, Ry);
+        return _swapQuoteFunc(int256(Ax), int256(Ay), int256(Lx), int256(Ly), Dx_i, int256(A));
     }
 
     function test_coverageYFunc(int256 b, int256 A) external pure returns (int256) {
-        return _coverageYFunc(b, A);
-    }
-
-    function test_coverageXFunc(
-        int256 Ax,
-        int256 Lx,
-        int256 Dx
-    ) external pure returns (int256) {
-        return _coverageXFunc(Ax, Lx, Dx);
+        return _solveQuad(b, A);
     }
 
     function test_coefficientFunc(
