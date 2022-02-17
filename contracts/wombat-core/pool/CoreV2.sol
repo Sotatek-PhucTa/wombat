@@ -310,14 +310,4 @@ contract CoreV2 {
     function _haircut(uint256 amount, uint256 rate) internal pure returns (uint256) {
         return amount.wmul(rate);
     }
-
-    /**
-     * @notice TODO (if any) Applies dividend to amount
-     * @param amount The amount that will receive the discount
-     * @param ratio The ratio to be applied in dividend
-     * @return The result of operation.
-     */
-    function _dividend(uint256 amount, uint256 ratio) internal pure returns (uint256) {
-        return amount.wmul(WAD - ratio);
-    }
 }
