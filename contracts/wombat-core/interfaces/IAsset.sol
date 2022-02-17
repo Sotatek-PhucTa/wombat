@@ -18,6 +18,8 @@ interface IAsset is IERC20 {
 
     function decimals() external view returns (uint8);
 
+    function underlyingTokenDecimals() external view virtual returns (uint8);
+
     function setPool(address pool_) external;
 
     function underlyingTokenBalance() external view returns (uint256);
