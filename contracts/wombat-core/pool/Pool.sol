@@ -70,6 +70,9 @@ contract Pool is
     /// @notice An event thats emitted when an asset is added to Pool
     event AssetAdded(address indexed token, address indexed asset);
 
+    /// @notice An event thats emitted when asset is removed from Pool
+    event AssetRemoved(address indexed token, address indexed asset);
+
     /// @notice An event thats emitted when a deposit is made to Pool
     event Deposit(address indexed sender, address token, uint256 amount, uint256 liquidity, address indexed to);
 
@@ -271,6 +274,7 @@ contract Pool is
     function removeAsset(address key) external onlyOwner {
         if (!_containsAsset(key)) revert WOMBAT_ASSET_NOT_EXISTS();
 
+        address asset = address(_getAsset(key));
         delete _assets.values[key];
 
         uint256 index = _assets.indexOf[key];
@@ -282,6 +286,8 @@ contract Pool is
 
         _assets.keys[index] = lastKey;
         _assets.keys.pop();
+
+        emit AssetRemoved(key, asset);
     }
 
     /**
