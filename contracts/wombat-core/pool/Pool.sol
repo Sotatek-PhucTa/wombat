@@ -46,16 +46,16 @@ contract Pool is
     /// @notice Haircut rate
     uint256 public haircutRate;
 
-    /// @notice Retention ratio
-    uint256 public retentionRatio = WAD;
+    /// @notice Retention ratio: the ratio of haircut that should stay in the pool
+    uint256 public retentionRatio = 0;
+
+    /// @notice LP dividend ratio : the ratio of haircut that should distribute to LP
+    uint256 public lpDividendRatio = WAD;
 
     /// @notice Dev address
     address public dev;
 
     address public feeTo;
-
-    /// @notice Indicate if we should distribute retention to LP stakers or leave it in the pool
-    bool public shouldDistributeRetention = true;
 
     bool public shouldMaintainGlobalEquil = true;
 
@@ -69,6 +69,9 @@ contract Pool is
 
     /// @notice An event thats emitted when an asset is added to Pool
     event AssetAdded(address indexed token, address indexed asset);
+
+    /// @notice An event thats emitted when asset is removed from Pool
+    event AssetRemoved(address indexed token, address indexed asset);
 
     /// @notice An event thats emitted when a deposit is made to Pool
     event Deposit(address indexed sender, address token, uint256 amount, uint256 liquidity, address indexed to);
@@ -214,9 +217,15 @@ contract Pool is
      * @param retentionRatio_ new pool's retentionRatio
      */
     function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
-        if (retentionRatio_ > WAD) revert WOMBAT_INVALID_VALUE(); // retentionRatio_ should not be bigger than 1
+        if (retentionRatio_ + lpDividendRatio > WAD) revert WOMBAT_INVALID_VALUE();
         mintAllFee();
         retentionRatio = retentionRatio_;
+    }
+
+    function setLpDividendRatio(uint256 lpDividendRatio_) external onlyOwner {
+        if (retentionRatio + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
+        mintAllFee();
+        lpDividendRatio = lpDividendRatio_;
     }
 
     /**
@@ -229,20 +238,12 @@ contract Pool is
         feeTo = feeTo_;
     }
 
-    function setShouldDistributeRetention(bool shouldDistributeRetention_) external onlyOwner {
-        mintAllFee();
-        shouldDistributeRetention = shouldDistributeRetention_;
-    }
-
     /**
      * @notice Enable exact deposit
      * Should only be enabled when r* = 1
      */
     function setShouldMaintainGlobalEquil(bool shouldMaintainGlobalEquil_) external onlyOwner {
         mintAllFee();
-        if (shouldMaintainGlobalEquil_) {
-            shouldDistributeRetention = true;
-        }
         shouldMaintainGlobalEquil = shouldMaintainGlobalEquil_;
     }
 
@@ -273,6 +274,7 @@ contract Pool is
     function removeAsset(address key) external onlyOwner {
         if (!_containsAsset(key)) revert WOMBAT_ASSET_NOT_EXISTS();
 
+        address asset = address(_getAsset(key));
         delete _assets.values[key];
 
         uint256 index = _assets.indexOf[key];
@@ -284,6 +286,8 @@ contract Pool is
 
         _assets.keys[index] = lastKey;
         _assets.keys.pop();
+
+        emit AssetRemoved(key, asset);
     }
 
     /**
@@ -874,24 +878,34 @@ contract Pool is
             return;
         }
 
-        uint256 dividend = _dividend(feeCollected, retentionRatio);
+        // dividend to veWOM
+        uint256 dividend = feeCollected.wmul(WAD - lpDividendRatio - retentionRatio);
+        // dividend to LP
+        uint256 lpDividend = feeCollected.wmul(lpDividendRatio);
+
         if (shouldMaintainGlobalEquil) {
-            if (feeCollected - dividend > 0) {
-                // strictly control r* to be 1
-                // increase the value of the LP token, i.e. assetsPerShare
-                (, uint256 liabilityToMint, ) = _exactDepositToInEquil(asset, feeCollected - dividend);
-                asset.addLiability(liabilityToMint);
-                asset.addCash(feeCollected - dividend);
+            if (dividend > 0) {
+                asset.transferUnderlyingToken(feeTo, dividend);
             }
-            asset.transferUnderlyingToken(feeTo, dividend);
+            if (lpDividend > 0) {
+                // exact deposit to maintain r* = 1
+                // increase the value of the LP token, i.e. assetsPerShare
+                (, uint256 liabilityToMint, ) = _exactDepositToInEquil(asset, lpDividend);
+                asset.addLiability(liabilityToMint);
+                asset.addCash(lpDividend);
+            }
+            // feeCollected.wmul(retentionRatio) remains in the tip bucket
         } else {
-            uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
             if (dividend > 0) {
                 // call totalSupply() and liability() before mint()
                 asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
+                asset.addLiability(dividend);
             }
-            asset.addLiability(liabilityToMint);
+            if (lpDividend > 0) {
+                asset.addLiability(lpDividend);
+            }
         }
+
         _feeCollected[asset] = 0;
     }
 
