@@ -356,9 +356,9 @@ contract Pool is
     {
         int256 reward = _depositReward(int256(amount), asset);
         // revert if value doesn't make sense in case of overflow
-        // if (reward > int256(amount) || reward < -int256(amount)) {
-        //     revert WOMBAT_INVALID_VALUE();
-        // }
+        if (reward > int256(amount) || reward < -int256(amount)) {
+            revert WOMBAT_INVALID_VALUE();
+        }
 
         // we don't distribute deposit reward if reward > 0
         if (reward < 0) {
