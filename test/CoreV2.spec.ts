@@ -322,6 +322,16 @@ describe('CoreV2', function () {
           parseEther('0.001')
         )
       ).to.equal(parseEther('0.007368324804037000'))
+
+      // reward greater than amount
+      expect(
+        await CoreV2.test_exactDepositRewardImpl(
+          parseEther('0.1'),
+          parseEther('0.3'),
+          parseEther('10'),
+          parseEther('0.05')
+        )
+      ).to.equal(parseEther('1.085771028990578210'))
     })
 
     it('withdrawal - edge cases', async function () {
@@ -347,6 +357,7 @@ describe('CoreV2', function () {
         CoreV2.test_exactDepositRewardImpl(parseEther('-11'), parseEther('10'), parseEther('10'), parseEther('0.001'))
       ).to.be.revertedWith('CORE_UNDERFLOW')
 
+      // fee greater than amount
       expect(
         await CoreV2.test_exactDepositRewardImpl(
           parseEther('-0.99'),
