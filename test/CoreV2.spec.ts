@@ -67,16 +67,6 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[_deltaFunc] - return the delta for token y ("Dy") based on its asset coverage ratio', async function () {
-    it('Should return correct delta for token y given initial variables', async function () {
-      const Ry = parseUnits('0.900569903537643711', 18)
-      const result = await CoreV2.test_deltaFunc(Ay, Ly, Ry)
-      // console.log(71, result.toString()) // -99430096462356289000
-
-      expect(result).to.be.equal(parseUnits('-99.430096462356289000', 18))
-    })
-  })
-
   describe('[_coverageYFunc] - return the asset coverage ratio of token y ("Ry")', async function () {
     it('Should return correct asset coverage ratio given initial variables', async function () {
       const b = parseUnits('-0.845049504950495050', 18)
@@ -84,15 +74,6 @@ describe('CoreV2', function () {
       // console.log(81, result.toString()) // 900569903537643711
 
       expect(result).to.be.equal(parseUnits('0.900569903537643711', 18))
-    })
-  })
-
-  describe('[_coverageXFunc] - return the asset coverage ratio of token x ("Rx")', async function () {
-    it('Should return correct asset coverage ratio given initial variables', async function () {
-      const result = await CoreV2.test_coverageXFunc(Ax, Lx, Dx)
-      // console.log(90, result.toString()) // 1010000000000000000
-
-      expect(result).to.be.equal(parseUnits('1.01', 18))
     })
   })
 

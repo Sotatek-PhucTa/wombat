@@ -662,7 +662,14 @@ contract Pool is
         _checkLiquidity(Lx);
         _checkLiquidity(Ly);
 
-        uint256 idealToAmountInWAD = _swapQuoteFunc(Ax, Ay, Lx, Ly, fromAmountInWAD, ampFactor);
+        uint256 idealToAmountInWAD = _swapQuoteFunc(
+            int256(Ax),
+            int256(Ay),
+            int256(Lx),
+            int256(Ly),
+            fromAmountInWAD,
+            int256(ampFactor)
+        );
         idealToAmount = _convertFromWAD(dTo, idealToAmountInWAD);
     }
 
@@ -795,20 +802,6 @@ contract Pool is
         return (uint256(er), uint256(D));
     }
 
-    // function surplus() external view returns (int256 surplus) {
-    //     uint256 SA;
-    //     uint256 SL;
-    //     for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
-    //         IAsset asset = _getAsset(_getKeyAtIndex(i));
-
-    //         // overflow is unrealistic
-    //         uint8 d = asset.decimals();
-    //         SA += _convertToWAD(d, asset.cash());
-    //         SL += _convertToWAD(d, asset.liability());
-    //     }
-    //     surplus = int256(SA) - int256(SL);
-    // }
-
     /* Utils */
 
     function _depositReward(int256 amount, IAsset asset) internal view returns (int256 reward) {
@@ -821,15 +814,15 @@ contract Pool is
         int256 A_i = int256(_convertToWAD(d, asset.cash()));
         int256 A = int256(ampFactor);
 
-        int256 w;
+        int256 v;
         if (shouldMaintainGlobalEquil) {
-            w = depositRewardInEquilImpl(delta_i, A_i, L_i, A);
+            v = depositRewardInEquilImpl(delta_i, A_i, L_i, A);
         } else {
             (int256 D, int256 SL) = _globalInvariantFunc(A);
-            w = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+            v = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
         }
 
-        reward = _convertFromWAD(d, w);
+        reward = _convertFromWAD(d, v);
     }
 
     function _exactDepositRewardInEquil(int256 amount, IAsset asset) internal view returns (int256 reward) {
@@ -842,9 +835,9 @@ contract Pool is
         int256 D_i = _convertToWAD(d, amount);
         int256 A = int256(ampFactor);
 
-        int256 w = exactDepositRewardImpl(D_i, A_i, L_i, A);
+        int256 v = exactDepositRewardImpl(D_i, A_i, L_i, A);
 
-        reward = _convertFromWAD(d, w);
+        reward = _convertFromWAD(d, v);
     }
 
     function _withdrawalFee(int256 amount, IAsset asset) internal view returns (int256 fee) {
