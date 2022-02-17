@@ -1013,10 +1013,7 @@ describe('Pool - Fee', function () {
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
 
         await poolContract.mintFee(asset0.address)
-        const mintReceipt = await poolContract.mintFee(asset1.address)
-        await expect(mintReceipt)
-          .to.emit(poolContract, 'FeesTransferred')
-          .withArgs(asset1.address, parseUnits('0.00795441', 8), user2.address)
+        await poolContract.mintFee(asset1.address)
 
         // liability and cash should increase
         expect(await asset1.cash()).to.be.equal(parseUnits('900.60172117', 8))
@@ -1080,12 +1077,7 @@ describe('Pool - Fee', function () {
         expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
 
         // deposit to mint fee
-        const mintReceipt = await poolContract
-          .connect(user1)
-          .deposit(token0.address, 100000000, user1.address, fiveSecondsSince)
-        await expect(mintReceipt)
-          .to.emit(poolContract, 'FeesTransferred')
-          .withArgs(asset0.address, parseEther('0.007961557039807021'), user2.address)
+        await poolContract.connect(user1).deposit(token0.address, 100000000, user1.address, fiveSecondsSince)
 
         await poolContract.connect(user1).deposit(token1.address, 1000000, user1.address, fiveSecondsSince)
         expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230671468083'))
@@ -1149,12 +1141,7 @@ describe('Pool - Fee', function () {
         expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
 
         // withdraw to mint fee
-        const mintReceipt0 = await poolContract
-          .connect(user1)
-          .withdraw(token0.address, 1000000, 0, user1.address, fiveSecondsSince)
-        await expect(mintReceipt0)
-          .to.emit(poolContract, 'FeesTransferred')
-          .withArgs(asset0.address, parseEther('0.007961557039807021'), user2.address)
+        await poolContract.connect(user1).withdraw(token0.address, 1000000, 0, user1.address, fiveSecondsSince)
 
         await poolContract.connect(user1).withdraw(token1.address, 1000, 0, user1.address, fiveSecondsSince)
 
@@ -1287,10 +1274,7 @@ describe('Pool - Fee', function () {
         // collect fee
 
         await poolContract.mintFee(asset0.address)
-        const mintReceipt = await poolContract.mintFee(asset1.address)
-        await expect(mintReceipt)
-          .to.emit(poolContract, 'FeesTransferred')
-          .withArgs(asset1.address, parseUnits('0.04509612', 8), user2.address)
+        await poolContract.mintFee(asset1.address)
 
         expect(await asset0.cash()).to.be.equal(parseEther('10600'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
@@ -1406,12 +1390,8 @@ describe('Pool - Fee', function () {
         expect(tokenGot.add(await asset2.cash())).to.be.equal(parseEther('4900.619700520337742236'))
 
         // collect fee
-
         await poolContract.mintFee(asset0.address)
-        const mintReceipt2 = await poolContract.mintFee(asset2.address)
-        await expect(mintReceipt2)
-          .to.emit(poolContract, 'FeesTransferred')
-          .withArgs(asset2.address, parseEther('0.015872399174442862'), user2.address)
+        await poolContract.mintFee(asset2.address)
         expect(await asset0.cash()).to.be.equal(parseEther('10800'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
         expect(await asset2.cash()).to.be.equal(parseEther('4801.658499916162001446'))

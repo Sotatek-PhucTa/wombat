@@ -73,12 +73,6 @@ contract Pool is
     /// @notice An event thats emitted when asset is removed from Pool
     event AssetRemoved(address indexed token, address indexed asset);
 
-    /// @notice An event thats emitted when asset fee is transferred
-    event FeesTransferred(address indexed asset, uint256 dividend, address indexed feeTo);
-
-    /// @notice An event thats emitted when asset fee is minted
-    event FeesMinted(address indexed asset, uint256 dividend, address indexed feeTo);
-
     /// @notice An event thats emitted when a deposit is made to Pool
     event Deposit(address indexed sender, address token, uint256 amount, uint256 liquidity, address indexed to);
 
@@ -910,14 +904,11 @@ contract Pool is
                 asset.addCash(feeCollected - dividend);
             }
             asset.transferUnderlyingToken(feeTo, dividend);
-            emit FeesTransferred(address(asset), dividend, feeTo);
         } else {
             uint256 liabilityToMint = shouldDistributeRetention ? feeCollected : dividend;
             if (dividend > 0) {
                 // call totalSupply() and liability() before mint()
-                uint256 d = (dividend * asset.totalSupply()) / asset.liability();
-                asset.mint(feeTo, d);
-                emit FeesMinted(address(asset), d, feeTo);
+                asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
             }
             asset.addLiability(liabilityToMint);
         }
