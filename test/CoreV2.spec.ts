@@ -134,6 +134,7 @@ describe('CoreV2', function () {
 
     it('withdrawal - edge cases', async function () {
       expect(
+        // test when user withdraw all liquidity in the pool
         await CoreV2.test_depositRewardImpl(
           parseEther('999'), // random number
           parseEther('10'),
