@@ -129,21 +129,43 @@ describe('CoreV2', function () {
 
   describe('[depositRewardImpl]', async function () {
     it('deposit - edge cases', async function () {
-      // TODO: add more
+      expect(
+        await CoreV2.test_depositRewardImpl(
+          parseEther('19'),
+          parseEther('20'),
+          parseEther('0.1'),
+          parseEther('0.2'),
+          parseEther('10'),
+          parseEther('0.05')
+        )
+      ).to.equal(parseEther('0.095240894207844689'))
+
+      // TODO: add more tests
     })
 
     it('withdrawal - edge cases', async function () {
+      // test when user withdraw all liquidity in the pool
       expect(
-        // test when user withdraw all liquidity in the pool
         await CoreV2.test_depositRewardImpl(
           parseEther('999'), // random number
           parseEther('10'),
           parseEther('-10'),
           parseEther('8'),
           parseEther('10'),
-          parseEther('2')
+          parseEther('0.05')
         )
       ).to.equal(parseEther('2'))
+
+      expect(
+        await CoreV2.test_depositRewardImpl(
+          parseEther('19'),
+          parseEther('20'),
+          parseEther('-0.1'),
+          parseEther('0.3'),
+          parseEther('10'),
+          parseEther('0.05')
+        )
+      ).to.equal(parseEther('-0.092494500389309007'))
 
       // TODO: add more tests
     })
@@ -251,6 +273,15 @@ describe('CoreV2', function () {
           parseEther('0.001')
         )
       ).to.equal(parseEther('-0.001666481522622317'))
+
+      expect(
+        await CoreV2.test_depositRewardInEquilImpl(
+          parseEther('-5'),
+          parseEther('0.05'),
+          parseEther('10'),
+          parseEther('0.1')
+        )
+      ).to.equal(parseEther('-4.962227197337467696'))
     })
   })
 
