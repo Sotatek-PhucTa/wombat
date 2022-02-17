@@ -69,16 +69,14 @@ describe('Pool - Fee', function () {
     // initialize pool contract
     await poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
-    // set retention ratio
-    await poolContract.connect(owner).setRetentionRatio(parseEther('0.8'))
-
     // Add BUSD & USDC assets to pool
     await poolContract.connect(owner).addAsset(token0.address, asset0.address)
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
 
     await poolContract.connect(owner).setShouldMaintainGlobalEquil(false)
-    await poolContract.connect(owner).setShouldDistributeRetention(false)
+    await poolContract.connect(owner).setLpDividendRatio(0)
+    await poolContract.connect(owner).setRetentionRatio(parseEther('0.8'))
   })
 
   describe('Various Paths', function () {
@@ -822,6 +820,8 @@ describe('Pool - Fee', function () {
       await poolContract.connect(user1).deposit(token2.address, parseEther('5000'), user1.address, fiveSecondsSince)
 
       await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
+      await poolContract.connect(owner).setRetentionRatio(0)
+      await poolContract.connect(owner).setLpDividendRatio(parseEther('0.8'))
 
       // approve withdraw
       await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
@@ -892,7 +892,8 @@ describe('Pool - Fee', function () {
 
       it('works (vUSDC -> BUSD) with haircut fees and no dividend', async function () {
         // set dividend to 0
-        await poolContract.connect(owner).setRetentionRatio(parseEther('1.0'))
+        await poolContract.connect(owner).setRetentionRatio(parseEther('0'))
+        await poolContract.connect(owner).setLpDividendRatio(parseEther('1.0'))
 
         const beforeFromBalance = await token1.balanceOf(user1.address)
         const beforeToBalance = await token0.balanceOf(user1.address)
@@ -1008,13 +1009,86 @@ describe('Pool - Fee', function () {
 
         await poolContract.mintFee(asset0.address)
         await poolContract.mintFee(asset1.address)
+
         // liability and cash should increase
         expect(await asset1.cash()).to.be.equal(parseUnits('900.60172117', 8))
         expect(await asset1.liability()).to.be.equal(parseUnits('1000.03183590', 8))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+        expect(await token1.balanceOf(user2.address)).to.be.equal(parseUnits('0.00795441', 8))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
           parseEther('1.000000000000555161')
+        )
+      })
+
+      it('works (BUSD -> vUSDC) with haircut fees, dividend and LP dividend', async function () {
+        // set fee collection address
+        await poolContract.connect(owner).setFeeTo(user2.address)
+
+        await poolContract.connect(owner).setRetentionRatio(parseEther('0.2'))
+        await poolContract.connect(owner).setLpDividendRatio(parseEther('0.7'))
+
+        const beforeFromBalance = await token0.balanceOf(user1.address)
+        const beforeToBalance = await token1.balanceOf(user1.address)
+
+        const [quotedAmount] = await poolContract
+          .connect(user1)
+          .quotePotentialSwap(token0.address, token1.address, parseEther('100'))
+
+        const receipt = await poolContract.connect(user1).swap(
+          token0.address,
+          token1.address,
+          parseEther('100'),
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+        const afterFromBalance = await token0.balanceOf(user1.address)
+        const afterToBalance = await token1.balanceOf(user1.address)
+
+        const tokenSent = afterFromBalance.sub(beforeFromBalance)
+        const tokenGot = afterToBalance.sub(beforeToBalance)
+
+        expect(tokenSent).to.be.equal(parseEther('-100'))
+        expect(tokenGot).to.be.equal(parseUnits('99.39032442', 8))
+
+        // check if quoted amount is the same to actual amount of token got
+        expect(tokenGot).to.be.equal(quotedAmount)
+
+        // check BUSD post swap positions
+        expect(await asset0.cash()).to.be.equal(parseEther('10100'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('10100')) // should always equal cash
+
+        // check vUSDC post swap positions
+        expect(await asset1.cash()).to.be.equal(parseUnits('900.56990354', 8))
+        expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8))
+
+        await expect(receipt)
+          .to.emit(poolContract, 'Swap')
+          .withArgs(
+            user1.address,
+            token0.address,
+            token1.address,
+            parseEther('100'),
+            parseUnits('99.39032442', 8),
+            user1.address
+          )
+
+        expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+
+        await poolContract.mintFee(asset0.address)
+        await poolContract.mintFee(asset1.address)
+        // liability and cash should increase
+        expect(await asset1.cash()).to.be.equal(parseUnits('900.59774397', 8))
+        expect(await asset1.liability()).to.be.equal(parseUnits('1000.02785642', 8))
+        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
+        expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+        expect(await token0.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+        expect(await token1.balanceOf(user2.address)).to.be.equal(parseUnits('0.00397720', 8))
+        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
+          parseEther('1.000000000000272090')
         )
       })
 
@@ -1070,11 +1144,13 @@ describe('Pool - Fee', function () {
 
         // deposit to mint fee
         await poolContract.connect(user1).deposit(token0.address, 100000000, user1.address, fiveSecondsSince)
+
         await poolContract.connect(user1).deposit(token1.address, 1000000, user1.address, fiveSecondsSince)
         expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230671468083'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381341622610'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+        expect(await token0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807021'))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
           parseEther('1.000000000000606754')
         )
@@ -1132,11 +1208,14 @@ describe('Pool - Fee', function () {
 
         // withdraw to mint fee
         await poolContract.connect(user1).withdraw(token0.address, 1000000, 0, user1.address, fiveSecondsSince)
+
         await poolContract.connect(user1).withdraw(token1.address, 1000, 0, user1.address, fiveSecondsSince)
+
         expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230570472666'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381240622307'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+        expect(await token0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807021'))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
           parseEther('0.999999999999754033')
         )
@@ -1262,12 +1341,14 @@ describe('Pool - Fee', function () {
 
         await poolContract.mintFee(asset0.address)
         await poolContract.mintFee(asset1.address)
+
         expect(await asset0.cash()).to.be.equal(parseEther('10600'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
         expect(await asset1.cash()).to.be.equal(parseUnits('436.47892648', 8))
         expect(await asset1.liability()).to.be.equal(parseUnits('1000.19314742', 8))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
+        expect(await token1.balanceOf(user2.address)).to.be.equal(parseUnits('0.04509612', 8))
 
         // third swap
 
@@ -1375,7 +1456,6 @@ describe('Pool - Fee', function () {
         expect(tokenGot.add(await asset2.cash())).to.be.equal(parseEther('4900.619700520337742236'))
 
         // collect fee
-
         await poolContract.mintFee(asset0.address)
         await poolContract.mintFee(asset2.address)
         expect(await asset0.cash()).to.be.equal(parseEther('10800'))
@@ -1384,6 +1464,7 @@ describe('Pool - Fee', function () {
         expect(await asset2.liability()).to.be.equal(parseEther('5000.063494738388559540'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset2.balanceOf(user2.address)).to.be.equal(parseEther('0'))
+        expect(await token2.balanceOf(user2.address)).to.be.equal(parseEther('0.015872399174442862'))
 
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
           parseEther('1.000000000001467069')
@@ -1400,6 +1481,8 @@ describe('Pool - Fee', function () {
       await poolContract.connect(owner).setAmpFactor(parseEther('0.001'))
       await poolContract.connect(owner).setHaircutRate(parseEther('0.0001'))
       await poolContract.connect(owner).setShouldMaintainGlobalEquil(true)
+      await poolContract.connect(owner).setRetentionRatio(0)
+      await poolContract.connect(owner).setLpDividendRatio(parseEther('0.8'))
 
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD

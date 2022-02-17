@@ -63,12 +63,13 @@ describe('Pool - Utils', function () {
       await poolContract.connect(owner).setAmpFactor(parseUnits('0.05', 18))
       await poolContract.connect(owner).setHaircutRate(parseUnits('0.004', 18))
       await poolContract.connect(owner).setShouldMaintainGlobalEquil(false)
-      await poolContract.connect(owner).setShouldDistributeRetention(true)
-      await poolContract.connect(owner).setRetentionRatio(parseUnits('1', 18))
+      await poolContract.connect(owner).setRetentionRatio(0)
+      await poolContract.connect(owner).setLpDividendRatio(parseEther('1'))
 
       expect(await poolContract.connect(owner).ampFactor()).to.be.equal(parseUnits('0.05', 18))
       expect(await poolContract.connect(owner).haircutRate()).to.be.equal(parseUnits('0.004', 18))
-      expect(await poolContract.connect(owner).retentionRatio()).to.be.equal(parseUnits('1', 18))
+      expect(await poolContract.connect(owner).retentionRatio()).to.be.equal(0)
+      expect(await poolContract.connect(owner).lpDividendRatio()).to.be.equal(parseUnits('1', 18))
     })
 
     it('Should revert if notOwner sets contract private parameters', async function () {
@@ -81,11 +82,23 @@ describe('Pool - Utils', function () {
       await expect(poolContract.connect(user).setShouldMaintainGlobalEquil(false)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
-      await expect(poolContract.connect(user).setShouldDistributeRetention(false)).to.be.revertedWith(
+      await expect(poolContract.connect(user).setRetentionRatio(0)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
-      await expect(poolContract.connect(user).setRetentionRatio(parseUnits('1', 18))).to.be.revertedWith(
+      await expect(poolContract.connect(user).setLpDividendRatio(0)).to.be.revertedWith(
         'Ownable: caller is not the owner'
+      )
+    })
+
+    it('Should revert if retention + lp dividend > 1', async function () {
+      await poolContract.connect(owner).setLpDividendRatio(parseEther('0.5'))
+      await expect(poolContract.connect(owner).setRetentionRatio(parseEther('0.51'))).to.be.revertedWith(
+        'WOMBAT_INVALID_VALUE'
+      )
+
+      await poolContract.connect(owner).setRetentionRatio(parseEther('0.5'))
+      await expect(poolContract.connect(owner).setLpDividendRatio(parseEther('0.51'))).to.be.revertedWith(
+        'WOMBAT_INVALID_VALUE'
       )
     })
 
@@ -145,6 +158,37 @@ describe('Pool - Utils', function () {
 
       it('restricts to only owner', async function () {
         await expect(poolContract.connect(user).addAsset(mockToken.address, mockAsset.address)).to.be.revertedWith(
+          'Ownable: caller is not the owner'
+        )
+      })
+    })
+
+    describe('Remove ERC20 Asset', function () {
+      it('works', async function () {
+        // Add mock token and asset to pool
+        await poolContract.connect(owner).addAsset(mockToken.address, mockAsset.address)
+
+        // Remove mock token and asset from pool
+        const receipt = await poolContract.connect(owner).removeAsset(mockToken.address)
+
+        // check if removed and if event has been emitted
+        await expect(receipt).to.emit(poolContract, 'AssetRemoved').withArgs(mockToken.address, mockAsset.address)
+
+        // expect to revert if remove mock token and asset again
+        await expect(poolContract.connect(owner).removeAsset(mockToken.address)).to.be.revertedWith(
+          'WOMBAT_ASSET_NOT_EXISTS()'
+        )
+      })
+
+      it('reverts for invalid params', async function () {
+        // Remove ERC20 token with zero address
+        await expect(poolContract.connect(owner).removeAsset(ethers.constants.AddressZero)).to.be.revertedWith(
+          'WOMBAT_ASSET_NOT_EXISTS()'
+        )
+      })
+
+      it('restricts to only owner', async function () {
+        await expect(poolContract.connect(user).removeAsset(mockToken.address)).to.be.revertedWith(
           'Ownable: caller is not the owner'
         )
       })

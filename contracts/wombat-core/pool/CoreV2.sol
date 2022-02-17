@@ -111,9 +111,10 @@ contract CoreV2 {
         int256 D,
         int256 A
     ) internal pure returns (int256 v) {
-        if (SL == 0 || L_i == 0 || L_i + delta_i == 0) {
+        if (L_i == 0 || delta_i + SL == 0) {
             return 0;
         }
+        if (L_i + delta_i < 0) revert('Core: underflow');
 
         int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
         v = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
@@ -129,14 +130,15 @@ contract CoreV2 {
         int256 L_i,
         int256 A
     ) internal pure returns (int256 v) {
-        if (L_i == 0 || L_i + delta_i == 0) {
+        if (L_i == 0) {
             return 0;
         }
 
+        int256 L_i_ = L_i + delta_i;
+        if (L_i_ < 0) revert('Core: underflow');
         int256 r_i = A_i.wdiv(L_i);
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
         int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
-        int256 L_i_ = L_i + delta_i;
         int256 A_i_ = beta + (beta * beta + A.wmul(L_i_ * L_i_)).sqrt();
         v = delta_i + A_i - A_i_;
     }
@@ -264,15 +266,5 @@ contract CoreV2 {
      */
     function _haircut(uint256 amount, uint256 rate) internal pure returns (uint256) {
         return amount.wmul(rate);
-    }
-
-    /**
-     * @notice TODO (if any) Applies dividend to amount
-     * @param amount The amount that will receive the discount
-     * @param ratio The ratio to be applied in dividend
-     * @return The result of operation.
-     */
-    function _dividend(uint256 amount, uint256 ratio) internal pure returns (uint256) {
-        return amount.wmul(WAD - ratio);
     }
 }
