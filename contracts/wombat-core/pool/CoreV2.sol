@@ -15,6 +15,8 @@ contract CoreV2 {
     int256 public constant WAD_I = 10**18;
     uint256 public constant WAD = 10**18;
 
+    error CORE_UNDERFLOW();
+
     /**
      * @notice Core Wombat stableswap equation
      * @dev This function always returns >= 0
@@ -104,17 +106,20 @@ contract CoreV2 {
      * @return v positive value indicates a reward and negative value indicates a fee
      */
     function depositRewardImpl(
+        int256 D,
         int256 SL,
         int256 delta_i,
         int256 A_i,
         int256 L_i,
-        int256 D,
         int256 A
     ) internal pure returns (int256 v) {
-        if (L_i == 0 || delta_i + SL == 0) {
+        if (L_i == 0) {
+            // early return in case of div of 0
             return 0;
         }
-        if (L_i + delta_i < 0) revert('Core: underflow');
+        if (delta_i + SL == 0) {
+            return L_i - A_i;
+        }
 
         int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
         v = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
@@ -131,11 +136,11 @@ contract CoreV2 {
         int256 A
     ) internal pure returns (int256 v) {
         if (L_i == 0) {
+            // early return in case of div of 0
             return 0;
         }
 
         int256 L_i_ = L_i + delta_i;
-        if (L_i_ < 0) revert('Core: underflow');
         int256 r_i = A_i.wdiv(L_i);
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
         int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
@@ -143,13 +148,24 @@ contract CoreV2 {
         v = delta_i + A_i - A_i_;
     }
 
-    function exactDepositRewardImpl(
+    /**
+     * @notice return the deposit reward in token amount when target liquidity (LP amount) is known
+     */
+    function exactDepositRewardInEquilImpl(
         int256 D_i,
         int256 A_i,
         int256 L_i,
         int256 A
-    ) internal pure returns (int256 w) {
-        if (L_i == 0) return 0;
+    ) internal pure returns (int256 v) {
+        if (L_i == 0) {
+            // if this is a deposit, there is no reward/fee
+            // if this is a withdrawal, it should have been reverted
+            return 0;
+        }
+        if (A_i + D_i < 0) {
+            // impossible
+            revert CORE_UNDERFLOW();
+        }
 
         int256 r_i = A_i.wdiv(L_i);
         int256 k = D_i + A_i;

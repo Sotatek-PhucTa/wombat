@@ -363,8 +363,9 @@ contract Pool is
         if (reward > int256(amount) || reward < -int256(amount)) {
             revert WOMBAT_INVALID_VALUE();
         }
+
+        // we don't distribute deposit reward if reward > 0
         if (reward < 0) {
-            // TODO: confirm we don't distribute deposit reward if reward > 0
             fee = -reward;
         }
 
@@ -387,7 +388,12 @@ contract Pool is
             int256 fee
         )
     {
-        fee = -_exactDepositRewardInEquil(int256(amount), asset);
+        fee = -exactDepositRewardInEquilImpl(
+            int256(amount),
+            int256(asset.cash()),
+            int256(asset.liability()),
+            int256(ampFactor)
+        );
         // revert if value doesn't make sense in case of overflow
         if (fee >= int256(10**asset.underlyingTokenDecimals() / 1000000) || fee < -int256(amount)) {
             revert WOMBAT_INVALID_VALUE();
@@ -499,14 +505,11 @@ contract Pool is
         int256 L_i = int256(liabilityToBurn);
         fee = _withdrawalFee(L_i, asset);
 
+        // As it is possible to have fee greater than the amount, we don't revert here
         // revert if value doesn't make sense in case of overflow
-        if (
-            fee > L_i ||
-            fee < -L_i ||
-            (shouldMaintainGlobalEquil && fee <= -int256(10**asset.underlyingTokenDecimals() / 1000000))
-        ) {
-            revert WOMBAT_INVALID_VALUE();
-        }
+        // if (fee > L_i || fee < -L_i || (shouldMaintainGlobalEquil && fee <= -int256(10**asset.decimals() / 1000000))) {
+        //     revert WOMBAT_INVALID_VALUE();
+        // }
 
         // Prevent underflow in case withdrawal fees >= liabilityToBurn, user would only burn his underlying liability
         if (L_i > fee) {
@@ -812,54 +815,47 @@ contract Pool is
      * @return exchangeRate
      */
     function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
-        if (asset.totalSupply() == 0) return 1;
-        return exchangeRate = asset.liability() / asset.totalSupply();
+        if (asset.totalSupply() == 0) return WAD;
+        return exchangeRate = asset.liability().wdiv(asset.totalSupply());
     }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
-        int256 A = int256(ampFactor);
-
-        (int256 D, int256 SL) = _globalInvariantFunc(A);
-        int256 er = _equilCovRatio(D, SL, A);
-        return (uint256(er), uint256(D));
+        uint256 SL;
+        (invariant, SL) = _globalInvariantFunc();
+        equilCovRatio = uint256(_equilCovRatio(int256(invariant), int256(SL), int256(ampFactor)));
     }
 
     /* Utils */
 
     function _depositReward(int256 amount, IAsset asset) internal view returns (int256 v) {
-        int256 L_i = int256(asset.liability());
-        if (L_i == 0) return 0;
-
-        int256 delta_i = amount;
-        int256 A_i = int256(asset.cash());
-        int256 A = int256(ampFactor);
-
         if (shouldMaintainGlobalEquil) {
-            v = depositRewardInEquilImpl(delta_i, A_i, L_i, A);
+            v = depositRewardInEquilImpl(amount, int256(asset.cash()), int256(asset.liability()), int256(ampFactor));
         } else {
-            (int256 D, int256 SL) = _globalInvariantFunc(A);
-            v = depositRewardImpl(SL, delta_i, A_i, L_i, D, A);
+            (uint256 D, uint256 SL) = _globalInvariantFunc();
+            v = depositRewardImpl(
+                int256(D),
+                int256(SL),
+                amount,
+                int256(asset.cash()),
+                int256(asset.liability()),
+                int256(ampFactor)
+            );
         }
-    }
-
-    /**
-     * amount is in 18 decimals
-     */
-    function _exactDepositRewardInEquil(int256 amount, IAsset asset) internal view returns (int256 v) {
-        v = exactDepositRewardImpl(amount, int256(asset.cash()), int256(asset.liability()), int256(ampFactor));
     }
 
     function _withdrawalFee(int256 amount, IAsset asset) internal view returns (int256 fee) {
         fee = -_depositReward(-amount, asset);
     }
 
-    function _globalInvariantFunc(int256 A) internal view returns (int256 D, int256 SL) {
+    function _globalInvariantFunc() internal view returns (uint256 D, uint256 SL) {
+        uint256 A = ampFactor;
+
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));
 
             // overflow is unrealistic
-            int256 A_i = int256(asset.cash());
-            int256 L_i = int256(asset.liability());
+            uint256 A_i = asset.cash();
+            uint256 L_i = asset.liability();
 
             // Assume when L_i == 0, A_i always == 0
             if (L_i == 0) {
@@ -867,7 +863,7 @@ contract Pool is
                 continue;
             }
 
-            int256 r_i = A_i.wdiv(L_i);
+            uint256 r_i = A_i.wdiv(L_i);
             SL += L_i;
             D += L_i.wmul(r_i - A.wdiv(r_i));
         }
