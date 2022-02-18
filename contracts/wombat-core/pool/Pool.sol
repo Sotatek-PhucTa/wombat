@@ -391,8 +391,8 @@ contract Pool is
     {
         fee = -exactDepositRewardInEquilImpl(
             int256(amount),
-            int256(asset.cash()),
-            int256(asset.liability()),
+            int256(uint256(asset.cash())),
+            int256(uint256(asset.liability())),
             int256(ampFactor)
         );
         // revert if value doesn't make sense in case of overflow
@@ -671,8 +671,8 @@ contract Pool is
         _checkLiquidity(Ly);
 
         idealToAmount = _swapQuoteFunc(
-            int256(fromAsset.cash()),
-            int256(toAsset.cash()),
+            int256(uint256(fromAsset.cash())),
+            int256(uint256(toAsset.cash())),
             int256(Lx),
             int256(Ly),
             fromAmount,
@@ -818,7 +818,7 @@ contract Pool is
      */
     function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
         if (asset.totalSupply() == 0) return WAD;
-        return exchangeRate = asset.liability().wdiv(asset.totalSupply());
+        return exchangeRate = uint256(asset.liability()).wdiv(uint256(asset.totalSupply()));
     }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
@@ -831,15 +831,20 @@ contract Pool is
 
     function _depositReward(int256 amount, IAsset asset) internal view returns (int256 v) {
         if (shouldMaintainGlobalEquil) {
-            v = depositRewardInEquilImpl(amount, int256(asset.cash()), int256(asset.liability()), int256(ampFactor));
+            v = depositRewardInEquilImpl(
+                amount,
+                int256(uint256(asset.cash())),
+                int256(uint256(asset.liability())),
+                int256(ampFactor)
+            );
         } else {
             (uint256 D, uint256 SL) = _globalInvariantFunc();
             v = depositRewardImpl(
                 int256(D),
                 int256(SL),
                 amount,
-                int256(asset.cash()),
-                int256(asset.liability()),
+                int256(uint256(asset.cash())),
+                int256(uint256(asset.liability())),
                 int256(ampFactor)
             );
         }
