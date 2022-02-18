@@ -803,6 +803,7 @@ contract Pool is
             fromAmount -= int256(haircut);
         }
 
+        fromAmount = _convertToWAD(fromAsset.underlyingTokenDecimals(), fromAmount);
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         potentialOutcome = _convertFromWAD(toAsset.underlyingTokenDecimals(), potentialOutcome);
         haircut = _convertFromWAD(toAsset.underlyingTokenDecimals(), haircut);

@@ -243,8 +243,8 @@ describe('Pool - Swap', function () {
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.480537002412240000')) // should always equal cash
 
         // check vUSDC post swap positions
-        expect(await asset1.cash()).to.be.equal(parseUnits('1100', 8))
-        expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
+        expect(await asset1.cash()).to.be.equal(parseEther('1100'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000'))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
         await expect(receipt)
@@ -258,7 +258,8 @@ describe('Pool - Swap', function () {
             user1.address
           )
 
-        expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
+        // token has 8 decimals, while cash has 18.
+        expect(tokenSent.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('1000'))
         expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('10000'))
       })
 
@@ -295,8 +296,8 @@ describe('Pool - Swap', function () {
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104')) // should always equal cash
 
         // check vUSDC post swap positions
-        expect(await asset1.cash()).to.be.equal(parseUnits('1100', 8))
-        expect(await asset1.liability()).to.be.equal(parseUnits('1000', 8))
+        expect(await asset1.cash()).to.be.equal(parseEther('1100'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000'))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
         await expect(receipt)
@@ -310,7 +311,8 @@ describe('Pool - Swap', function () {
             user1.address
           )
 
-        expect(tokenSent.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
+        // token has 8 decimals, while cash has 18.
+        expect(tokenSent.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('1000'))
         expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('10000'))
       })
 
