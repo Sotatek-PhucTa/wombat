@@ -386,13 +386,13 @@ describe('Pool - Withdraw', function () {
       })
 
       it('withdraw token0 from token1 works', async function () {
-        const expectedAmount = parseUnits('9.99900000', 8)
+        const expectedAmount = parseEther('9.988002575408403104')
         {
           // callStatic has no side-effect on-chain
           const quoteAmount = await poolContract.callStatic.withdrawFromOtherAsset(
             token1.address,
             token0.address,
-            parseUnits('10', 8),
+            parseEther('10'),
             parseUnits('0', 8),
             owner.address,
             fiveSecondsSince
@@ -401,10 +401,10 @@ describe('Pool - Withdraw', function () {
         }
 
         await expectBalanceChange(expectedAmount, owner, token0, async () => {
-          const receipt = await withdrawFromOtherAsset(owner, parseUnits('10', 8), token1, token0)
+          const receipt = await withdrawFromOtherAsset(owner, parseEther('10'), token1, token0)
           await expect(receipt)
             .to.emit(poolContract, 'Withdraw')
-            .withArgs(owner.address, token0.address, expectedAmount, parseUnits('10', 8), owner.address)
+            .withArgs(owner.address, token0.address, expectedAmount, parseEther('10'), owner.address)
         })
       })
 
@@ -415,18 +415,18 @@ describe('Pool - Withdraw', function () {
           .connect(user1)
           .swap(token0.address, token1.address, parseEther('10'), parseEther('0'), user1.address, fiveSecondsSince)
         // verify there is not enough token1
-        expect(await token1.balanceOf(asset1.address)).to.lt(parseUnits('10', 8))
+        expect(await token1.balanceOf(asset1.address)).to.equal(parseUnits('0.36331391', 8))
 
-        const expectedAmount = parseUnits('10.53803009', 8)
+        const expectedAmount = parseEther('10.262080051990826491')
         // verify withdrawFromOtherAsset is better than withdraw.
-        const [withdrawAmount] = await poolContract.quotePotentialWithdraw(token1.address, parseUnits('10', 8))
+        const [withdrawAmount] = await poolContract.quotePotentialWithdraw(token1.address, parseEther('10'))
         expect(withdrawAmount).to.lt(expectedAmount)
 
         await expectBalanceChange(expectedAmount, owner, token0, async () => {
-          const receipt = await withdrawFromOtherAsset(owner, parseUnits('10', 8), token1, token0)
+          const receipt = await withdrawFromOtherAsset(owner, parseEther('10'), token1, token0)
           await expect(receipt)
             .to.emit(poolContract, 'Withdraw')
-            .withArgs(owner.address, token0.address, expectedAmount, parseUnits('10', 8), owner.address)
+            .withArgs(owner.address, token0.address, expectedAmount, parseEther('10'), owner.address)
         })
       })
 

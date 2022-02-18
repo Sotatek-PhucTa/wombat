@@ -749,6 +749,9 @@ contract Pool is
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
     }
 
+    /**
+     * expect fromAmount and minimumToAmount to be in WAD
+     */
     function _swap(
         address fromToken,
         address toToken,
