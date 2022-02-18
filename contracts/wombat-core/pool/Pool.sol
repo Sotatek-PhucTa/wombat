@@ -619,8 +619,6 @@ contract Pool is
         uint256 fromAmount = _convertFromWAD(fromAsset.underlyingTokenDecimals(), fromAmountInWad);
         toAmount = _convertFromWAD(toAsset.underlyingTokenDecimals(), toAmount);
 
-        fromAsset.transferUnderlyingToken(to, fromAmount);
-
         _assetOf(toToken).transferUnderlyingToken(to, toAmount);
 
         emit Withdraw(msg.sender, toToken, toAmount, liquidity, to);
