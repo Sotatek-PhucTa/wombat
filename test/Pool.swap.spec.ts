@@ -8,7 +8,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 const { expect } = chai
 chai.use(solidity)
 
-describe.only('Pool - Swap', function () {
+describe('Pool - Swap', function () {
   let owner: SignerWithAddress
   let user1: SignerWithAddress
   let AssetFactory: ContractFactory
