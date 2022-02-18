@@ -890,7 +890,7 @@ contract Pool is
 
         if (shouldMaintainGlobalEquil) {
             if (dividend > 0) {
-                asset.transferUnderlyingToken(feeTo, dividend);
+                asset.transferUnderlyingToken(feeTo, _convertFromWAD(asset.underlyingTokenDecimals(), dividend));
             }
             if (lpDividend > 0) {
                 // exact deposit to maintain r* = 1
