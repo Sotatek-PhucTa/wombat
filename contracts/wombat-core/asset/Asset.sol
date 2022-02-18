@@ -82,7 +82,7 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     }
 
     /**
-     * @notice Changes asset max supply. Can only be set by the contract owner. Decimals should respect the underlying token
+     * @notice Changes asset max supply. Can only be set by the contract owner. 18 decimals
      * @param maxSupply_ the new asset's max supply
      */
     function setMaxSupply(uint256 maxSupply_) external onlyOwner {
@@ -91,10 +91,18 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     }
 
     /**
+     * @notice Returns the decimals of Asset, fixed to 18 decimals
+     * @return decimals for asset
+     */
+    function decimals() public view virtual override(ERC20, IAsset) returns (uint8) {
+        return 18;
+    }
+
+    /**
      * @notice Returns the decimals of ERC20 underlyingToken
      * @return The current decimals for underlying token
      */
-    function decimals() public view virtual override(ERC20, IAsset) returns (uint8) {
+    function underlyingTokenDecimals() public view virtual override returns (uint8) {
         return ERC20(underlyingToken).decimals();
     }
 
