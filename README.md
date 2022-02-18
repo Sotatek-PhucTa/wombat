@@ -45,7 +45,7 @@ Hardhat Verify:
 - Follow steps at [Binance Chain Docs](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html) on verifying contracts on bscscan.com such that you can `read/write` directly with your web3 metamask wallet.
 - E.g. `npx hardhat verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
 
-Deployed contracts (BSC Testnet):
+Deployed contracts v1 (BSC Testnet):
 
 - BSC Wallet Accounts
 
@@ -83,12 +83,12 @@ Deployed contracts (BSC Testnet):
 
 - Update accounts deployer private key at `hardhat.config.ts`
 - Run `yarn deploy_bsc_mainnet`
-- Deploy the `AggregateAccount` and `Asset` contracts individually as shown in `003_Assets.ts`
+- Deploy the `Asset` contracts individually as shown in `003_Assets.ts`
 - Safeguard the `deployer private key` or `transferOwnership` to multisig (e.g. Gnosis Safe)
 
 ## High-level System Overview
 
-![Wombat High-level System Design"](/diagrams/high-level-design-v1.png 'High-level System Design')
+![Wombat High-level System Design"](/diagrams/high-level-design-v2.png 'High-level System Design')
 
 ### The Approve/TransferFrom Pattern
 
@@ -103,7 +103,7 @@ The operations `deposit`, `swap`, and `withdraw` all adopts the `Approve/Transfe
 
 `Account.sol` needs only be deployed once for each asset grouping, e.g. USD-Stablecoins. `Asset.sol` then can be deployed for each and every asset falling under that account group, e.g. BUSD, USDC, USDT, etc. Repeat previous steps for any subsequent new account groupings, e.g. EUR-Stablecoins, and asset additions, e.g. aEUR, bEUR, etc.
 
-Each asset must be added into the `pool` contract once they are created. This is done by invoking the `addAsset(address token, address asset)` function where `token` is the underlying ERC20 token and `asset` is the corresponding ERC20-LP token.
+Each asset, e.g. LP-BUSD, LP-USDC, LP-BUSD-T, etc. must be added into the `pool` contract once they are created. This is done by invoking the `addAsset(address token, address asset)` function where `token` is the underlying ERC20 token and `asset` is the corresponding ERC20-LP token.
 
 ## Protocol Design 👷‍♂️
 
@@ -115,7 +115,7 @@ Additional peripheral contracts include libraries, such as `DSMath`, and `Signed
 
 We also prefer `safety over gas costs`. Furthermore, the additional gas costs are negligent ([OZ forum discussion](https://forum.openzeppelin.com/t/oz-contracts-v4-safemath/9759/4)) and can be further optimised by the compiler.
 
-A `WAD converter` is implemented to ensure prices amongst stablecoins with different decimals are calculated accurately during a `swap` operation. This is because internally, cryptocurrency amounts use integers ([Section 3.1 Uniswap v3 Liquidity Math](https://atiselsts.github.io/pdfs/uniswap-v3-liquidity-math.pdf)) and hence we would convert all incoming amounts to the `WAD` base before operating on them.
+A `WAD converter` is implemented to ensure prices amongst stablecoins with different decimals are calculated accurately during a `swap` operation. This is because internally, cryptocurrency amounts use integers and hence we would convert all incoming amounts to the `WAD` base before operating on them.
 
 `int256` has been adopted instead of `uint256` to cater for negative integers which occur within the core stableswap invariant equation. We consider the impact of this switch to be negligible, as the difference in integer ranges are miniscule.
 
@@ -136,7 +136,17 @@ Though an oracle is not needed for stableswap, an oracle would be required for n
 
 While Wombat protocol focuses on being a stableswap protocol, we can still implement price oracles getter functions within the implementation contract for future upgradability or roadmap changes.
 
-> Non-stablecoin assets can also be introduced to Wombat protocol as long as they are traded in isolation within their aggregate accounts. For example, pool account id_1 of aBNB, bBNB, etc. and pool account id_2 of BUSD, BUSD-T, USDC, TUSD, etc.
+> Non-stablecoin but soft-pegged assets can also be introduced to Wombat protocol as long as they are traded in isolation within their aggregate pools.
+
+## Licensing
+
+The primary license for Wombat Exchange V2 Core is the Business Source License 1.1 (BUSL-1.1), see [LICENSE](/LICENSE)
+
+### Exceptions
+
+- All files in `contracts/interfaces/` are licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers).
+- All files in `contracts/libraries/` are licensed under `GPL-2.0-or-later` or `MIT` (as indicated in their SPDX headers).
+- All files in contracts/test remain unlicensed.
 
 ## Helpful Links 🔗
 
