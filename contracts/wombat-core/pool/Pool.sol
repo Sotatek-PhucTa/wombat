@@ -16,7 +16,8 @@ import './PausableAssets.sol';
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
- * Note: There are 2 operating mode. Either set shouldMaintainGlobalEquil to true and maintain global cov ratio (r*) at 1.
+ * Note: All variables are 18 decimals, except from th amount of underlying token
+ * There are 2 operating mode. Either set shouldMaintainGlobalEquil to true and maintain global cov ratio (r*) at 1.
  * Or set shouldMaintainGlobalEquil to false, and allow r* to be any value > 1.
  */
 contract Pool is
