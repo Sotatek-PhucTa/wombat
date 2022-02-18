@@ -23,7 +23,6 @@ describe('Pool - Withdraw', function () {
   let asset0: Contract // BUSD LP
   let asset1: Contract // USDC LP
   let asset2: Contract // CAKE LP
-  let aggregateAccount: Contract
   let lastBlockTime: number
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
