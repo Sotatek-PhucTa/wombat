@@ -618,7 +618,6 @@ contract Pool is
         uint256 fromAmount = _convertFromWAD(fromAsset.underlyingTokenDecimals(), fromAmountInWad);
         toAmount = _convertFromWAD(toAsset.underlyingTokenDecimals(), toAmount);
 
-        IERC20(fromToken).safeTransferFrom(address(msg.sender), address(fromAsset), fromAmount);
         fromAsset.transferUnderlyingToken(to, fromAmount);
 
         _assetOf(toToken).transferUnderlyingToken(to, toAmount);
