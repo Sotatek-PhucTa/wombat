@@ -12,9 +12,9 @@ interface IAsset is IERC20 {
 
     function pool() external view returns (address);
 
-    function cash() external view returns (uint256);
+    function cash() external view returns (uint128);
 
-    function liability() external view returns (uint256);
+    function liability() external view returns (uint128);
 
     function decimals() external view returns (uint8);
 

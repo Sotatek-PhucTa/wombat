@@ -23,9 +23,9 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     /// @notice The Pool
     address public override pool;
     /// @notice Cash balance, normally it should align with IERC20(underlyingToken).balanceOf(address(this))
-    uint256 public override cash;
+    uint128 public override cash;
     /// @notice Total liability, equals to the sum of deposit and dividend
-    uint256 public override liability;
+    uint128 public override liability;
     /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
     /// @dev if 0, means asset has no max
     uint256 public maxSupply;
@@ -37,6 +37,7 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     event PoolUpdated(address previousPoolAddr, address newPoolAddr);
 
     error WOMBAT_FORBIDDEN();
+    error ASSET_OVERFLOW();
 
     /// @dev Modifier ensuring that certain function can only be called by pool
     modifier onlyPool() {
@@ -142,7 +143,8 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      * @param amount amount to add
      */
     function addCash(uint256 amount) external override onlyPool {
-        cash += amount;
+        if (amount > type(uint128).max) revert ASSET_OVERFLOW();
+        cash += uint128(amount);
     }
 
     /**
@@ -152,7 +154,7 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      */
     function removeCash(uint256 amount) external override onlyPool {
         require(cash >= amount, 'Wombat: INSUFFICIENT_CASH');
-        cash -= amount;
+        cash -= uint128(amount);
     }
 
     /**
@@ -161,7 +163,8 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      * @param amount amount to add
      */
     function addLiability(uint256 amount) external override onlyPool {
-        liability += amount;
+        if (amount > type(uint128).max) revert ASSET_OVERFLOW();
+        liability += uint128(amount);
     }
 
     /**
@@ -171,6 +174,6 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      */
     function removeLiability(uint256 amount) external override onlyPool {
         require(liability >= amount, 'Wombat: INSUFFICIENT_LIABILITY');
-        liability -= amount;
+        liability -= uint128(amount);
     }
 }
