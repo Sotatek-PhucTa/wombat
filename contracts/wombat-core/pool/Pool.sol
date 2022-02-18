@@ -827,6 +827,13 @@ contract Pool is
         equilCovRatio = uint256(_equilCovRatio(int256(invariant), int256(SL), int256(ampFactor)));
     }
 
+    function tipBucketBalance(IAsset asset) external view returns (uint256 balance) {
+        return
+            _convertToWAD(asset.underlyingTokenDecimals(), asset.underlyingTokenBalance()) -
+            asset.cash() -
+            _feeCollected[asset];
+    }
+
     /* Utils */
 
     function _depositReward(int256 amount, IAsset asset) internal view returns (int256 v) {
