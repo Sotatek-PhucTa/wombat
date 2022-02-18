@@ -407,6 +407,7 @@ describe('Pool - Fee', function () {
             user1.address
           )
 
+        expect(tokenSent.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('1000'))
         expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('10000'))
 
         // withdraw to mint fee
@@ -493,6 +494,7 @@ describe('Pool - Fee', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('999.999999996228653516'))
 
         // second swap
 
@@ -606,6 +608,7 @@ describe('Pool - Fee', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10200'))
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('802.579685045531476474'))
 
         // forth swap
 
@@ -631,6 +634,7 @@ describe('Pool - Fee', function () {
         tokenGot = afterToBalance.sub(beforeToBalance)
 
         expect(tokenSent).to.be.equal(parseEther('-100'))
+        expect(tokenGot).to.be.equal(parseUnits('93.78698464', 8))
 
         // check if quoted amount is the same to actual amount of token got
         expect(tokenGot).to.be.equal(quotedAmount)
@@ -657,6 +661,7 @@ describe('Pool - Fee', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10300'))
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('706.350419772065966807'))
 
         // collect fee
 
@@ -778,6 +783,7 @@ describe('Pool - Fee', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('999.999999996228653516'))
 
         await asset1.connect(user1).approve(poolContract.address, parseEther('10'))
         await poolContract.connect(user1).withdraw(token1.address, parseEther('1'), 0, user1.address, fiveSecondsSince)
@@ -870,6 +876,7 @@ describe('Pool - Fee', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('999.999999997643711000'))
 
         await poolContract.mintFee(asset0.address)
         await poolContract.mintFee(asset1.address)
@@ -1597,6 +1604,7 @@ describe('Pool - Fee', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('12000'))
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('3001.463559349045530000'))
 
         // third swap
         beforeFromBalance = await token2.balanceOf(user1.address)

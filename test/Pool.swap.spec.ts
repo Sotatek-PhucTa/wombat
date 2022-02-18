@@ -152,7 +152,8 @@ describe('Pool - Swap', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
-        // expect(tokenGot.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
+        // token has 8 decimals, while cash has 18.
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('999.999999997643711000'))
       })
 
       it('works (BUSD -> vUSDC) with haircut fees', async function () {
@@ -205,7 +206,8 @@ describe('Pool - Swap', function () {
           )
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
-        // expect(tokenGot.add(await asset1.cash())).to.be.equal(parseUnits('1000', 8))
+        // token has 8 decimals, while cash has 18.
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('999.999999996228653516'))
       })
 
       it('works (vUSDC -> BUSD) without haircut fees', async function () {
