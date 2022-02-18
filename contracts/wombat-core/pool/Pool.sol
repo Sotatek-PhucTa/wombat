@@ -797,9 +797,6 @@ contract Pool is
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
-        uint8 fromDecimal = _assetOf(fromToken).underlyingTokenDecimals();
-        fromAmount = _convertToWAD(fromDecimal, fromAmount);
-
         // exact output swap quote adds haircut
         if (fromAmount < 0) {
             uint256 haircut = uint256(-fromAmount).wmul(haircutRate);
