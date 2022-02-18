@@ -226,7 +226,7 @@ contract CoreV2 {
      * @param Dx delta x, i.e. token x amount inputted
      * @return The token amount in WAD units
      */
-    function _convertToWAD(uint256 d, uint256 Dx) internal pure returns (uint256) {
+    function _convertToWAD(uint8 d, uint256 Dx) internal pure returns (uint256) {
         if (d < 18) {
             return Dx * 10**(18 - d);
         } else if (d > 18) {
@@ -238,7 +238,7 @@ contract CoreV2 {
     /**
      * For signed integer
      */
-    function _convertToWAD(uint256 d, int256 Dx) internal pure returns (int256) {
+    function _convertToWAD(uint8 d, int256 Dx) internal pure returns (int256) {
         if (d < 18) {
             return Dx * int256(10**(18 - d));
         } else if (d > 18) {
@@ -254,7 +254,7 @@ contract CoreV2 {
      * @param Dx delta x, i.e. token x amount inputted
      * @return The original token amount with correct decimals
      */
-    function _convertFromWAD(uint256 d, uint256 Dx) internal pure returns (uint256) {
+    function _convertFromWAD(uint8 d, uint256 Dx) internal pure returns (uint256) {
         if (d < 18) {
             return (Dx / (10**(18 - d)));
         } else if (d > 18) {
@@ -266,7 +266,7 @@ contract CoreV2 {
     /**
      * For signed integer
      */
-    function _convertFromWAD(uint256 d, int256 Dx) internal pure returns (int256) {
+    function _convertFromWAD(uint8 d, int256 Dx) internal pure returns (int256) {
         if (d < 18) {
             return (Dx / int256(10**(18 - d)));
         } else if (d > 18) {

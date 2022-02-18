@@ -728,8 +728,8 @@ contract Pool is
         _ensure(deadline);
         requireAssetNotPaused(fromToken);
 
-        uint256 fromDecimal = _assetOf(fromToken).underlyingTokenDecimals();
-        uint256 toDecimal = _assetOf(toToken).underlyingTokenDecimals();
+        uint8 fromDecimal = _assetOf(fromToken).underlyingTokenDecimals();
+        uint8 toDecimal = _assetOf(toToken).underlyingTokenDecimals();
 
         (actualToAmount, haircut) = _swap(
             fromToken,
