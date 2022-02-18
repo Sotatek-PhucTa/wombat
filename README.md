@@ -99,9 +99,7 @@ The operations `deposit`, `swap`, and `withdraw` all adopts the `Approve/Transfe
 
 > `increaseAllowance` should be used instead of `approve` due to potential attack vectors as described at [OZ Docs](https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#ERC20-increaseAllowance-address-uint256-)
 
-### Adding new accounts & assets
-
-`Account.sol` needs only be deployed once for each asset grouping, e.g. USD-Stablecoins. `Asset.sol` then can be deployed for each and every asset falling under that account group, e.g. BUSD, USDC, USDT, etc. Repeat previous steps for any subsequent new account groupings, e.g. EUR-Stablecoins, and asset additions, e.g. aEUR, bEUR, etc.
+### Adding new assets
 
 Each asset, e.g. LP-BUSD, LP-USDC, LP-BUSD-T, etc. must be added into the `pool` contract once they are created. This is done by invoking the `addAsset(address token, address asset)` function where `token` is the underlying ERC20 token and `asset` is the corresponding ERC20-LP token.
 
@@ -140,7 +138,7 @@ While Wombat protocol focuses on being a stableswap protocol, we can still imple
 
 ## Licensing
 
-The primary license for Wombat Exchange V2 Core is the Business Source License 1.1 (BUSL-1.1), see [LICENSE](/LICENSE)
+The primary license for Wombat V1 Core is the Business Source License 1.1 (BUSL-1.1), see [LICENSE](/LICENSE)
 
 ### Exceptions
 
