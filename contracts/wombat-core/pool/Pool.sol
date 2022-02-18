@@ -53,6 +53,9 @@ contract Pool is
     /// @notice LP dividend ratio : the ratio of haircut that should distribute to LP
     uint256 public lpDividendRatio = WAD;
 
+    /// @notice The threshold to mint fee (uint: WAD)
+    uint256 public mintFeeThreshold;
+
     /// @notice Dev address
     address public dev;
 
@@ -60,7 +63,7 @@ contract Pool is
 
     bool public shouldMaintainGlobalEquil = true;
 
-    /// @notice Dividend collected by each asset (unit: underlying token)
+    /// @notice Dividend collected by each asset (unit: WAD)
     mapping(IAsset => uint256) private _feeCollected;
 
     /// @notice A record of assets inside Pool
@@ -246,6 +249,13 @@ contract Pool is
     function setShouldMaintainGlobalEquil(bool shouldMaintainGlobalEquil_) external onlyOwner {
         mintAllFee();
         shouldMaintainGlobalEquil = shouldMaintainGlobalEquil_;
+    }
+
+    /**
+     * @notice Set min fee to mint
+     */
+    function setMintFeeThreshold(uint256 mintFeeThreshold_) external onlyOwner {
+        mintFeeThreshold = mintFeeThreshold_;
     }
 
     /* Assets */
@@ -882,9 +892,8 @@ contract Pool is
      */
     function _mintFee(IAsset asset) private {
         uint256 feeCollected = _feeCollected[asset];
-        if (feeCollected == 0) {
+        if (feeCollected == 0 || feeCollected < mintFeeThreshold) {
             // early return
-            // we might set a threshold to save gas cost
             return;
         }
 
