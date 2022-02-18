@@ -1014,7 +1014,7 @@ describe('Pool - Fee', function () {
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(parseEther('1'))
       })
 
-      it.only('(BUSD -> vUSDC) should respect mintFeeThreshold', async function () {
+      it('(BUSD -> vUSDC) should respect mintFeeThreshold', async function () {
         await poolContract.connect(owner).setMintFeeThreshold(parseEther('0.05'))
 
         await poolContract.connect(user1).swap(
