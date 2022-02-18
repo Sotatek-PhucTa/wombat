@@ -643,9 +643,9 @@ contract Pool is
         )
     {
         _checkLiquidity(liquidity);
-
         IAsset asset = _assetOf(token);
         (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
+        amount = _convertFromWAD(asset.underlyingTokenDecimals(), amount);
     }
 
     /* Swap */
@@ -803,6 +803,7 @@ contract Pool is
             fromAmount -= int256(haircut);
         }
 
+        fromAmount = _convertToWAD(fromAsset.underlyingTokenDecimals(), fromAmount);
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         potentialOutcome = _convertFromWAD(toAsset.underlyingTokenDecimals(), potentialOutcome);
         haircut = _convertFromWAD(toAsset.underlyingTokenDecimals(), haircut);
@@ -889,7 +890,7 @@ contract Pool is
 
         if (shouldMaintainGlobalEquil) {
             if (dividend > 0) {
-                asset.transferUnderlyingToken(feeTo, dividend);
+                asset.transferUnderlyingToken(feeTo, _convertFromWAD(asset.underlyingTokenDecimals(), dividend));
             }
             if (lpDividend > 0) {
                 // exact deposit to maintain r* = 1

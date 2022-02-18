@@ -20,7 +20,6 @@ describe('Pool - Utils', function () {
   let token1: Contract // USDC
   let asset0: Contract // BUSD LP
   let asset1: Contract // USDC LP
-  let aggregateAccount: Contract
 
   beforeEach(async function () {
     const [first, ...rest] = await ethers.getSigners()
