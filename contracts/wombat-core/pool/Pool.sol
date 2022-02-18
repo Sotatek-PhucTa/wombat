@@ -643,9 +643,9 @@ contract Pool is
         )
     {
         _checkLiquidity(liquidity);
-
         IAsset asset = _assetOf(token);
         (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
+        amount = _convertFromWAD(asset.underlyingTokenDecimals(), amount);
     }
 
     /* Swap */
