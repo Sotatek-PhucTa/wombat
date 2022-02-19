@@ -53,7 +53,7 @@ contract Pool is
     /// @notice LP dividend ratio : the ratio of haircut that should distribute to LP
     uint256 public lpDividendRatio = WAD;
 
-    /// @notice The threshold to mint fee (uint: WAD)
+    /// @notice The threshold to mint fee (unit: WAD)
     uint256 public mintFeeThreshold;
 
     /// @notice Dev address
