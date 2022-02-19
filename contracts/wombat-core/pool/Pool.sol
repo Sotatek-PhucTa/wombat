@@ -466,7 +466,7 @@ contract Pool is
 
         IAsset asset = _assetOf(token);
         IERC20(token).safeTransferFrom(address(msg.sender), address(asset), amount);
-        liquidity = _deposit(asset, _convertToWAD(asset.underlyingTokenDecimals(), amount), to);
+        liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), to);
 
         emit Deposit(msg.sender, token, amount, liquidity, to);
     }
@@ -485,7 +485,7 @@ contract Pool is
         returns (uint256 liquidity, int256 fee)
     {
         IAsset asset = _assetOf(token);
-        (liquidity, , fee) = _depositTo(asset, _convertToWAD(asset.underlyingTokenDecimals(), amount));
+        (liquidity, , fee) = _depositTo(asset, amount.toWad(asset.underlyingTokenDecimals()));
     }
 
     /* Withdraw */
@@ -587,8 +587,7 @@ contract Pool is
         IAsset asset = _assetOf(token);
         // request lp token from user
         IERC20(asset).safeTransferFrom(address(msg.sender), address(asset), liquidity);
-        amount = _withdraw(asset, liquidity, minimumAmount);
-        amount = _convertFromWAD(asset.underlyingTokenDecimals(), amount);
+        amount = _withdraw(asset, liquidity, minimumAmount).fromWad(asset.underlyingTokenDecimals());
         asset.transferUnderlyingToken(to, amount);
 
         emit Withdraw(msg.sender, token, amount, liquidity, to);
@@ -618,19 +617,13 @@ contract Pool is
         _ensure(deadline);
         requireAssetNotPaused(fromToken);
 
-        IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-
         // Withdraw and swap
+        IAsset fromAsset = _assetOf(fromToken);
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
         uint256 fromAmountInWad = _withdraw(fromAsset, liquidity, 0);
         (toAmount, ) = _swap(fromToken, toToken, fromAmountInWad, minimumAmount, to);
-
-        uint256 fromAmount = _convertFromWAD(fromAsset.underlyingTokenDecimals(), fromAmountInWad);
-        toAmount = _convertFromWAD(toAsset.underlyingTokenDecimals(), toAmount);
-
+        toAmount = toAmount.fromWad(_assetOf(toToken).underlyingTokenDecimals());
         _assetOf(toToken).transferUnderlyingToken(to, toAmount);
-
         emit Withdraw(msg.sender, toToken, toAmount, liquidity, to);
     }
 
@@ -655,7 +648,7 @@ contract Pool is
         _checkLiquidity(liquidity);
         IAsset asset = _assetOf(token);
         (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
-        amount = _convertFromWAD(asset.underlyingTokenDecimals(), amount);
+        amount = amount.fromWad(asset.underlyingTokenDecimals());
     }
 
     /* Swap */
@@ -744,13 +737,13 @@ contract Pool is
         (actualToAmount, haircut) = _swap(
             fromToken,
             toToken,
-            _convertToWAD(fromDecimal, fromAmount),
-            _convertToWAD(toDecimal, minimumToAmount),
+            fromAmount.toWad(fromDecimal),
+            minimumToAmount.toWad(toDecimal),
             to
         );
 
-        actualToAmount = _convertFromWAD(toDecimal, actualToAmount);
-        haircut = _convertFromWAD(toDecimal, haircut);
+        actualToAmount = actualToAmount.fromWad(toDecimal);
+        haircut = haircut.fromWad(toDecimal);
 
         IERC20(fromToken).safeTransferFrom(address(msg.sender), address(_assetOf(fromToken)), fromAmount);
         _assetOf(toToken).transferUnderlyingToken(to, actualToAmount);
@@ -813,10 +806,10 @@ contract Pool is
             fromAmount -= int256(haircut);
         }
 
-        fromAmount = _convertToWAD(fromAsset.underlyingTokenDecimals(), fromAmount);
+        fromAmount = fromAmount.toWad(fromAsset.underlyingTokenDecimals());
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
-        potentialOutcome = _convertFromWAD(toAsset.underlyingTokenDecimals(), potentialOutcome);
-        haircut = _convertFromWAD(toAsset.underlyingTokenDecimals(), haircut);
+        potentialOutcome = potentialOutcome.fromWad(toAsset.underlyingTokenDecimals());
+        haircut = haircut.fromWad(toAsset.underlyingTokenDecimals());
     }
 
     /* Queries */
@@ -841,7 +834,7 @@ contract Pool is
     function tipBucketBalance(address token) external view returns (uint256 balance) {
         IAsset asset = _assetOf(token);
         return
-            _convertToWAD(asset.underlyingTokenDecimals(), asset.underlyingTokenBalance()) -
+            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
             asset.cash() -
             _feeCollected[asset];
     }
@@ -913,7 +906,7 @@ contract Pool is
 
         if (shouldMaintainGlobalEquil) {
             if (dividend > 0) {
-                asset.transferUnderlyingToken(feeTo, _convertFromWAD(asset.underlyingTokenDecimals(), dividend));
+                asset.transferUnderlyingToken(feeTo, dividend.fromWad(asset.underlyingTokenDecimals()));
             }
             if (lpDividend > 0) {
                 // exact deposit to maintain r* = 1

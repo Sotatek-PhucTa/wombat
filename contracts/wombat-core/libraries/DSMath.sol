@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 pragma solidity 0.8.5;
 
 library DSMath {
@@ -43,5 +42,25 @@ library DSMath {
     //rounds to zero if x*y < WAD / 2
     function wdiv(uint256 x, uint256 y) internal pure returns (uint256) {
         return ((x * WAD) + (y / 2)) / y;
+    }
+
+    // Convert x to WAD (18 decimals) from d decimals.
+    function toWad(uint256 x, uint8 d) internal pure returns (uint256) {
+        if (d < 18) {
+            return x * 10**(18 - d);
+        } else if (d > 18) {
+            return (x / (10**(d - 18)));
+        }
+        return x;
+    }
+
+    // Convert x from WAD (18 decimals) to d decimals.
+    function fromWad(uint256 x, uint8 d) internal pure returns (uint256) {
+        if (d < 18) {
+            return (x / (10**(18 - d)));
+        } else if (d > 18) {
+            return x * 10**(d - 18);
+        }
+        return x;
     }
 }

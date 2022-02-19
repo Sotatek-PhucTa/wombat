@@ -35,4 +35,24 @@ library SignedSafeMath {
             z = 1;
         }
     }
+
+    // Convert x to WAD (18 decimals) from d decimals.
+    function toWad(int256 x, uint8 d) internal pure returns (int256) {
+        if (d < 18) {
+            return x * int256(10**(18 - d));
+        } else if (d > 18) {
+            return (x / int256(10**(d - 18)));
+        }
+        return x;
+    }
+
+    // Convert x from WAD (18 decimals) to d decimals.
+    function fromWad(int256 x, uint8 d) internal pure returns (int256) {
+        if (d < 18) {
+            return (x / int256(10**(18 - d)));
+        } else if (d > 18) {
+            return x * int256(10**(d - 18));
+        }
+        return x;
+    }
 }

@@ -4,6 +4,8 @@ pragma solidity 0.8.5;
 import '../pool/CoreV2.sol';
 
 contract TestCoreV2 is CoreV2 {
+    using DSMath for uint256;
+
     function testSwapQuoteFunc(
         uint256 Ax,
         uint256 Ay,
@@ -48,11 +50,11 @@ contract TestCoreV2 is CoreV2 {
     }
 
     function test_convertToWAD(uint8 d, uint256 Dx) external pure returns (uint256) {
-        return _convertToWAD(d, Dx);
+        return Dx.toWad(d);
     }
 
     function test_convertFromWAD(uint8 d, uint256 Dx) external pure returns (uint256) {
-        return _convertFromWAD(d, Dx);
+        return Dx.fromWad(d);
     }
 
     function test_depositRewardImpl(

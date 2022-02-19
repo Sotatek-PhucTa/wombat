@@ -220,62 +220,6 @@ contract CoreV2 {
     }
 
     /**
-     * @notice Equation to convert token amount to WAD units, i.e. decimal number with 18 digits
-     * @dev Converts amount to WAD units
-     * @param d decimal of token x
-     * @param Dx delta x, i.e. token x amount inputted
-     * @return The token amount in WAD units
-     */
-    function _convertToWAD(uint8 d, uint256 Dx) internal pure returns (uint256) {
-        if (d < 18) {
-            return Dx * 10**(18 - d);
-        } else if (d > 18) {
-            return (Dx / (10**(d - 18)));
-        }
-        return Dx;
-    }
-
-    /**
-     * For signed integer
-     */
-    function _convertToWAD(uint8 d, int256 Dx) internal pure returns (int256) {
-        if (d < 18) {
-            return Dx * int256(10**(18 - d));
-        } else if (d > 18) {
-            return (Dx / int256(10**(d - 18)));
-        }
-        return Dx;
-    }
-
-    /**
-     * @notice Equation to convert WAD units back to original token amount with correct decimal numbers
-     * @dev Converts WAD units to original amount
-     * @param d decimal of token x
-     * @param Dx delta x, i.e. token x amount inputted
-     * @return The original token amount with correct decimals
-     */
-    function _convertFromWAD(uint8 d, uint256 Dx) internal pure returns (uint256) {
-        if (d < 18) {
-            return (Dx / (10**(18 - d)));
-        } else if (d > 18) {
-            return Dx * 10**(d - 18);
-        }
-        return Dx;
-    }
-
-    /**
-     * For signed integer
-     */
-    function _convertFromWAD(uint8 d, int256 Dx) internal pure returns (int256) {
-        if (d < 18) {
-            return (Dx / int256(10**(18 - d)));
-        } else if (d > 18) {
-            return Dx * int256(10**(d - 18));
-        }
-        return Dx;
-    }
-
-    /**
      * @notice TODO (if any) from Yellow Paper (Haircut).
      * @dev Applies haircut rate to amount
      * @param amount The amount that will receive the discount
