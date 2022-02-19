@@ -813,10 +813,11 @@ contract Pool is
 
     /**
      * @notice Returns the exchange rate of the LP token
-     * @param asset The address of the LP token
+     * @param token The address of the token
      * @return exchangeRate
      */
-    function exchangeRate(IAsset asset) external view returns (uint256 exchangeRate) {
+    function exchangeRate(address token) external view returns (uint256 exchangeRate) {
+        IAsset asset = _assetOf(token);
         if (asset.totalSupply() == 0) return WAD;
         return exchangeRate = uint256(asset.liability()).wdiv(uint256(asset.totalSupply()));
     }
@@ -825,6 +826,14 @@ contract Pool is
         uint256 SL;
         (invariant, SL) = _globalInvariantFunc();
         equilCovRatio = uint256(_equilCovRatio(int256(invariant), int256(SL), int256(ampFactor)));
+    }
+
+    function tipBucketBalance(address token) external view returns (uint256 balance) {
+        IAsset asset = _assetOf(token);
+        return
+            _convertToWAD(asset.underlyingTokenDecimals(), asset.underlyingTokenBalance()) -
+            asset.cash() -
+            _feeCollected[asset];
     }
 
     /* Utils */
@@ -928,9 +937,9 @@ contract Pool is
 
     /**
      * @notice Send fee collected to the fee beneficiary
-     * @param asset The address of the asset to collect fee
+     * @param token The address of the token to collect fee
      */
-    function mintFee(IAsset asset) external {
-        _mintFee(asset);
+    function mintFee(address token) external {
+        _mintFee(_assetOf(token));
     }
 }
