@@ -90,6 +90,7 @@ const config: HardhatUserConfig = {
 
 config.gasReporter = {
   enabled: secrets.gas_breakdown_enabled,
+  outputFile: '.gas-snapshot',
 }
 
 export default config
