@@ -949,9 +949,16 @@ describe('Pool - Fee', function () {
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
           parseEther('.999999999999999999')
         )
+
+        expect(tokenGot.add(await asset0.cash()).add(await poolContract.tipBucketBalance(asset0.address))).to.be.equal(
+          parseEther('10000')
+        )
       })
 
       it('works (BUSD -> vUSDC) with haircut fees and dividend', async function () {
+        // set fee collection address
+        await poolContract.connect(owner).setFeeTo(user2.address)
+
         const beforeFromBalance = await token0.balanceOf(user1.address)
         const beforeToBalance = await token1.balanceOf(user1.address)
 
@@ -1020,6 +1027,14 @@ describe('Pool - Fee', function () {
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await token1.balanceOf(user2.address)).to.be.equal(parseUnits('0.00795440', 8))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(parseEther('1'))
+
+        expect(
+          tokenGot
+            .mul(1e10)
+            .add(await asset1.cash())
+            .add(await poolContract.tipBucketBalance(asset1.address))
+            .add((await token1.balanceOf(user2.address)).mul(1e10))
+        ).to.be.equal(parseEther('1000'))
 
         expect(await poolContract.tipBucketBalance(asset0.address)).to.equal(0)
         expect(await poolContract.tipBucketBalance(asset1.address)).to.equal(parseEther('0.000000011488334987'))
@@ -1100,6 +1115,14 @@ describe('Pool - Fee', function () {
         expect(await token0.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
         expect(await token1.balanceOf(user2.address)).to.be.equal(parseUnits('0.00397720', 8))
         expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(parseEther('1'))
+
+        expect(
+          tokenGot
+            .mul(1e10)
+            .add(await asset1.cash())
+            .add(await poolContract.tipBucketBalance(asset1.address))
+            .add((await token1.balanceOf(user2.address)).mul(1e10))
+        ).to.be.equal(parseEther('1000'))
 
         expect(await poolContract.tipBucketBalance(asset0.address)).to.equal(0)
         expect(await poolContract.tipBucketBalance(asset1.address)).to.equal(parseEther('0.007954415346829239'))
