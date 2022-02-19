@@ -1062,8 +1062,8 @@ describe('Pool - Fee', function () {
         expect(await asset1.liability()).to.be.equal(parseEther('1000'))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8))
 
-        await poolContract.mintFee(asset0.address)
-        await poolContract.mintFee(asset1.address)
+        await poolContract.mintFee(token0.address)
+        await poolContract.mintFee(token1.address)
 
         // mint fee threshold not reached
         expect(await asset1.cash()).to.be.equal(parseEther('900.569903537643711000'))
@@ -1085,8 +1085,8 @@ describe('Pool - Fee', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('802.58027486', 8))
 
         // mint fee
-        await poolContract.mintFee(asset0.address)
-        await poolContract.mintFee(asset1.address)
+        await poolContract.mintFee(token0.address)
+        await poolContract.mintFee(token1.address)
 
         // liability and cash should increase
         expect(await asset1.cash()).to.be.equal(parseEther('802.564474955607581329'))
