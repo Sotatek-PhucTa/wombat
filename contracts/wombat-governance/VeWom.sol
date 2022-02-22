@@ -16,11 +16,6 @@ import './interfaces/IWombatNFT.sol';
 /// @title VeWom
 /// @notice Wombat Waddle: the staking contract for WOM, as well as the token used for governance.
 /// Note Waddling does not seem to slow the Wombat, it only makes it sturdier.
-/// Allows depositing/withdraw of wom and staking/unstaking ERC721.
-/// Here are the rules of the game:
-/// If you stake wom, you generate veWom at the current `generationRate` until you reach `maxCap`
-/// If you unstake any amount of wom, you loose all of your veWom.
-/// ERC721 staking does not affect generation nor cap for the moment, but it will in a future upgrade.
 /// Note that it's ownable and the owner wields tremendous power. The ownership
 /// will be transferred to a governance smart contract once Wombat is sufficiently
 /// distributed and the community can show to govern itself.
@@ -34,21 +29,6 @@ contract VeWom is
 {
     using SafeERC20 for IERC20;
 
-    struct Breeding {
-        uint48 unlockTime;
-        uint104 WomAmount;
-        uint104 veWomAmount;
-    }
-
-    struct UserInfo {
-        // uint256 amount;
-        // uint256 lastRelease; // time of last veWom claim or first deposit if user has not claimed yet
-        // the id of the currently staked nft
-        // important: the id is offset by +1 to handle tokenID = 0
-        // uint256 stakedNftId;
-        Breeding[] breedings;
-    }
-
     /// @notice the wom token
     IERC20 public wom;
 
@@ -58,44 +38,16 @@ contract VeWom is
     /// @notice the NFT contract
     IWombatNFT public nft;
 
-    /// @dev Magic value for onERC721Received
-    /// Equals to bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))
-    bytes4 private constant ERC721_RECEIVED = 0x150b7a02;
-
-    /// @notice max veWom to staked wom ratio
-    /// Note if user has 10 wom staked, they can only have a max of 10 * maxCap veWom in balance
-    uint256 public maxCap;
-
-    /// @notice the rate of veWom generated per second, per wom staked
-    uint256 public generationRate;
-
-    /// @notice invVvoteThreshold threshold.
-    /// @notice voteThreshold is the tercentage of cap from which votes starts to count for governance proposals.
-    /// @dev inverse of the threshold to apply.
-    /// Example: th = 5% => (1/5) * 100 => invVoteThreshold = 20
-    /// Example 2: th = 3.03% => (1/3.03) * 100 => invVoteThreshold = 33
-    /// Formula is invVoteThreshold = (1 / th) * 100
-    uint256 public invVoteThreshold;
-
     /// @notice whitelist wallet checker
     /// @dev contract addresses are by default unable to stake wom, they must be previously whitelisted to stake wom
     IWhitelist public whitelist;
 
-    uint32 maxBreedingLength = 10;
-    uint32 minLockDays = 7;
-    uint32 maxLockDays = 1461;
+    uint32 maxBreedingLength;
+    uint32 minLockDays;
+    uint32 maxLockDays;
 
     /// @notice user info mapping
     mapping(address => UserInfo) internal users;
-
-    /// @notice events describing staking, unstaking and claiming
-    event Staked(address indexed user, uint256 indexed amount);
-    event Unstaked(address indexed user, uint256 indexed amount);
-    event Claimed(address indexed user, uint256 indexed amount);
-
-    /// @notice events describing NFT staking and unstaking
-    event StakedNft(address indexed user, uint256 indexed nftId);
-    event UnstakedNft(address indexed user, uint256 indexed nftId);
 
     error VEWOM_OVERFLOW();
 
@@ -113,24 +65,13 @@ contract VeWom is
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
-        // set generationRate (veWom per sec per wom staked)
-        generationRate = 3888888888888;
-
-        // set maxCap
-        maxCap = 100;
-
-        // set inv vote threshold
-        // invVoteThreshold = 20 => th = 5
-        invVoteThreshold = 20;
-
-        // set master wombat
         masterWombat = _masterWombat;
-
-        // set wom
         wom = _wom;
-
-        // set nft, can be zero address at first
         nft = _nft;
+
+        maxBreedingLength = 10;
+        minLockDays = 7;
+        maxLockDays = 1461;
     }
 
     /**
@@ -168,34 +109,15 @@ contract VeWom is
         whitelist = _whitelist;
     }
 
-    /// @notice sets maxCap
-    /// @param _maxCap the new max ratio
-    function setMaxCap(uint256 _maxCap) external onlyOwner {
-        require(_maxCap != 0, 'max cap cannot be zero');
-        maxCap = _maxCap;
-    }
-
-    /// @notice sets generation rate
-    /// @param _generationRate the new max ratio
-    function setGenerationRate(uint256 _generationRate) external onlyOwner {
-        require(_generationRate != 0, 'generation rate cannot be zero');
-        generationRate = _generationRate;
-    }
-
-    /// @notice sets invVoteThreshold
-    /// @param _invVoteThreshold the new var
-    /// Formula is invVoteThreshold = (1 / th) * 100
-    function setInvVoteThreshold(uint256 _invVoteThreshold) external onlyOwner {
-        // onwner should set a high value if we do not want to implement an important threshold
-        require(_invVoteThreshold != 0, 'invVoteThreshold cannot be zero');
-        invVoteThreshold = _invVoteThreshold;
-    }
-
     /// @notice checks wether user _addr has wom staked
     /// @param _addr the user address to check
     /// @return true if the user has wom in stake, false otherwise
-    function isUser(address _addr) public view override returns (bool) {
+    function isUser(address _addr) external view override returns (bool) {
         return balanceOf(_addr) > 0;
+    }
+
+    function getUserInfo(address addr) external view override returns (UserInfo memory) {
+        return users[addr];
     }
 
     /// @dev explicity override multiple inheritance
@@ -231,15 +153,16 @@ contract VeWom is
         uint256 unlockTime = block.timestamp + 86400 * lockDays;
         uint256 veWomAmount = _expectedVeWomAmount(amount, lockDays);
 
-        if(unlockTime > uint256(type(uint48).max) revert VEWOM_OVERFLOW();
-        if(amount < uint256(type(uint104).max) revert VEWOM_OVERFLOW();
-        if(veWomAmount < uint256(type(uint104).max) revert VEWOM_OVERFLOW();
+        if (unlockTime > uint256(type(uint48).max)) revert VEWOM_OVERFLOW();
+        if (amount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
+        if (veWomAmount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
 
         users[msg.sender].breedings.push(Breeding(uint48(unlockTime), uint104(amount), uint104(veWomAmount)));
 
         // Request Wom from user
         wom.safeTransferFrom(msg.sender, address(this), amount);
 
+        // event Mint(address indexed user, uint256 indexed amount) is emitted
         _mint(msg.sender, veWomAmount);
     }
 
@@ -256,8 +179,10 @@ contract VeWom is
         }
         users[msg.sender].breedings.pop();
 
-        _burn(msg.sender, breeding.veWomAmount);
         wom.transfer(msg.sender, breeding.WomAmount);
+
+        // event Burn(address indexed user, uint256 indexed amount) is emitted
+        _burn(msg.sender, breeding.veWomAmount);
     }
 
     /// @notice asserts addres in param is not a smart contract.
@@ -278,4 +203,5 @@ contract VeWom is
     /// @param _newBalance the newVeWomBalance of the user
     function _afterTokenOperation(address _account, uint256 _newBalance) internal override {
         masterWombat.updateFactor(_account, _newBalance);
+    }
 }

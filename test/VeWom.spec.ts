@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { toUtf8Bytes } from '@ethersproject/strings'
 import { parseEther } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -62,22 +61,6 @@ describe('VeWOM', function () {
     expect(await this.veWom.totalSupply()).to.be.equal(0)
   })
 
-  it('should initialize to correct generation rate and max cap', async function () {
-    expect(await this.veWom.maxCap()).to.be.equal(100)
-    expect(await this.veWom.generationRate()).to.be.equal(3888888888888)
-  })
-
-  it('should setInvVoteThreshold', async function () {
-    expect(await this.veWom.invVoteThreshold()).to.be.equal(20)
-    await this.veWom.setInvVoteThreshold(33)
-    expect(await this.veWom.invVoteThreshold()).to.be.equal(33)
-    await expect(this.veWom.connect(users[1]).setInvVoteThreshold(33)).to.be.revertedWith(
-      'Ownable: caller is not the owner'
-    )
-
-    await expect(this.veWom.setInvVoteThreshold(0)).to.be.revertedWith('invVoteThreshold cannot be zero')
-  })
-
   it('should set MasterWombat correctly', async function () {
     await this.veWom.setMasterWombat(users[1].address)
     expect(await this.veWom.masterWombat()).to.be.equal(users[1].address)
@@ -96,30 +79,6 @@ describe('VeWOM', function () {
     // then set nft address
     await this.veWom.setNftAddress(users[10].address)
     expect(await this.veWom.nft()).to.be.equal(users[10].address)
-  })
-
-  it('should set max cap correctly', async function () {
-    // first expect to revert if called from not owner
-    await expect(this.veWom.connect(users[1]).setMaxCap(50)).to.be.revertedWith('Ownable: caller is not the owner')
-
-    await expect(this.veWom.setMaxCap(0)).to.be.revertedWith('max cap cannot be zero')
-
-    // then set nft address
-    await this.veWom.setMaxCap(50)
-    expect(await this.veWom.maxCap()).to.be.equal(50)
-  })
-
-  it('should set generation rate correctly', async function () {
-    // first expect to revert if called from not owner
-    await expect(this.veWom.connect(users[1]).setGenerationRate(3333333333333)).to.be.revertedWith(
-      'Ownable: caller is not the owner'
-    )
-
-    await expect(this.veWom.setGenerationRate(0)).to.be.revertedWith('generation rate cannot be zero')
-
-    // then set nft address
-    await this.veWom.setGenerationRate(3333333333333)
-    expect(await this.veWom.generationRate()).to.be.equal(3333333333333)
   })
 
   it('should pause and unpause', async function () {
