@@ -5,6 +5,7 @@ import { solidity } from 'ethereum-waffle'
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { ethers, upgrades } from 'hardhat'
+import { latest } from '../helpers/time'
 
 chai.use(solidity)
 
@@ -44,7 +45,7 @@ describe('Asset (proxy)', function () {
 
     // initialize pool contract
     poolContract = await upgrades.deployProxy(PoolFactory, [parseEther('0.05'), parseEther('0.0004')], {
-      unsafeAllow: ['delegatecall'],
+      unsafeAllow: ['delegatecall'], // allow unsafe delegate call as SafeERC20 is no upgradable
       kind: 'uups',
     })
 
@@ -76,6 +77,25 @@ describe('Asset (proxy)', function () {
       expect(await poolContract.haircutRate()).to.be.equal(parseEther('0.0001'))
       expect(await poolContract.retentionRatio()).to.be.equal(parseEther('0.5'))
       expect(await poolContract.lpDividendRatio()).to.be.equal(parseEther('0.5'))
+    })
+
+    it('multiple upgrade should success', async function () {
+      poolContract = await upgrades.upgradeProxy(poolContract.address, PoolFactory, { unsafeAllow: ['delegatecall'] })
+
+      poolContract = await upgrades.upgradeProxy(poolContract.address, PoolFactory, { unsafeAllow: ['delegatecall'] })
+
+      poolContract = await upgrades.upgradeProxy(poolContract.address, PoolFactory, { unsafeAllow: ['delegatecall'] })
+    })
+
+    it('should remain to be the owner of assets', async function () {
+      poolContract = await upgrades.upgradeProxy(poolContract.address, PoolFactory, { unsafeAllow: ['delegatecall'] })
+      const fiveSecondsSince = (await latest()).add(5)
+
+      await token0.connect(owner).transfer(users[0].address, parseEther('100'))
+      await token0.connect(users[0]).approve(poolContract.address, parseEther('100'))
+      await poolContract
+        .connect(users[0])
+        .deposit(token0.address, parseEther('100'), users[0].address, fiveSecondsSince)
     })
   })
 })
