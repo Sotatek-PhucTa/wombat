@@ -48,10 +48,10 @@ contract Pool is
     uint256 public haircutRate;
 
     /// @notice Retention ratio: the ratio of haircut that should stay in the pool
-    uint256 public retentionRatio = 0;
+    uint256 public retentionRatio;
 
     /// @notice LP dividend ratio : the ratio of haircut that should distribute to LP
-    uint256 public lpDividendRatio = WAD;
+    uint256 public lpDividendRatio;
 
     /// @notice The threshold to mint fee (unit: WAD)
     uint256 public mintFeeThreshold;
@@ -61,7 +61,7 @@ contract Pool is
 
     address public feeTo;
 
-    bool public shouldMaintainGlobalEquil = true;
+    bool public shouldMaintainGlobalEquil;
 
     /// @notice Dividend collected by each asset (unit: WAD)
     mapping(IAsset => uint256) private _feeCollected;
@@ -152,6 +152,9 @@ contract Pool is
 
         ampFactor = ampFactor_;
         haircutRate = haircutRate_;
+
+        lpDividendRatio = WAD;
+        shouldMaintainGlobalEquil = true;
 
         dev = msg.sender;
     }
@@ -834,9 +837,7 @@ contract Pool is
     function tipBucketBalance(address token) external view returns (uint256 balance) {
         IAsset asset = _assetOf(token);
         return
-            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
-            asset.cash() -
-            _feeCollected[asset];
+            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) - asset.cash() - _feeCollected[asset];
     }
 
     /* Utils */
