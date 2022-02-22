@@ -21,7 +21,7 @@ describe('Asset (proxy)', function () {
   let asset1: Contract
   let poolContract: Contract
 
-  beforeEach(async function () {
+  before(async function () {
     const [first, ...rest] = await ethers.getSigners()
     owner = first
     users = rest
@@ -29,8 +29,10 @@ describe('Asset (proxy)', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('Pool')
+    PoolFactory = await ethers.getContractFactory('Pool', users[9]) // set signer
+  })
 
+  beforeEach(async function () {
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
     token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8))
@@ -54,8 +56,8 @@ describe('Asset (proxy)', function () {
     await asset1.setPool(poolContract.address)
 
     // Add BUSD & USDC assets to pool
-    await poolContract.connect(owner).addAsset(token0.address, asset0.address)
-    await poolContract.connect(owner).addAsset(token1.address, asset1.address)
+    await poolContract.connect(users[9]).addAsset(token0.address, asset0.address)
+    await poolContract.connect(users[9]).addAsset(token1.address, asset1.address)
   })
 
   describe('deploy', async function () {
@@ -96,6 +98,16 @@ describe('Asset (proxy)', function () {
       await poolContract
         .connect(users[0])
         .deposit(token0.address, parseEther('100'), users[0].address, fiveSecondsSince)
+    })
+
+    it('change admin', async function () {
+      await poolContract.connect(users[9]).transferOwnership(users[10].address)
+
+      expect(await poolContract.owner()).to.equal(users[10].address)
+      const newPoolFactoryOwner = await ethers.getContractFactory('Pool', users[10])
+      poolContract = await upgrades.upgradeProxy(poolContract.address, newPoolFactoryOwner, {
+        unsafeAllow: ['delegatecall'],
+      })
     })
   })
 })
