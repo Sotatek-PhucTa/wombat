@@ -45,6 +45,7 @@ describe('Asset (proxy)', function () {
     // initialize pool contract
     poolContract = await upgrades.deployProxy(PoolFactory, [parseEther('0.05'), parseEther('0.0004')], {
       unsafeAllow: ['delegatecall'],
+      kind: 'uups',
     })
 
     // set pool address

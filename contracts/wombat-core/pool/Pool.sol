@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.5;
 
-import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
@@ -22,6 +23,7 @@ import './PausableAssets.sol';
  */
 contract Pool is
     Initializable,
+    UUPSUpgradeable,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
@@ -147,6 +149,7 @@ contract Pool is
      */
     function initialize(uint256 ampFactor_, uint256 haircutRate_) external initializer {
         __Ownable_init();
+        __UUPSUpgradeable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
@@ -158,6 +161,8 @@ contract Pool is
 
         dev = msg.sender;
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /**
      * @dev pause pool, restricting certain operations
