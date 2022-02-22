@@ -534,6 +534,8 @@ contract MasterWombat is
     }
 
     /// @notice updates factor after any veWom token operation (minting/burning)
+    /// DOS is possible if number of pools is too much that gas exceeds block gas limit
+    /// Should be pretty safe as long as number of pools < 100
     /// @param userAddress the user to update
     /// @param newVeWomBalance the amount of veWom
     /// @dev can only be called by veWom
