@@ -97,6 +97,8 @@ contract VeWom is
     event StakedNft(address indexed user, uint256 indexed nftId);
     event UnstakedNft(address indexed user, uint256 indexed nftId);
 
+    error VEWOM_OVERFLOW();
+
     function initialize(
         IERC20 _wom,
         IMasterWombat _masterWombat,
@@ -229,16 +231,16 @@ contract VeWom is
         uint256 unlockTime = block.timestamp + 86400 * lockDays;
         uint256 veWomAmount = _expectedVeWomAmount(amount, lockDays);
 
-        require(unlockTime <= uint256(type(uint48).max), "SafeCast: value doesn't fit");
-        require(amount <= uint256(type(uint104).max), "SafeCast: value doesn't fit");
-        require(veWomAmount <= uint256(type(uint104).max), "SafeCast: value doesn't fit");
+        if(unlockTime > uint256(type(uint48).max) revert VEWOM_OVERFLOW();
+        if(amount < uint256(type(uint104).max) revert VEWOM_OVERFLOW();
+        if(veWomAmount < uint256(type(uint104).max) revert VEWOM_OVERFLOW();
 
         users[msg.sender].breedings.push(Breeding(uint48(unlockTime), uint104(amount), uint104(veWomAmount)));
 
-        _mint(msg.sender, veWomAmount);
-
         // Request Wom from user
         wom.safeTransferFrom(msg.sender, address(this), amount);
+
+        _mint(msg.sender, veWomAmount);
     }
 
     function burn(uint256 slot) external override nonReentrant whenNotPaused {
@@ -276,72 +278,4 @@ contract VeWom is
     /// @param _newBalance the newVeWomBalance of the user
     function _afterTokenOperation(address _account, uint256 _newBalance) internal override {
         masterWombat.updateFactor(_account, _newBalance);
-    }
-
-    // /// @notice This function is called when users stake NFTs
-    // /// When Wombat NFT sent via safeTransferFrom(), we regard this action as staking the NFT
-    // /// Note that transferFrom() is ignored by this function
-    // function onERC721Received(
-    //     address,
-    //     address _from,
-    //     uint256 _tokenId,
-    //     bytes calldata
-    // ) external override nonReentrant whenNotPaused returns (bytes4) {
-    //     require(msg.sender == address(nft), 'only wombat NFT can be received');
-    //     require(isUser(_from), 'user has no stake');
-
-    //     // User has previously staked some NFT, try to unstake it first
-    //     if (users[_from].stakedNftId != 0) {
-    //         _unstakeNft(_from);
-    //     }
-
-    //     users[_from].stakedNftId = _tokenId + 1;
-
-    //     emit StakedNft(_from, _tokenId);
-
-    //     return ERC721_RECEIVED;
-    // }
-
-    // /// @notice unstakes current user nft
-    // function unstakeNft() external override nonReentrant whenNotPaused {
-    //     _unstakeNft(msg.sender);
-    // }
-
-    // /// @notice private function used to unstake nft
-    // /// @param _addr the address of the nft owner
-    // function _unstakeNft(address _addr) private {
-    //     uint256 stakedNftId = users[_addr].stakedNftId;
-    //     require(stakedNftId > 0, 'No NFT is staked');
-    //     uint256 nftId = stakedNftId - 1;
-
-    //     nft.safeTransferFrom(address(this), _addr, nftId, '');
-
-    //     users[_addr].stakedNftId = 0;
-    //     emit UnstakedNft(_addr, nftId);
-    // }
-
-    // /// @notice gets id of the staked nft
-    // /// @param _addr the addres of the nft staker
-    // /// @return id of the staked nft by _addr user
-    // /// if the user haven't stake any nft, tx reverts
-    // function getStakedNft(address _addr) external view override(IVeWom) returns (uint256) {
-    //     uint256 stakedNftId = users[_addr].stakedNftId;
-    //     require(stakedNftId > 0, 'not staking');
-    //     return stakedNftId - 1;
-    // }
-
-    // /// @notice get votes for veWOM
-    // /// @dev votes should only count if account has > threshold% of current cap reached
-    // /// @dev invVoteThreshold = (1/threshold%)*100
-    // /// @return the valid votes
-    // function getVotes(address _account) external view virtual override returns (uint256) {
-    //     uint256 veWomBalance = balanceOf(_account);
-
-    //     // check that user has more than voting treshold of maxCap and has wom in stake
-    //     if (veWomBalance * invVoteThreshold > users[_account].amount * maxCap && isUser(_account)) {
-    //         return veWomBalance;
-    //     } else {
-    //         return 0;
-    //     }
-    // }
 }
