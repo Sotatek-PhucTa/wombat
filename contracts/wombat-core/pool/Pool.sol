@@ -834,9 +834,7 @@ contract Pool is
     function tipBucketBalance(address token) external view returns (uint256 balance) {
         IAsset asset = _assetOf(token);
         return
-            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
-            asset.cash() -
-            _feeCollected[asset];
+            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) - asset.cash() - _feeCollected[asset];
     }
 
     /* Utils */
