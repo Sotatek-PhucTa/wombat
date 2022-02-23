@@ -113,6 +113,9 @@ describe('Asset (proxy)', function () {
       poolContract = await upgrades.upgradeProxy(poolContract.address, newPoolFactoryOwner, {
         unsafeAllow: ['delegatecall'],
       })
+
+      // should keep ownership
+      expect(await poolContract.owner()).to.equal(newPoolOwner.address)
     })
 
     it('should change implementation address', async function () {
