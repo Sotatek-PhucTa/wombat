@@ -132,7 +132,7 @@ describe('VeWOM', function () {
     expect(await this.veWom.whitelist()).to.be.equal(this.whitelist.address)
 
     // mint via mockAttacker
-    await expect(this.mockAttacker.mint(100, 7)).to.be.ok
+    await expect(this.mockAttacker.mint(100, 7)).to.not.reverted
 
     // should also revoke wallet approriately
     await this.whitelist.revokeWallet(this.mockAttacker.address)

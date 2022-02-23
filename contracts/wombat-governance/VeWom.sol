@@ -138,23 +138,19 @@ contract VeWom is
     /// @notice lock WOM into contract and mint veWOM
     function mint(uint256 amount, uint256 lockDays) external override nonReentrant whenNotPaused {
         require(amount > 0, 'amount to deposit cannot be zero');
+        if (amount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
 
         // assert call is not coming from a smart contract
         // unless it is whitelisted
         _assertNotContract(msg.sender);
 
-        uint256 maxBreedingLength_ = maxBreedingLength;
-        uint256 minLockDays_ = minLockDays;
-        uint256 maxLockdays_ = maxLockDays;
+        require(lockDays >= uint256(minLockDays) && lockDays <= uint256(maxLockDays), 'lock days is invalid');
+        require(users[msg.sender].breedings.length < uint256(maxBreedingLength), 'breed too much');
 
-        require(lockDays >= minLockDays_ && lockDays <= maxLockdays_, 'lock days is invalid');
-        require(users[msg.sender].breedings.length < maxBreedingLength_, 'breed too much');
-
-        uint256 unlockTime = block.timestamp + 86400 * lockDays;
+        uint256 unlockTime = block.timestamp + 86400 * lockDays; // seconds in a day = 86400
         uint256 veWomAmount = _expectedVeWomAmount(amount, lockDays);
 
         if (unlockTime > uint256(type(uint48).max)) revert VEWOM_OVERFLOW();
-        if (amount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
         if (veWomAmount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
 
         users[msg.sender].breedings.push(Breeding(uint48(unlockTime), uint104(amount), uint104(veWomAmount)));
