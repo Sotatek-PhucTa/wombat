@@ -99,6 +99,8 @@ describe('Asset (proxy)', function () {
 
       await token0.connect(owner).transfer(users[0].address, parseEther('100'))
       await token0.connect(users[0]).approve(poolContract.address, parseEther('100'))
+
+      // Pool is still the owner of Asset
       await poolContract
         .connect(users[0])
         .deposit(token0.address, parseEther('100'), users[0].address, fiveSecondsSince)
