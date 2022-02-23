@@ -2,19 +2,23 @@ import { parseEther } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { BigNumber, Contract, ContractFactory } from 'ethers'
+import { Contract, ContractFactory } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { ethers, upgrades } from 'hardhat'
 import { latest } from '../helpers/time'
 
 chai.use(solidity)
 
+const proxyImplAddr = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc' // EIP1967
+
 describe('Asset (proxy)', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
+  let poolOwner: SignerWithAddress
   let AssetFactory: ContractFactory
   let TestERC20Factory: ContractFactory
   let PoolFactory: ContractFactory
+  let DummyPoolFactory: ContractFactory
   let token0: Contract
   let token1: Contract
   let asset0: Contract
@@ -22,14 +26,14 @@ describe('Asset (proxy)', function () {
   let poolContract: Contract
 
   before(async function () {
-    const [first, ...rest] = await ethers.getSigners()
-    owner = first
-    users = rest
+    ;[owner, ...users] = await ethers.getSigners()
+    poolOwner = users[9]
 
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('Pool', users[9]) // set signer
+    PoolFactory = await ethers.getContractFactory('Pool', poolOwner) // set signer
+    DummyPoolFactory = await ethers.getContractFactory('TestPoolV2', poolOwner)
   })
 
   beforeEach(async function () {
@@ -40,10 +44,10 @@ describe('Asset (proxy)', function () {
     asset1 = await AssetFactory.deploy(token1.address, 'Venus USD LP', 'vUSDC-LP')
 
     // wait for transactions to be mined
-    await token0.deployTransaction.wait()
-    await token1.deployTransaction.wait()
-    await asset0.deployTransaction.wait()
-    await asset1.deployTransaction.wait()
+    await token0.deployed()
+    await token1.deployed()
+    await asset0.deployed()
+    await asset1.deployed()
 
     // initialize pool contract
     poolContract = await upgrades.deployProxy(PoolFactory, [parseEther('0.05'), parseEther('0.0004')], {
@@ -56,8 +60,8 @@ describe('Asset (proxy)', function () {
     await asset1.setPool(poolContract.address)
 
     // Add BUSD & USDC assets to pool
-    await poolContract.connect(users[9]).addAsset(token0.address, asset0.address)
-    await poolContract.connect(users[9]).addAsset(token1.address, asset1.address)
+    await poolContract.connect(poolOwner).addAsset(token0.address, asset0.address)
+    await poolContract.connect(poolOwner).addAsset(token1.address, asset1.address)
   })
 
   describe('deploy', async function () {
@@ -101,13 +105,24 @@ describe('Asset (proxy)', function () {
     })
 
     it('change admin', async function () {
-      await poolContract.connect(users[9]).transferOwnership(users[10].address)
+      const newPoolOwner = users[10]
+      await poolContract.connect(users[9]).transferOwnership(newPoolOwner.address)
 
-      expect(await poolContract.owner()).to.equal(users[10].address)
-      const newPoolFactoryOwner = await ethers.getContractFactory('Pool', users[10])
+      expect(await poolContract.owner()).to.equal(newPoolOwner.address)
+      const newPoolFactoryOwner = await ethers.getContractFactory('Pool', newPoolOwner)
       poolContract = await upgrades.upgradeProxy(poolContract.address, newPoolFactoryOwner, {
         unsafeAllow: ['delegatecall'],
       })
+    })
+
+    it('should change implementation address', async function () {
+      const implAddr = await users[0].provider?.getStorageAt(poolContract.address, proxyImplAddr)
+
+      await upgrades.upgradeProxy(poolContract.address, DummyPoolFactory, {
+        unsafeAllow: ['delegatecall'],
+      })
+
+      expect(await users[0]?.provider?.getStorageAt(poolContract.address, proxyImplAddr)).to.not.equal(implAddr)
     })
   })
 })

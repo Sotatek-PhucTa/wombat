@@ -10,13 +10,12 @@ coverage.json
 # Hardhat files
 cache
 artifacts
-src/types/
 deployments/**/solcInputs
 deployments/localhost
 build
 
 # OZ
-.openzeppelin/
+.openzeppelin/unknown-*.json
 
 # Mac
 .DS_Store
