@@ -149,7 +149,7 @@ contract Pool is
      */
     function initialize(uint256 ampFactor_, uint256 haircutRate_) external initializer {
         __Ownable_init();
-        __UUPSUpgradeable_init();
+        __UUPSUpgradeable_init_unchained();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
