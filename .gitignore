@@ -7,16 +7,17 @@ typechain
 coverage/
 coverage.json
 
-#Hardhat files
+# Hardhat files
 cache
 artifacts
-src/types/
 deployments/**/solcInputs
 deployments/localhost
 build
+
+# OZ
+.openzeppelin/unknown-*.json
 
 # Mac
 .DS_Store
 .vscode
 .vscode/launch.json
-

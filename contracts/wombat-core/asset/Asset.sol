@@ -56,17 +56,6 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
         string memory name_,
         string memory symbol_
     ) ERC20(name_, symbol_) ERC20Permit(name_) {
-        initialize(underlyingToken_);
-    }
-
-    /**
-     * @notice Initializer.
-     * @dev _ suffix to avoid shadowing underlyingToken() name and  symbol
-     * @param underlyingToken_ The token represented by the asset
-     */
-    function initialize(address underlyingToken_) public initializer {
-        require(underlyingToken_ != address(0), 'Wombat: Token address cannot be zero');
-
         underlyingToken = underlyingToken_;
     }
 

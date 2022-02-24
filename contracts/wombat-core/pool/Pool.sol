@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.5;
 
-import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
@@ -22,6 +23,7 @@ import './PausableAssets.sol';
  */
 contract Pool is
     Initializable,
+    UUPSUpgradeable,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
@@ -48,10 +50,10 @@ contract Pool is
     uint256 public haircutRate;
 
     /// @notice Retention ratio: the ratio of haircut that should stay in the pool
-    uint256 public retentionRatio = 0;
+    uint256 public retentionRatio;
 
     /// @notice LP dividend ratio : the ratio of haircut that should distribute to LP
-    uint256 public lpDividendRatio = WAD;
+    uint256 public lpDividendRatio;
 
     /// @notice The threshold to mint fee (unit: WAD)
     uint256 public mintFeeThreshold;
@@ -61,7 +63,7 @@ contract Pool is
 
     address public feeTo;
 
-    bool public shouldMaintainGlobalEquil = true;
+    bool public shouldMaintainGlobalEquil;
 
     /// @notice Dividend collected by each asset (unit: WAD)
     mapping(IAsset => uint256) private _feeCollected;
@@ -147,14 +149,20 @@ contract Pool is
      */
     function initialize(uint256 ampFactor_, uint256 haircutRate_) external initializer {
         __Ownable_init();
+        __UUPSUpgradeable_init_unchained();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
         ampFactor = ampFactor_;
         haircutRate = haircutRate_;
 
+        lpDividendRatio = WAD;
+        shouldMaintainGlobalEquil = true;
+
         dev = msg.sender;
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /**
      * @dev pause pool, restricting certain operations
