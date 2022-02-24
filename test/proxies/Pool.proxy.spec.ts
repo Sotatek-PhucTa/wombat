@@ -93,7 +93,7 @@ describe('Asset (proxy)', function () {
       poolContract = await upgrades.upgradeProxy(poolContract.address, PoolFactory, { unsafeAllow: ['delegatecall'] })
     })
 
-    it('should remain to be the owner of assets', async function () {
+    it('should not change assets', async function () {
       poolContract = await upgrades.upgradeProxy(poolContract.address, PoolFactory, { unsafeAllow: ['delegatecall'] })
       const fiveSecondsSince = (await latest()).add(5)
 
@@ -108,7 +108,7 @@ describe('Asset (proxy)', function () {
 
     it('change admin', async function () {
       const newPoolOwner = users[10]
-      await poolContract.connect(users[9]).transferOwnership(newPoolOwner.address)
+      await poolContract.connect(poolOwner).transferOwnership(newPoolOwner.address)
 
       expect(await poolContract.owner()).to.equal(newPoolOwner.address)
       const newPoolFactoryOwner = await ethers.getContractFactory('Pool', newPoolOwner)
