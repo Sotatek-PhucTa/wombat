@@ -17,7 +17,7 @@ import './PausableAssets.sol';
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
- * Note: All variables are 18 decimals, except from th amount of underlying token
+ * Note: All variables are 18 decimals, except from that of underlying tokens
  */
 contract Pool is
     Initializable,
