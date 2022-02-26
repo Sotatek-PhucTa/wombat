@@ -19,12 +19,4 @@ contract MockVeWom is Initializable, VeWom {
     function faucet(uint256 _amount) public {
         _mint(msg.sender, _amount);
     }
-
-    function transfer(address _beneficiary, uint256 _amount) public {
-        _mint(_beneficiary, _amount);
-    }
-
-    function burn(address _account, uint256 _amount) public {
-        _burn(_account, _amount);
-    }
 }

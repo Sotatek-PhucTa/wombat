@@ -10,13 +10,16 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import '../wombat-governance/libraries/DSMath.sol';
+import './libraries/DSMath.sol';
 import './interfaces/IVeWom.sol';
+import './interfaces/IWom.sol';
 import './interfaces/IMasterWombat.sol';
 import './interfaces/IRewarder.sol';
 
-/// This contract rewards users in function of their amount of LP staked factor
-/// Factor and sumOfFactors are updated by contract veWom.sol after any veWom minting/burning (veERC20Upgradeable hook).
+/// MasterWombat is a boss. He says "go f your blocks maki boy, I'm gonna use timestamp instead"
+/// In addition, he feeds himself from Venom. So, veWom holders boost their (boosting) emissions.
+/// This contract rewards users in function of their amount of lp staked (base pool) factor (boosting pool)
+/// Factor and sumOfFactors are updated by contract VeWom.sol after any veWom minting/burning (veERC20Upgradeable hook).
 /// Note that it's ownable and the owner wields tremendous power. The ownership
 /// will be transferred to a governance smart contract once Wombat is sufficiently
 /// distributed and the community can show to govern itself.
@@ -27,7 +30,6 @@ contract MasterWombat is
     PausableUpgradeable,
     IMasterWombat
 {
-    using DSMath for uint256;
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -35,15 +37,16 @@ contract MasterWombat is
     struct UserInfo {
         uint256 amount; // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
-        uint256 factor; // calculated by _getFactor()
+        uint256 factor; // boosting factor = sqrt (lpAmount * veWom.balanceOf())
         //
         // We do some fancy math here. Basically, any point in time, the amount of WOMs
         // entitled to a user but is pending to be distributed is:
         //
-        //   (user.factor * pool.accWomPerShare) / 1e12 - user.rewardDebt
+        //   ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) -
+        //        user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accWomPerShare` and lastRewardTimestamp` gets updated.
+        //   1. The pool's `accWomPerShare`, `accWomPerFactorShare` (and `lastRewardTimestamp`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -56,18 +59,23 @@ contract MasterWombat is
         uint256 lastRewardTimestamp; // Last timestamp that WOMs distribution occurs.
         uint256 accWomPerShare; // Accumulated WOMs per share, times 1e12.
         IRewarder rewarder;
-        uint256 sumOfFactors; // the sum of all factors by all of the users in the pool
+        uint256 sumOfFactors; // the sum of all boosting factors by all of the users in the pool
+        uint256 accWomPerFactorShare; // accumulated wom per factor share
     }
 
-    // WOM Token
+    // Wom token
     IERC20 public wom;
     // Venom does not seem to hurt the Wombat, it only makes it stronger.
     IVeWom public veWom;
-    // New MasterWombat address for future migrations
-    // IMasterWombat newMasterWombat;
+    // New Master Wombat address for future migrations
     IMasterWombat newMasterWombat;
     // WOM tokens created per second.
     uint256 public womPerSec;
+    // Emissions: both must add to 1000 => 100%
+    // base partition emissions (e.g. 300 for 30%)
+    uint256 public basePartition;
+    // boosting partition emissions (e.g. 500 for 50%)
+    uint256 public boostingPartition;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint;
     // The timestamp when WOM mining starts.
@@ -78,7 +86,7 @@ contract MasterWombat is
     EnumerableSet.AddressSet private lpTokens;
     // Info of each user that stakes LP tokens.
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
-    // Amount of pending WOM the user has
+    // Amount of pending wom the user has
     mapping(uint256 => mapping(address => uint256)) public pendingWom;
 
     event Add(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken, IRewarder indexed rewarder);
@@ -86,11 +94,12 @@ contract MasterWombat is
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event DepositFor(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
-    event UpdatePool(uint256 indexed pid, uint256 lastRewardTimestamp, uint256 sumOfFactors, uint256 accWomPerShare);
+    event UpdatePool(uint256 indexed pid, uint256 lastRewardTimestamp, uint256 lpSupply, uint256 accWomPerShare);
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event UpdateEmissionRate(address indexed user, uint256 womPerSec);
-    event UpdateVeWom(address indexed user, address oldVeWom, address newVeWom);
+    event UpdateEmissionPartition(address indexed user, uint256 basePartition, uint256 boostingPartition);
+    event UpdateVeWOM(address indexed user, address oldVeWOM, address newVeWOM);
 
     /// @dev Modifier ensuring that certain function can only be called by VeWom
     modifier onlyVeWom() {
@@ -99,23 +108,28 @@ contract MasterWombat is
     }
 
     function initialize(
-        IERC20 wom_,
-        IVeWom veWom_,
-        uint256 womPerSec_,
-        uint256 startTimestamp_
+        IERC20 _wom,
+        IVeWom _veWom,
+        uint256 _womPerSec,
+        uint256 _basePartition,
+        uint256 _startTimestamp
     ) external initializer {
-        require(address(wom_) != address(0), 'wom address cannot be zero');
-        require(address(veWom_) != address(0), 'veWom address cannot be zero');
-        require(womPerSec_ != 0, 'wom per sec cannot be zero');
+        require(address(_wom) != address(0), 'wom address cannot be zero');
+        require(address(_veWom) != address(0), 'veWom address cannot be zero');
+        require(_womPerSec != 0, 'wom per sec cannot be zero');
+        require(_basePartition <= 1000, 'base partition must be in range 0, 1000');
 
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
-        wom = wom_;
-        veWom = veWom_;
-        womPerSec = womPerSec_;
-        startTimestamp = startTimestamp_;
+        wom = _wom;
+        veWom = _veWom;
+        womPerSec = _womPerSec;
+        basePartition = _basePartition;
+        boostingPartition = 1000 - _basePartition;
+        startTimestamp = _startTimestamp;
+        totalAllocPoint = 0;
     }
 
     /**
@@ -141,24 +155,22 @@ contract MasterWombat is
         return poolInfo.length;
     }
 
-    /* Pool Configuration */
-
     /// @notice Add a new lp to the pool. Can only be called by the owner.
     /// @dev Reverts if the same LP token is added more than once.
-    /// @param allocPoint allocation points for this LP
-    /// @param lpToken the corresponding lp token
-    /// @param rewarder the rewarder
+    /// @param _allocPoint allocation points for this LP
+    /// @param _lpToken the corresponding lp token
+    /// @param _rewarder the rewarder
     function add(
-        uint256 allocPoint,
-        IERC20 lpToken,
-        IRewarder rewarder
+        uint256 _allocPoint,
+        IERC20 _lpToken,
+        IRewarder _rewarder
     ) public onlyOwner {
-        require(Address.isContract(address(lpToken)), 'add: LP token must be a valid contract');
+        require(Address.isContract(address(_lpToken)), 'add: LP token must be a valid contract');
         require(
-            Address.isContract(address(rewarder)) || address(rewarder) == address(0),
+            Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
             'add: rewarder must be contract or zero'
         );
-        require(!lpTokens.contains(address(lpToken)), 'add: LP already added');
+        require(!lpTokens.contains(address(_lpToken)), 'add: LP already added');
 
         // update all pools
         massUpdatePools();
@@ -166,76 +178,56 @@ contract MasterWombat is
         // update last time rewards were calculated to now
         uint256 lastRewardTimestamp = block.timestamp > startTimestamp ? block.timestamp : startTimestamp;
 
-        // add allocPoint to total alloc points
-        totalAllocPoint = totalAllocPoint + allocPoint;
+        // add _allocPoint to total alloc points
+        totalAllocPoint = totalAllocPoint + _allocPoint;
 
         // update PoolInfo with the new LP
         poolInfo.push(
             PoolInfo({
-                lpToken: lpToken,
-                allocPoint: allocPoint,
+                lpToken: _lpToken,
+                allocPoint: _allocPoint,
                 lastRewardTimestamp: lastRewardTimestamp,
                 accWomPerShare: 0,
-                rewarder: rewarder,
-                sumOfFactors: 0
+                rewarder: _rewarder,
+                sumOfFactors: 0,
+                accWomPerFactorShare: 0
             })
         );
 
         // add lpToken to the lpTokens enumerable set
-        lpTokens.add(address(lpToken));
-        emit Add(poolInfo.length - 1, allocPoint, lpToken, rewarder);
+        lpTokens.add(address(_lpToken));
+        emit Add(poolInfo.length - 1, _allocPoint, _lpToken, _rewarder);
     }
 
     /// @notice Update the given pool's WOM allocation point. Can only be called by the owner.
-    /// @param pid the pool id
-    /// @param allocPoint allocation points
-    /// @param rewarder the rewarder
+    /// @param _pid the pool id
+    /// @param _allocPoint allocation points
+    /// @param _rewarder the rewarder
     /// @param overwrite overwrite rewarder?
     function set(
-        uint256 pid,
-        uint256 allocPoint,
-        IRewarder rewarder,
+        uint256 _pid,
+        uint256 _allocPoint,
+        IRewarder _rewarder,
         bool overwrite
     ) public onlyOwner {
         require(
-            Address.isContract(address(rewarder)) || address(rewarder) == address(0),
+            Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
             'set: rewarder must be contract or zero'
         );
         massUpdatePools();
-        totalAllocPoint = totalAllocPoint - poolInfo[pid].allocPoint + allocPoint;
-        poolInfo[pid].allocPoint = allocPoint;
+        totalAllocPoint = totalAllocPoint - poolInfo[_pid].allocPoint + _allocPoint;
+        poolInfo[_pid].allocPoint = _allocPoint;
         if (overwrite) {
-            poolInfo[pid].rewarder = rewarder;
+            poolInfo[_pid].rewarder = _rewarder;
         }
-        emit Set(pid, allocPoint, overwrite ? rewarder : poolInfo[pid].rewarder, overwrite);
+        emit Set(_pid, _allocPoint, overwrite ? _rewarder : poolInfo[_pid].rewarder, overwrite);
     }
-
-    /// @notice updates emission rate
-    /// @param womPerSec_ wom emission rate to be updated
-    /// @dev Pancake has to add hidden dummy pools inorder to alter the emission,
-    /// @dev here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 womPerSec_) external onlyOwner {
-        massUpdatePools();
-        womPerSec = womPerSec_;
-        emit UpdateEmissionRate(msg.sender, womPerSec);
-    }
-
-    /// @notice updates veWom address
-    /// @param _newVeWom the new veWom address
-    function setVeWom(IVeWom _newVeWom) external onlyOwner {
-        require(address(_newVeWom) != address(0));
-        massUpdatePools();
-        IVeWom oldVeWom = veWom;
-        veWom = _newVeWom;
-        emit UpdateVeWom(msg.sender, address(oldVeWom), address(_newVeWom));
-    }
-
-    /* Rewards */
 
     /// @notice View function to see pending WOMs on frontend.
-    /// @param pid the pool id
-    /// @param userAddress the user address
-    function pendingTokens(uint256 pid, address userAddress)
+    /// @param _pid the pool id
+    /// @param _user the user address
+    /// TODO include factor operations
+    function pendingTokens(uint256 _pid, address _user)
         external
         view
         override
@@ -246,32 +238,39 @@ contract MasterWombat is
             uint256 pendingBonusRewards
         )
     {
-        PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][userAddress];
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][_user];
         uint256 accWomPerShare = pool.accWomPerShare;
-        if (block.timestamp > pool.lastRewardTimestamp && pool.sumOfFactors != 0) {
+        uint256 accWomPerFactorShare = pool.accWomPerFactorShare;
+        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        if (block.timestamp > pool.lastRewardTimestamp && lpSupply != 0) {
             uint256 secondsElapsed = block.timestamp - pool.lastRewardTimestamp;
             uint256 womReward = (secondsElapsed * womPerSec * pool.allocPoint) / totalAllocPoint;
-            accWomPerShare += (womReward * 1e12) / pool.sumOfFactors;
+            accWomPerShare += (womReward * 1e12 * basePartition) / (lpSupply * 1000);
+            if (pool.sumOfFactors != 0) {
+                accWomPerFactorShare += (womReward * 1e12 * boostingPartition) / (pool.sumOfFactors * 1000);
+            }
         }
-        pendingRewards = (user.factor * accWomPerShare) / 1e12 + pendingWom[pid][userAddress] - user.rewardDebt;
-
+        pendingRewards =
+            ((user.amount * accWomPerShare + user.factor * accWomPerFactorShare) / 1e12) +
+            pendingWom[_pid][_user] -
+            user.rewardDebt;
         // If it's a double reward farm, we return info about the bonus token
         if (address(pool.rewarder) != address(0)) {
-            (bonusTokenAddress, bonusTokenSymbol) = rewarderBonusTokenInfo(pid);
-            pendingBonusRewards = pool.rewarder.pendingTokens(userAddress);
+            (bonusTokenAddress, bonusTokenSymbol) = rewarderBonusTokenInfo(_pid);
+            pendingBonusRewards = pool.rewarder.pendingTokens(_user);
         }
     }
 
     /// @notice Get bonus token info from the rewarder contract for a given pool, if it is a double reward farm
-    /// @param pid the pool id
-    function rewarderBonusTokenInfo(uint256 pid)
+    /// @param _pid the pool id
+    function rewarderBonusTokenInfo(uint256 _pid)
         public
         view
         override
         returns (address bonusTokenAddress, string memory bonusTokenSymbol)
     {
-        PoolInfo storage pool = poolInfo[pid];
+        PoolInfo storage pool = poolInfo[_pid];
         if (address(pool.rewarder) != address(0)) {
             bonusTokenAddress = address(pool.rewarder.rewardToken());
             bonusTokenSymbol = IERC20Metadata(pool.rewarder.rewardToken()).symbol();
@@ -288,17 +287,19 @@ contract MasterWombat is
     }
 
     /// @notice Update reward variables of the given pool to be up-to-date.
-    /// @param pid the pool id
-    function updatePool(uint256 pid) external override {
-        _updatePool(pid);
+    /// @param _pid the pool id
+    function updatePool(uint256 _pid) external override {
+        _updatePool(_pid);
     }
 
-    function _updatePool(uint256 pid) private {
-        PoolInfo storage pool = poolInfo[pid];
+    function _updatePool(uint256 _pid) private {
+        PoolInfo storage pool = poolInfo[_pid];
         // update only if now > last time we updated rewards
         if (block.timestamp > pool.lastRewardTimestamp) {
-            // if sumOfFactors is 0, update lastRewardTime and quit function
-            if (pool.sumOfFactors == 0) {
+            uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+
+            // if balance of lp supply is 0, update lastRewardTime and quit function
+            if (lpSupply == 0) {
                 pool.lastRewardTimestamp = block.timestamp;
                 return;
             }
@@ -307,16 +308,25 @@ contract MasterWombat is
 
             // calculate wom reward
             uint256 womReward = (secondsElapsed * womPerSec * pool.allocPoint) / totalAllocPoint;
-            pool.accWomPerShare += (womReward * 1e12) / pool.sumOfFactors;
+
+            // update accWomPerShare to reflect base rewards
+            pool.accWomPerShare += (womReward * 1e12 * basePartition) / (lpSupply * 1000);
+
+            // update accWomPerFactorShare to reflect boosting rewards
+            if (pool.sumOfFactors == 0) {
+                pool.accWomPerFactorShare = 0;
+            } else {
+                pool.accWomPerFactorShare += (womReward * 1e12 * boostingPartition) / (pool.sumOfFactors * 1000);
+            }
 
             // update lastRewardTimestamp to now
             pool.lastRewardTimestamp = block.timestamp;
-            emit UpdatePool(pid, pool.lastRewardTimestamp, pool.sumOfFactors, pool.accWomPerShare);
+            emit UpdatePool(_pid, pool.lastRewardTimestamp, lpSupply, pool.accWomPerShare);
         }
     }
 
     /// @notice Helper function to migrate fund from multiple pools to the new MasterWombat.
-    /// @notice user must initiate transaction from MasterWombat
+    /// @notice user must initiate transaction from masterchef
     /// @dev Assume the orginal MasterWombat has stopped emisions
     /// hence we can skip updatePool() to save gas cost
     function migrate(uint256[] calldata _pids) external override nonReentrant {
@@ -339,214 +349,307 @@ contract MasterWombat is
         }
     }
 
-    /// @notice Deposit LP tokens to MasterWombat for WOM allocation.
-    /// @dev it is possible to call this function with amount == 0 to claim current rewards
-    /// @param pid the pool id
-    /// @param amount amount to deposit
-    function deposit(uint256 pid, uint256 amount)
+    /// @notice Deposit LP tokens to MasterChef for WOM allocation on behalf of user
+    /// @dev user must initiate transaction from masterchef
+    /// @param _pid the pool id
+    /// @param _amount amount to deposit
+    /// @param _user the user being represented
+    function depositFor(
+        uint256 _pid,
+        uint256 _amount,
+        address _user
+    ) external override nonReentrant {
+        require(tx.origin == _user, 'depositFor: wut?');
+
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][_user];
+
+        // update pool in case user has deposited
+        _updatePool(_pid);
+        if (user.amount > 0) {
+            // Harvest WOM
+            uint256 pending = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) +
+                pendingWom[_pid][_user] -
+                user.rewardDebt;
+            pendingWom[_pid][_user] = 0;
+
+            pending = safeWomTransfer(payable(_user), pending);
+            emit Harvest(_user, _pid, pending);
+        }
+
+        // update amount of lp staked by user
+        user.amount += _amount;
+
+        // update boosting factor
+        uint256 oldFactor = user.factor;
+        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(_user));
+        pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
+
+        // update reward debt
+        user.rewardDebt = (user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12;
+
+        IRewarder rewarder = poolInfo[_pid].rewarder;
+        if (address(rewarder) != address(0)) {
+            rewarder.onReward(_user, user.amount);
+        }
+
+        pool.lpToken.safeTransferFrom(msg.sender, address(this), _amount);
+        emit DepositFor(_user, _pid, _amount);
+    }
+
+    /// @notice Deposit LP tokens to MasterChef for WOM allocation.
+    /// @dev it is possible to call this function with _amount == 0 to claim current rewards
+    /// @param _pid the pool id
+    /// @param _amount amount to deposit
+    function deposit(uint256 _pid, uint256 _amount)
         external
         override
         nonReentrant
         whenNotPaused
-        returns (uint256 rewards, uint256 additionalRewards)
+        returns (uint256, uint256)
     {
-        PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][msg.sender];
-        rewards = _claim(pid, msg.sender);
-
-        _updateAmount(pid, msg.sender, user.amount + amount, veWom.balanceOf(msg.sender));
-
-        additionalRewards = _onReward(pool.rewarder, msg.sender, user.amount);
-
-        pool.lpToken.safeTransferFrom(address(msg.sender), address(this), amount);
-        emit Deposit(msg.sender, pid, amount);
-    }
-
-    /// @notice Deposit LP tokens to MasterWombat for WOM allocation on behalf of user
-    /// @dev user must initiate transaction from MasterWombat
-    /// @param pid the pool id
-    /// @param amount amount to deposit
-    /// @param userAddress the user being represented
-    function depositFor(
-        uint256 pid,
-        uint256 amount,
-        address userAddress
-    ) external override nonReentrant {
-        require(tx.origin == userAddress, 'depositFor: wut?');
-
-        PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][userAddress];
-        uint256 rewards = _claim(pid, userAddress);
-
-        _updateAmount(pid, userAddress, user.amount + amount, veWom.balanceOf(userAddress));
-
-        uint256 additionalRewards = _onReward(pool.rewarder, userAddress, user.amount);
-
-        pool.lpToken.safeTransferFrom(msg.sender, address(this), amount);
-        emit DepositFor(userAddress, pid, amount);
-    }
-
-    function _claim(uint256 pid, address userAddress) internal returns (uint256 rewards) {
-        _updatePool(pid);
-        PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][userAddress];
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][msg.sender];
+        _updatePool(_pid);
+        uint256 pending;
         if (user.amount > 0) {
-            rewards = (user.factor * pool.accWomPerShare) / 1e12 + pendingWom[pid][userAddress] - user.rewardDebt;
-            pendingWom[pid][userAddress] = 0;
+            // Harvest WOM
+            pending =
+                ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) +
+                pendingWom[_pid][msg.sender] -
+                user.rewardDebt;
+            pendingWom[_pid][msg.sender] = 0;
 
-            // update reward debt
-            user.rewardDebt = (user.factor * pool.accWomPerShare) / 1e12;
-
-            // send reward
-            rewards = safeWomTransfer(payable(userAddress), rewards);
-            emit Harvest(userAddress, pid, rewards);
+            pending = safeWomTransfer(payable(msg.sender), pending);
+            emit Harvest(msg.sender, _pid, pending);
         }
-    }
 
-    function _updateAmount(
-        uint256 pid,
-        address userAddr,
-        uint256 newAmount,
-        uint256 veVomBalance
-    ) internal {
-        PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][userAddr];
+        // update amount of lp staked by user
+        user.amount += _amount;
 
-        // update amount and factor
+        // update boosting factor
         uint256 oldFactor = user.factor;
-        user.amount = newAmount;
-        user.factor = _getFactor(user.amount, veVomBalance);
+        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender));
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = (user.factor * pool.accWomPerShare) / 1e12;
-    }
+        user.rewardDebt = (user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12;
 
-    function _getFactor(uint256 amount, uint256 veWomBal) internal pure returns (uint256) {
-        // TODO: implement
-        return amount + veWomBal * amount.sqrt().sqrt();
-    }
-
-    function _onReward(
-        IRewarder rewarder,
-        address userAddress,
-        uint256 amount
-    ) internal returns (uint256 additionalRewards) {
-        // if exist, get external rewarder rewards for pool
+        IRewarder rewarder = poolInfo[_pid].rewarder;
+        uint256 additionalRewards;
         if (address(rewarder) != address(0)) {
-            additionalRewards = rewarder.onReward(userAddress, amount);
+            additionalRewards = rewarder.onReward(msg.sender, user.amount);
         }
+
+        pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+        emit Deposit(msg.sender, _pid, _amount);
+        return (pending, additionalRewards);
     }
 
     /// @notice claims rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function multiClaim(uint256[] calldata _pids)
+    function multiClaim(uint256[] memory _pids)
         external
         override
         nonReentrant
         whenNotPaused
-        returns (uint256[] memory rewards, uint256[] memory additionalRewards)
+        returns (
+            uint256,
+            uint256[] memory,
+            uint256[] memory
+        )
     {
         return _multiClaim(_pids);
     }
 
     /// @notice private function to claim rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function _multiClaim(uint256[] calldata _pids)
+    function _multiClaim(uint256[] memory _pids)
         private
-        returns (uint256[] memory rewards, uint256[] memory additionalRewards)
+        returns (
+            uint256,
+            uint256[] memory,
+            uint256[] memory
+        )
     {
-        rewards = new uint256[](_pids.length);
-        additionalRewards = new uint256[](_pids.length);
+        // accumulate rewards for each one of the pids in pending
+        uint256 pending;
+        uint256[] memory amounts = new uint256[](_pids.length);
+        uint256[] memory additionalRewards = new uint256[](_pids.length);
         for (uint256 i = 0; i < _pids.length; ++i) {
-            rewards[i] = _claim(_pids[i], msg.sender);
+            _updatePool(_pids[i]);
+            PoolInfo storage pool = poolInfo[_pids[i]];
+            UserInfo storage user = userInfo[_pids[i]][msg.sender];
+            if (user.amount > 0) {
+                // increase pending to send all rewards once
+                uint256 poolRewards = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) /
+                    1e12) +
+                    pendingWom[_pids[i]][msg.sender] -
+                    user.rewardDebt;
 
-            additionalRewards[i] = _onReward(
-                poolInfo[_pids[i]].rewarder,
-                msg.sender,
-                userInfo[_pids[i]][msg.sender].amount
-            );
+                pendingWom[_pids[i]][msg.sender] = 0;
+
+                // update reward debt
+                user.rewardDebt = (user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12;
+
+                // increase pending
+                pending += poolRewards;
+
+                amounts[i] = poolRewards;
+                // if existant, get external rewarder rewards for pool
+                IRewarder rewarder = pool.rewarder;
+                if (address(rewarder) != address(0)) {
+                    additionalRewards[i] = rewarder.onReward(msg.sender, user.amount);
+                }
+            }
         }
+        // transfer all remaining rewards
+        uint256 transfered = safeWomTransfer(payable(msg.sender), pending);
+        if (transfered != pending) {
+            for (uint256 i = 0; i < _pids.length; ++i) {
+                amounts[i] = (transfered * amounts[i]) / pending;
+                emit Harvest(msg.sender, _pids[i], amounts[i]);
+            }
+        } else {
+            for (uint256 i = 0; i < _pids.length; ++i) {
+                // emit event for pool
+                emit Harvest(msg.sender, _pids[i], amounts[i]);
+            }
+        }
+
+        return (transfered, amounts, additionalRewards);
     }
 
     /// @notice Withdraw LP tokens from MasterWombat.
     /// @notice Automatically harvest pending rewards and sends to user
-    /// @param pid the pool id
-    /// @param amount the amount to withdraw
-    function withdraw(uint256 pid, uint256 amount)
+    /// @param _pid the pool id
+    /// @param _amount the amount to withdraw
+    function withdraw(uint256 _pid, uint256 _amount)
         external
         override
         nonReentrant
         whenNotPaused
-        returns (uint256 rewards, uint256 additionalRewards)
+        returns (uint256, uint256)
     {
-        PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][msg.sender];
-        require(user.amount >= amount, 'withdraw: not good');
-        rewards = _claim(pid, msg.sender);
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][msg.sender];
+        require(user.amount >= _amount, 'withdraw: not good');
 
-        _updateAmount(pid, msg.sender, user.amount - amount, veWom.balanceOf(msg.sender));
+        _updatePool(_pid);
 
-        additionalRewards = _onReward(pool.rewarder, msg.sender, user.amount);
+        // Harvest WOM
+        uint256 pending = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) +
+            pendingWom[_pid][msg.sender] -
+            user.rewardDebt;
+        pendingWom[_pid][msg.sender] = 0;
 
-        pool.lpToken.safeTransfer(address(msg.sender), amount);
-        emit Withdraw(msg.sender, pid, amount);
+        pending = safeWomTransfer(payable(msg.sender), pending);
+        emit Harvest(msg.sender, _pid, pending);
+
+        // for boosting factor
+        uint256 oldFactor = user.factor;
+
+        // update amount of lp staked
+        user.amount = user.amount - _amount;
+
+        // update boosting factor
+        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender));
+        pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
+
+        // update reward debt
+        user.rewardDebt = (user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12;
+
+        IRewarder rewarder = poolInfo[_pid].rewarder;
+        uint256 additionalRewards = 0;
+        if (address(rewarder) != address(0)) {
+            additionalRewards = rewarder.onReward(msg.sender, user.amount);
+        }
+
+        pool.lpToken.safeTransfer(address(msg.sender), _amount);
+        emit Withdraw(msg.sender, _pid, _amount);
+        return (pending, additionalRewards);
     }
 
     /// @notice Withdraw without caring about rewards. EMERGENCY ONLY.
-    /// @param pid the pool id
-    function emergencyWithdraw(uint256 pid) public override nonReentrant {
-        PoolInfo storage pool = poolInfo[pid];
-        UserInfo storage user = userInfo[pid][msg.sender];
+    /// @param _pid the pool id
+    function emergencyWithdraw(uint256 _pid) public override nonReentrant {
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][msg.sender];
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
 
+        // update boosting factor
         pool.sumOfFactors = pool.sumOfFactors - user.factor;
         user.factor = 0;
+
+        // update base factors
         user.amount = 0;
         user.rewardDebt = 0;
 
-        emit EmergencyWithdraw(msg.sender, pid, user.amount);
+        emit EmergencyWithdraw(msg.sender, _pid, user.amount);
     }
 
     /// @notice Safe wom transfer function, just in case if rounding error causes pool to not have enough WOMs.
     /// @param _to beneficiary
-    /// @param amount the amount to transfer
-    function safeWomTransfer(address payable _to, uint256 amount) private returns (uint256) {
-        uint256 womBalance = wom.balanceOf(address(this));
+    /// @param _amount the amount to transfer
+    function safeWomTransfer(address payable _to, uint256 _amount) private returns (uint256) {
+        uint256 womBal = wom.balanceOf(address(this));
 
         // perform additional check in case there are no more wom tokens to distribute.
         // emergency withdraw would be necessary
-        require(womBalance > 0, 'No tokens to distribute');
+        require(womBal > 0, 'No tokens to distribute');
 
-        if (amount > womBalance) {
-            wom.transfer(_to, womBalance);
-            return womBalance;
+        if (_amount > womBal) {
+            wom.transfer(_to, womBal);
+            return womBal;
         } else {
-            wom.transfer(_to, amount);
-            return amount;
+            wom.transfer(_to, _amount);
+            return _amount;
         }
     }
 
-    /// @notice In case we need to manually migrate WOM funds from MasterWombat
-    /// Sends all remaining wom from the contract to the owner
-    function emergencyWomWithdraw() external onlyOwner {
-        wom.safeTransfer(address(msg.sender), wom.balanceOf(address(this)));
+    /// @notice updates emission rate
+    /// @param _womPerSec wom amount to be updated
+    /// @dev Pancake has to add hidden dummy pools inorder to alter the emission,
+    /// @dev here we make it simple and transparent to all.
+    function updateEmissionRate(uint256 _womPerSec) external onlyOwner {
+        massUpdatePools();
+        womPerSec = _womPerSec;
+        emit UpdateEmissionRate(msg.sender, _womPerSec);
+    }
+
+    /// @notice updates emission partition
+    /// @param _basePartition the future base partition
+    function updateEmissionPartition(uint256 _basePartition) external onlyOwner {
+        require(_basePartition <= 1000);
+        massUpdatePools();
+        basePartition = _basePartition;
+        boostingPartition = 1000 - _basePartition;
+        emit UpdateEmissionPartition(msg.sender, _basePartition, 1000 - _basePartition);
+    }
+
+    /// @notice updates veWom address
+    /// @param _newVeWom the new VeWom address
+    function setVeWom(IVeWom _newVeWom) external onlyOwner {
+        require(address(_newVeWom) != address(0));
+        massUpdatePools();
+        IVeWom oldVeWom = veWom;
+        veWom = _newVeWom;
+        emit UpdateVeWOM(msg.sender, address(oldVeWom), address(_newVeWom));
     }
 
     /// @notice updates factor after any veWom token operation (minting/burning)
-    /// DOS is possible if number of pools is too much that gas exceeds block gas limit
-    /// Should be pretty safe as long as number of pools < 100
-    /// @param userAddress the user to update
-    /// @param newVeWomBalance the amount of veWom
+    /// @param _user the user to update
+    /// @param _newVeWomBalance the amount of veWOM
     /// @dev can only be called by veWom
-    function updateFactor(address userAddress, uint256 newVeWomBalance) external override onlyVeWom {
+    function updateFactor(address _user, uint256 _newVeWomBalance) external override onlyVeWom {
         // loop over each pool : beware gas cost!
         uint256 length = poolInfo.length;
 
         for (uint256 pid = 0; pid < length; ++pid) {
-            UserInfo storage user = userInfo[pid][userAddress];
+            UserInfo storage user = userInfo[pid][_user];
+
+            // skip if user doesn't have any deposit in the pool
             if (user.amount == 0) {
-                // skip if user doesn't have any deposit in the pool
                 continue;
             }
 
@@ -555,19 +658,26 @@ contract MasterWombat is
             // first, update pool
             _updatePool(pid);
             // calculate pending
-            uint256 pending = (user.factor * pool.accWomPerShare) / 1e12 - user.rewardDebt;
+            uint256 pending = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) -
+                user.rewardDebt;
             // increase pendingWom
-            pendingWom[pid][userAddress] += pending;
+            pendingWom[pid][_user] += pending;
             // get oldFactor
             uint256 oldFactor = user.factor; // get old factor
             // calculate newFactor using
-            uint256 newFactor = _getFactor(user.amount, newVeWomBalance);
+            uint256 newFactor = DSMath.sqrt(_newVeWomBalance * user.amount);
             // update user factor
             user.factor = newFactor;
             // update reward debt, take into account newFactor
-            user.rewardDebt = (newFactor * pool.accWomPerShare) / 1e12;
+            user.rewardDebt = (user.amount * pool.accWomPerShare + newFactor * pool.accWomPerFactorShare) / 1e12;
             // also, update sumOfFactors
             pool.sumOfFactors = pool.sumOfFactors + newFactor - oldFactor;
         }
+    }
+
+    /// @notice In case we need to manually migrate WOM funds from MasterChef
+    /// Sends all remaining wom from the contract to the owner
+    function emergencyWomWithdraw() external onlyOwner {
+        wom.safeTransfer(address(msg.sender), wom.balanceOf(address(this)));
     }
 }

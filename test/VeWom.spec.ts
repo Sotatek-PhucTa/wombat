@@ -45,7 +45,7 @@ describe('VeWOM', function () {
     this.veWom.deployed()
 
     this.mWom = await this.MasterWombat.deploy()
-    this.mWom.connect(owner).initialize(this.wom.address, this.veWom.address, this.womPerSec, startTime)
+    this.mWom.connect(owner).initialize(this.wom.address, this.veWom.address, this.womPerSec, 1000, startTime)
 
     this.nft = await this.Nft.deploy()
     await this.nft.deployed()
