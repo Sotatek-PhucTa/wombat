@@ -79,7 +79,6 @@ describe('Pool - Swap', function () {
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
     await poolContract.connect(owner).addAsset(token3.address, asset3.address)
-    await poolContract.connect(owner).setShouldMaintainGlobalEquil(false)
   })
 
   describe('Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
@@ -190,7 +189,7 @@ describe('Pool - Swap', function () {
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('10100')) // should always equal cash
 
         // check vUSDC post swap positions
-        expect(await asset1.cash()).to.be.equal(parseEther('900.609675576228653516'))
+        expect(await asset1.cash()).to.be.equal(parseEther('900.569903537643711000'))
         expect(await asset1.liability()).to.be.equal(parseEther('1000'))
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
@@ -207,7 +206,7 @@ describe('Pool - Swap', function () {
 
         expect(tokenSent.add(await asset0.cash())).to.be.equal(parseEther('10000'))
         // token has 8 decimals, while cash has 18.
-        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('999.999999996228653516'))
+        expect(tokenGot.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('999.960227957643711000'))
       })
 
       it('works (vUSDC -> BUSD) without haircut fees', async function () {
@@ -293,7 +292,7 @@ describe('Pool - Swap', function () {
         expect(tokenGot).to.be.equal(quotedAmount)
 
         // check BUSD post swap positions
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.520344787611275104'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
         expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104')) // should always equal cash
 
@@ -315,7 +314,7 @@ describe('Pool - Swap', function () {
 
         // token has 8 decimals, while cash has 18.
         expect(tokenSent.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('1000'))
-        expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('10000'))
+        expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('9999.960192214800964896'))
       })
 
       it('works (BUSD -> exact vUSDC output) 18 and 8 decimals without haircut fees', async function () {

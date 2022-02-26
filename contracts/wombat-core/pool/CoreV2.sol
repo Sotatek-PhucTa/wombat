@@ -127,40 +127,34 @@ contract CoreV2 {
 
     /**
      * @dev should be used only when r* = 1
-     * @return v positive value indicates a reward and negative value indicates a fee
      */
-    function depositRewardInEquilImpl(
+    function withdrawalAmountInEquilImpl(
         int256 delta_i,
         int256 A_i,
         int256 L_i,
         int256 A
-    ) internal pure returns (int256 v) {
-        if (L_i == 0) {
-            // early return in case of div of 0
-            return 0;
-        }
-
+    ) internal pure returns (int256 amount) {
         int256 L_i_ = L_i + delta_i;
         int256 r_i = A_i.wdiv(L_i);
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
         int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
         int256 A_i_ = beta + (beta * beta + A.wmul(L_i_ * L_i_)).sqrt();
-        v = delta_i + A_i - A_i_;
+        amount = A_i - A_i_;
     }
 
     /**
      * @notice return the deposit reward in token amount when target liquidity (LP amount) is known
      */
-    function exactDepositRewardInEquilImpl(
+    function exactDepositLiquidityInEquilImpl(
         int256 D_i,
         int256 A_i,
         int256 L_i,
         int256 A
-    ) internal pure returns (int256 v) {
+    ) internal pure returns (int256 liquidity) {
         if (L_i == 0) {
             // if this is a deposit, there is no reward/fee
             // if this is a withdrawal, it should have been reverted
-            return 0;
+            return D_i;
         }
         if (A_i + D_i < 0) {
             // impossible
@@ -172,7 +166,7 @@ contract CoreV2 {
         int256 b = k.wmul(WAD_I - A) + 2 * A.wmul(L_i);
         int256 c = k.wmul(A_i - (A * L_i) / r_i) - k.wmul(k) + A.wmul(L_i).wmul(L_i);
         int256 l = b * b - 4 * A * c;
-        return (-b + (l).sqrt()).wdiv(A) / 2 - D_i;
+        return (-b + (l).sqrt()).wdiv(A) / 2;
     }
 
     function _targetedCovRatio(
