@@ -557,11 +557,15 @@ contract Pool is
 
         // Withdraw and swap
         IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
+
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
         uint256 fromAmountInWad = _withdraw(fromAsset, liquidity, 0);
-        (toAmount, ) = _swap(fromToken, toToken, fromAmountInWad, minimumAmount, to);
-        toAmount = toAmount.fromWad(_assetOf(toToken).underlyingTokenDecimals());
-        _assetOf(toToken).transferUnderlyingToken(to, toAmount);
+        (toAmount, ) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount, to);
+
+        toAmount = toAmount.fromWad(toAsset.underlyingTokenDecimals());
+        toAsset.transferUnderlyingToken(to, toAmount);
+
         emit Withdraw(msg.sender, toToken, toAmount, liquidity, to);
     }
 
@@ -587,36 +591,6 @@ contract Pool is
     /* Swap */
 
     /**
-     * @notice Quotes the ideal amount in case of swap
-     * @dev Does not take into haircut or other fees
-     * @param fromAsset The initial asset
-     * @param toAsset The asset wanted by user
-     * @param fromAmount The amount to quote
-     * @return idealToAmount The ideal amount user would receive
-     */
-    function _quoteIdealToAmount(
-        IAsset fromAsset,
-        IAsset toAsset,
-        int256 fromAmount
-    ) private view returns (uint256 idealToAmount) {
-        uint256 Lx = fromAsset.liability();
-        uint256 Ly = toAsset.liability();
-
-        // in case div of 0
-        _checkLiquidity(Lx);
-        _checkLiquidity(Ly);
-
-        idealToAmount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash())),
-            int256(uint256(toAsset.cash())),
-            int256(Lx),
-            int256(Ly),
-            fromAmount,
-            int256(ampFactor)
-        );
-    }
-
-    /**
      * @notice Quotes the actual amount user would receive in a swap, taking in account slippage and haircut
      * @param fromAsset The initial asset
      * @param toAsset The asset wanted by user
@@ -629,8 +603,27 @@ contract Pool is
         IAsset toAsset,
         int256 fromAmount
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
-        uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
-        if (toAsset.cash() < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
+        uint256 idealToAmount;
+        uint256 toCash = toAsset.cash();
+        {
+            uint256 Lx = fromAsset.liability();
+            uint256 Ly = toAsset.liability();
+
+            // in case div of 0
+            _checkLiquidity(Lx);
+            _checkLiquidity(Ly);
+
+            idealToAmount = _swapQuoteFunc(
+                int256(uint256(fromAsset.cash())),
+                int256(toCash),
+                int256(Lx),
+                int256(Ly),
+                fromAmount,
+                int256(ampFactor)
+            );
+        }
+
+        if (toCash < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
 
         haircut = idealToAmount.wmul(haircutRate);
         // exact output swap quote has added haircut already
@@ -639,6 +632,27 @@ contract Pool is
         } else {
             actualToAmount = idealToAmount;
         }
+    }
+
+    /**
+     * expect fromAmount and minimumToAmount to be in WAD
+     */
+    function _swap(
+        IAsset fromAsset,
+        IAsset toAsset,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address to
+    ) internal returns (uint256 actualToAmount, uint256 haircut) {
+        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
+        _checkAmount(minimumToAmount, actualToAmount);
+
+        _feeCollected[toAsset] += haircut;
+
+        fromAsset.addCash(fromAmount);
+
+        // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
+        toAsset.removeCash(actualToAmount + haircut);
     }
 
     /**
@@ -664,48 +678,29 @@ contract Pool is
         _ensure(deadline);
         requireAssetNotPaused(fromToken);
 
-        uint8 fromDecimal = _assetOf(fromToken).underlyingTokenDecimals();
-        uint8 toDecimal = _assetOf(toToken).underlyingTokenDecimals();
-
-        (actualToAmount, haircut) = _swap(
-            fromToken,
-            toToken,
-            fromAmount.toWad(fromDecimal),
-            minimumToAmount.toWad(toDecimal),
-            to
-        );
-
-        actualToAmount = actualToAmount.fromWad(toDecimal);
-        haircut = haircut.fromWad(toDecimal);
-
-        IERC20(fromToken).safeTransferFrom(address(msg.sender), address(_assetOf(fromToken)), fromAmount);
-        _assetOf(toToken).transferUnderlyingToken(to, actualToAmount);
-
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
-    }
-
-    /**
-     * expect fromAmount and minimumToAmount to be in WAD
-     */
-    function _swap(
-        address fromToken,
-        address toToken,
-        uint256 fromAmount,
-        uint256 minimumToAmount,
-        address to
-    ) internal returns (uint256 actualToAmount, uint256 haircut) {
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
-        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
-        _checkAmount(minimumToAmount, actualToAmount);
+        {
+            uint8 fromDecimal = fromAsset.underlyingTokenDecimals();
+            uint8 toDecimal = toAsset.underlyingTokenDecimals();
 
-        _feeCollected[toAsset] += haircut;
+            (actualToAmount, haircut) = _swap(
+                fromAsset,
+                toAsset,
+                fromAmount.toWad(fromDecimal),
+                minimumToAmount.toWad(toDecimal),
+                to
+            );
 
-        fromAsset.addCash(fromAmount);
+            actualToAmount = actualToAmount.fromWad(toDecimal);
+            haircut = haircut.fromWad(toDecimal);
+        }
 
-        // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
-        toAsset.removeCash(actualToAmount + haircut);
+        IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
+        toAsset.transferUnderlyingToken(to, actualToAmount);
+
+        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
     }
 
     /**
