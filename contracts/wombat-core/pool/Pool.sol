@@ -178,17 +178,17 @@ contract Pool is
     /**
      * @dev pause asset, restricting deposit and swap operations
      */
-    function pauseAsset(address asset) external nonReentrant {
+    function pauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _pauseAsset(asset);
+        _pauseAsset(address(_assetOf(token)));
     }
 
     /**
      * @dev unpause asset, enabling deposit and swap operations
      */
-    function unpauseAsset(address asset) external nonReentrant {
+    function unpauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _unpauseAsset(asset);
+        _unpauseAsset(address(_assetOf(token)));
     }
 
     // Setters //
