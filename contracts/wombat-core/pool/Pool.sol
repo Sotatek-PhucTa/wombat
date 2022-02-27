@@ -762,6 +762,42 @@ contract Pool is
 
     /* Utils */
 
+    // this function is used to move fund from tip bucket to the pool to keep r* = 1 as error accumulates
+    // unit of amount should be in WAD
+    function fillPool(address token, uint256 amount) external {
+        _onlyDev();
+        IAsset asset = _assetOf(token);
+        uint256 tipBucketBalance = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
+            asset.cash() -
+            _feeCollected[asset];
+
+        if (amount > tipBucketBalance) {
+            // revert if there's not enough amount in the tip bucket
+            revert WOMBAT_INVALID_VALUE();
+        }
+
+        asset.addCash(amount);
+    }
+
+    // unit of amount should be in WAD
+    function transferTipBucket(
+        address token,
+        uint256 amount,
+        address to
+    ) external onlyOwner {
+        IAsset asset = _assetOf(token);
+        uint256 tipBucketBalance = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
+            asset.cash() -
+            _feeCollected[asset];
+
+        if (amount > tipBucketBalance) {
+            // revert if there's not enough amount in the tip bucket
+            revert WOMBAT_INVALID_VALUE();
+        }
+
+        asset.transferUnderlyingToken(to, amount.fromWad(asset.underlyingTokenDecimals()));
+    }
+
     function _globalInvariantFunc() internal view returns (uint256 D, uint256 SL) {
         uint256 A = ampFactor;
 

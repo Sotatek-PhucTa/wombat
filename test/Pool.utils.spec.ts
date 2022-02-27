@@ -5,6 +5,7 @@ import { solidity } from 'ethereum-waffle'
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
+import { latest } from './helpers'
 
 const { expect } = chai
 chai.use(solidity)
@@ -33,9 +34,9 @@ describe('Pool - Utils', function () {
 
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    token1 = await TestERC20Factory.deploy('USD Coin', 'USDC', 18, parseUnits('1000000', 18)) // 1 mil USDC
+    token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 1 mil USDC
     asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
-    asset1 = await AssetFactory.deploy(token1.address, 'USD Coin LP', 'USDC-LP')
+    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDD-LP')
     poolContract = await PoolFactory.connect(owner).deploy()
 
     // wait for transactions to be mined
@@ -226,6 +227,54 @@ describe('Pool - Utils', function () {
     it('restricts to only dev (deployer)', async function () {
       await expect(poolContract.connect(user).pause(), 'WOMBAT_FORBIDDEN').to.be.reverted
       await expect(poolContract.connect(user).unpause(), 'WOMBAT_FORBIDDEN').to.be.reverted
+    })
+  })
+
+  describe('fillPool', function () {
+    beforeEach(async function () {
+      await poolContract.connect(owner).setLpDividendRatio(0)
+      await poolContract.connect(owner).setRetentionRatio(parseEther('1'))
+      await poolContract.connect(owner).setHaircutRate(parseEther('0.0001'))
+
+      await token0.connect(owner).transfer(user.address, parseEther('100000'))
+      await token1.connect(owner).transfer(user.address, parseUnits('100000', 8))
+      await token0.connect(user).approve(poolContract.address, ethers.constants.MaxUint256)
+      await token1.connect(user).approve(poolContract.address, ethers.constants.MaxUint256)
+    })
+
+    it('should revert if not enough value in tip bucket', async function () {
+      const fiveSecondsSince = (await latest()).add(5)
+
+      await poolContract.connect(user).deposit(token0.address, parseEther('100'), user.address, fiveSecondsSince)
+      await poolContract.connect(user).deposit(token1.address, parseUnits('100', 8), user.address, fiveSecondsSince)
+
+      await poolContract
+        .connect(user)
+        .swap(token0.address, token1.address, parseEther('50'), parseUnits('45', 8), user.address, fiveSecondsSince)
+
+      await poolContract.mintFee(token1.address)
+
+      await expect(poolContract.connect(owner).fillPool(token1.address, 5e15)).to.be.revertedWith(
+        'WOMBAT_INVALID_VALUE'
+      )
+    })
+
+    it('should work', async function () {
+      const fiveSecondsSince = (await latest()).add(5)
+
+      await poolContract.connect(user).deposit(token0.address, parseEther('100'), user.address, fiveSecondsSince)
+      await poolContract.connect(user).deposit(token1.address, parseUnits('100', 8), user.address, fiveSecondsSince)
+
+      await poolContract
+        .connect(user)
+        .swap(token0.address, token1.address, parseEther('50'), parseUnits('45', 8), user.address, fiveSecondsSince)
+
+      await poolContract.mintFee(token1.address)
+
+      const cashBeforeChange = await asset1.cash()
+      await poolContract.connect(owner).fillPool(token1.address, 4e15)
+      const cashAfterChange = await asset1.cash()
+      expect(cashAfterChange.sub(cashBeforeChange)).to.equal(4e15)
     })
   })
 })
