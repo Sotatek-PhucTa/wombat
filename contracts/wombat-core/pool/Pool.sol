@@ -12,6 +12,7 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import './CoreV2.sol';
 import '../interfaces/IAsset.sol';
 import './PausableAssets.sol';
+import '../../wombat-governance/interfaces/IMasterWombat.sol';
 
 /**
  * @title Pool
@@ -60,6 +61,8 @@ contract Pool is
     address public dev;
 
     address public feeTo;
+
+    IMasterWombat public masterWombat;
 
     /// @notice Dividend collected by each asset (unit: WAD)
     mapping(IAsset => uint256) private _feeCollected;
@@ -199,6 +202,11 @@ contract Pool is
     function setDev(address dev_) external onlyOwner {
         _checkAddress(dev_);
         dev = dev_;
+    }
+
+    function setMasterWombat(address masterWombat_) external onlyOwner {
+        _checkAddress(masterWombat_);
+        masterWombat = IMasterWombat(masterWombat_);
     }
 
     /**
@@ -414,7 +422,8 @@ contract Pool is
         address token,
         uint256 amount,
         address to,
-        uint256 deadline
+        uint256 deadline,
+        bool shouldStake
     ) external nonReentrant whenNotPaused returns (uint256 liquidity) {
         if (amount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
@@ -423,7 +432,18 @@ contract Pool is
 
         IAsset asset = _assetOf(token);
         IERC20(token).safeTransferFrom(address(msg.sender), address(asset), amount);
-        liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), to);
+
+        if (!shouldStake) {
+            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), to);
+        } else {
+            // deposit and stake on behalf of the user
+            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), address(this));
+
+            asset.approve(address(masterWombat), liquidity);
+
+            uint256 pid = masterWombat.getAssetPid(address(asset));
+            masterWombat.depositFor(pid, liquidity, to);
+        }
 
         emit Deposit(msg.sender, token, amount, liquidity, to);
     }

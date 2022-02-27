@@ -103,7 +103,7 @@ describe('Asset (proxy)', function () {
       // Pool is still the owner of Asset
       await poolContract
         .connect(users[0])
-        .deposit(token0.address, parseEther('100'), users[0].address, fiveSecondsSince)
+        .deposit(token0.address, parseEther('100'), users[0].address, fiveSecondsSince, false)
     })
 
     it('change admin', async function () {

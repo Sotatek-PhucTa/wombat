@@ -84,10 +84,12 @@ contract MasterWombat is
     PoolInfo[] public poolInfo;
     // Set of all LP tokens that have been added as pools
     EnumerableSet.AddressSet private lpTokens;
-    // Info of each user that stakes LP tokens.
+    // userInfo[pid][user], Info of each user that stakes LP tokens
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // Amount of pending wom the user has
     mapping(uint256 => mapping(address => uint256)) public pendingWom;
+    // Mapping of asset to pid. Offset by +1 to distinguish with default value
+    mapping(address => uint256) internal assetPid;
 
     event Add(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken, IRewarder indexed rewarder);
     event Set(uint256 indexed pid, uint256 allocPoint, IRewarder indexed rewarder, bool overwrite);
@@ -155,6 +157,11 @@ contract MasterWombat is
         return poolInfo.length;
     }
 
+    function getAssetPid(address asset) external view override returns (uint256) {
+        // revert if asset not exist
+        return assetPid[asset] - 1;
+    }
+
     /// @notice Add a new lp to the pool. Can only be called by the owner.
     /// @dev Reverts if the same LP token is added more than once.
     /// @param _allocPoint allocation points for this LP
@@ -193,6 +200,7 @@ contract MasterWombat is
                 accWomPerFactorShare: 0
             })
         );
+        assetPid[address(_lpToken)] = poolInfo.length;
 
         // add lpToken to the lpTokens enumerable set
         lpTokens.add(address(_lpToken));
