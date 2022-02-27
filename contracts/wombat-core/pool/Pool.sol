@@ -239,8 +239,7 @@ contract Pool is
     /**
      * @notice Set min fee to mint
      */
-    function setMintFeeThreshold(uint256 mintFeeThreshold_) external {
-        _onlyDev();
+    function setMintFeeThreshold(uint256 mintFeeThreshold_) external onlyOwner {
         mintFeeThreshold = mintFeeThreshold_;
     }
 
