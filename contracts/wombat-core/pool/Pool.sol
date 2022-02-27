@@ -219,19 +219,10 @@ contract Pool is
         haircutRate = haircutRate_;
     }
 
-    /**
-     * @notice Changes the pools retentionRatio. Can only be set by the contract owner.
-     * @param retentionRatio_ new pool's retentionRatio
-     */
-    function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
-        if (retentionRatio_ + lpDividendRatio > WAD) revert WOMBAT_INVALID_VALUE();
+    function setFee(uint256 lpDividendRatio_, uint256 retentionRatio_) external onlyOwner {
+        if (retentionRatio_ + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
         mintAllFee();
         retentionRatio = retentionRatio_;
-    }
-
-    function setLpDividendRatio(uint256 lpDividendRatio_) external onlyOwner {
-        if (retentionRatio + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
-        mintAllFee();
         lpDividendRatio = lpDividendRatio_;
     }
 
@@ -248,7 +239,8 @@ contract Pool is
     /**
      * @notice Set min fee to mint
      */
-    function setMintFeeThreshold(uint256 mintFeeThreshold_) external onlyOwner {
+    function setMintFeeThreshold(uint256 mintFeeThreshold_) external {
+        _onlyDev();
         mintFeeThreshold = mintFeeThreshold_;
     }
 
