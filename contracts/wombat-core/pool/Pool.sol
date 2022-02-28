@@ -17,9 +17,7 @@ import './PausableAssets.sol';
  * @title Pool
  * @notice Manages deposits, withdrawals and swaps. Holds a mapping of assets and parameters.
  * @dev The main entry-point of Wombat protocol
- * Note: All variables are 18 decimals, except from th amount of underlying token
- * There are 2 operating mode. Either set shouldMaintainGlobalEquil to true and maintain global cov ratio (r*) at 1.
- * Or set shouldMaintainGlobalEquil to false, and allow r* to be any value > 1.
+ * Note: All variables are 18 decimals, except from that of underlying tokens
  */
 contract Pool is
     Initializable,
@@ -62,8 +60,6 @@ contract Pool is
     address public dev;
 
     address public feeTo;
-
-    bool public shouldMaintainGlobalEquil;
 
     /// @notice Dividend collected by each asset (unit: WAD)
     mapping(IAsset => uint256) private _feeCollected;
@@ -157,7 +153,6 @@ contract Pool is
         haircutRate = haircutRate_;
 
         lpDividendRatio = WAD;
-        shouldMaintainGlobalEquil = true;
 
         dev = msg.sender;
     }
@@ -248,15 +243,6 @@ contract Pool is
     function setFeeTo(address feeTo_) external onlyOwner {
         if (feeTo_ == address(0)) revert WOMBAT_INVALID_VALUE();
         feeTo = feeTo_;
-    }
-
-    /**
-     * @notice Enable exact deposit
-     * Should only be enabled when r* = 1
-     */
-    function setShouldMaintainGlobalEquil(bool shouldMaintainGlobalEquil_) external onlyOwner {
-        mintAllFee();
-        shouldMaintainGlobalEquil = shouldMaintainGlobalEquil_;
     }
 
     /**
@@ -365,64 +351,29 @@ contract Pool is
     /* Deposit */
 
     /**
-     * This functinos approximate the amount of liquidity of the deposit regardless of value of r*.
-     * Fee could be positive of negative
-     */
-    function _depositTo(IAsset asset, uint256 amount)
-        internal
-        view
-        returns (
-            uint256 liquidity,
-            uint256 liabilityToMint,
-            int256 fee
-        )
-    {
-        int256 reward = _depositReward(int256(amount), asset);
-        // revert if value doesn't make sense in case of overflow
-        if (reward > int256(amount) || reward < -int256(amount)) {
-            revert WOMBAT_INVALID_VALUE();
-        }
-
-        // we don't distribute deposit reward if reward > 0
-        if (reward < 0) {
-            fee = -reward;
-        }
-
-        liabilityToMint = uint256(int256(amount) - fee);
-
-        // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
-        uint256 liability = asset.liability();
-        liquidity = (liability == 0 ? liabilityToMint : (liabilityToMint * asset.totalSupply()) / liability);
-    }
-
-    /**
      * This function calculate the exactly amount of liquidity of the deposit. Assumes r* = 1
      */
     function _exactDepositToInEquil(IAsset asset, uint256 amount)
         internal
         view
         returns (
-            uint256 liquidity,
+            uint256 lpTokenToMint,
             uint256 liabilityToMint,
-            int256 fee
+            uint256 reward
         )
     {
-        fee = -exactDepositRewardInEquilImpl(
+        liabilityToMint = exactDepositLiquidityInEquilImpl(
             int256(amount),
             int256(uint256(asset.cash())),
             int256(uint256(asset.liability())),
             int256(ampFactor)
-        );
-        // revert if value doesn't make sense in case of overflow
-        if (fee >= int256(10**asset.underlyingTokenDecimals() / 1000000) || fee < -int256(amount)) {
-            revert WOMBAT_INVALID_VALUE();
-        }
+        ).toUint256();
 
-        liabilityToMint = uint256(int256(amount) - fee);
+        reward = liabilityToMint - amount;
 
         // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
         uint256 liability = asset.liability();
-        liquidity = (liability == 0 ? liabilityToMint : (liabilityToMint * asset.totalSupply()) / liability);
+        lpTokenToMint = (liability == 0 ? liabilityToMint : (liabilityToMint * asset.totalSupply()) / liability);
     }
 
     /**
@@ -441,9 +392,7 @@ contract Pool is
         _mintFee(asset);
 
         uint256 liabilityToMint;
-        (liquidity, liabilityToMint, ) = shouldMaintainGlobalEquil
-            ? _exactDepositToInEquil(asset, amount)
-            : _depositTo(asset, amount);
+        (liquidity, liabilityToMint, ) = _exactDepositToInEquil(asset, amount);
 
         _checkLiquidity(liquidity);
 
@@ -485,15 +434,15 @@ contract Pool is
      * @param token The token to deposit by user
      * @param amount The amount to deposit
      * @return liquidity The potential liquidity user would receive
-     * @return fee The fee that would be applied
+     * @return reward
      */
     function quotePotentialDeposit(address token, uint256 amount)
         external
         view
-        returns (uint256 liquidity, int256 fee)
+        returns (uint256 liquidity, uint256 reward)
     {
         IAsset asset = _assetOf(token);
-        (liquidity, , fee) = _depositTo(asset, amount.toWad(asset.underlyingTokenDecimals()));
+        (liquidity, , reward) = _exactDepositToInEquil(asset, amount.toWad(asset.underlyingTokenDecimals()));
     }
 
     /* Withdraw */
@@ -505,7 +454,6 @@ contract Pool is
      * @return amount Total amount to be withdrawn from Pool
      * @return liabilityToBurn Total liability to be burned by Pool
      * @return fee
-     * @return enoughCash
      */
     function _withdrawFrom(IAsset asset, uint256 liquidity)
         private
@@ -513,38 +461,20 @@ contract Pool is
         returns (
             uint256 amount,
             uint256 liabilityToBurn,
-            int256 fee,
-            bool enoughCash
+            uint256 fee
         )
     {
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
         _checkLiquidity(liabilityToBurn);
 
-        // overflow is unrealistic
-        int256 L_i = int256(liabilityToBurn);
-        fee = _withdrawalFee(L_i, asset);
+        amount = withdrawalAmountInEquilImpl(
+            -int256(liabilityToBurn),
+            int256(uint256(asset.cash())),
+            int256(uint256(asset.liability())),
+            int256(ampFactor)
+        ).toUint256();
 
-        // As it is possible to have fee greater than the amount, we don't revert here
-        // revert if value doesn't make sense in case of overflow
-        // if (fee > L_i || fee < -L_i || (shouldMaintainGlobalEquil && fee <= -int256(10**asset.decimals() / 1000000))) {
-        //     revert WOMBAT_INVALID_VALUE();
-        // }
-
-        // Prevent underflow in case withdrawal fees >= liabilityToBurn, user would only burn his underlying liability
-        if (L_i > fee) {
-            if (asset.cash() < uint256(L_i - fee)) {
-                amount = asset.cash(); // When asset does not contain enough cash, just withdraw the remaining cash
-                fee = 0;
-                enoughCash = false;
-            } else {
-                amount = uint256(L_i - fee); // There is enough cash, standard withdrawal
-                enoughCash = true;
-            }
-        } else {
-            fee = L_i;
-            amount = 0;
-            enoughCash = false;
-        }
+        fee = liabilityToBurn - amount;
     }
 
     /**
@@ -564,7 +494,7 @@ contract Pool is
 
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
-        (amount, liabilityToBurn, , ) = _withdrawFrom(asset, liquidity);
+        (amount, liabilityToBurn, ) = _withdrawFrom(asset, liquidity);
         _checkAmount(minimumAmount, amount);
 
         asset.burn(address(asset), liquidity);
@@ -627,11 +557,15 @@ contract Pool is
 
         // Withdraw and swap
         IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
+
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
         uint256 fromAmountInWad = _withdraw(fromAsset, liquidity, 0);
-        (toAmount, ) = _swap(fromToken, toToken, fromAmountInWad, minimumAmount, to);
-        toAmount = toAmount.fromWad(_assetOf(toToken).underlyingTokenDecimals());
-        _assetOf(toToken).transferUnderlyingToken(to, toAmount);
+        (toAmount, ) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount, to);
+
+        toAmount = toAmount.fromWad(toAsset.underlyingTokenDecimals());
+        toAsset.transferUnderlyingToken(to, toAmount);
+
         emit Withdraw(msg.sender, toToken, toAmount, liquidity, to);
     }
 
@@ -642,54 +576,19 @@ contract Pool is
      * @param liquidity The liquidity (amount of lp assets) to be withdrawn
      * @return amount The potential amount user would receive
      * @return fee The fee that would be applied
-     * @return enoughCash does the pool have enough cash? (cash >= liabilityToBurn - fee)
      */
     function quotePotentialWithdraw(address token, uint256 liquidity)
         external
         view
-        returns (
-            uint256 amount,
-            int256 fee,
-            bool enoughCash
-        )
+        returns (uint256 amount, uint256 fee)
     {
         _checkLiquidity(liquidity);
         IAsset asset = _assetOf(token);
-        (amount, , fee, enoughCash) = _withdrawFrom(asset, liquidity);
+        (amount, , fee) = _withdrawFrom(asset, liquidity);
         amount = amount.fromWad(asset.underlyingTokenDecimals());
     }
 
     /* Swap */
-
-    /**
-     * @notice Quotes the ideal amount in case of swap
-     * @dev Does not take into haircut or other fees
-     * @param fromAsset The initial asset
-     * @param toAsset The asset wanted by user
-     * @param fromAmount The amount to quote
-     * @return idealToAmount The ideal amount user would receive
-     */
-    function _quoteIdealToAmount(
-        IAsset fromAsset,
-        IAsset toAsset,
-        int256 fromAmount
-    ) private view returns (uint256 idealToAmount) {
-        uint256 Lx = fromAsset.liability();
-        uint256 Ly = toAsset.liability();
-
-        // in case div of 0
-        _checkLiquidity(Lx);
-        _checkLiquidity(Ly);
-
-        idealToAmount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash())),
-            int256(uint256(toAsset.cash())),
-            int256(Lx),
-            int256(Ly),
-            fromAmount,
-            int256(ampFactor)
-        );
-    }
 
     /**
      * @notice Quotes the actual amount user would receive in a swap, taking in account slippage and haircut
@@ -704,8 +603,27 @@ contract Pool is
         IAsset toAsset,
         int256 fromAmount
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
-        uint256 idealToAmount = _quoteIdealToAmount(fromAsset, toAsset, fromAmount);
-        if (toAsset.cash() < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
+        uint256 idealToAmount;
+        uint256 toCash = toAsset.cash();
+        {
+            uint256 Lx = fromAsset.liability();
+            uint256 Ly = toAsset.liability();
+
+            // in case div of 0
+            _checkLiquidity(Lx);
+            _checkLiquidity(Ly);
+
+            idealToAmount = _swapQuoteFunc(
+                int256(uint256(fromAsset.cash())),
+                int256(toCash),
+                int256(Lx),
+                int256(Ly),
+                fromAmount,
+                int256(ampFactor)
+            );
+        }
+
+        if (toCash < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
 
         haircut = idealToAmount.wmul(haircutRate);
         // exact output swap quote has added haircut already
@@ -714,6 +632,27 @@ contract Pool is
         } else {
             actualToAmount = idealToAmount;
         }
+    }
+
+    /**
+     * expect fromAmount and minimumToAmount to be in WAD
+     */
+    function _swap(
+        IAsset fromAsset,
+        IAsset toAsset,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address to
+    ) internal returns (uint256 actualToAmount, uint256 haircut) {
+        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
+        _checkAmount(minimumToAmount, actualToAmount);
+
+        _feeCollected[toAsset] += haircut;
+
+        fromAsset.addCash(fromAmount);
+
+        // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
+        toAsset.removeCash(actualToAmount + haircut);
     }
 
     /**
@@ -739,53 +678,29 @@ contract Pool is
         _ensure(deadline);
         requireAssetNotPaused(fromToken);
 
-        uint8 fromDecimal = _assetOf(fromToken).underlyingTokenDecimals();
-        uint8 toDecimal = _assetOf(toToken).underlyingTokenDecimals();
-
-        (actualToAmount, haircut) = _swap(
-            fromToken,
-            toToken,
-            fromAmount.toWad(fromDecimal),
-            minimumToAmount.toWad(toDecimal),
-            to
-        );
-
-        actualToAmount = actualToAmount.fromWad(toDecimal);
-        haircut = haircut.fromWad(toDecimal);
-
-        IERC20(fromToken).safeTransferFrom(address(msg.sender), address(_assetOf(fromToken)), fromAmount);
-        _assetOf(toToken).transferUnderlyingToken(to, actualToAmount);
-
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
-    }
-
-    /**
-     * expect fromAmount and minimumToAmount to be in WAD
-     */
-    function _swap(
-        address fromToken,
-        address toToken,
-        uint256 fromAmount,
-        uint256 minimumToAmount,
-        address to
-    ) internal returns (uint256 actualToAmount, uint256 haircut) {
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
-        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
-        _checkAmount(minimumToAmount, actualToAmount);
+        {
+            uint8 fromDecimal = fromAsset.underlyingTokenDecimals();
+            uint8 toDecimal = toAsset.underlyingTokenDecimals();
 
-        _feeCollected[toAsset] += haircut;
+            (actualToAmount, haircut) = _swap(
+                fromAsset,
+                toAsset,
+                fromAmount.toWad(fromDecimal),
+                minimumToAmount.toWad(toDecimal),
+                to
+            );
 
-        fromAsset.addCash(fromAmount);
-
-        if (shouldMaintainGlobalEquil) {
-            // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
-            toAsset.removeCash(actualToAmount + haircut);
-        } else {
-            // haircut is distributed in the form of LP token to beneficiary during _mintFee()
-            toAsset.removeCash(actualToAmount);
+            actualToAmount = actualToAmount.fromWad(toDecimal);
+            haircut = haircut.fromWad(toDecimal);
         }
+
+        IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
+        toAsset.transferUnderlyingToken(to, actualToAmount);
+
+        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
     }
 
     /**
@@ -847,31 +762,6 @@ contract Pool is
 
     /* Utils */
 
-    function _depositReward(int256 amount, IAsset asset) internal view returns (int256 v) {
-        if (shouldMaintainGlobalEquil) {
-            v = depositRewardInEquilImpl(
-                amount,
-                int256(uint256(asset.cash())),
-                int256(uint256(asset.liability())),
-                int256(ampFactor)
-            );
-        } else {
-            (uint256 D, uint256 SL) = _globalInvariantFunc();
-            v = depositRewardImpl(
-                int256(D),
-                int256(SL),
-                amount,
-                int256(uint256(asset.cash())),
-                int256(uint256(asset.liability())),
-                int256(ampFactor)
-            );
-        }
-    }
-
-    function _withdrawalFee(int256 amount, IAsset asset) internal view returns (int256 fee) {
-        fee = -_depositReward(-amount, asset);
-    }
-
     function _globalInvariantFunc() internal view returns (uint256 D, uint256 SL) {
         uint256 A = ampFactor;
 
@@ -904,32 +794,23 @@ contract Pool is
             // early return
             return;
         }
+        {
+            // dividend to veWOM
+            uint256 dividend = feeCollected.wmul(WAD - lpDividendRatio - retentionRatio);
 
-        // dividend to veWOM
-        uint256 dividend = feeCollected.wmul(WAD - lpDividendRatio - retentionRatio);
-        // dividend to LP
-        uint256 lpDividend = feeCollected.wmul(lpDividendRatio);
-
-        if (shouldMaintainGlobalEquil) {
             if (dividend > 0) {
                 asset.transferUnderlyingToken(feeTo, dividend.fromWad(asset.underlyingTokenDecimals()));
             }
+        }
+        {
+            // dividend to LP
+            uint256 lpDividend = feeCollected.wmul(lpDividendRatio);
             if (lpDividend > 0) {
                 // exact deposit to maintain r* = 1
                 // increase the value of the LP token, i.e. assetsPerShare
                 (, uint256 liabilityToMint, ) = _exactDepositToInEquil(asset, lpDividend);
                 asset.addLiability(liabilityToMint);
                 asset.addCash(lpDividend);
-            }
-            // feeCollected.wmul(retentionRatio) remains in the tip bucket
-        } else {
-            if (dividend > 0) {
-                // call totalSupply() and liability() before mint()
-                asset.mint(feeTo, (dividend * asset.totalSupply()) / asset.liability());
-                asset.addLiability(dividend);
-            }
-            if (lpDividend > 0) {
-                asset.addLiability(lpDividend);
             }
         }
 

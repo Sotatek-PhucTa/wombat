@@ -477,10 +477,11 @@ contract MasterWombat is
         uint256[] memory amounts = new uint256[](_pids.length);
         uint256[] memory additionalRewards = new uint256[](_pids.length);
         for (uint256 i = 0; i < _pids.length; ++i) {
-            _updatePool(_pids[i]);
-            PoolInfo storage pool = poolInfo[_pids[i]];
             UserInfo storage user = userInfo[_pids[i]][msg.sender];
             if (user.amount > 0) {
+                _updatePool(_pids[i]);
+
+                PoolInfo storage pool = poolInfo[_pids[i]];
                 // increase pending to send all rewards once
                 uint256 poolRewards = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) /
                     1e12) +

@@ -68,21 +68,21 @@ contract TestCoreV2 is CoreV2 {
         return depositRewardImpl(D, SL, delta_i, A_i, L_i, A);
     }
 
-    function test_depositRewardInEquilImpl(
+    function test_withdrawalAmountInEquilImpl(
         int256 delta_i,
         int256 A_i,
         int256 L_i,
         int256 A
     ) external pure returns (int256 v) {
-        return depositRewardInEquilImpl(delta_i, A_i, L_i, A);
+        return withdrawalAmountInEquilImpl(delta_i, A_i, L_i, A);
     }
 
-    function test_exactDepositRewardInEquilImpl(
+    function test_exactDepositLiquidityInEquilImpl(
         int256 D_i,
         int256 A_i,
         int256 L_i,
         int256 A
     ) external pure returns (int256 v) {
-        return exactDepositRewardInEquilImpl(D_i, A_i, L_i, A);
+        return exactDepositLiquidityInEquilImpl(D_i, A_i, L_i, A);
     }
 }

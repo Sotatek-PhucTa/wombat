@@ -61,7 +61,6 @@ describe('Pool - Utils', function () {
     it('Should get and set correct params', async function () {
       await poolContract.connect(owner).setAmpFactor(parseUnits('0.05', 18))
       await poolContract.connect(owner).setHaircutRate(parseUnits('0.004', 18))
-      await poolContract.connect(owner).setShouldMaintainGlobalEquil(false)
       await poolContract.connect(owner).setRetentionRatio(0)
       await poolContract.connect(owner).setLpDividendRatio(parseEther('1'))
 
@@ -76,9 +75,6 @@ describe('Pool - Utils', function () {
         'Ownable: caller is not the owner'
       )
       await expect(poolContract.connect(user).setHaircutRate(parseUnits('0.004', 18))).to.be.revertedWith(
-        'Ownable: caller is not the owner'
-      )
-      await expect(poolContract.connect(user).setShouldMaintainGlobalEquil(false)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
       await expect(poolContract.connect(user).setRetentionRatio(0)).to.be.revertedWith(

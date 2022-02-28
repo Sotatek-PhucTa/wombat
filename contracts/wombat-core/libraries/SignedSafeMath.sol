@@ -55,4 +55,9 @@ library SignedSafeMath {
         }
         return x;
     }
+
+    function toUint256(int256 value) internal pure returns (uint256) {
+        require(value >= 0, 'value must be positive');
+        return uint256(value);
+    }
 }
