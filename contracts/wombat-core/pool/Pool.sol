@@ -180,7 +180,7 @@ contract Pool is
      */
     function pauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _pauseAsset(address(_assetOf(token)));
+        _pauseAsset(token);
     }
 
     /**
@@ -188,7 +188,7 @@ contract Pool is
      */
     function unpauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _unpauseAsset(address(_assetOf(token)));
+        _unpauseAsset(token);
     }
 
     // Setters //
