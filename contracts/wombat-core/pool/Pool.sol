@@ -436,9 +436,7 @@ contract Pool is
         if (!shouldStake) {
             liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), to);
         } else {
-            if (address(masterWombat) == address(0)) {
-                revert WOMBAT_ZERO_ADDRESS();
-            }
+            _checkAddress(address(masterWombat));
             // deposit and stake on behalf of the user
             liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), address(this));
 
