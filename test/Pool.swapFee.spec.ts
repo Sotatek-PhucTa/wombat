@@ -74,8 +74,7 @@ describe('Pool - Fee', function () {
     await poolContract.connect(owner).addAsset(token1.address, asset1.address)
     await poolContract.connect(owner).addAsset(token2.address, asset2.address)
 
-    await poolContract.connect(owner).setLpDividendRatio(0)
-    await poolContract.connect(owner).setRetentionRatio(parseEther('0.8'))
+    await poolContract.connect(owner).setFee(0, parseEther('0.8'))
   })
 
   describe('Various Paths', function () {
@@ -86,7 +85,7 @@ describe('Pool - Fee', function () {
     })
 
     it('fee should not collected if retention ratio is 1', async function () {
-      await poolContract.connect(owner).setRetentionRatio(parseEther('1.0'))
+      await poolContract.connect(owner).setFee(0, parseEther('1'))
 
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD
@@ -176,8 +175,7 @@ describe('Pool - Fee', function () {
       await poolContract.connect(user1).deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince)
       await poolContract.connect(user1).deposit(token2.address, parseEther('5000'), user1.address, fiveSecondsSince)
 
-      await poolContract.connect(owner).setRetentionRatio(0)
-      await poolContract.connect(owner).setLpDividendRatio(parseEther('0.8'))
+      await poolContract.connect(owner).setFee(parseEther('0.8'), 0)
 
       // approve withdraw
       await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
@@ -248,8 +246,7 @@ describe('Pool - Fee', function () {
 
       it('works (vUSDC -> BUSD) with haircut fees and no dividend', async function () {
         // set dividend to 0
-        await poolContract.connect(owner).setRetentionRatio(parseEther('0'))
-        await poolContract.connect(owner).setLpDividendRatio(parseEther('1.0'))
+        await poolContract.connect(owner).setFee(parseEther('1'), 0)
 
         const beforeFromBalance = await token1.balanceOf(user1.address)
         const beforeToBalance = await token0.balanceOf(user1.address)
@@ -462,8 +459,7 @@ describe('Pool - Fee', function () {
         // set fee collection address
         await poolContract.connect(owner).setFeeTo(user2.address)
 
-        await poolContract.connect(owner).setRetentionRatio(parseEther('0.2'))
-        await poolContract.connect(owner).setLpDividendRatio(parseEther('0.7'))
+        await poolContract.connect(owner).setFee(parseEther('0.7'), parseEther('0.2'))
 
         const beforeFromBalance = await token0.balanceOf(user1.address)
         const beforeToBalance = await token1.balanceOf(user1.address)
@@ -930,8 +926,7 @@ describe('Pool - Fee', function () {
 
       await poolContract.connect(owner).setAmpFactor(parseEther('0.001'))
       await poolContract.connect(owner).setHaircutRate(parseEther('0.0001'))
-      await poolContract.connect(owner).setRetentionRatio(0)
-      await poolContract.connect(owner).setLpDividendRatio(parseEther('0.8'))
+      await poolContract.connect(owner).setFee(parseEther('0.8'), 0)
 
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000')) // 100k BUSD

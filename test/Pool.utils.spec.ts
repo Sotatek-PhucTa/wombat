@@ -62,8 +62,7 @@ describe('Pool - Utils', function () {
     it('Should get and set correct params', async function () {
       await poolContract.connect(owner).setAmpFactor(parseUnits('0.05', 18))
       await poolContract.connect(owner).setHaircutRate(parseUnits('0.004', 18))
-      await poolContract.connect(owner).setRetentionRatio(0)
-      await poolContract.connect(owner).setLpDividendRatio(parseEther('1'))
+      await poolContract.connect(owner).setFee(parseEther('1'), 0)
 
       expect(await poolContract.connect(owner).ampFactor()).to.be.equal(parseUnits('0.05', 18))
       expect(await poolContract.connect(owner).haircutRate()).to.be.equal(parseUnits('0.004', 18))
@@ -78,22 +77,11 @@ describe('Pool - Utils', function () {
       await expect(poolContract.connect(user).setHaircutRate(parseUnits('0.004', 18))).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
-      await expect(poolContract.connect(user).setRetentionRatio(0)).to.be.revertedWith(
-        'Ownable: caller is not the owner'
-      )
-      await expect(poolContract.connect(user).setLpDividendRatio(0)).to.be.revertedWith(
-        'Ownable: caller is not the owner'
-      )
+      await expect(poolContract.connect(user).setFee(0, 0)).to.be.revertedWith('Ownable: caller is not the owner')
     })
 
     it('Should revert if retention + lp dividend > 1', async function () {
-      await poolContract.connect(owner).setLpDividendRatio(parseEther('0.5'))
-      await expect(poolContract.connect(owner).setRetentionRatio(parseEther('0.51'))).to.be.revertedWith(
-        'WOMBAT_INVALID_VALUE'
-      )
-
-      await poolContract.connect(owner).setRetentionRatio(parseEther('0.5'))
-      await expect(poolContract.connect(owner).setLpDividendRatio(parseEther('0.51'))).to.be.revertedWith(
+      await expect(poolContract.connect(owner).setFee(parseEther('0.5'), parseEther('0.51'))).to.be.revertedWith(
         'WOMBAT_INVALID_VALUE'
       )
     })
@@ -106,7 +94,7 @@ describe('Pool - Utils', function () {
       await expect(poolContract.connect(owner).setHaircutRate(parseUnits('12.1', 18))).to.be.revertedWith(
         'WOMBAT_INVALID_VALUE'
       )
-      await expect(poolContract.connect(owner).setRetentionRatio(parseUnits('1.0001', 18))).to.be.revertedWith(
+      await expect(poolContract.connect(owner).setFee(parseUnits('1.0001', 18), 0)).to.be.revertedWith(
         'WOMBAT_INVALID_VALUE'
       )
     })
@@ -232,8 +220,7 @@ describe('Pool - Utils', function () {
 
   describe('fillPool', function () {
     beforeEach(async function () {
-      await poolContract.connect(owner).setLpDividendRatio(0)
-      await poolContract.connect(owner).setRetentionRatio(parseEther('1'))
+      await poolContract.connect(owner).setFee(0, parseEther('1'))
       await poolContract.connect(owner).setHaircutRate(parseEther('0.0001'))
 
       await token0.connect(owner).transfer(user.address, parseEther('100000'))

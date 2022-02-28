@@ -178,17 +178,17 @@ contract Pool is
     /**
      * @dev pause asset, restricting deposit and swap operations
      */
-    function pauseAsset(address asset) external nonReentrant {
+    function pauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _pauseAsset(asset);
+        _pauseAsset(token);
     }
 
     /**
      * @dev unpause asset, enabling deposit and swap operations
      */
-    function unpauseAsset(address asset) external nonReentrant {
+    function unpauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _unpauseAsset(asset);
+        _unpauseAsset(token);
     }
 
     // Setters //
@@ -219,19 +219,10 @@ contract Pool is
         haircutRate = haircutRate_;
     }
 
-    /**
-     * @notice Changes the pools retentionRatio. Can only be set by the contract owner.
-     * @param retentionRatio_ new pool's retentionRatio
-     */
-    function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
-        if (retentionRatio_ + lpDividendRatio > WAD) revert WOMBAT_INVALID_VALUE();
+    function setFee(uint256 lpDividendRatio_, uint256 retentionRatio_) external onlyOwner {
+        if (retentionRatio_ + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
         mintAllFee();
         retentionRatio = retentionRatio_;
-    }
-
-    function setLpDividendRatio(uint256 lpDividendRatio_) external onlyOwner {
-        if (retentionRatio + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
-        mintAllFee();
         lpDividendRatio = lpDividendRatio_;
     }
 
