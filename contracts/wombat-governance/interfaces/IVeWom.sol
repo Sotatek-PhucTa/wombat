@@ -7,7 +7,7 @@ pragma solidity 0.8.5;
 interface IVeWom {
     struct Breeding {
         uint48 unlockTime;
-        uint104 WomAmount;
+        uint104 womAmount;
         uint104 veWomAmount;
     }
 
@@ -23,7 +23,7 @@ interface IVeWom {
 
     function getUserInfo(address addr) external view returns (UserInfo memory);
 
-    function mint(uint256 amount, uint256 lockDays) external;
+    function mint(uint256 amount, uint256 lockDays) external returns (uint256 veWomAmount);
 
     function burn(uint256 slot) external;
 }

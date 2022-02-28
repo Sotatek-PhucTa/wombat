@@ -6,12 +6,13 @@ import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import './VeERC20Upgradeable.sol';
+import './libraries/DSMath.sol';
+import './libraries/LogExpMath.sol';
 import './interfaces/IWhitelist.sol';
 import './interfaces/IMasterWombat.sol';
-import './libraries/DSMath.sol';
 import './interfaces/IVeWom.sol';
 import './interfaces/IWombatNFT.sol';
+import './VeERC20Upgradeable.sol';
 
 /// @title VeWom
 /// @notice Wombat Waddle: the staking contract for WOM, as well as the token used for governance.
@@ -28,6 +29,9 @@ contract VeWom is
     IVeWom
 {
     using SafeERC20 for IERC20;
+    using DSMath for uint256;
+
+    uint256 constant WAD = 1e18;
 
     /// @notice the wom token
     IERC20 public wom;
@@ -49,6 +53,9 @@ contract VeWom is
     /// @notice user info mapping
     mapping(address => UserInfo) internal users;
 
+    event Enter(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
+    event Exit(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
+
     error VEWOM_OVERFLOW();
 
     function initialize(
@@ -69,7 +76,8 @@ contract VeWom is
         wom = _wom;
         nft = _nft;
 
-        maxBreedingLength = 10;
+        // Note: one should pay attention to storage collision
+        maxBreedingLength = 10000;
         minLockDays = 7;
         maxLockDays = 1461;
     }
@@ -109,6 +117,11 @@ contract VeWom is
         whitelist = _whitelist;
     }
 
+    function setMaxBreedingLength(uint256 _maxBreedingLength) external onlyOwner {
+        if (_maxBreedingLength > type(uint32).max) revert VEWOM_OVERFLOW();
+        maxBreedingLength = uint32(_maxBreedingLength);
+    }
+
     /// @notice checks wether user _addr has wom staked
     /// @param _addr the user address to check
     /// @return true if the user has wom in stake, false otherwise
@@ -131,12 +144,18 @@ contract VeWom is
     }
 
     function _expectedVeWomAmount(uint256 amount, uint256 lockDays) internal returns (uint256) {
-        // TODO: implement;
-        return amount * lockDays;
+        // veWOM = 0.16 * lockDays^0.25
+        return amount.wmul(161747451270894000).wmul(LogExpMath.pow(lockDays * WAD, 25e16));
     }
 
     /// @notice lock WOM into contract and mint veWOM
-    function mint(uint256 amount, uint256 lockDays) external override nonReentrant whenNotPaused {
+    function mint(uint256 amount, uint256 lockDays)
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (uint256 veWomAmount)
+    {
         require(amount > 0, 'amount to deposit cannot be zero');
         if (amount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
 
@@ -148,7 +167,7 @@ contract VeWom is
         require(users[msg.sender].breedings.length < uint256(maxBreedingLength), 'breed too much');
 
         uint256 unlockTime = block.timestamp + 86400 * lockDays; // seconds in a day = 86400
-        uint256 veWomAmount = _expectedVeWomAmount(amount, lockDays);
+        veWomAmount = _expectedVeWomAmount(amount, lockDays);
 
         if (unlockTime > uint256(type(uint48).max)) revert VEWOM_OVERFLOW();
         if (veWomAmount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
@@ -160,6 +179,8 @@ contract VeWom is
 
         // event Mint(address indexed user, uint256 indexed amount) is emitted
         _mint(msg.sender, veWomAmount);
+
+        emit Enter(msg.sender, unlockTime, amount, veWomAmount);
     }
 
     function burn(uint256 slot) external override nonReentrant whenNotPaused {
@@ -175,10 +196,12 @@ contract VeWom is
         }
         users[msg.sender].breedings.pop();
 
-        wom.transfer(msg.sender, breeding.WomAmount);
+        wom.transfer(msg.sender, breeding.womAmount);
 
         // event Burn(address indexed user, uint256 indexed amount) is emitted
         _burn(msg.sender, breeding.veWomAmount);
+
+        emit Exit(msg.sender, breeding.unlockTime, breeding.womAmount, breeding.veWomAmount);
     }
 
     /// @notice asserts addres in param is not a smart contract.
