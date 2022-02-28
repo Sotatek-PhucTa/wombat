@@ -812,11 +812,10 @@ describe('MasterWombat', function () {
       await this.mw.connect(users[10]).deposit(3, parseUnits('10000', 18)) // mim
     })
 
-    it.skip('should set & update factor and sumOfFactors correctly', async function () {
+    it('should set & update factor and sumOfFactors correctly', async function () {
       /// usdt 0 / usdc 1 / dai 2 / mim 3
       /// === First part === ///
       /// (1) first check each pool sumOfFactors and users[10] factor per pool
-
       const user10Factors = new Map<number, BigNumberish>([
         [0, sqrt(parseUnits('10000', 6).mul(parseEther('10000')))],
         [1, sqrt(parseUnits('10000', 6).mul(parseEther('10000')))],
@@ -865,6 +864,7 @@ describe('MasterWombat', function () {
       await this.wom.connect(users[10]).approve(this.mockVeWom.address, ethers.constants.MaxUint256)
       await this.wom.transfer(users[10].address, parseEther('10000'))
       await this.mockVeWom.connect(users[10]).mint(parseEther('10000'), 7)
+      await this.mw.connect(users[10]).deposit(0, 0)
 
       // USDT
       usdtPoolInfo = await this.mw.poolInfo(0)
@@ -903,7 +903,7 @@ describe('MasterWombat', function () {
 
       /// === Third part === ///
       /// (3) then burn vewom and see if factor and sumOfFactors updates correctly for each pool
-      await this.mockVeWom.connect(users[10]).burn(0)
+      await this.mockVeWom.connect(users[10]).burn2(await this.mockVeWom.balanceOf(users[10].address))
 
       // USDT
       usdtPoolInfo = await this.mw.poolInfo(0)
