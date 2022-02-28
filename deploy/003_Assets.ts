@@ -14,15 +14,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   if (hre.network.name == 'localhost' || hre.network.name == 'hardhat' || hre.network.name == 'bsc_testnet') {
     console.log(`Step 003. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
-    // Deploy Accounts contract
-    const usdAggregateAccountDeployResult = await deploy('USD_Aggregate', {
-      from: deployer,
-      contract: 'AggregateAccount',
-      log: true,
-      args: ['USD_Aggregate', true],
-      skipIfAlreadyDeployed: true,
-    })
-
     // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
     for (const index in USD_TOKENS_ARGS) {
       // console.log('Attemping to deploy Asset contract : ' + USD_TOKENS_ARGS[index][0])
@@ -38,12 +29,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         from: deployer,
         contract: 'Asset',
         log: true,
-        args: [
-          token.address,
-          `Wombat ${tokenName} Asset`,
-          `LP-${tokenSymbol}`,
-          usdAggregateAccountDeployResult.address,
-        ],
+        args: [token.address, `Wombat ${tokenName} Asset`, `LP-${tokenSymbol}`],
         skipIfAlreadyDeployed: true,
       })
 

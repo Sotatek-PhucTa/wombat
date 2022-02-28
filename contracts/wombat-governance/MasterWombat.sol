@@ -17,8 +17,8 @@ import './interfaces/IMasterWombat.sol';
 import './interfaces/IRewarder.sol';
 
 /// MasterWombat is a boss. He says "go f your blocks maki boy, I'm gonna use timestamp instead"
-/// In addition, he feeds himself from Venom. So, veWom holders boost their (boosting) emissions.
-/// This contract rewards users in function of their amount of lp staked (base pool) factor (boosting pool)
+/// In addition, he feeds himself from Venom. So, veWom holders boost their (boosted) emissions.
+/// This contract rewards users in function of their amount of lp staked (base pool) factor (boosted pool)
 /// Factor and sumOfFactors are updated by contract VeWom.sol after any veWom minting/burning (veERC20Upgradeable hook).
 /// Note that it's ownable and the owner wields tremendous power. The ownership
 /// will be transferred to a governance smart contract once Wombat is sufficiently
@@ -37,7 +37,7 @@ contract MasterWombat is
     struct UserInfo {
         uint256 amount; // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
-        uint256 factor; // boosting factor = sqrt (lpAmount * veWom.balanceOf())
+        uint256 factor; // boosted factor = sqrt (lpAmount * veWom.balanceOf())
         //
         // We do some fancy math here. Basically, any point in time, the amount of WOMs
         // entitled to a user but is pending to be distributed is:
@@ -59,7 +59,7 @@ contract MasterWombat is
         uint256 lastRewardTimestamp; // Last timestamp that WOMs distribution occurs.
         uint256 accWomPerShare; // Accumulated WOMs per share, times 1e12.
         IRewarder rewarder;
-        uint256 sumOfFactors; // the sum of all boosting factors by all of the users in the pool
+        uint256 sumOfFactors; // the sum of all boosted factors by all of the users in the pool
         uint256 accWomPerFactorShare; // accumulated wom per factor share
     }
 
@@ -74,8 +74,8 @@ contract MasterWombat is
     // Emissions: both must add to 1000 => 100%
     // base partition emissions (e.g. 300 for 30%)
     uint256 public basePartition;
-    // boosting partition emissions (e.g. 500 for 50%)
-    uint256 public boostingPartition;
+    // boosted partition emissions (e.g. 500 for 50%)
+    uint256 public boostedPartition;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint;
     // The timestamp when WOM mining starts.
@@ -98,7 +98,7 @@ contract MasterWombat is
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event UpdateEmissionRate(address indexed user, uint256 womPerSec);
-    event UpdateEmissionPartition(address indexed user, uint256 basePartition, uint256 boostingPartition);
+    event UpdateEmissionPartition(address indexed user, uint256 basePartition, uint256 boostedPartition);
     event UpdateVeWOM(address indexed user, address oldVeWOM, address newVeWOM);
 
     /// @dev Modifier ensuring that certain function can only be called by VeWom
@@ -127,7 +127,7 @@ contract MasterWombat is
         veWom = _veWom;
         womPerSec = _womPerSec;
         basePartition = _basePartition;
-        boostingPartition = 1000 - _basePartition;
+        boostedPartition = 1000 - _basePartition;
         startTimestamp = _startTimestamp;
         totalAllocPoint = 0;
     }
@@ -248,7 +248,7 @@ contract MasterWombat is
             uint256 womReward = (secondsElapsed * womPerSec * pool.allocPoint) / totalAllocPoint;
             accWomPerShare += (womReward * 1e12 * basePartition) / (lpSupply * 1000);
             if (pool.sumOfFactors != 0) {
-                accWomPerFactorShare += (womReward * 1e12 * boostingPartition) / (pool.sumOfFactors * 1000);
+                accWomPerFactorShare += (womReward * 1e12 * boostedPartition) / (pool.sumOfFactors * 1000);
             }
         }
         pendingRewards =
@@ -312,11 +312,11 @@ contract MasterWombat is
             // update accWomPerShare to reflect base rewards
             pool.accWomPerShare += (womReward * 1e12 * basePartition) / (lpSupply * 1000);
 
-            // update accWomPerFactorShare to reflect boosting rewards
+            // update accWomPerFactorShare to reflect boosted rewards
             if (pool.sumOfFactors == 0) {
                 pool.accWomPerFactorShare = 0;
             } else {
-                pool.accWomPerFactorShare += (womReward * 1e12 * boostingPartition) / (pool.sumOfFactors * 1000);
+                pool.accWomPerFactorShare += (womReward * 1e12 * boostedPartition) / (pool.sumOfFactors * 1000);
             }
 
             // update lastRewardTimestamp to now
@@ -380,7 +380,7 @@ contract MasterWombat is
         // update amount of lp staked by user
         user.amount += _amount;
 
-        // update boosting factor
+        // update boosted factor
         uint256 oldFactor = user.factor;
         user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(_user));
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
@@ -427,7 +427,7 @@ contract MasterWombat is
         // update amount of lp staked by user
         user.amount += _amount;
 
-        // update boosting factor
+        // update boosted factor
         uint256 oldFactor = user.factor;
         user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender));
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
@@ -477,10 +477,11 @@ contract MasterWombat is
         uint256[] memory amounts = new uint256[](_pids.length);
         uint256[] memory additionalRewards = new uint256[](_pids.length);
         for (uint256 i = 0; i < _pids.length; ++i) {
-            _updatePool(_pids[i]);
-            PoolInfo storage pool = poolInfo[_pids[i]];
             UserInfo storage user = userInfo[_pids[i]][msg.sender];
             if (user.amount > 0) {
+                _updatePool(_pids[i]);
+
+                PoolInfo storage pool = poolInfo[_pids[i]];
                 // increase pending to send all rewards once
                 uint256 poolRewards = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) /
                     1e12) +
@@ -546,13 +547,13 @@ contract MasterWombat is
         pending = safeWomTransfer(payable(msg.sender), pending);
         emit Harvest(msg.sender, _pid, pending);
 
-        // for boosting factor
+        // for boosted factor
         uint256 oldFactor = user.factor;
 
         // update amount of lp staked
         user.amount = user.amount - _amount;
 
-        // update boosting factor
+        // update boosted factor
         user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender));
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
@@ -577,7 +578,7 @@ contract MasterWombat is
         UserInfo storage user = userInfo[_pid][msg.sender];
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
 
-        // update boosting factor
+        // update boosted factor
         pool.sumOfFactors = pool.sumOfFactors - user.factor;
         user.factor = 0;
 
@@ -623,7 +624,7 @@ contract MasterWombat is
         require(_basePartition <= 1000);
         massUpdatePools();
         basePartition = _basePartition;
-        boostingPartition = 1000 - _basePartition;
+        boostedPartition = 1000 - _basePartition;
         emit UpdateEmissionPartition(msg.sender, _basePartition, 1000 - _basePartition);
     }
 

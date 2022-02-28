@@ -22,10 +22,19 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     address public override underlyingToken;
     /// @notice The Pool
     address public override pool;
+
+    // fit into a 256 bit storage slot
+
     /// @notice Cash balance, normally it should align with IERC20(underlyingToken).balanceOf(address(this))
-    uint128 public override cash;
+    /// @dev 18.18 fixed point decimals
+    uint120 public override cash;
     /// @notice Total liability, equals to the sum of deposit and dividend
-    uint128 public override liability;
+    /// @dev 18.18 fixed point decimals
+    uint120 public override liability;
+
+    uint8 public override underlyingTokenDecimals;
+    uint8 internal reserved;
+
     /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
     /// @dev if 0, means asset has no max
     uint256 public maxSupply;
@@ -57,6 +66,7 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
         string memory symbol_
     ) ERC20(name_, symbol_) ERC20Permit(name_) {
         underlyingToken = underlyingToken_;
+        underlyingTokenDecimals = ERC20(underlyingToken_).decimals();
     }
 
     /**
@@ -85,14 +95,6 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      */
     function decimals() public view virtual override(ERC20, IAsset) returns (uint8) {
         return 18;
-    }
-
-    /**
-     * @notice Returns the decimals of ERC20 underlyingToken
-     * @return The current decimals for underlying token
-     */
-    function underlyingTokenDecimals() public view virtual override returns (uint8) {
-        return ERC20(underlyingToken).decimals();
     }
 
     /**
@@ -140,8 +142,8 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      * @param amount amount to add
      */
     function addCash(uint256 amount) external override onlyPool {
-        if (amount > type(uint128).max) revert ASSET_OVERFLOW();
-        cash += uint128(amount);
+        if (amount > type(uint120).max) revert ASSET_OVERFLOW();
+        cash += uint120(amount);
     }
 
     /**
@@ -151,7 +153,7 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      */
     function removeCash(uint256 amount) external override onlyPool {
         require(cash >= amount, 'Wombat: INSUFFICIENT_CASH');
-        cash -= uint128(amount);
+        cash -= uint120(amount);
     }
 
     /**
@@ -160,8 +162,8 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      * @param amount amount to add
      */
     function addLiability(uint256 amount) external override onlyPool {
-        if (amount > type(uint128).max) revert ASSET_OVERFLOW();
-        liability += uint128(amount);
+        if (amount > type(uint120).max) revert ASSET_OVERFLOW();
+        liability += uint120(amount);
     }
 
     /**
@@ -171,6 +173,6 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
      */
     function removeLiability(uint256 amount) external override onlyPool {
         require(liability >= amount, 'Wombat: INSUFFICIENT_LIABILITY');
-        liability -= uint128(amount);
+        liability -= uint120(amount);
     }
 }

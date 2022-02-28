@@ -141,7 +141,7 @@ describe('VeWOM', function () {
 
   it('lock day should be valid', async function () {
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
-    // deposit 100 wom into veWOM
+    // mint 100 WOM
     await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
@@ -150,32 +150,64 @@ describe('VeWOM', function () {
     await expect(this.veWom.connect(users[0]).mint(parseEther('10'), 1462)).to.be.revertedWith('lock days is invalid')
   })
 
-  it('should allow minting several times', async function () {
+  it('should allow minting multiple times with different length', async function () {
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
-    // deposit 100 wom into veWOM
+    // mint 100 WOM
     await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
 
     await this.veWom.connect(users[0]).mint(parseEther('10'), 14)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('140'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('3.128739858787603784'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('90'))
 
     await this.veWom.connect(users[0]).mint(parseEther('1'), 1000)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('1140'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('4.038312619725963228'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('89'))
 
     await this.veWom.connect(users[0]).mint(parseEther('10'), 7)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('1210'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('6.669258751241872299'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('79'))
   })
 
-  it('should respect maxBreedingLength', async function () {
-    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
-    // deposit 100 wom into veWOM
+  it('lock 7 days', async function () {
+    // mint 100 WOM
     await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
+
+    await this.veWom.connect(users[0]).mint(parseEther('100'), 7)
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('26.309461315159090706'))
+  })
+
+  it('lock 1 years', async function () {
+    // mint 100 WOM
+    await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
+    await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
+
+    await this.veWom.connect(users[0]).mint(parseEther('100'), 365)
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('70.698575306381174755'))
+  })
+
+  it('lock 4 years', async function () {
+    // mint 100 WOM
+    await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
+    await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
+
+    await this.veWom.connect(users[0]).mint(parseEther('100'), 1461)
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('99.999999999999973347'))
+  })
+
+  it('should respect maxBreedingLength', async function () {
+    // mint 100 WOM
+    await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
+    expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
+    await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
+
+    // set max length to 10
+    await this.veWom.connect(owner).setMaxBreedingLength(10)
 
     for (let i = 0; i < 10; i++) {
       await this.veWom.connect(users[0]).mint(parseEther('1'), 7)
@@ -186,7 +218,7 @@ describe('VeWOM', function () {
 
   it('burn should work', async function () {
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
-    // deposit 100 wom into veWOM
+    // mint 100 WOM
     await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
@@ -194,22 +226,25 @@ describe('VeWOM', function () {
     await this.veWom.connect(users[0]).mint(parseEther('10'), 7)
     await this.veWom.connect(users[0]).mint(parseEther('20'), 7)
     await this.veWom.connect(users[0]).mint(parseEther('5'), 7)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('245'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('9.208311460305681747'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('65'))
 
     const secondsInDay = 86400
     advanceTimeAndBlock(secondsInDay * 7)
 
+    // balance should be the same after expiry
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('9.208311460305681747'))
+
     await this.veWom.connect(users[0]).burn(0)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('175'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('6.577365328789772676'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('75'))
 
     await this.veWom.connect(users[0]).burn(1)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('35'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('1.315473065757954535'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('95'))
 
     await this.veWom.connect(users[0]).burn(0)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('0'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('0')) // should equal to 0 exactly
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
 
     await expect(this.veWom.connect(users[0]).burn(0)).to.be.revertedWith('wut?')
@@ -217,7 +252,7 @@ describe('VeWOM', function () {
 
   it('burn should reject if time not reached yet', async function () {
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
-    // deposit 100 wom into veWOM
+    // mint 100 WOM
     await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
