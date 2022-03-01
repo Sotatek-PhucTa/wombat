@@ -14,6 +14,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const wombatToken = await deployments.get('WombatToken')
   const masterWombat = await deployments.get('MasterWombat')
 
+  // deterministicDeployment is used only for implementation but not the proxy contract
+  // it is not useful in this case
   const deployResult = await deploy(contractName, {
     from: deployer,
     log: true,
@@ -29,7 +31,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         },
       },
     },
-    deterministicDeployment: true, // use CREATE2 for deterministic address
   })
   // Get freshly deployed Pool contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)

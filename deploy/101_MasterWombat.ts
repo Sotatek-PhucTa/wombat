@@ -13,6 +13,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
+  const pool = await deployments.get('Pool')
 
   const block = await ethers.provider.getBlock('latest')
   const latest = BigNumber.from(block.timestamp)
@@ -41,6 +42,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log('Implementaion address:', implAddr)
 
   if (deployResult.newlyDeployed) {
+    const poolContract = await ethers.getContractAt('MasterWombat', pool.address)
+    await poolContract.setMasterWombat(deployResult.address)
+
     // Check setup config values
     const womTokenAddress = await contract.wom()
     const masterWombatAddress = await contract.veWom()
