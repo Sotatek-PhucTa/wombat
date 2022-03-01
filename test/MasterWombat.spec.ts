@@ -294,7 +294,7 @@ describe('MasterWombat', function () {
         startTime
       )
 
-      await this.mockVeWom.init(this.wom.address, this.mw.address, ethers.constants.AddressZero)
+      await this.mockVeWom.initialize(this.wom.address, this.mw.address)
 
       // transfer 80% of wom supply to master wombat contract
       const supply = (await this.wom.totalSupply()).mul(8).div(10)
@@ -390,7 +390,7 @@ describe('MasterWombat', function () {
         startTime
       )
 
-      this.mockVeWom.init(this.wom.address, this.mw.address, ethers.constants.AddressZero)
+      this.mockVeWom.initialize(this.wom.address, this.mw.address)
 
       const supply = (await this.wom.totalSupply()).mul(8).div(10)
       await this.wom.connect(owner).transfer(this.mw.address, supply)
@@ -604,7 +604,7 @@ describe('MasterWombat', function () {
         startTime
       )
 
-      await this.mockVeWom.init(this.wom.address, this.mw.address, ethers.constants.AddressZero)
+      await this.mockVeWom.initialize(this.wom.address, this.mw.address)
 
       const supply = (await this.wom.totalSupply()).mul(8).div(10)
       await this.wom.connect(owner).transfer(this.mw.address, supply)
@@ -716,7 +716,7 @@ describe('MasterWombat', function () {
         startTime
       )
 
-      await this.mockVeWom.init(this.wom.address, this.mw.address, ethers.constants.AddressZero)
+      await this.mockVeWom.initialize(this.wom.address, this.mw.address)
 
       const supply = (await this.wom.totalSupply()).mul(8).div(10)
       await this.wom.connect(owner).transfer(this.mw.address, supply)
@@ -960,7 +960,7 @@ describe('MasterWombat', function () {
         startTime
       )
 
-      await this.mockVeWom.init(this.wom.address, this.mw.address, ethers.constants.AddressZero)
+      await this.mockVeWom.initialize(this.wom.address, this.mw.address)
 
       const supply = (await this.wom.totalSupply()).mul(8).div(10)
       await this.wom.connect(owner).transfer(this.mw.address, supply)
