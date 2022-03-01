@@ -142,8 +142,8 @@ The primary license for Wombat V1 Core is the Business Source License 1.1 (BUSL-
 
 ### Exceptions
 
-- All files in `contracts/interfaces/` are licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers).
-- All files in `contracts/libraries/` are licensed under `GPL-2.0-or-later` or `MIT` (as indicated in their SPDX headers).
+- All files in `contracts/*/interfaces/` are licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers).
+- All files in `contracts/*/libraries/` are licensed under `GPL-2.0-or-later` or `MIT` (as indicated in their SPDX headers).
 - All files in contracts/test remain unlicensed.
 
 ## Helpful Links 🔗

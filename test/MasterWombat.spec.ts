@@ -167,10 +167,10 @@ describe('MasterWombat', function () {
 
       // update emissions partition
       expect(await this.mw.basePartition()).to.be.equal(1000)
-      expect(await this.mw.boostingPartition()).to.be.equal(0)
+      expect(await this.mw.boostedPartition()).to.be.equal(0)
       const receipt2 = await this.mw.updateEmissionPartition(500)
       expect(await this.mw.basePartition()).to.be.equal(500)
-      expect(await this.mw.boostingPartition()).to.be.equal(500)
+      expect(await this.mw.boostedPartition()).to.be.equal(500)
 
       expect(receipt2).to.emit(this.mw, 'UpdateEmissionPartition').withArgs(owner.address, 500, 500)
     })
@@ -355,7 +355,7 @@ describe('MasterWombat', function () {
       await this.mw.add('15', this.mim.address, ethers.constants.AddressZero)
       expect(await this.mw.totalAllocPoint()).to.be.equal(100)
       expect(await this.mw.basePartition()).to.be.equal(1000)
-      expect(await this.mw.boostingPartition()).to.be.equal(0)
+      expect(await this.mw.boostedPartition()).to.be.equal(0)
     })
 
     it('should claim wom when withdraw', async function () {
@@ -367,12 +367,12 @@ describe('MasterWombat', function () {
     })
   })
 
-  describe('[USDC Pool] Boosting pool only', function () {
+  describe('[USDC Pool] boosted pool only', function () {
     beforeEach(async function () {
       // We make start time 60 seconds past the last block
       const startTime = (await latest()).add(60)
 
-      const boostingPerSec = parseEther('0.5707762557077626')
+      const boostedPerSec = parseEther('0.5707762557077626')
 
       const MockVeWom = await ethers.getContractFactory('MockVeWom')
       this.mockVeWom = await MockVeWom.deploy()
@@ -385,8 +385,8 @@ describe('MasterWombat', function () {
       await this.mw.initialize(
         this.wom.address,
         this.mockVeWom.address,
-        boostingPerSec,
-        0, // 100% boosting
+        boostedPerSec,
+        0, // 100% boosted
         startTime
       )
 
@@ -462,7 +462,7 @@ describe('MasterWombat', function () {
         this.wom.address,
         this.vewom.address,
         this.womPerSec,
-        1000, // 100% boosting
+        1000, // 100% boosted
         startTime
       )
 
@@ -584,7 +584,7 @@ describe('MasterWombat', function () {
     })
   })
 
-  describe('[All pools] Base + Boosting pool', function () {
+  describe('[All pools] Base + boosted pool', function () {
     beforeEach(async function () {
       // We make start time 60 seconds past the last block
       const startTime = (await latest()).add(60)
@@ -664,7 +664,7 @@ describe('MasterWombat', function () {
       await this.mw.add('15', this.mim.address, ethers.constants.AddressZero)
       expect(await this.mw.totalAllocPoint()).to.be.equal(100)
       expect(await this.mw.basePartition()).to.be.equal(375)
-      expect(await this.mw.boostingPartition()).to.be.equal(625)
+      expect(await this.mw.boostedPartition()).to.be.equal(625)
 
       /// deposits
       // deposit full balance of each user into usdc pool
@@ -776,7 +776,7 @@ describe('MasterWombat', function () {
       await this.mw.add('15', this.mim.address, ethers.constants.AddressZero)
       expect(await this.mw.totalAllocPoint()).to.be.equal(100)
       expect(await this.mw.basePartition()).to.be.equal(375)
-      expect(await this.mw.boostingPartition()).to.be.equal(625)
+      expect(await this.mw.boostedPartition()).to.be.equal(625)
 
       // NEW USER with 10k vewom and 10k everything
       await this.mockVeWom.connect(users[10]).faucet(parseEther('10000'))
@@ -812,11 +812,10 @@ describe('MasterWombat', function () {
       await this.mw.connect(users[10]).deposit(3, parseUnits('10000', 18)) // mim
     })
 
-    it.skip('should set & update factor and sumOfFactors correctly', async function () {
+    it('should set & update factor and sumOfFactors correctly', async function () {
       /// usdt 0 / usdc 1 / dai 2 / mim 3
       /// === First part === ///
       /// (1) first check each pool sumOfFactors and users[10] factor per pool
-
       const user10Factors = new Map<number, BigNumberish>([
         [0, sqrt(parseUnits('10000', 6).mul(parseEther('10000')))],
         [1, sqrt(parseUnits('10000', 6).mul(parseEther('10000')))],
@@ -865,6 +864,7 @@ describe('MasterWombat', function () {
       await this.wom.connect(users[10]).approve(this.mockVeWom.address, ethers.constants.MaxUint256)
       await this.wom.transfer(users[10].address, parseEther('10000'))
       await this.mockVeWom.connect(users[10]).mint(parseEther('10000'), 7)
+      await this.mw.connect(users[10]).deposit(0, 0)
 
       // USDT
       usdtPoolInfo = await this.mw.poolInfo(0)
@@ -903,7 +903,7 @@ describe('MasterWombat', function () {
 
       /// === Third part === ///
       /// (3) then burn vewom and see if factor and sumOfFactors updates correctly for each pool
-      await this.mockVeWom.connect(users[10]).burn(0)
+      await this.mockVeWom.connect(users[10]).burn2(await this.mockVeWom.balanceOf(users[10].address))
 
       // USDT
       usdtPoolInfo = await this.mw.poolInfo(0)
@@ -1020,7 +1020,7 @@ describe('MasterWombat', function () {
       await this.mw.add('15', this.mim.address, ethers.constants.AddressZero)
       expect(await this.mw.totalAllocPoint()).to.be.equal(100)
       expect(await this.mw.basePartition()).to.be.equal(375)
-      expect(await this.mw.boostingPartition()).to.be.equal(625)
+      expect(await this.mw.boostedPartition()).to.be.equal(625)
 
       /// deposits
       // deposit full balance of each user into usdc pool
@@ -1180,7 +1180,7 @@ describe('MasterWombat', function () {
         await this.mwV2.add('15', this.mim.address, ethers.constants.AddressZero)
         expect(await this.mwV2.totalAllocPoint()).to.be.equal(100)
         expect(await this.mwV2.basePartition()).to.be.equal(375)
-        expect(await this.mwV2.boostingPartition()).to.be.equal(625)
+        expect(await this.mwV2.boostedPartition()).to.be.equal(625)
 
         /// deposits
         // deposit full balance of each user into usdc pool
