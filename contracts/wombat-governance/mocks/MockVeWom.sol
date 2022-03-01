@@ -5,17 +5,8 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '../VeWom.sol';
 import '../MasterWombat.sol';
-import '../interfaces/IWombatNFT.sol';
 
 contract MockVeWom is Initializable, VeWom {
-    function init(
-        IERC20 _wom,
-        MasterWombat _wombatMaster,
-        IWombatNFT _nft
-    ) external initializer {
-        initialize(_wom, _wombatMaster, _nft);
-    }
-
     function faucet(uint256 _amount) public {
         _mint(msg.sender, _amount);
     }
