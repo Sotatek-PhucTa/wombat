@@ -17,7 +17,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  console.log(`Step 004. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   /// Deploy pool
   const womDeployResult = await deploy(contractName, {
