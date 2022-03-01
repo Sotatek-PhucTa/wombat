@@ -7,7 +7,7 @@ interface IWombatToken {
 }
 
 export const WOMBAT_TOKENS_ARGS: IWombatToken = {
-  WOM: ['Wombat Token', 'WOM', '18', 1e9], // 1b tokens minted to msg.sender initially
+  WOM: ['Wombat Token', 'WOM', '18', '1000000000'], // 1b tokens minted to msg.sender initially
 }
 
 const contractName = 'WombatToken'
@@ -24,7 +24,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     contract: 'WombatERC20',
     log: true,
-    args: [parseEther('1000000000')], // 1b tokens minted to msg.sender initially
+    args: [parseEther(WOMBAT_TOKENS_ARGS['WOM'][3] as string)], // 1b tokens minted to msg.sender initially
     skipIfAlreadyDeployed: true,
     deterministicDeployment: true, // use CREATE2 for deterministic address
   })
