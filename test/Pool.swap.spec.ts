@@ -233,15 +233,15 @@ describe('Pool - Swap', function () {
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
         expect(tokenSent).to.be.equal(parseUnits('-100', 8))
-        expect(tokenGot).to.be.equal(parseEther('99.519462997587760000'))
+        expect(tokenGot).to.be.equal(parseEther('99.519462997587750000'))
 
         //check if token got is equal to token quoted
         expect(tokenGot).to.be.equal(quotedAmount)
 
         // check BUSD post swap positions
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412250000'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.480537002412240000')) // should always equal cash
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.480537002412250000')) // should always equal cash
 
         // check vUSDC post swap positions
         expect(await asset1.cash()).to.be.equal(parseEther('1100'))
@@ -255,7 +255,7 @@ describe('Pool - Swap', function () {
             token1.address,
             token0.address,
             parseUnits('100', 8),
-            parseEther('99.519462997587760000'),
+            parseEther('99.519462997587750000'),
             user1.address
           )
 
@@ -286,15 +286,15 @@ describe('Pool - Swap', function () {
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
         expect(tokenSent).to.be.equal(parseUnits('-100', 8))
-        expect(tokenGot).to.be.equal(parseEther('99.479655212388724896'))
+        expect(tokenGot).to.be.equal(parseEther('99.479655212388714900'))
 
         //check if token got is equal to token quoted
         expect(tokenGot).to.be.equal(quotedAmount)
 
         // check BUSD post swap positions
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412250000'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104')) // should always equal cash
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611285100')) // should always equal cash
 
         // check vUSDC post swap positions
         expect(await asset1.cash()).to.be.equal(parseEther('1100'))
@@ -308,13 +308,13 @@ describe('Pool - Swap', function () {
             token1.address,
             token0.address,
             parseUnits('100', 8),
-            parseEther('99.479655212388724896'),
+            parseEther('99.479655212388714900'),
             user1.address
           )
 
         // token has 8 decimals, while cash has 18.
         expect(tokenSent.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('1000'))
-        expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('9999.960192214800964896'))
+        expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('9999.960192214800964900'))
       })
 
       it('works (BUSD -> exact vUSDC output) 18 and 8 decimals without haircut fees', async function () {
@@ -360,12 +360,12 @@ describe('Pool - Swap', function () {
           .quotePotentialSwap(token1.address, token0.address, parseUnits('-100', 8))
 
         // check if input token amount is correct
-        expect(quotedAmount).to.be.equal(parseEther('100.617275942224310000'))
+        expect(quotedAmount).to.be.equal(parseEther('100.617275942224320000'))
 
         await poolContract.connect(user1).swap(
           token0.address, // input 1st token
           token1.address,
-          parseEther('100.617275942224310000'), // input to get exact 100 output
+          parseEther('100.617275942224320000'), // input to get exact 100 output
           parseUnits('90', 8), //expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
@@ -375,7 +375,7 @@ describe('Pool - Swap', function () {
 
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
-        expect(tokenSent).to.be.equal(parseEther('-100.617275942224310000'))
+        expect(tokenSent).to.be.equal(parseEther('-100.617275942224320000'))
         expect(tokenGot).to.be.equal(parseUnits('99.99998399', 8)) // rounding error
       })
 
@@ -390,12 +390,12 @@ describe('Pool - Swap', function () {
           .quotePotentialSwap(token3.address, token0.address, parseUnits('-100', 18))
 
         // check if input token amount is correct
-        expect(quotedAmount).to.be.equal(parseEther('100.617275942224310000'))
+        expect(quotedAmount).to.be.equal(parseEther('100.617275942224320000'))
 
         await poolContract.connect(user1).swap(
           token0.address, // input 1st token
           token3.address,
-          parseEther('100.617275942224310000'), // input to get exact 100 output
+          parseEther('100.617275942224320000'), // input to get exact 100 output
           parseEther('90'), //expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
@@ -405,8 +405,8 @@ describe('Pool - Swap', function () {
 
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
-        expect(tokenSent).to.be.equal(parseEther('-100.617275942224310000'))
-        expect(tokenGot).to.be.equal(parseUnits('99.999983999999990004', 18)) // rounding error
+        expect(tokenSent).to.be.equal(parseEther('-100.617275942224320000'))
+        expect(tokenGot).to.be.equal(parseUnits('99.999983999999999000', 18)) // rounding error
       })
 
       it.skip('Rewards actions that move BUSD coverage ratio (Rx) closer', async function () {
@@ -460,7 +460,7 @@ describe('Pool - Swap', function () {
             token1.address,
             token0.address,
             parseUnits('100', 8),
-            parseEther('99.479655212388724896'),
+            parseEther('99.479655212388714900'),
             user1.address
           )
       })

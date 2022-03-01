@@ -36,9 +36,13 @@ contract CoreV2 {
         int256 Dx,
         int256 A
     ) internal pure returns (uint256 quote) {
-        int256 D = _invariantFunc(Lx, Ax.wdiv(Lx), Ly, Ay.wdiv(Ly), A);
+        if (Lx == 0 || Ly == 0) {
+            // in case div of 0
+            revert CORE_UNDERFLOW();
+        }
+        int256 D = Ax + Ay - A.wmul((Lx * Lx) / Ax + (Ly * Ly) / Ay); // flattened _invariantFunc
         int256 rx_ = (Ax + Dx).wdiv(Lx);
-        int256 b = _coefficientFunc(Lx, Ly, rx_, D, A);
+        int256 b = (Lx * (rx_ - A.wdiv(rx_))) / Ly - D.wdiv(Ly); // flattened _coefficientFunc
         int256 ry_ = _solveQuad(b, A);
         int256 Dy = Ly.wmul(ry_) - Ay;
         if (Dy < 0) {
@@ -56,8 +60,7 @@ contract CoreV2 {
      * @return x
      */
     function _solveQuad(int256 b, int256 c) internal pure returns (int256) {
-        int256 sqrtResult = ((b * b) + (c * 4 * WAD_I)).sqrt();
-        return (sqrtResult - b) / 2;
+        return (((b * b) + (c * 4 * WAD_I)).sqrt() - b) / 2;
     }
 
     /**

@@ -120,15 +120,15 @@ describe('Pool - Fee', function () {
       const tokenSent = afterFromBalance.sub(beforeFromBalance)
       const tokenGot = afterToBalance.sub(beforeToBalance)
       expect(tokenSent).to.be.equal(parseUnits('-100', 8))
-      expect(tokenGot).to.be.equal(parseEther('99.479655212388724896'))
+      expect(tokenGot).to.be.equal(parseEther('99.479655212388714900'))
 
       //check if token got is equal to token quoted
       expect(tokenGot).to.be.equal(quotedAmount)
 
       // check BUSD post swap positions
-      expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
+      expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412250000'))
       expect(await asset0.liability()).to.be.equal(parseEther('10000'))
-      expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104')) // should always equal cash
+      expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611285100')) // should always equal cash
 
       // check vUSDC post swap positions
       expect(await asset1.cash()).to.be.equal(parseEther('1100'))
@@ -142,12 +142,12 @@ describe('Pool - Fee', function () {
           token1.address,
           token0.address,
           parseUnits('100', 8),
-          parseEther('99.479655212388724896'),
+          parseEther('99.479655212388714900'),
           user1.address
         )
 
       expect(tokenSent.mul(1e10).add(await asset1.cash())).to.be.equal(parseEther('1000'))
-      expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('9999.960192214800964896'))
+      expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('9999.960192214800964900'))
 
       await poolContract.mintFee(token0.address)
       await poolContract.mintFee(token1.address)
@@ -272,15 +272,15 @@ describe('Pool - Fee', function () {
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
         expect(tokenSent).to.be.equal(parseUnits('-100', 8))
-        expect(tokenGot).to.be.equal(parseEther('99.479655212388724896'))
+        expect(tokenGot).to.be.equal(parseEther('99.479655212388714900'))
 
         //check if token got is equal to token quoted
         expect(tokenGot).to.be.equal(quotedAmount)
 
         // check BUSD post swap positions
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412250000'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611285100'))
 
         // check vUSDC post swap positions
         expect(await asset1.cash()).to.be.equal(parseEther('1100'))
@@ -294,22 +294,20 @@ describe('Pool - Fee', function () {
             token1.address,
             token0.address,
             parseUnits('100', 8),
-            parseEther('99.479655212388724896'),
+            parseEther('99.479655212388714900'),
             user1.address
           )
 
-        expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('9999.960192214800964896'))
+        expect(tokenGot.add(await asset0.cash())).to.be.equal(parseEther('9999.960192214800964900'))
 
         await poolContract.mintFee(token0.address)
         await poolContract.mintFee(token1.address)
         // liability and cash should increase
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.520344787611275104'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.520344787611285100'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000.039807976551874150'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
-        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
-          parseEther('.999999999999999999')
-        )
+        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(parseEther('1'))
 
         expect(tokenGot.add(await asset0.cash()).add(await poolContract.tipBucketBalance(token0.address))).to.be.equal(
           parseEther('10000')
@@ -568,15 +566,15 @@ describe('Pool - Fee', function () {
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
         expect(tokenSent).to.be.equal(parseUnits('-100', 8))
-        expect(tokenGot).to.be.equal(parseEther('99.479655212388724896'))
+        expect(tokenGot).to.be.equal(parseEther('99.479655212388714900'))
 
         //check if token got is equal to token quoted
         expect(tokenGot).to.be.equal(quotedAmount)
 
         // check BUSD post swap positions
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412250000'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611285100'))
 
         // check vUSDC post swap positions
         expect(await asset1.cash()).to.be.equal(parseEther('1100'))
@@ -590,7 +588,7 @@ describe('Pool - Fee', function () {
             token1.address,
             token0.address,
             parseUnits('100', 8),
-            parseEther('99.479655212388724896'),
+            parseEther('99.479655212388714900'),
             user1.address
           )
 
@@ -598,14 +596,12 @@ describe('Pool - Fee', function () {
         await poolContract.connect(user1).deposit(token0.address, 100000000, user1.address, fiveSecondsSince)
 
         await poolContract.connect(user1).deposit(token1.address, 1000000, user1.address, fiveSecondsSince)
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230671468083'))
-        expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381341622610'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230671478080'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381341622600'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseUnits('0', 8))
-        expect(await token0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807021'))
-        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
-          parseEther('0.999999999999999999')
-        )
+        expect(await token0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807020'))
+        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(parseEther('1'))
       })
 
       it('works (vUSDC -> BUSD) with haircut fees and dividend + withdraw to mint fee', async function () {
@@ -630,15 +626,15 @@ describe('Pool - Fee', function () {
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
         expect(tokenSent).to.be.equal(parseUnits('-100', 8))
-        expect(tokenGot).to.be.equal(parseEther('99.479655212388724896'))
+        expect(tokenGot).to.be.equal(parseEther('99.479655212388714900'))
 
         //check if token got is equal to token quoted
         expect(tokenGot).to.be.equal(quotedAmount)
 
         // check BUSD post swap positions
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412240000'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.480537002412250000'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000'))
-        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611275104'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('9900.520344787611285100'))
 
         // check vUSDC post swap positions
         expect(await asset1.cash()).to.be.equal(parseEther('1100'))
@@ -652,7 +648,7 @@ describe('Pool - Fee', function () {
             token1.address,
             token0.address,
             parseUnits('100', 8),
-            parseEther('99.479655212388724896'),
+            parseEther('99.479655212388714900'),
             user1.address
           )
 
@@ -661,14 +657,12 @@ describe('Pool - Fee', function () {
 
         await poolContract.connect(user1).withdraw(token1.address, 2e7, 0, user1.address, fiveSecondsSince)
 
-        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230570472666'))
-        expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381240622307'))
+        expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230570482170'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381240622297'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseEther('0'))
-        expect(await token0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807021'))
-        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(
-          parseEther('0.999999999999999999')
-        )
+        expect(await token0.balanceOf(user2.address)).to.be.equal(parseEther('0.007961557039807020'))
+        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(parseEther('1'))
       })
     })
 
