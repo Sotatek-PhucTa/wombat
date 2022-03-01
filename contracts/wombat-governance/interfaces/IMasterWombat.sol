@@ -5,6 +5,8 @@ pragma solidity 0.8.5;
  * @dev Interface of the MasterWombat
  */
 interface IMasterWombat {
+    function getAssetPid(address asset) external view returns (uint256 pid);
+
     function poolLength() external view returns (uint256);
 
     function pendingTokens(uint256 _pid, address _user)

@@ -135,6 +135,7 @@ contract VeWom is
     /// @notice lock WOM into contract and mint veWOM
     function mint(uint256 amount, uint256 lockDays)
         external
+        virtual
         override
         nonReentrant
         whenNotPaused
