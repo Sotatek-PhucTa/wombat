@@ -16,8 +16,8 @@ import './interfaces/IWom.sol';
 import './interfaces/IMasterWombat.sol';
 import './interfaces/IRewarder.sol';
 
-/// MasterWombat is a boss. He says "go f your blocks maki boy, I'm gonna use timestamp instead"
-/// In addition, he feeds himself from Venom. So, veWom holders boost their (boosted) emissions.
+/// @title MasterWombat
+/// MasterWombat is a boss. He is not afraid of any snakes. In fact, he drinks their venoms. So, veWom holders boost their (boosted) emissions.
 /// This contract rewards users in function of their amount of lp staked (base pool) factor (boosted pool)
 /// Factor and sumOfFactors are updated by contract VeWom.sol after any veWom minting/burning (veERC20Upgradeable hook).
 /// Note that it's ownable and the owner wields tremendous power. The ownership
@@ -226,7 +226,6 @@ contract MasterWombat is
     /// @notice View function to see pending WOMs on frontend.
     /// @param _pid the pool id
     /// @param _user the user address
-    /// TODO include factor operations
     function pendingTokens(uint256 _pid, address _user)
         external
         view
