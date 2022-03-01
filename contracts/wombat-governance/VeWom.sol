@@ -11,7 +11,6 @@ import './libraries/LogExpMath.sol';
 import './interfaces/IWhitelist.sol';
 import './interfaces/IMasterWombat.sol';
 import './interfaces/IVeWom.sol';
-import './interfaces/IWombatNFT.sol';
 import './VeERC20Upgradeable.sol';
 
 /// @title VeWom
@@ -39,9 +38,6 @@ contract VeWom is
     /// @notice the masterWombat contract
     IMasterWombat public masterWombat;
 
-    /// @notice the NFT contract
-    IWombatNFT public nft;
-
     /// @notice whitelist wallet checker
     /// @dev contract addresses are by default unable to stake wom, they must be previously whitelisted to stake wom
     IWhitelist public whitelist;
@@ -58,11 +54,7 @@ contract VeWom is
 
     error VEWOM_OVERFLOW();
 
-    function initialize(
-        IERC20 _wom,
-        IMasterWombat _masterWombat,
-        IWombatNFT _nft
-    ) public initializer {
+    function initialize(IERC20 _wom, IMasterWombat _masterWombat) public initializer {
         require(address(_masterWombat) != address(0), 'zero address');
         require(address(_wom) != address(0), 'zero address');
 
@@ -74,7 +66,6 @@ contract VeWom is
 
         masterWombat = _masterWombat;
         wom = _wom;
-        nft = _nft;
 
         // Note: one should pay attention to storage collision
         maxBreedingLength = 10000;
@@ -101,13 +92,6 @@ contract VeWom is
     function setMasterWombat(IMasterWombat _masterWombat) external onlyOwner {
         require(address(_masterWombat) != address(0), 'zero address');
         masterWombat = _masterWombat;
-    }
-
-    /// @notice sets NFT contract address
-    /// @param _nft the new NFT contract address
-    function setNftAddress(IWombatNFT _nft) external onlyOwner {
-        require(address(_nft) != address(0), 'zero address');
-        nft = _nft;
     }
 
     /// @notice sets whitelist address

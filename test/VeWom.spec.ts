@@ -28,7 +28,6 @@ describe('VeWOM', function () {
     this.Wom = await ethers.getContractFactory('WombatERC20')
     this.VeWom = await ethers.getContractFactory('VeWom')
     this.MockERC20 = await ethers.getContractFactory('MockERC20')
-    this.Nft = await ethers.getContractFactory('MockNFT')
 
     this.womPerSec = parseEther('0.9259259259259259')
 
@@ -47,11 +46,8 @@ describe('VeWOM', function () {
     this.mWom = await this.MasterWombat.deploy()
     this.mWom.connect(owner).initialize(this.wom.address, this.veWom.address, this.womPerSec, 1000, startTime)
 
-    this.nft = await this.Nft.deploy()
-    await this.nft.deployed()
-
     this.mWom.deployed()
-    this.veWom.initialize(this.wom.address, this.mWom.address, this.nft.address)
+    this.veWom.initialize(this.wom.address, this.mWom.address)
   })
 
   it('should set correct name and symbol', async function () {
@@ -68,7 +64,7 @@ describe('VeWOM', function () {
     await expect(this.veWom.setMasterWombat(ethers.constants.AddressZero)).to.be.reverted
   })
 
-  it('should set NFT correctly', async function () {
+  it.skip('should set NFT correctly', async function () {
     // first expect to revert if called from not owner
     await expect(this.veWom.connect(users[1]).setNftAddress(users[10].address)).to.be.revertedWith(
       'Ownable: caller is not the owner'
