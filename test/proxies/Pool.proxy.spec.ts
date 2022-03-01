@@ -74,8 +74,7 @@ describe('Asset (proxy)', function () {
   describe('upgrade', async function () {
     it('should keep storage correctly', async function () {
       await poolContract.setHaircutRate(parseEther('0.0001'))
-      await poolContract.setLpDividendRatio(parseEther('0.5'))
-      await poolContract.setRetentionRatio(parseEther('0.5'))
+      await poolContract.connect(poolOwner).setFee(parseEther('0.5'), parseEther('0.5'))
 
       poolContract = await upgrades.upgradeProxy(poolContract.address, PoolFactory, { unsafeAllow: ['delegatecall'] })
 
@@ -103,7 +102,7 @@ describe('Asset (proxy)', function () {
       // Pool is still the owner of Asset
       await poolContract
         .connect(users[0])
-        .deposit(token0.address, parseEther('100'), users[0].address, fiveSecondsSince)
+        .deposit(token0.address, parseEther('100'), users[0].address, fiveSecondsSince, false)
     })
 
     it('change admin', async function () {

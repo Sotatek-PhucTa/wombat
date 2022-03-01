@@ -12,6 +12,7 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import './CoreV2.sol';
 import '../interfaces/IAsset.sol';
 import './PausableAssets.sol';
+import '../../wombat-governance/interfaces/IMasterWombat.sol';
 
 /**
  * @title Pool
@@ -60,6 +61,8 @@ contract Pool is
     address public dev;
 
     address public feeTo;
+
+    IMasterWombat public masterWombat;
 
     /// @notice Dividend collected by each asset (unit: WAD)
     mapping(IAsset => uint256) private _feeCollected;
@@ -178,17 +181,17 @@ contract Pool is
     /**
      * @dev pause asset, restricting deposit and swap operations
      */
-    function pauseAsset(address asset) external nonReentrant {
+    function pauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _pauseAsset(asset);
+        _pauseAsset(token);
     }
 
     /**
      * @dev unpause asset, enabling deposit and swap operations
      */
-    function unpauseAsset(address asset) external nonReentrant {
+    function unpauseAsset(address token) external nonReentrant {
         _onlyDev();
-        _unpauseAsset(asset);
+        _unpauseAsset(token);
     }
 
     // Setters //
@@ -199,6 +202,11 @@ contract Pool is
     function setDev(address dev_) external onlyOwner {
         _checkAddress(dev_);
         dev = dev_;
+    }
+
+    function setMasterWombat(address masterWombat_) external onlyOwner {
+        _checkAddress(masterWombat_);
+        masterWombat = IMasterWombat(masterWombat_);
     }
 
     /**
@@ -219,19 +227,10 @@ contract Pool is
         haircutRate = haircutRate_;
     }
 
-    /**
-     * @notice Changes the pools retentionRatio. Can only be set by the contract owner.
-     * @param retentionRatio_ new pool's retentionRatio
-     */
-    function setRetentionRatio(uint256 retentionRatio_) external onlyOwner {
-        if (retentionRatio_ + lpDividendRatio > WAD) revert WOMBAT_INVALID_VALUE();
+    function setFee(uint256 lpDividendRatio_, uint256 retentionRatio_) external onlyOwner {
+        if (retentionRatio_ + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
         mintAllFee();
         retentionRatio = retentionRatio_;
-    }
-
-    function setLpDividendRatio(uint256 lpDividendRatio_) external onlyOwner {
-        if (retentionRatio + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
-        mintAllFee();
         lpDividendRatio = lpDividendRatio_;
     }
 
@@ -414,7 +413,8 @@ contract Pool is
         address token,
         uint256 amount,
         address to,
-        uint256 deadline
+        uint256 deadline,
+        bool shouldStake
     ) external nonReentrant whenNotPaused returns (uint256 liquidity) {
         if (amount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
@@ -423,7 +423,19 @@ contract Pool is
 
         IAsset asset = _assetOf(token);
         IERC20(token).safeTransferFrom(address(msg.sender), address(asset), amount);
-        liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), to);
+
+        if (!shouldStake) {
+            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), to);
+        } else {
+            _checkAddress(address(masterWombat));
+            // deposit and stake on behalf of the user
+            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), address(this));
+
+            asset.approve(address(masterWombat), liquidity);
+
+            uint256 pid = masterWombat.getAssetPid(address(asset));
+            masterWombat.depositFor(pid, liquidity, to);
+        }
 
         emit Deposit(msg.sender, token, amount, liquidity, to);
     }
@@ -761,6 +773,42 @@ contract Pool is
     }
 
     /* Utils */
+
+    // this function is used to move fund from tip bucket to the pool to keep r* = 1 as error accumulates
+    // unit of amount should be in WAD
+    function fillPool(address token, uint256 amount) external {
+        _onlyDev();
+        IAsset asset = _assetOf(token);
+        uint256 tipBucketBalance = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
+            asset.cash() -
+            _feeCollected[asset];
+
+        if (amount > tipBucketBalance) {
+            // revert if there's not enough amount in the tip bucket
+            revert WOMBAT_INVALID_VALUE();
+        }
+
+        asset.addCash(amount);
+    }
+
+    // unit of amount should be in WAD
+    function transferTipBucket(
+        address token,
+        uint256 amount,
+        address to
+    ) external onlyOwner {
+        IAsset asset = _assetOf(token);
+        uint256 tipBucketBalance = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
+            asset.cash() -
+            _feeCollected[asset];
+
+        if (amount > tipBucketBalance) {
+            // revert if there's not enough amount in the tip bucket
+            revert WOMBAT_INVALID_VALUE();
+        }
+
+        asset.transferUnderlyingToken(to, amount.fromWad(asset.underlyingTokenDecimals()));
+    }
 
     function _globalInvariantFunc() internal view returns (uint256 D, uint256 SL) {
         uint256 A = ampFactor;
