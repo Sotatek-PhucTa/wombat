@@ -22,14 +22,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   console.log(`Step 003. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const USD_TOKENS_ARR = hre.network.name == 'bsc_mainnet' ? { ...USD_TOKENS_MAINNET } : { ...USD_TOKENS_MOCKS }
-  for (const index in USD_TOKENS_ARR) {
-    console.log('Attemping to deploy Asset contract : ' + USD_TOKENS_ARR[index][0])
-    const tokenSymbol = USD_TOKENS_ARR[index][1] as string
-    const tokenName = USD_TOKENS_ARR[index][0] as string
+  const USD_TOKENS = hre.network.name == 'bsc_mainnet' ? { ...USD_TOKENS_MAINNET } : { ...USD_TOKENS_MOCKS }
+  for (const index in USD_TOKENS) {
+    console.log('Attemping to deploy Asset contract : ' + USD_TOKENS[index][0])
+    const tokenSymbol = USD_TOKENS[index][1] as string
+    const tokenName = USD_TOKENS[index][0] as string
 
     const tokenAddress =
-      hre.network.name == 'bsc_mainnet' ? USD_TOKENS_ARR[index][2] : (await deployments.get(tokenSymbol)).address
+      hre.network.name == 'bsc_mainnet' ? USD_TOKENS[index][2] : (await deployments.get(tokenSymbol)).address
     console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
     const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}`, {
