@@ -36,10 +36,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       from: deployer,
       contract: 'Asset',
       log: true,
-      args:
-        hre.network.name == 'bsc_mainnet'
-          ? [tokenAddress, `Wombat ${tokenName} Asset`, `LP-${tokenSymbol}`]
-          : [tokenAddress, `Wombat ${tokenName} Asset`, `LP-${tokenSymbol}`],
+      args: [tokenAddress, `Wombat ${tokenName} Asset`, `LP-${tokenSymbol}`],
       skipIfAlreadyDeployed: true,
     })
 
