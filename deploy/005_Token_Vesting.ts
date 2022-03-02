@@ -14,7 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   console.log(`Step 005. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // Get deployed WOM token instance
-  const womToken = await deployments.get('WOM')
+  const womToken = await deployments.get('WombatToken')
   const womTokenContract = await ethers.getContractAt('WombatERC20', womToken.address)
 
   // get last block time and init variables
@@ -82,3 +82,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
 export default deployFunc
 deployFunc.tags = ['TokenVesting']
+deployFunc.dependencies = ['WombatToken']

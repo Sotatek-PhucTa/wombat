@@ -52,11 +52,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`VeWomAddress is : ${masterWombatAddress}`)
     return deployResult
   } else {
-    const masterWombatAddress = await contract.veWom()
-    console.log(`VeWomAddress is : ${masterWombatAddress}`)
     throw 'Error : Bytecode is unchanged. Please choose the correct NEW_POOL_CONTRACT_NAME'
   }
 }
 
 export default deployFunc
 deployFunc.tags = [contractName]
+deployFunc.dependencies = ['Pool', 'WombatToken']
