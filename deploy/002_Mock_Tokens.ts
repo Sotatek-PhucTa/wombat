@@ -5,7 +5,7 @@ interface IUSDTokens {
   [token: string]: unknown[]
 }
 
-export const USD_TOKENS_ARGS: IUSDTokens = {
+export const USD_TOKENS_MOCKS: IUSDTokens = {
   BUSD: ['Binance USD', 'BUSD', '18', 0], // 0 tokens minted to msg.sender initially
   USDC: ['USD Coin', 'USDC', '18', 0],
   USDT: ['Tether USD', 'USDT', '18', 0],
@@ -24,14 +24,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // Mock tokens only on localhost and bsc testnet
   if (hre.network.name == 'localhost' || hre.network.name == 'hardhat' || hre.network.name == 'bsc_testnet') {
     /// Mock USD TOKENS ///
-    for (const index in USD_TOKENS_ARGS) {
+    for (const index in USD_TOKENS_MOCKS) {
       // console.log('debug : ' + USD_TOKENS_ARGS[index])
-      const tokenSymbol = USD_TOKENS_ARGS[index][1] as string
+      const tokenSymbol = USD_TOKENS_MOCKS[index][1] as string
       await deploy(tokenSymbol, {
         from: deployer,
         log: true,
         contract: 'TestERC20',
-        args: USD_TOKENS_ARGS[index],
+        args: USD_TOKENS_MOCKS[index],
         skipIfAlreadyDeployed: true,
       })
     }
