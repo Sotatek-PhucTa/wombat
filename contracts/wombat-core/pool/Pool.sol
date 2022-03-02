@@ -697,8 +697,7 @@ contract Pool is
         actualToAmount = actualToAmount.fromWad(toDecimal);
         haircut = haircut.fromWad(toDecimal);
 
-        // use require instead of safeTransferFrom to save gas
-        require(IERC20(fromToken).transferFrom(msg.sender, address(fromAsset), fromAmount));
+        IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
 
         emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
