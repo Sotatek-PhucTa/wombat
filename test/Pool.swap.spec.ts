@@ -93,9 +93,15 @@ describe('Pool - Swap', function () {
       await token3.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
 
       // deposit 10k BUSD and 1k vUSDC and 1k USDT to pool
-      await poolContract.connect(user1).deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince)
-      await poolContract.connect(user1).deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince)
-      await poolContract.connect(user1).deposit(token3.address, parseEther('1000'), user1.address, fiveSecondsSince)
+      await poolContract
+        .connect(user1)
+        .deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince, false)
+      await poolContract
+        .connect(user1)
+        .deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince, false)
+      await poolContract
+        .connect(user1)
+        .deposit(token3.address, parseEther('1000'), user1.address, fiveSecondsSince, false)
     })
 
     describe('swap', function () {
