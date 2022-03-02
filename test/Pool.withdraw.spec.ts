@@ -254,7 +254,7 @@ describe('Pool - Withdraw', function () {
 
       it('reverts when withdraw all liquidity', async function () {
         await expect(withdrawFromOtherAsset(owner, parseEther('10.1'), token1, token0)).to.be.revertedWith(
-          'WOMBAT_ZERO_LIQUIDITY'
+          'CORE_UNDERFLOW'
         )
       })
 
@@ -290,7 +290,7 @@ describe('Pool - Withdraw', function () {
       })
 
       it('withdraw token0 from token1 works', async function () {
-        const expectedAmount = parseEther('9.988002575408403104')
+        const expectedAmount = parseEther('9.988002575408403004')
         {
           // callStatic has no side-effect on-chain
           const quoteAmount = await poolContract.callStatic.withdrawFromOtherAsset(
@@ -321,7 +321,7 @@ describe('Pool - Withdraw', function () {
         // verify there is not enough token1
         expect(await token1.balanceOf(asset1.address)).to.equal(parseUnits('0.36331391', 8))
 
-        const expectedAmount = parseEther('10.262080051990826491')
+        const expectedAmount = parseEther('10.262080051991132960')
         // verify withdrawFromOtherAsset is better than withdraw.
         const [withdrawAmount] = await poolContract.quotePotentialWithdraw(token1.address, parseEther('10'))
         expect(withdrawAmount).to.lt(expectedAmount)
@@ -339,35 +339,35 @@ describe('Pool - Withdraw', function () {
           {
             // Expect the payout to be about the same in different cases.
             withdrawAmounts: ['10'],
-            expectedAmounts: ['10.262080051990826491'],
+            expectedAmounts: ['10.262080051991132960'],
           },
           {
             withdrawAmounts: ['5', '5'],
-            expectedAmounts: ['5.200032572565086913', '5.062047479420208031'],
+            expectedAmounts: ['5.200032572565087213', '5.062047479420219930'],
           },
           {
             withdrawAmounts: ['1', '9'],
-            expectedAmounts: ['1.051043899125499110', '9.211036152866012713'],
+            expectedAmounts: ['1.051043899125498910', '9.211036152865893025'],
           },
           {
             withdrawAmounts: ['0.1', '9.9'],
-            expectedAmounts: ['0.105352714556067084', '10.156727337435397143'],
+            expectedAmounts: ['0.105352714556066884', '10.156727337434959287'],
           },
           {
             withdrawAmounts: ['9', '1'],
-            expectedAmounts: ['9.260710849771740991', '1.001369202213095299'],
+            expectedAmounts: ['9.260710849771705295', '1.001369202213093599'],
           },
           {
             withdrawAmounts: ['9.9', '0.1'],
-            expectedAmounts: ['10.162191557581058510', '0.099888494403612396'],
+            expectedAmounts: ['10.162191557581230993', '0.099888494403612296'],
           },
           {
             withdrawAmounts: ['3', '3', '3', '1'],
             expectedAmounts: [
-              '3.136576076793979644',
+              '3.136576076793980144',
               '3.086905773681927556',
-              '3.037228999295757599',
-              '1.001369202213095399',
+              '3.037228999295756999',
+              '1.001369202213093699',
             ],
           },
         ].forEach(({ withdrawAmounts, expectedAmounts }) => {
