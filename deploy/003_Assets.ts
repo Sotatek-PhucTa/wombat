@@ -1,15 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-import { USD_TOKENS_MOCKS } from './002_Mock_Tokens'
-
-// starting 4 stables, all 18 decimals
-const USD_TOKENS_MAINNET = {
-  BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'],
-  USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'],
-  USDT: ['Tether USD', 'USDT', '0x55d398326f99059ff775485246999027b3197955'],
-  DAI: ['Dai Stablecoin', 'DAI', '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3'],
-}
+import { USD_TOKENS_MAP } from './002_Mock_Tokens'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -22,7 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   console.log(`Step 003. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const USD_TOKENS = hre.network.name == 'bsc_mainnet' ? { ...USD_TOKENS_MAINNET } : { ...USD_TOKENS_MOCKS }
+  const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
   for (const index in USD_TOKENS) {
     console.log('Attemping to deploy Asset contract : ' + USD_TOKENS[index][0])
     const tokenSymbol = USD_TOKENS[index][1] as string
