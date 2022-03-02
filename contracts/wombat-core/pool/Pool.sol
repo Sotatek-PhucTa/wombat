@@ -617,24 +617,15 @@ contract Pool is
     ) private view returns (uint256 actualToAmount, uint256 haircut) {
         uint256 idealToAmount;
         uint256 toCash = toAsset.cash();
-        {
-            uint256 Lx = fromAsset.liability();
-            uint256 Ly = toAsset.liability();
 
-            // in case div of 0
-            _checkLiquidity(Lx);
-            _checkLiquidity(Ly);
-
-            idealToAmount = _swapQuoteFunc(
-                int256(uint256(fromAsset.cash())),
-                int256(toCash),
-                int256(Lx),
-                int256(Ly),
-                fromAmount,
-                int256(ampFactor)
-            );
-        }
-
+        idealToAmount = _swapQuoteFunc(
+            int256(uint256(fromAsset.cash())),
+            int256(toCash),
+            int256(uint256(fromAsset.liability())),
+            int256(uint256(toAsset.liability())),
+            fromAmount,
+            int256(ampFactor)
+        );
         if (toCash < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
 
         haircut = idealToAmount.wmul(haircutRate);
@@ -693,21 +684,18 @@ contract Pool is
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
-        {
-            uint8 fromDecimal = fromAsset.underlyingTokenDecimals();
-            uint8 toDecimal = toAsset.underlyingTokenDecimals();
+        uint8 toDecimal = toAsset.underlyingTokenDecimals();
 
-            (actualToAmount, haircut) = _swap(
-                fromAsset,
-                toAsset,
-                fromAmount.toWad(fromDecimal),
-                minimumToAmount.toWad(toDecimal),
-                to
-            );
+        (actualToAmount, haircut) = _swap(
+            fromAsset,
+            toAsset,
+            fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
+            minimumToAmount.toWad(toDecimal),
+            to
+        );
 
-            actualToAmount = actualToAmount.fromWad(toDecimal);
-            haircut = haircut.fromWad(toDecimal);
-        }
+        actualToAmount = actualToAmount.fromWad(toDecimal);
+        haircut = haircut.fromWad(toDecimal);
 
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
