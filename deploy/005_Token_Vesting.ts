@@ -3,6 +3,8 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
 import { parseUnits } from '@ethersproject/units'
 
+const contractName = 'TokenVesting'
+
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
@@ -37,7 +39,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 
   /// Deploy token vesting
-  const tokenVestingDeployResult = await deploy('TokenVesting', {
+  const tokenVestingDeployResult = await deploy(contractName, {
     from: deployer,
     contract: 'TokenVesting',
     args:
@@ -81,5 +83,5 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 export default deployFunc
-deployFunc.tags = ['TokenVesting']
+deployFunc.tags = [contractName]
 deployFunc.dependencies = ['WombatToken']

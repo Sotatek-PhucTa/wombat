@@ -1,6 +1,8 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 
+const contractName = 'MockTokens'
+
 interface IUSDTokens {
   [network: string]: IUSDTTokensInfo
 }
@@ -67,4 +69,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 }
 export default deployFunc
-deployFunc.tags = ['MockTokens']
+deployFunc.tags = [contractName]
