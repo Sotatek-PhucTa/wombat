@@ -3,6 +3,8 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
 import { USD_TOKENS_MAP } from './002_Mock_Tokens'
 
+const contractName = 'Asset'
+
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
@@ -56,5 +58,5 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 export default deployFunc
-deployFunc.tags = ['Asset']
+deployFunc.tags = [contractName]
 deployFunc.dependencies = ['Pool'] // this ensure the Token script above is executed first, so `deployments.get('Pool')` succeeds
