@@ -117,7 +117,6 @@ contract MasterWombat is
         uint256 _startTimestamp
     ) external initializer {
         require(address(_wom) != address(0), 'wom address cannot be zero');
-        require(address(_veWom) != address(0), 'veWom address cannot be zero');
         require(_womPerSec != 0, 'wom per sec cannot be zero');
         require(_basePartition <= 1000, 'base partition must be in range 0, 1000');
 
