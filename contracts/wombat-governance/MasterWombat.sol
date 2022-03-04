@@ -388,7 +388,7 @@ contract MasterWombat is
 
         // update boosted factor
         uint256 oldFactor = user.factor;
-        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(_user));
+        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(_user), user.amount);
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
@@ -435,7 +435,7 @@ contract MasterWombat is
 
         // update boosted factor
         uint256 oldFactor = user.factor;
-        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender));
+        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender), user.amount);
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
@@ -560,7 +560,7 @@ contract MasterWombat is
         user.amount = user.amount - _amount;
 
         // update boosted factor
-        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender));
+        user.factor = DSMath.sqrt(user.amount * veWom.balanceOf(msg.sender), user.amount);
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
@@ -672,7 +672,7 @@ contract MasterWombat is
             // get oldFactor
             uint256 oldFactor = user.factor; // get old factor
             // calculate newFactor using
-            uint256 newFactor = DSMath.sqrt(_newVeWomBalance * user.amount);
+            uint256 newFactor = DSMath.sqrt(user.amount * _newVeWomBalance, user.amount);
             // update user factor
             user.factor = newFactor;
             // update reward debt, take into account newFactor
