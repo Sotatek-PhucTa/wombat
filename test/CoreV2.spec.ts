@@ -158,127 +158,152 @@ describe('CoreV2', function () {
 
   describe('[withdrawalAmountInEquilImpl] - return withdrawal amount in equil', async function () {
     it('withdrawal fee - edge cases', async function () {
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-9.9'),
-          parseEther('10'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('9.9'))
+      it('1', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-9.9'),
+            parseEther('10'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('9.9'))
+      })
 
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-9.99999'),
-          parseEther('10'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('9.99999'))
+      it('2', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-9.99999'),
+            parseEther('10'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('9.99999'))
+      })
+      it('3', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-10'),
+            parseEther('10'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('10'))
+      })
 
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-10'),
-          parseEther('10'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('10'))
+      it('4', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-15'),
+            parseEther('10'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('9.995000000000000000'))
+      })
 
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-15'),
-          parseEther('10'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('9.995000000000000000'))
+      it('5', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-5'),
+            parseEther('1'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('0.993904068469164502'))
+      })
 
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-5'),
-          parseEther('1'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('0.993904068469164502'))
+      it('6', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-11'),
+            parseEther('1'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('0.999900883122624183'))
+      })
 
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-11'),
-          parseEther('1'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('0.999900883122624183'))
+      it('7', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-5'),
+            parseEther('20'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('4.998333518477377683'))
+      })
 
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-5'),
-          parseEther('20'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('4.998333518477377683'))
-
-      expect(
-        await CoreV2.test_withdrawalAmountInEquilImpl(
-          parseEther('-5'),
-          parseEther('0.05'),
-          parseEther('10'),
-          parseEther('0.1')
-        )
-      ).to.equal(parseEther('0.037772802662532304'))
+      it('8', async function name() {
+        expect(
+          await CoreV2.test_withdrawalAmountInEquilImpl(
+            parseEther('-5'),
+            parseEther('0.05'),
+            parseEther('10'),
+            parseEther('0.1')
+          )
+        ).to.equal(parseEther('0.037772802662532304'))
+      })
     })
   })
 
   describe('[exactDepositLiquidityInEquilImpl] - return exact deposit reward in equil', async function () {
     it('deposit - edge cases', async function () {
-      expect(
-        await CoreV2.test_exactDepositLiquidityInEquilImpl(
-          parseEther('1'),
-          parseEther('10'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('1'))
+      it('1', async function name() {
+        expect(
+          await CoreV2.test_exactDepositLiquidityInEquilImpl(
+            parseEther('1'),
+            parseEther('10'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('1'))
+      })
 
-      expect(
-        await CoreV2.test_exactDepositLiquidityInEquilImpl(
-          parseEther('10'),
-          parseEther('10'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('10'))
+      it('2', async function name() {
+        expect(
+          await CoreV2.test_exactDepositLiquidityInEquilImpl(
+            parseEther('10'),
+            parseEther('10'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('10'))
+      })
 
-      expect(
-        await CoreV2.test_exactDepositLiquidityInEquilImpl(
-          parseEther('10'),
-          parseEther('1'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('10.073442252809457000'))
+      it('3', async function name() {
+        expect(
+          await CoreV2.test_exactDepositLiquidityInEquilImpl(
+            parseEther('10'),
+            parseEther('1'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('10.073442252809457000'))
+      })
 
-      expect(
-        await CoreV2.test_exactDepositLiquidityInEquilImpl(
-          parseEther('10'),
-          parseEther('100'),
-          parseEther('10'),
-          parseEther('0.001')
-        )
-      ).to.equal(parseEther('10.007368324804037000'))
+      it('4', async function name() {
+        expect(
+          await CoreV2.test_exactDepositLiquidityInEquilImpl(
+            parseEther('10'),
+            parseEther('100'),
+            parseEther('10'),
+            parseEther('0.001')
+          )
+        ).to.equal(parseEther('10.007368324804037000'))
+      })
 
-      // reward greater than amount
-      expect(
-        await CoreV2.test_exactDepositLiquidityInEquilImpl(
-          parseEther('0.1'),
-          parseEther('0.3'),
-          parseEther('10'),
-          parseEther('0.05')
-        )
-      ).to.equal(parseEther('1.185771028990578210'))
+      it('4', async function name() {
+        // reward greater than amount
+        expect(
+          await CoreV2.test_exactDepositLiquidityInEquilImpl(
+            parseEther('0.1'),
+            parseEther('0.3'),
+            parseEther('10'),
+            parseEther('0.05')
+          )
+        ).to.equal(parseEther('1.185771028990578210'))
+      })
     })
   })
 })
