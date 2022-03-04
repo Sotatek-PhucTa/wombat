@@ -157,7 +157,7 @@ describe('CoreV2', function () {
   })
 
   describe('[withdrawalAmountInEquilImpl] - return withdrawal amount in equil', async function () {
-    it('withdrawal fee - edge cases', async function () {
+    describe('withdrawal fee - edge cases', async function () {
       it('1', async function name() {
         expect(
           await CoreV2.test_withdrawalAmountInEquilImpl(
@@ -248,7 +248,7 @@ describe('CoreV2', function () {
   })
 
   describe('[exactDepositLiquidityInEquilImpl] - return exact deposit reward in equil', async function () {
-    it('deposit - edge cases', async function () {
+    describe('deposit - edge cases', async function () {
       it('1', async function name() {
         expect(
           await CoreV2.test_exactDepositLiquidityInEquilImpl(
