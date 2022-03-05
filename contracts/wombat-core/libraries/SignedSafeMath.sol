@@ -36,6 +36,26 @@ library SignedSafeMath {
         }
     }
 
+    // Babylonian Method with initial guess (typecast as int)
+    function sqrt(int256 y, int256 guess) internal pure returns (int256 z) {
+        if (y > 3) {
+            if (guess > 0 && guess <= y) {
+                z = guess;
+            } else if (guess < 0 && -guess <= y) {
+                z = -guess;
+            } else {
+                z = y;
+            }
+            int256 x = (y / z + z) / 2;
+            while (x != z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
+    }
+
     // Convert x to WAD (18 decimals) from d decimals.
     function toWad(int256 x, uint8 d) internal pure returns (int256) {
         if (d < 18) {
