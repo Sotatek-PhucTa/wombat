@@ -26,11 +26,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       hre.network.name == 'bsc_mainnet' ? USD_TOKENS[index][2] : (await deployments.get(tokenSymbol)).address
     console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
+    const name = `Wombat ${tokenName} Asset`
+    const symbol = `LP-${tokenSymbol}`
     const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}`, {
       from: deployer,
       contract: 'Asset',
       log: true,
-      args: [tokenAddress, `Wombat ${tokenName} Asset`, `LP-${tokenSymbol}`],
+      args: [tokenAddress, name, symbol],
       skipIfAlreadyDeployed: true,
     })
 
@@ -50,8 +52,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const setPoolTxn = await asset.connect(owner).setPool(poolDeployment.address)
       await setPoolTxn.wait()
 
+      const address = usdAssetDeployResult.address
+      console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolDeployment.address}`)
       console.log(
-        `Added ${tokenSymbol} Asset at ${usdAssetDeployResult.address} to Pool located ${poolDeployment.address}`
+        `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
       )
     }
   }
