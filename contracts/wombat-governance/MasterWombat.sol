@@ -348,9 +348,8 @@ contract MasterWombat is
                 pool.lpToken.approve(address(newMasterWombat), user.amount);
                 newMasterWombat.depositFor(pid, user.amount, msg.sender);
 
-                user.amount = 0;
-                // As we assume the MasterWombat has stopped emission so that we can skip updating
-                // user.factor and pool.sumOfFactors
+                pool.sumOfFactors -= user.factor;
+                delete userInfo[pid][msg.sender];
             }
         }
     }
@@ -365,8 +364,6 @@ contract MasterWombat is
         uint256 _amount,
         address _user
     ) external override nonReentrant {
-        require(tx.origin == _user, 'depositFor: wut?');
-
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
 
