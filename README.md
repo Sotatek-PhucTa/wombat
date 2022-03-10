@@ -8,7 +8,7 @@ This is the repo for serving the core smart contracts of Wombat Exchange 🚀 �
 
 Below lists the basic steps in kickstarting your local development 🖥️
 
-_Requires `node@>=14`, visit [node.js](https://nodejs.org/en/) for more details._
+_Requires `node@>=14` and `node@<=16`, visit [node.js](https://nodejs.org/en/) for more details._
 
 - Run `yarn` to install dependencies
 - Run `yarn compile` to compile contracts
