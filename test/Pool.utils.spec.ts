@@ -196,6 +196,10 @@ describe('Pool - Utils', function () {
       await poolContract.connect(owner).setDev(user.address)
       expect(await poolContract.dev()).to.equal(user.address)
     })
+
+    it('get tokens', async function () {
+      expect(await poolContract.getTokens()).to.deep.equal([token0.address, token1.address])
+    })
   })
 
   describe('pausable', function () {
