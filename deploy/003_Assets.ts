@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-import { USD_TOKENS_MAP } from './000_Config'
+import { USD_TOKENS_MAP } from '../tokens.config'
 
 const contractName = 'Asset'
 
@@ -20,15 +20,18 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   // Get Pool Instance
   const poolDeployment = await deployments.get('Pool')
-  const pool = await ethers.getContractAt('Pool', poolDeployment.address)
+  const poolAddress = poolDeployment.address
+  const pool = await ethers.getContractAt('Pool', poolAddress)
 
   for (const index in USD_TOKENS) {
     console.log('Attemping to deploy Asset contract : ' + USD_TOKENS[index][0])
     const tokenSymbol = USD_TOKENS[index][1] as string
     const tokenName = USD_TOKENS[index][0] as string
 
-    const tokenAddress =
-      hre.network.name == 'bsc_mainnet' ? USD_TOKENS[index][2] : (await deployments.get(tokenSymbol)).address
+    const tokenAddress: string =
+      hre.network.name == 'bsc_mainnet'
+        ? (USD_TOKENS[index][2] as string)
+        : ((await deployments.get(tokenSymbol)).address as string)
     console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
     const name = `Wombat ${tokenName} Asset`
@@ -49,20 +52,27 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
       // Add pool reference to Asset
       const asset = await ethers.getContractAt('Asset', address)
-      await addPool(asset, owner, poolDeployment)
+      await addPool(asset, owner, poolAddress)
 
-      console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolDeployment.address}`)
+      console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
       console.log(
         `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
       )
     } else {
-      // Add existing asset to existing or newly-deployed Pool
+      // check existing asset have latest pool added
       const assetDeployment = await deployments.get(`Asset_${tokenSymbol}`)
-      const existingAsset = await ethers.getContractAt('Asset', assetDeployment.address)
-      await addPool(existingAsset, owner, poolDeployment)
+      const existingAssetAddress = assetDeployment.address
+      const existingAsset = await ethers.getContractAt('Asset', existingAssetAddress)
+      const existingPoolAddress = await existingAsset.pool()
+
+      if (existingPoolAddress !== poolAddress) {
+        // Add existing asset to newly-deployed Pool
+        console.log(`Adding existing Asset_${tokenSymbol} to new pool ${poolAddress}...`)
+        await addPool(existingAsset, owner, poolAddress)
+      }
 
       // Add Asset to existing or newly-deployed Pool
-      await addAsset(pool, owner, tokenAddress, address)
+      await addAsset(pool, owner, tokenAddress, existingAssetAddress)
     }
   }
 }

@@ -43,7 +43,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`Haircut rate is : ${hairCutRate}`)
     return deployResult
   } else {
-    return `${contractName} Contract already deployed.`
+    console.log(`${contractName} Contract already deployed.`)
+    return deployResult
   }
 }
 

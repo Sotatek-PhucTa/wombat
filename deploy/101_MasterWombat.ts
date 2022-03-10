@@ -42,7 +42,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   if (deployResult.newlyDeployed) {
     const poolContract = await ethers.getContractAt('Pool', pool.address)
-    await poolContract.setMasterWombat(deployResult.address)
+    const setMasterWombatTxn = await poolContract.setMasterWombat(deployResult.address)
+    await setMasterWombatTxn.wait()
 
     // Check setup config values
     const womTokenAddress = await contract.wom()
@@ -51,7 +52,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`MasterWombatAddress is : ${masterWombatAddress}`)
     return deployResult
   } else {
-    return `${contractName} Contract already deployed.`
+    console.log(`${contractName} Contract already deployed.`)
+    return deployResult
   }
 }
 

@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
-import { USD_TOKENS_MAP } from './000_Config'
+import { USD_TOKENS_MAP } from '../tokens.config'
 
 const contractName = 'MockTokens'
 
