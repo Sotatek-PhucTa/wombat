@@ -35,7 +35,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const contract = await ethers.getContractAt(contractName, deployResult.address)
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
-  console.log('Implementaion address:', implAddr)
+  console.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
     const masterWombatContract = await ethers.getContractAt('MasterWombat', masterWombat.address)
