@@ -2,11 +2,10 @@ import { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-const proxyImplAddr = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc' // EIP1967
 const contractName = 'MasterWombat'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre
+  const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
@@ -29,7 +28,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, ethers.constants.AddressZero, 1e9, 375, latest],
+          args: [wombatToken.address, ethers.constants.AddressZero, 3.08642e18, 375, latest],
         },
       },
     },
@@ -37,22 +36,22 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   // Get freshly deployed Pool contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)
-  const implAddr = await contract.provider.getStorageAt(deployResult.address, proxyImplAddr)
+  const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
   console.log('Implementaion address:', implAddr)
 
   if (deployResult.newlyDeployed) {
-    const poolContract = await ethers.getContractAt('MasterWombat', pool.address)
+    const poolContract = await ethers.getContractAt('Pool', pool.address)
     await poolContract.setMasterWombat(deployResult.address)
 
     // Check setup config values
     const womTokenAddress = await contract.wom()
-    const masterWombatAddress = await contract.veWom()
+    const masterWombatAddress = await poolContract.masterWombat()
     console.log(`WomTokenAddress is : ${womTokenAddress}`)
-    console.log(`VeWomAddress is : ${masterWombatAddress}`)
+    console.log(`MasterWombatAddress is : ${masterWombatAddress}`)
     return deployResult
   } else {
-    throw 'Error : Bytecode is unchanged. Please choose the correct NEW_POOL_CONTRACT_NAME'
+    return `${contractName} Contract already deployed.`
   }
 }
 
