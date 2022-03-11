@@ -363,7 +363,12 @@ contract Pool is
             int256(ampFactor)
         ).toUint256();
 
-        reward = liabilityToMint - amount;
+        if (liabilityToMint > amount) {
+            reward = liabilityToMint - amount;
+        } else {
+            // rounding error
+            liabilityToMint = amount;
+        }
 
         // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
         uint256 liability = asset.liability();
@@ -481,7 +486,12 @@ contract Pool is
             int256(ampFactor)
         ).toUint256();
 
-        fee = liabilityToBurn - amount;
+        if (liabilityToBurn >= amount) {
+            fee = liabilityToBurn - amount;
+        } else {
+            // rounding error
+            amount = liabilityToBurn;
+        }
     }
 
     /**
