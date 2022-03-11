@@ -44,14 +44,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       skipIfAlreadyDeployed: true,
     })
     const address = usdAssetDeployResult.address
+    const asset = await ethers.getContractAt('Asset', address)
+
+    // Add new Asset to existing or newly-deployed Pool
+    await addAsset(pool, owner, tokenAddress, address)
 
     // newly-deployed Asset
     if (usdAssetDeployResult.newlyDeployed) {
-      // Add new Asset to existing or newly-deployed Pool
-      await addAsset(pool, owner, tokenAddress, address)
-
       // Add pool reference to Asset
-      const asset = await ethers.getContractAt('Asset', address)
       await addPool(asset, owner, poolAddress)
 
       console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
@@ -60,19 +60,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       )
     } else {
       // check existing asset have latest pool added
-      const assetDeployment = await deployments.get(`Asset_${tokenSymbol}`)
-      const existingAssetAddress = assetDeployment.address
-      const existingAsset = await ethers.getContractAt('Asset', existingAssetAddress)
-      const existingPoolAddress = await existingAsset.pool()
+      const existingPoolAddress = await asset.pool()
 
       if (existingPoolAddress !== poolAddress) {
         // Add existing asset to newly-deployed Pool
         console.log(`Adding existing Asset_${tokenSymbol} to new pool ${poolAddress}...`)
-        await addPool(existingAsset, owner, poolAddress)
+        await addPool(asset, owner, poolAddress)
       }
-
-      // Add Asset to existing or newly-deployed Pool
-      await addAsset(pool, owner, tokenAddress, existingAssetAddress)
     }
   }
 }
