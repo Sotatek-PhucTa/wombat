@@ -293,11 +293,7 @@ contract Pool is
      * @notice Return list of tokens in the pool
      */
     function getTokens() external view returns (address[] memory) {
-        address[] memory tokens = new address[](_sizeOfAssetList());
-        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
-            tokens[i] = _getKeyAtIndex(i);
-        }
-        return tokens;
+        return _assets.keys;
     }
 
     /**
