@@ -441,6 +441,28 @@ describe('Pool - Deposit', function () {
         parseEther('25973.999999992134367382'),
       ])
     })
+
+    it('A = 0.002, should handle rounding error', async function () {
+      await poolContract.connect(owner).setAmpFactor(parseEther('0.002'))
+      await asset1.connect(owner).setPool(owner.address)
+      await asset1.connect(owner).addCash(parseEther('20011837.600651'))
+      await asset1.connect(owner).addLiability(parseEther('20011812.10065'))
+      await asset1.connect(owner).mint(user1.address, parseEther('20011812.10065'))
+      await asset1.connect(owner).setPool(poolContract.address)
+
+      const receipt = await poolContract
+        .connect(user1)
+        .deposit(token1.address, parseUnits('0.01', 8), user1.address, fiveSecondsSince, false)
+
+      await expect(receipt)
+        .to.emit(poolContract, 'Deposit')
+        .withArgs(user1.address, token1.address, parseUnits('0.01', 8), parseEther('0.01'), user1.address)
+
+      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
+        parseEther('1.000001274247472392'),
+        parseEther('19971814.037429637005304507'),
+      ])
+    })
   })
 
   describe('deposit and stake', function () {
