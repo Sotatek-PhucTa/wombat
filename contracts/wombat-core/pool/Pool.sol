@@ -268,25 +268,32 @@ contract Pool is
     /**
      * @notice Removes asset from asset struct
      * @dev Can only be called by owner
-     * @param key The address of token to remove
+     * @param token The address of token to remove
      */
-    function removeAsset(address key) external onlyOwner {
-        if (!_containsAsset(key)) revert WOMBAT_ASSET_NOT_EXISTS();
+    function removeAsset(address token) external onlyOwner {
+        if (!_containsAsset(token)) revert WOMBAT_ASSET_NOT_EXISTS();
 
-        address asset = address(_getAsset(key));
-        delete _assets.values[key];
+        address asset = address(_getAsset(token));
+        delete _assets.values[token];
 
-        uint256 index = _assets.indexOf[key];
+        uint256 index = _assets.indexOf[token];
         uint256 lastIndex = _assets.keys.length - 1;
         address lastKey = _assets.keys[lastIndex];
 
         _assets.indexOf[lastKey] = index;
-        delete _assets.indexOf[key];
+        delete _assets.indexOf[token];
 
         _assets.keys[index] = lastKey;
         _assets.keys.pop();
 
-        emit AssetRemoved(key, asset);
+        emit AssetRemoved(token, asset);
+    }
+
+    /**
+     * @notice Return list of tokens in the pool
+     */
+    function getTokens() external view returns (address[] memory) {
+        return _assets.keys;
     }
 
     /**
