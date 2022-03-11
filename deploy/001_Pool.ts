@@ -2,11 +2,10 @@ import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-const proxyImplAddr = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc' // EIP1967
 const contractName = 'Pool'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre
+  const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
@@ -24,7 +23,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [parseEther('0.002'), parseEther('0.0001')],
+          args: [parseEther('0.002'), parseEther('0.0004')],
         },
       },
     },
@@ -32,9 +31,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   // Get freshly deployed Pool contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)
-  const implAddr = await contract.provider.getStorageAt(deployResult.address, proxyImplAddr)
+  const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
-  console.log('Implementaion address:', implAddr)
+  console.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
     // Check setup config values
@@ -44,7 +43,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`Haircut rate is : ${hairCutRate}`)
     return deployResult
   } else {
-    throw 'Error : Pool bytecode is unchanged. Please choose the correct NEW_POOL_CONTRACT_NAME'
+    console.log(`${contractName} Contract already deployed.`)
+    return deployResult
   }
 }
 

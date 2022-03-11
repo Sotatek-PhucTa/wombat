@@ -1,11 +1,10 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-const proxyImplAddr = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc' // EIP1967
 const contractName = 'VeWom'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre
+  const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
@@ -34,22 +33,26 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   })
   // Get freshly deployed Pool contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)
-  const implAddr = await contract.provider.getStorageAt(deployResult.address, proxyImplAddr)
+  const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
-  console.log('Implementaion address:', implAddr)
+  console.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
     const masterWombatContract = await ethers.getContractAt('MasterWombat', masterWombat.address)
-    await masterWombatContract.setVeWom(deployResult.address)
+    const setVeWomTxn = await masterWombatContract.setVeWom(deployResult.address)
+    await setVeWomTxn.wait()
 
     // Check setup config values
     const womTokenAddress = await contract.wom()
     const masterWombatAddress = await contract.masterWombat()
+    const veWomAddress = await masterWombatContract.veWom()
     console.log(`WomTokenAddress is : ${womTokenAddress}`)
     console.log(`MasterWombatAddress is : ${masterWombatAddress}`)
+    console.log(`VeWomAddress is : ${veWomAddress}`)
     return deployResult
   } else {
-    throw 'Error : Bytecode is unchanged. Please choose the correct NEW_POOL_CONTRACT_NAME'
+    console.log(`${contractName} Contract already deployed.`)
+    return deployResult
   }
 }
 
