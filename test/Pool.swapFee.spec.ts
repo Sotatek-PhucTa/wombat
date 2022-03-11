@@ -97,10 +97,10 @@ describe('Pool - Fee', function () {
       // deposit 10k BUSD and 1k vUSDC to pool
       await poolContract
         .connect(user1)
-        .deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince, false)
+        .deposit(token0.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
       await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('1000', 8), 0, user1.address, fiveSecondsSince, false)
 
       const beforeFromBalance = await token1.balanceOf(user1.address)
       const beforeToBalance = await token0.balanceOf(user1.address)
@@ -177,13 +177,13 @@ describe('Pool - Fee', function () {
       // deposit 10k BUSD and 1k vUSDC to pool
       await poolContract
         .connect(user1)
-        .deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince, false)
+        .deposit(token0.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
       await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('1000', 8), 0, user1.address, fiveSecondsSince, false)
       await poolContract
         .connect(user1)
-        .deposit(token2.address, parseEther('5000'), user1.address, fiveSecondsSince, false)
+        .deposit(token2.address, parseEther('5000'), 0, user1.address, fiveSecondsSince, false)
 
       await poolContract.connect(owner).setFee(parseEther('0.8'), 0)
 
@@ -599,9 +599,9 @@ describe('Pool - Fee', function () {
           )
 
         // deposit to mint fee
-        await poolContract.connect(user1).deposit(token0.address, 100000000, user1.address, fiveSecondsSince, false)
+        await poolContract.connect(user1).deposit(token0.address, 100000000, 0, user1.address, fiveSecondsSince, false)
 
-        await poolContract.connect(user1).deposit(token1.address, 1000000, user1.address, fiveSecondsSince, false)
+        await poolContract.connect(user1).deposit(token1.address, 1000000, 0, user1.address, fiveSecondsSince, false)
         expect(await asset0.cash()).to.be.equal(parseEther('9900.512383230671478080'))
         expect(await asset0.liability()).to.be.equal(parseEther('10000.031846381341622600'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
@@ -944,13 +944,13 @@ describe('Pool - Fee', function () {
       // deposit 10k BUSD and 1k vUSDC to pool
       await poolContract
         .connect(user1)
-        .deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince, false)
+        .deposit(token0.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
       await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('5000', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('5000', 8), 0, user1.address, fiveSecondsSince, false)
       await poolContract
         .connect(user1)
-        .deposit(token2.address, parseEther('1000'), user1.address, fiveSecondsSince, false)
+        .deposit(token2.address, parseEther('1000'), 0, user1.address, fiveSecondsSince, false)
 
       // approve withdraw
       await asset0.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)

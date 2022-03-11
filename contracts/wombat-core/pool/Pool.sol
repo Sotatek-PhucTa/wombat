@@ -385,6 +385,7 @@ contract Pool is
     function _deposit(
         IAsset asset,
         uint256 amount,
+        uint256 minimumLiquidity,
         address to
     ) internal returns (uint256 liquidity) {
         // collect fee before deposit
@@ -394,6 +395,7 @@ contract Pool is
         (liquidity, liabilityToMint, ) = _exactDepositToInEquil(asset, amount);
 
         _checkLiquidity(liquidity);
+        _checkAmount(minimumLiquidity, liquidity);
 
         asset.addCash(amount);
         asset.addLiability(liabilityToMint);
@@ -412,6 +414,7 @@ contract Pool is
     function deposit(
         address token,
         uint256 amount,
+        uint256 minimumLiquidity,
         address to,
         uint256 deadline,
         bool shouldStake
@@ -425,11 +428,11 @@ contract Pool is
         IERC20(token).safeTransferFrom(address(msg.sender), address(asset), amount);
 
         if (!shouldStake) {
-            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), to);
+            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), minimumLiquidity, to);
         } else {
             _checkAddress(address(masterWombat));
             // deposit and stake on behalf of the user
-            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), address(this));
+            liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), minimumLiquidity, address(this));
 
             asset.approve(address(masterWombat), liquidity);
 
