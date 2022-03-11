@@ -22,6 +22,10 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: false,
+      forking: {
+        url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+        blockNumber: 17444370,
+      },
     },
     bsc_testnet: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545',

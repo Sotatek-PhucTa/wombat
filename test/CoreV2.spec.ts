@@ -249,6 +249,17 @@ describe('CoreV2', function () {
 
   describe('[exactDepositLiquidityInEquilImpl] - return exact deposit reward in equil', async function () {
     describe('deposit - edge cases', async function () {
+      it('repro: liquidityToMint < amount', async function name() {
+        expect(
+          await CoreV2.test_exactDepositLiquidityInEquilImpl(
+            parseEther('0.01'),
+            parseEther('20011837.600651'),
+            parseEther('20011812.10065'),
+            parseEther('0.002')
+          )
+        ).to.equal(parseEther('0.009999999999991'))
+      })
+
       it('1', async function name() {
         expect(
           await CoreV2.test_exactDepositLiquidityInEquilImpl(
