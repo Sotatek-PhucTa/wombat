@@ -363,7 +363,7 @@ contract Pool is
             int256(ampFactor)
         ).toUint256();
 
-        if (liabilityToMint > amount) {
+        if (liabilityToMint >= amount) {
             reward = liabilityToMint - amount;
         } else {
             // rounding error
