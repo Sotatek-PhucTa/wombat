@@ -556,7 +556,6 @@ contract Pool is
      * @param minimumAmount The minimum amount that will be accepted by user
      * @param to The user receiving the withdrawal
      * @param deadline The deadline to be respected
-     * @dev Also, coverage ratio of toAsset must be higher than 1 after withdrawal for this to be accepted
      * @return toAmount The total amount withdrawn
      */
     function withdrawFromOtherAsset(
