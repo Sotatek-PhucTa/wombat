@@ -370,7 +370,12 @@ contract Pool is
             int256(ampFactor)
         ).toUint256();
 
-        reward = liabilityToMint - amount;
+        if (liabilityToMint >= amount) {
+            reward = liabilityToMint - amount;
+        } else {
+            // rounding error
+            liabilityToMint = amount;
+        }
 
         // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
         uint256 liability = asset.liability();
@@ -488,7 +493,12 @@ contract Pool is
             int256(ampFactor)
         ).toUint256();
 
-        fee = liabilityToBurn - amount;
+        if (liabilityToBurn >= amount) {
+            fee = liabilityToBurn - amount;
+        } else {
+            // rounding error
+            amount = liabilityToBurn;
+        }
     }
 
     /**
@@ -553,7 +563,6 @@ contract Pool is
      * @param minimumAmount The minimum amount that will be accepted by user
      * @param to The user receiving the withdrawal
      * @param deadline The deadline to be respected
-     * @dev Also, coverage ratio of toAsset must be higher than 1 after withdrawal for this to be accepted
      * @return toAmount The total amount withdrawn
      */
     function withdrawFromOtherAsset(
