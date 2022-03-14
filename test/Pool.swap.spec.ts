@@ -95,13 +95,13 @@ describe('Pool - Swap', function () {
       // deposit 10k BUSD and 1k vUSDC and 1k USDT to pool
       await poolContract
         .connect(user1)
-        .deposit(token0.address, parseEther('10000'), user1.address, fiveSecondsSince, false)
+        .deposit(token0.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
       await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('1000', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('1000', 8), 0, user1.address, fiveSecondsSince, false)
       await poolContract
         .connect(user1)
-        .deposit(token3.address, parseEther('1000'), user1.address, fiveSecondsSince, false)
+        .deposit(token3.address, parseEther('1000'), 0, user1.address, fiveSecondsSince, false)
     })
 
     describe('swap', function () {

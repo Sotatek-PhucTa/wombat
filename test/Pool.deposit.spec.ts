@@ -110,7 +110,7 @@ describe('Pool - Deposit', function () {
         // user1 deposits 100 BUSD to pool contract
         const receipt = await poolContract
           .connect(user1)
-          .deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+          .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         const afterBalance = await token0.balanceOf(user1.address)
 
         expect(await asset0.cash()).to.be.equal(parseEther('100'))
@@ -131,12 +131,12 @@ describe('Pool - Deposit', function () {
         const beforeBalance1 = await token0.balanceOf(user1.address)
         await poolContract
           .connect(user1)
-          .deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+          .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         // user2 deposits 100.123 BUSD to pool contract
         const beforeBalance2 = await token0.balanceOf(user2.address)
         await poolContract
           .connect(user2)
-          .deposit(token0.address, parseEther('100.123'), user2.address, fiveSecondsSince, false)
+          .deposit(token0.address, parseEther('100.123'), 0, user2.address, fiveSecondsSince, false)
         const afterBalance1 = await token0.balanceOf(user1.address)
         const afterBalance2 = await token0.balanceOf(user2.address)
 
@@ -156,7 +156,7 @@ describe('Pool - Deposit', function () {
         // user1 deposits 100 BUSD to pool contract
         await poolContract
           .connect(user1)
-          .deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+          .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         // Add liability (from owner account)
         await asset0.connect(owner).setPool(owner.address)
         await asset0.connect(owner).addLiability(parseEther('1.768743776499783944'))
@@ -165,7 +165,7 @@ describe('Pool - Deposit', function () {
 
         const receipt = await poolContract
           .connect(user1)
-          .deposit(token0.address, parseEther('100'), user2.address, fiveSecondsSince, false)
+          .deposit(token0.address, parseEther('100'), 0, user2.address, fiveSecondsSince, false)
 
         expect(await asset0.liability()).to.be.equal(parseEther('201.769488019652669444'))
         expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('98.262728350828713840'))
@@ -185,13 +185,17 @@ describe('Pool - Deposit', function () {
 
       it('reverts if passed deadline', async function () {
         await expect(
-          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsAgo, false)
+          poolContract
+            .connect(user1)
+            .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsAgo, false)
         ).to.be.revertedWith('WOMBAT_EXPIRED')
       })
 
       it('reverts if liquidity to mint is too small', async function () {
         await expect(
-          poolContract.connect(user1).deposit(token0.address, parseEther('0'), user1.address, fiveSecondsSince, false)
+          poolContract
+            .connect(user1)
+            .deposit(token0.address, parseEther('0'), 0, user1.address, fiveSecondsSince, false)
         ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
       })
 
@@ -199,21 +203,25 @@ describe('Pool - Deposit', function () {
         await expect(
           poolContract
             .connect(user2)
-            .deposit(token0.address, parseEther('1000.123'), user2.address, fiveSecondsSince, false)
+            .deposit(token0.address, parseEther('1000.123'), 0, user2.address, fiveSecondsSince, false)
         ).to.be.revertedWith('ERC20: transfer amount exceeds balance')
       })
 
       it('reverts if pool paused', async function () {
         await poolContract.connect(owner).pause()
         await expect(
-          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+          poolContract
+            .connect(user1)
+            .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         ).to.be.revertedWith('Pausable: paused')
       })
 
       it('reverts if asset paused', async function () {
         await poolContract.connect(owner).pauseAsset(token0.address)
         await expect(
-          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+          poolContract
+            .connect(user1)
+            .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
       })
 
@@ -224,13 +232,15 @@ describe('Pool - Deposit', function () {
       it('allows deposit if asset paused and unpaused after', async function () {
         await poolContract.connect(owner).pauseAsset(token0.address)
         await expect(
-          poolContract.connect(user1).deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+          poolContract
+            .connect(user1)
+            .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
 
         await poolContract.connect(owner).unpauseAsset(token0.address)
         const receipt = await poolContract
           .connect(user1)
-          .deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+          .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
 
         await expect(receipt)
           .to.emit(poolContract, 'Deposit')
@@ -241,7 +251,7 @@ describe('Pool - Deposit', function () {
         await expect(
           poolContract
             .connect(user1)
-            .deposit(ethers.constants.AddressZero, parseEther('100'), user1.address, fiveSecondsSince, false)
+            .deposit(ethers.constants.AddressZero, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
 
@@ -254,7 +264,7 @@ describe('Pool - Deposit', function () {
         await expect(
           poolContract
             .connect(user1)
-            .deposit(mockToken.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+            .deposit(mockToken.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
         ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
     })
@@ -275,7 +285,7 @@ describe('Pool - Deposit', function () {
         const beforeBalance = await token1.balanceOf(user1.address)
         await poolContract
           .connect(user1)
-          .deposit(token1.address, parseUnits('100', 8), user1.address, fiveSecondsSince, false)
+          .deposit(token1.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, false)
         const afterBalance = await token1.balanceOf(user1.address)
 
         expect(await asset1.cash()).to.be.equal(parseEther('100'))
@@ -291,10 +301,10 @@ describe('Pool - Deposit', function () {
         const beforeBalance2 = await token1.balanceOf(user2.address)
         await poolContract
           .connect(user1)
-          .deposit(token1.address, parseUnits('100', 8), user1.address, fiveSecondsSince, false)
+          .deposit(token1.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, false)
         await poolContract
           .connect(user2)
-          .deposit(token1.address, parseUnits('100.123', 8), user2.address, fiveSecondsSince, false)
+          .deposit(token1.address, parseUnits('100.123', 8), 0, user2.address, fiveSecondsSince, false)
         const afterBalance1 = await token1.balanceOf(user1.address)
         const afterBalance2 = await token1.balanceOf(user2.address)
 
@@ -314,7 +324,7 @@ describe('Pool - Deposit', function () {
       it('maintains the LP token supply and liability ratio', async function () {
         await poolContract
           .connect(user1)
-          .deposit(token1.address, parseUnits('100', 8), user1.address, fiveSecondsSince, false)
+          .deposit(token1.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, false)
         // Add dividend
         await asset1.connect(owner).setPool(owner.address)
         await asset1.connect(owner).addLiability(parseEther('1.768743'))
@@ -322,7 +332,7 @@ describe('Pool - Deposit', function () {
 
         const receipt = await poolContract
           .connect(user2)
-          .deposit(token1.address, parseUnits('100', 8), user2.address, fiveSecondsSince, false)
+          .deposit(token1.address, parseUnits('100', 8), 0, user2.address, fiveSecondsSince, false)
         expect(await asset1.liability()).to.be.equal(parseEther('201.769487242499697330'))
         expect(await asset1.balanceOf(user2.address)).to.be.equal(parseEther('98.262729099935622993'))
         expect(await asset1.totalSupply()).to.be.equal(parseEther('198.262729099935622993'))
@@ -386,7 +396,7 @@ describe('Pool - Deposit', function () {
 
       const receipt = await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('4999.80813996', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('4999.80813996', 8), 0, user1.address, fiveSecondsSince, false)
 
       await expect(receipt)
         .to.emit(poolContract, 'Deposit')
@@ -424,7 +434,7 @@ describe('Pool - Deposit', function () {
 
       const receipt = await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('4999.58278111', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('4999.58278111', 8), 0, user1.address, fiveSecondsSince, false)
 
       await expect(receipt)
         .to.emit(poolContract, 'Deposit')
@@ -452,7 +462,7 @@ describe('Pool - Deposit', function () {
 
       const receipt = await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('0.01', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('0.01', 8), 0, user1.address, fiveSecondsSince, false)
 
       await expect(receipt)
         .to.emit(poolContract, 'Deposit')
@@ -497,7 +507,7 @@ describe('Pool - Deposit', function () {
       // deposit and stake
       await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('100', 8), user1.address, fiveSecondsSince, true)
+        .deposit(token1.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, true)
 
       expect((await masterWombat.userInfo(1, user1.address)).amount).to.equal(parseEther('100'))
     })

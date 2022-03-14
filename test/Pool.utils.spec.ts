@@ -236,10 +236,12 @@ describe('Pool - Utils', function () {
     it('should revert if not enough value in tip bucket', async function () {
       const fiveSecondsSince = (await latest()).add(5)
 
-      await poolContract.connect(user).deposit(token0.address, parseEther('100'), user.address, fiveSecondsSince, false)
       await poolContract
         .connect(user)
-        .deposit(token1.address, parseUnits('100', 8), user.address, fiveSecondsSince, false)
+        .deposit(token0.address, parseEther('100'), 0, user.address, fiveSecondsSince, false)
+      await poolContract
+        .connect(user)
+        .deposit(token1.address, parseUnits('100', 8), 0, user.address, fiveSecondsSince, false)
 
       await poolContract
         .connect(user)
@@ -255,10 +257,12 @@ describe('Pool - Utils', function () {
     it('should work', async function () {
       const fiveSecondsSince = (await latest()).add(5)
 
-      await poolContract.connect(user).deposit(token0.address, parseEther('100'), user.address, fiveSecondsSince, false)
       await poolContract
         .connect(user)
-        .deposit(token1.address, parseUnits('100', 8), user.address, fiveSecondsSince, false)
+        .deposit(token0.address, parseEther('100'), 0, user.address, fiveSecondsSince, false)
+      await poolContract
+        .connect(user)
+        .deposit(token1.address, parseUnits('100', 8), 0, user.address, fiveSecondsSince, false)
 
       await poolContract
         .connect(user)

@@ -89,7 +89,7 @@ describe('Pool - Withdraw', function () {
       // user1 deposits 100 BUSD to pool contract
       await poolContract
         .connect(user1)
-        .deposit(token0.address, parseEther('100'), user1.address, fiveSecondsSince, false)
+        .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
     })
     describe('withdraw', function () {
       it('works (first LP)', async function () {
@@ -224,7 +224,7 @@ describe('Pool - Withdraw', function () {
         // Now owner deposits 10.1 token1 to withdraw token0 later.
         await poolContract
           .connect(owner)
-          .deposit(token1.address, parseUnits('10.1', 8), owner.address, fiveSecondsSince, false)
+          .deposit(token1.address, parseUnits('10.1', 8), 0, owner.address, fiveSecondsSince, false)
       })
 
       async function withdrawFromOtherAsset(
@@ -434,7 +434,7 @@ describe('Pool - Withdraw', function () {
       // user1 deposits 100 vUSDC to pool contract
       await poolContract
         .connect(user1)
-        .deposit(token1.address, parseUnits('100', 8), user1.address, fiveSecondsSince, false)
+        .deposit(token1.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, false)
     })
     describe('withdraw', function () {
       it('works (first LP)', async function () {
