@@ -76,7 +76,7 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: {
     deployer: {
-      default: 0,
+      default: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
     },
     user1: {
       default: 1,
