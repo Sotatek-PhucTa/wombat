@@ -1,7 +1,6 @@
 import { formatEther } from 'ethers/lib/utils'
+import hre from 'hardhat'
 
-const hre = require('hardhat')
-// import
 const ethers = hre.ethers
 
 const poolAddr = '0x76F3378F13c6e9c5F477d1D9dE2A21151E883D71'
