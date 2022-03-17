@@ -312,7 +312,8 @@ describe('Pool - Withdraw', function () {
         })
       })
 
-      it('withdraw more token0 than available', async function () {
+      // skipped as cov ratio < 1% is reverted
+      it.skip('withdraw more token0 than available', async function () {
         // User1 swaps 10 token0, leaving about ~0.1 token1 in the pool
         // Now owner wants to withdraw 10 token1 as token0.
         await poolContract
@@ -334,7 +335,8 @@ describe('Pool - Withdraw', function () {
         })
       })
 
-      describe('withdraw more token0 than available multiple times', function () {
+      // skipped as cov ratio < 1% is reverted
+      describe.skip('withdraw more token0 than available multiple times', function () {
         ;[
           {
             // Expect the payout to be about the same in different cases.

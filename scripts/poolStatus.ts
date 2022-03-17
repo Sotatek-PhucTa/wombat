@@ -15,8 +15,8 @@ const assetsAddr = [
 ]
 
 const main = async () => {
-  // npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/<key> --fork-block-number 11095000
-  // npx hardhat run test.js
+  // npx hardhat node --no-deploy --fork https://data-seed-prebsc-1-s1.binance.org:8545 --fork-block-number 17585791
+  // npx hardhat run scripts/poolSatus.ts
 
   const pool = await ethers.getContractAt('Pool', poolAddr)
 

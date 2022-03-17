@@ -581,7 +581,7 @@ describe('Pool - Swap', function () {
         ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
       })
 
-      it('reverts if not have enough from tokens', async function () {
+      it('reverts if cov ratio will be less than 1%', async function () {
         await expect(
           poolContract.connect(user1).swap(
             token1.address,
@@ -591,7 +591,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('ERC20: transfer amount exceeds balance')
+        ).to.be.revertedWith('WOMBAT_FORBIDDEN')
       })
     })
   })
