@@ -763,9 +763,11 @@ contract Pool is
     }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
-        uint256 SL;
+        int256 invariant;
+        int256 SL;
         (invariant, SL) = _globalInvariantFunc();
-        equilCovRatio = uint256(_equilCovRatio(int256(invariant), int256(SL), int256(ampFactor)));
+        uint256 equilCovRatio = uint256(_equilCovRatio(invariant, SL, int256(ampFactor)));
+        return (equilCovRatio, uint256(invariant));
     }
 
     function tipBucketBalance(address token) external view returns (uint256 balance) {
@@ -812,15 +814,15 @@ contract Pool is
         asset.transferUnderlyingToken(to, amount.fromWad(asset.underlyingTokenDecimals()));
     }
 
-    function _globalInvariantFunc() internal view returns (uint256 D, uint256 SL) {
-        uint256 A = ampFactor;
+    function _globalInvariantFunc() internal view returns (int256 D, int256 SL) {
+        int256 A = int256(ampFactor);
 
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));
 
             // overflow is unrealistic
-            uint256 A_i = asset.cash();
-            uint256 L_i = asset.liability();
+            int256 A_i = int256(uint256(asset.cash()));
+            int256 L_i = int256(uint256(asset.liability()));
 
             // Assume when L_i == 0, A_i always == 0
             if (L_i == 0) {
@@ -828,7 +830,7 @@ contract Pool is
                 continue;
             }
 
-            uint256 r_i = A_i.wdiv(L_i);
+            int256 r_i = A_i.wdiv(L_i);
             SL += L_i;
             D += L_i.wmul(r_i - A.wdiv(r_i));
         }
