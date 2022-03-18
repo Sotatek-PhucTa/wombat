@@ -527,6 +527,10 @@ contract Pool is
         asset.burn(address(asset), liquidity);
         asset.removeCash(amount);
         asset.removeLiability(liabilityToBurn);
+
+        // revert if cov ratio < 1% to avoid precision error
+        if (asset.liability() > 0 && uint256(asset.cash()).wdiv(asset.liability()) < WAD / 100)
+            revert WOMBAT_FORBIDDEN();
     }
 
     /**
@@ -670,6 +674,9 @@ contract Pool is
 
         // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
         toAsset.removeCash(actualToAmount + haircut);
+
+        // revert if cov ratio < 1% to avoid precision error
+        if (uint256(toAsset.cash()).wdiv(toAsset.liability()) < WAD / 100) revert WOMBAT_FORBIDDEN();
     }
 
     /**
