@@ -36,7 +36,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
-    const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}`, {
+    const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}_V2`, {
       from: deployer,
       contract: 'Asset',
       log: true,
