@@ -36,7 +36,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
-    const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}`, {
+    const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}_V2`, {
       from: deployer,
       contract: 'Asset',
       log: true,
@@ -46,11 +46,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const address = usdAssetDeployResult.address
     const asset = await ethers.getContractAt('Asset', address)
 
-    // Add new Asset to existing or newly-deployed Pool
-    await addAsset(pool, owner, tokenAddress, address)
-
     // newly-deployed Asset
     if (usdAssetDeployResult.newlyDeployed) {
+      // Remove old and add new Asset to newly-deployed Pool
+      await removeAsset(pool, owner, tokenAddress)
+      await addAsset(pool, owner, tokenAddress, address)
+
       // Add pool reference to Asset
       await addPool(asset, owner, poolAddress)
 
@@ -59,6 +60,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
       )
     } else {
+      // Add new Asset to existing Pool
+      await addAsset(pool, owner, tokenAddress, address)
+
       // check existing asset have latest pool added
       const existingPoolAddress = await asset.pool()
 
@@ -68,6 +72,16 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         await addPool(asset, owner, poolAddress)
       }
     }
+  }
+}
+
+async function removeAsset(pool: any, owner: any, tokenAddress: string) {
+  try {
+    const removeAssetTxn = await pool.connect(owner).removeAsset(tokenAddress)
+    // wait until the transaction is mined
+    await removeAssetTxn.wait()
+  } catch (err) {
+    // do nothing as asset already does not exists in pool
   }
 }
 
