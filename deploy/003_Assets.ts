@@ -46,7 +46,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const address = usdAssetDeployResult.address
     const asset = await ethers.getContractAt('Asset', address)
 
-    // Add new Asset to existing or newly-deployed Pool
+    // Remove old and add new Asset to existing or newly-deployed Pool
+    await removeAsset(pool, owner, tokenAddress)
     await addAsset(pool, owner, tokenAddress, address)
 
     // newly-deployed Asset
@@ -68,6 +69,16 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         await addPool(asset, owner, poolAddress)
       }
     }
+  }
+}
+
+async function removeAsset(pool: any, owner: any, tokenAddress: string) {
+  try {
+    const removeAssetTxn = await pool.connect(owner).removeAsset(tokenAddress)
+    // wait until the transaction is mined
+    await removeAssetTxn.wait()
+  } catch (err) {
+    // do nothing as asset already does not exists in pool
   }
 }
 
