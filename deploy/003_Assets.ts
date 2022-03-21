@@ -46,12 +46,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const address = usdAssetDeployResult.address
     const asset = await ethers.getContractAt('Asset', address)
 
-    // Remove old and add new Asset to existing or newly-deployed Pool
-    await removeAsset(pool, owner, tokenAddress)
-    await addAsset(pool, owner, tokenAddress, address)
-
     // newly-deployed Asset
     if (usdAssetDeployResult.newlyDeployed) {
+      // Remove old and add new Asset to newly-deployed Pool
+      await removeAsset(pool, owner, tokenAddress)
+      await addAsset(pool, owner, tokenAddress, address)
+
       // Add pool reference to Asset
       await addPool(asset, owner, poolAddress)
 
@@ -60,6 +60,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
       )
     } else {
+      // Add new Asset to existing Pool
+      await addAsset(pool, owner, tokenAddress, address)
+
       // check existing asset have latest pool added
       const existingPoolAddress = await asset.pool()
 
