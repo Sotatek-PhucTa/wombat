@@ -61,7 +61,7 @@ Deployed contracts v1 (BSC Testnet):
   - Asset (LP-USDT) => `0x2C89105ce90f8C3aE13e01b268eAe57B95e1e5a6`
   - Asset (LP-TUSD) => `0xe52E4510cBff4712e46499ce6e87Ead760542fD5`
   - Asset (LP-DAI) => `0x9f6163070fBCa0a61F49F37e0123fCE3d28B8e21`
-  - Asset (LP-vUSDC) => `0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8`
+  - Asset (LP-vUSDC) => `0x36c99D7D330F37Ac8f22C261242033957fcC6c24`
 
 - Wombat Token
 
