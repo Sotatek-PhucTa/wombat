@@ -746,8 +746,7 @@ contract Pool is
 
         // exact output swap quote adds haircut
         if (fromAmount < 0) {
-            uint256 haircut = uint256(-fromAmount).wmul(haircutRate);
-            fromAmount -= int256(haircut);
+            fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
         }
 
         fromAmount = fromAmount.toWad(fromAsset.underlyingTokenDecimals());
