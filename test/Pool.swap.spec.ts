@@ -336,12 +336,12 @@ describe('Pool - Swap', function () {
 
         // console.log(324, quotedAmount)
         // check if input token amount is correct
-        expect(quotedAmount).to.be.equal(parseEther('100.576790831788430000'))
+        expect(quotedAmount).to.be.equal(parseEther('100.576790821667190000'))
 
         await poolContract.connect(user1).swap(
           token0.address, // input 1st token
           token1.address,
-          parseEther('100.576790831788430000'), // input to get exact 100 output
+          parseEther('100.576790821667190000'), // input to get exact 100 output
           parseUnits('90', 8), //expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
@@ -351,7 +351,7 @@ describe('Pool - Swap', function () {
 
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
-        expect(tokenSent).to.be.equal(parseEther('-100.576790831788430000'))
+        expect(tokenSent).to.be.equal(parseEther('-100.576790821667190000'))
         expect(tokenGot).to.be.equal(parseUnits('99.99999999', 8)) // rounding error
       })
 
@@ -366,12 +366,12 @@ describe('Pool - Swap', function () {
           .quotePotentialSwap(token1.address, token0.address, parseUnits('-100', 8))
 
         // check if input token amount is correct
-        expect(quotedAmount).to.be.equal(parseEther('100.617275942224320000'))
+        expect(quotedAmount).to.be.equal(parseEther('100.617292136313390000'))
 
         await poolContract.connect(user1).swap(
           token0.address, // input 1st token
           token1.address,
-          parseEther('100.617275942224320000'), // input to get exact 100 output
+          parseEther('100.617292136313390000'), // input to get exact 100 output
           parseUnits('90', 8), //expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
@@ -381,8 +381,8 @@ describe('Pool - Swap', function () {
 
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
-        expect(tokenSent).to.be.equal(parseEther('-100.617275942224320000'))
-        expect(tokenGot).to.be.equal(parseUnits('99.99998399', 8)) // rounding error
+        expect(tokenSent).to.be.equal(parseEther('-100.617292136313390000'))
+        expect(tokenGot).to.be.equal(parseUnits('99.99999999', 8)) // rounding error
       })
 
       it('works (BUSD -> exact USDT output) both 18 decimals with haircut fees', async function () {
@@ -396,12 +396,12 @@ describe('Pool - Swap', function () {
           .quotePotentialSwap(token3.address, token0.address, parseUnits('-100', 18))
 
         // check if input token amount is correct
-        expect(quotedAmount).to.be.equal(parseEther('100.617275942224320000'))
+        expect(quotedAmount).to.be.equal(parseEther('100.617292142793620000'))
 
         await poolContract.connect(user1).swap(
           token0.address, // input 1st token
           token3.address,
-          parseEther('100.617275942224320000'), // input to get exact 100 output
+          parseEther('100.617292142793620000'), // input to get exact 100 output
           parseEther('90'), //expect at least 90% of ideal quoted amount
           user1.address,
           fiveSecondsSince
@@ -411,8 +411,8 @@ describe('Pool - Swap', function () {
 
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
-        expect(tokenSent).to.be.equal(parseEther('-100.617275942224320000'))
-        expect(tokenGot).to.be.equal(parseUnits('99.999983999999999000', 18)) // rounding error
+        expect(tokenSent).to.be.equal(parseEther('-100.617292142793620000'))
+        expect(tokenGot).to.be.equal(parseUnits('99.999999999999997976', 18))
       })
 
       it.skip('Rewards actions that move BUSD coverage ratio (Rx) closer', async function () {
