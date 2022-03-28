@@ -412,15 +412,7 @@ describe('Pool - Swap', function () {
         const tokenSent = afterFromBalance.sub(beforeFromBalance)
         const tokenGot = afterToBalance.sub(beforeToBalance)
         expect(tokenSent).to.be.equal(parseEther('-100.617292142793620000'))
-        expect(tokenGot).to.be.equal(parseUnits('99.999999999999997976', 18))
-      })
-
-      it.skip('Rewards actions that move BUSD coverage ratio (Rx) closer', async function () {
-        // TODO
-      })
-
-      it.skip('Penalize actions that move BUSD coverage ratio (Rx) further away', async function () {
-        // TODO
+        expect(tokenGot).to.be.equal(parseUnits('99.999999999999997976', 18)) // rounding error
       })
 
       it('reverts if asset paused', async function () {
