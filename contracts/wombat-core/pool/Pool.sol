@@ -662,7 +662,7 @@ contract Pool is
         IAsset fromAsset,
         IAsset toAsset,
         uint256 fromAmount,
-        uint256 minimumToAmount,
+        uint256 minimumToAmount
     ) internal returns (uint256 actualToAmount, uint256 haircut) {
         (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
         _checkAmount(minimumToAmount, actualToAmount);
@@ -710,7 +710,7 @@ contract Pool is
             fromAsset,
             toAsset,
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
-            minimumToAmount.toWad(toDecimal),
+            minimumToAmount.toWad(toDecimal)
         );
 
         actualToAmount = actualToAmount.fromWad(toDecimal);
