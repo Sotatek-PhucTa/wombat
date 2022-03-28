@@ -11,12 +11,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
-  const masterWombat = await deployments.get('MasterWombat')
+  const masterWombat = await deployments.get('MasterWombat_V2')
 
   // deterministicDeployment is used only for implementation but not the proxy contract
   // it is not useful in this case
-  const deployResult = await deploy(contractName, {
+  const deployResult = await deploy(`${contractName}_V2`, {
     from: deployer,
+    contract: 'VeWom',
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
@@ -37,11 +38,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)
 
-  if (deployResult.newlyDeployed) {
-    const masterWombatContract = await ethers.getContractAt('MasterWombat', masterWombat.address)
-    const setVeWomTxn = await masterWombatContract.setVeWom(deployResult.address)
-    await setVeWomTxn.wait()
+  console.log('Setting veWOM contract for MasterWombat...')
+  const masterWombatContract = await ethers.getContractAt('MasterWombat', masterWombat.address)
+  const setVeWomTxn = await masterWombatContract.setVeWom(deployResult.address)
+  await setVeWomTxn.wait()
 
+  if (deployResult.newlyDeployed) {
     // Check setup config values
     const womTokenAddress = await contract.wom()
     const masterWombatAddress = await contract.masterWombat()
