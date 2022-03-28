@@ -26,7 +26,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     args: [parseEther(WOMBAT_TOKENS_ARGS['WOM'][3] as string)], // 1b tokens minted to msg.sender initially
     skipIfAlreadyDeployed: true,
-    deterministicDeployment: true, // use CREATE2 for deterministic address
+    deterministicDeployment: false, // use CREATE2 for deterministic address
   })
 
   // Mock WOM token only on localhost and bsc testnet
