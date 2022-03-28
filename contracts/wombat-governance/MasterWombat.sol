@@ -170,7 +170,7 @@ contract MasterWombat is
         uint256 _allocPoint,
         IERC20 _lpToken,
         IRewarder _rewarder
-    ) public onlyOwner {
+    ) external onlyOwner {
         require(Address.isContract(address(_lpToken)), 'add: LP token must be a valid contract');
         require(
             Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
@@ -216,7 +216,7 @@ contract MasterWombat is
         uint256 _allocPoint,
         IRewarder _rewarder,
         bool overwrite
-    ) public onlyOwner {
+    ) external onlyOwner {
         require(
             Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
             'set: rewarder must be contract or zero'
@@ -576,7 +576,7 @@ contract MasterWombat is
 
     /// @notice Withdraw without caring about rewards. EMERGENCY ONLY.
     /// @param _pid the pool id
-    function emergencyWithdraw(uint256 _pid) public override nonReentrant {
+    function emergencyWithdraw(uint256 _pid) external override nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);

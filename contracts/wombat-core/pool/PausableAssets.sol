@@ -29,7 +29,7 @@ contract PausableAssets {
      *
      * - The asset must not be paused.
      */
-    function requireAssetNotPaused(address asset) internal {
+    function requireAssetNotPaused(address asset) view {
         if (_pausedAssets[asset]) revert WOMBAT_ASSET_ALREADY_PAUSED();
     }
 
@@ -40,7 +40,7 @@ contract PausableAssets {
      *
      * - The asset must be paused.
      */
-    function requireAssetPaused(address asset) internal {
+    function requireAssetPaused(address asset) view {
         if (!_pausedAssets[asset]) revert WOMBAT_ASSET_NOT_PAUSED();
     }
 
