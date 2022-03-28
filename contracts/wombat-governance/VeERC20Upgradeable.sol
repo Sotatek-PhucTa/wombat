@@ -45,7 +45,7 @@ contract VeERC20Upgradeable is Initializable, ContextUpgradeable {
     /**
      * @dev Returns the name of the token.
      */
-    function name() public view virtual returns (string memory) {
+    function name() external view virtual returns (string memory) {
         return _name;
     }
 
@@ -53,7 +53,7 @@ contract VeERC20Upgradeable is Initializable, ContextUpgradeable {
      * @dev Returns the symbol of the token, usually a shorter version of the
      * name.
      */
-    function symbol() public view virtual returns (string memory) {
+    function symbol() external view virtual returns (string memory) {
         return _symbol;
     }
 
@@ -70,7 +70,7 @@ contract VeERC20Upgradeable is Initializable, ContextUpgradeable {
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
-    function decimals() public view virtual returns (uint8) {
+    function decimals() external view virtual returns (uint8) {
         return 18;
     }
 

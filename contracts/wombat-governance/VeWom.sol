@@ -54,7 +54,7 @@ contract VeWom is
 
     error VEWOM_OVERFLOW();
 
-    function initialize(IERC20 _wom, IMasterWombat _masterWombat) public initializer {
+    function initialize(IERC20 _wom, IMasterWombat _masterWombat) external initializer {
         require(address(_masterWombat) != address(0), 'zero address');
         require(address(_wom) != address(0), 'zero address');
 
@@ -127,7 +127,7 @@ contract VeWom is
         return super.balanceOf(account);
     }
 
-    function _expectedVeWomAmount(uint256 amount, uint256 lockDays) internal returns (uint256) {
+    function _expectedVeWomAmount(uint256 amount, uint256 lockDays) internal pure returns (uint256) {
         // veWOM = 0.16 * lockDays^0.25
         return amount.wmul(161747451270894000).wmul(LogExpMath.pow(lockDays * WAD, 25e16));
     }

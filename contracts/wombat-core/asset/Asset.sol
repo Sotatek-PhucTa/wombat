@@ -33,7 +33,6 @@ contract Asset is Ownable, Initializable, ERC20, ERC20Permit, IAsset {
     uint120 public override liability;
 
     uint8 public override underlyingTokenDecimals;
-    uint8 internal reserved;
 
     /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
     /// @dev if 0, means asset has no max

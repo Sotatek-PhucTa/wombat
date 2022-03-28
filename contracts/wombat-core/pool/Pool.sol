@@ -591,7 +591,7 @@ contract Pool is
 
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
         uint256 fromAmountInWad = _withdraw(fromAsset, liquidity, 0);
-        (toAmount, ) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount, to);
+        (toAmount, ) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount);
 
         toAmount = toAmount.fromWad(toAsset.underlyingTokenDecimals());
         toAsset.transferUnderlyingToken(to, toAmount);
@@ -662,8 +662,7 @@ contract Pool is
         IAsset fromAsset,
         IAsset toAsset,
         uint256 fromAmount,
-        uint256 minimumToAmount,
-        address to
+        uint256 minimumToAmount
     ) internal returns (uint256 actualToAmount, uint256 haircut) {
         (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
         _checkAmount(minimumToAmount, actualToAmount);
@@ -711,8 +710,7 @@ contract Pool is
             fromAsset,
             toAsset,
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
-            minimumToAmount.toWad(toDecimal),
-            to
+            minimumToAmount.toWad(toDecimal)
         );
 
         actualToAmount = actualToAmount.fromWad(toDecimal);
@@ -760,12 +758,12 @@ contract Pool is
     /**
      * @notice Returns the exchange rate of the LP token
      * @param token The address of the token
-     * @return exchangeRate
+     * @return xr The exchange rate of LP token
      */
-    function exchangeRate(address token) external view returns (uint256 exchangeRate) {
+    function exchangeRate(address token) external view returns (uint256 xr) {
         IAsset asset = _assetOf(token);
         if (asset.totalSupply() == 0) return WAD;
-        return exchangeRate = uint256(asset.liability()).wdiv(uint256(asset.totalSupply()));
+        return xr = uint256(asset.liability()).wdiv(uint256(asset.totalSupply()));
     }
 
     function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
@@ -789,11 +787,11 @@ contract Pool is
     function fillPool(address token, uint256 amount) external {
         _onlyDev();
         IAsset asset = _assetOf(token);
-        uint256 tipBucketBalance = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
+        uint256 tipBucketBal = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
             asset.cash() -
             _feeCollected[asset];
 
-        if (amount > tipBucketBalance) {
+        if (amount > tipBucketBal) {
             // revert if there's not enough amount in the tip bucket
             revert WOMBAT_INVALID_VALUE();
         }
@@ -808,11 +806,11 @@ contract Pool is
         address to
     ) external onlyOwner {
         IAsset asset = _assetOf(token);
-        uint256 tipBucketBalance = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
+        uint256 tipBucketBal = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
             asset.cash() -
             _feeCollected[asset];
 
-        if (amount > tipBucketBalance) {
+        if (amount > tipBucketBal) {
             // revert if there's not enough amount in the tip bucket
             revert WOMBAT_INVALID_VALUE();
         }
