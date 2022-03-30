@@ -12,6 +12,8 @@ interface IVeWom {
     }
 
     struct UserInfo {
+        // reserve usage for future upgrades
+        uint256[10] reserved;
         Breeding[] breedings;
     }
 
