@@ -60,7 +60,7 @@ contract CoreV2 {
      * @return x
      */
     function _solveQuad(int256 b, int256 c) internal pure returns (int256) {
-        return (SignedSafeMath.sqrt((b * b) + (c * 4 * WAD_I), b) - b) / 2;
+        return (((b * b) + (c * 4 * WAD_I)).sqrt(b) - b) / 2;
     }
 
     /**
@@ -141,7 +141,7 @@ contract CoreV2 {
         int256 r_i = A_i.wdiv(L_i);
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
         int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
-        int256 A_i_ = beta + SignedSafeMath.sqrt(beta * beta + A.wmul(L_i_ * L_i_), beta);
+        int256 A_i_ = beta + (beta * beta + A.wmul(L_i_ * L_i_)).sqrt(beta);
         amount = A_i - A_i_;
     }
 
@@ -169,7 +169,7 @@ contract CoreV2 {
         int256 b = k.wmul(WAD_I - A) + 2 * A.wmul(L_i);
         int256 c = k.wmul(A_i - (A * L_i) / r_i) - k.wmul(k) + A.wmul(L_i).wmul(L_i);
         int256 l = b * b - 4 * A * c;
-        return (-b + SignedSafeMath.sqrt(l, b)).wdiv(A) / 2;
+        return (-b + l.sqrt(b)).wdiv(A) / 2;
     }
 
     function _targetedCovRatio(
