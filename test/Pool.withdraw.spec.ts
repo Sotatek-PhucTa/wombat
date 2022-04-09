@@ -448,7 +448,7 @@ describe('Pool - Withdraw', function () {
 
         const receipt = await poolContract
           .connect(user1)
-          .withdraw(token1.address, parseEther('70'), parseEther('70'), user1.address, fiveSecondsSince)
+          .withdraw(token1.address, parseEther('70'), parseUnits('70', 8), user1.address, fiveSecondsSince)
         const afterBalance = await token1.balanceOf(user1.address)
 
         // check that quoted withdrawal is the same as amount withdrawn
