@@ -363,7 +363,7 @@ contract MasterWombat is
         uint256 _pid,
         uint256 _amount,
         address _user
-    ) external override nonReentrant {
+    ) external override nonReentrant whenNotPaused {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
 
