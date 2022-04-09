@@ -585,6 +585,15 @@ contract MasterWombat is
         pool.sumOfFactors = pool.sumOfFactors - user.factor;
         user.factor = 0;
 
+        // reset rewarder
+        IRewarder rewarder = poolInfo[_pid].rewarder;
+        if (address(rewarder) != address(0)) {
+            // wrap rewarder.onReward in try in case it causes DoS
+            try rewarder.onReward(msg.sender, user.amount) {} catch (bytes memory lowLevelData) {
+                // do nothing
+            }
+        }
+
         // update base factors
         user.amount = 0;
         user.rewardDebt = 0;
