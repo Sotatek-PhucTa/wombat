@@ -583,6 +583,7 @@ contract Pool is
     ) external nonReentrant whenNotPaused returns (uint256 toAmount) {
         _checkAddress(to);
         _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
         _ensure(deadline);
         requireAssetNotPaused(fromToken);
 

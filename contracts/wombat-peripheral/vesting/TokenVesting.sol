@@ -53,6 +53,8 @@ contract TokenVesting is Context, Ownable {
         uint256 durationSeconds,
         uint256 unlockDurationSeconds
     ) {
+        require(durationSeconds == unlockDurationSeconds * 10);
+
         vestedToken = IERC20(vestedTokenAddress);
         _start = startTimestamp;
         _duration = durationSeconds;
