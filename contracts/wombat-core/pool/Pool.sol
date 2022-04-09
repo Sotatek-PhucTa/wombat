@@ -556,7 +556,8 @@ contract Pool is
         IAsset asset = _assetOf(token);
         // request lp token from user
         IERC20(asset).safeTransferFrom(address(msg.sender), address(asset), liquidity);
-        amount = _withdraw(asset, liquidity, minimumAmount).fromWad(asset.underlyingTokenDecimals());
+        uint8 decimals = asset.underlyingTokenDecimals();
+        amount = _withdraw(asset, liquidity, minimumAmount.toWad(decimals)).fromWad(decimals);
         asset.transferUnderlyingToken(to, amount);
 
         emit Withdraw(msg.sender, token, amount, liquidity, to);
