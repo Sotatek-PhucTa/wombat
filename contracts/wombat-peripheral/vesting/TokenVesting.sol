@@ -126,9 +126,10 @@ contract TokenVesting is Context, Ownable {
      * Emits a {TokensReleased} event.
      */
     function release(address beneficiary) external {
-        uint256 releasable = vestedAmount(beneficiary, uint256(block.timestamp)) - released(beneficiary);
+        uint256 releasable = vestedAmount(beneficiary, block.timestamp) - released(beneficiary);
         _beneficiaryInfo[beneficiary]._allocationReleased += releasable;
         _beneficiaryInfo[beneficiary]._allocationBalance -= releasable;
+        _beneficiaryInfo[beneficiary]._unlockIntervalsCount = _calculateInterval(block.timestamp);
         emit ERC20Released(address(vestedToken), releasable);
         SafeERC20.safeTransfer(IERC20(vestedToken), beneficiary, releasable);
     }
@@ -136,18 +137,17 @@ contract TokenVesting is Context, Ownable {
     /**
      * @dev Calculates the amount of WOM tokens that has already vested. Default implementation is a linear vesting curve.
      */
-    function vestedAmount(address beneficiary, uint256 timestamp) public returns (uint256) {
+    function vestedAmount(address beneficiary, uint256 timestamp) public view returns (uint256) {
         uint256 _vestedAmount = _vestingSchedule(
             beneficiary,
             _beneficiaryInfo[beneficiary]._allocationBalance + released(beneficiary),
             uint256(timestamp)
         );
-        emit ReleasableAmount(beneficiary, _vestedAmount);
         return _vestedAmount;
     }
 
     /**
-     * @dev implementation of the vesting formula. This returns the amout vested, as a function of time, for
+     * @dev implementation of the vesting formula. This returns the amount vested, as a function of time, for
      * an asset given its total historical allocation.
      * 10% of the Total Number of Tokens Purchased shall unlock every 6 months from the Network Launch,
      * with the Total Number * of Tokens Purchased becoming fully unlocked 5 years from the Network Launch.
@@ -157,27 +157,25 @@ contract TokenVesting is Context, Ownable {
         address beneficiary,
         uint256 totalAllocation,
         uint256 timestamp
-    ) internal returns (uint256) {
+    ) internal view returns (uint256) {
         if (timestamp < start()) {
             return 0;
         } else if (timestamp > start() + duration()) {
             return totalAllocation;
-        } else if (timestamp == uint256(block.timestamp)) {
-            uint256 currentInterval = _calculateInterval(timestamp);
-            bool isUnlocked = currentInterval > _beneficiaryInfo[beneficiary]._unlockIntervalsCount;
-            if (isUnlocked) {
-                _beneficiaryInfo[beneficiary]._unlockIntervalsCount = currentInterval;
-                return (totalAllocation * currentInterval * 10) / 100;
-            }
-        } else {
-            return ((totalAllocation * _calculateInterval(timestamp) * 10) / 100);
         }
+
+        uint256 currentInterval = _calculateInterval(timestamp);
+        return (totalAllocation * currentInterval) / 10;
     }
 
     /**
      * @dev Calculates the number of intervals unlocked
      */
     function _calculateInterval(uint256 timestamp) internal view returns (uint256) {
-        return (timestamp - start()) / _unlockDurationSeconds;
+        if (timestamp < start()) {
+            return 0;
+        } else {
+            return (timestamp - start()) / _unlockDurationSeconds;
+        }
     }
 }
