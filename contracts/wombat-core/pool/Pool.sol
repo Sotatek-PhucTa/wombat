@@ -411,7 +411,7 @@ contract Pool is
 
     /**
      * @notice Deposits amount of tokens into pool ensuring deadline
-     * @dev Asset needs to be created and added to pool before any operation
+     * @dev Asset needs to be created and added to pool before any operation. This function assumes tax free token.
      * @param token The token address to be deposited
      * @param amount The amount to be deposited
      * @param to The user accountable for deposit, receiving the Wombat assets (lp)
@@ -682,6 +682,7 @@ contract Pool is
 
     /**
      * @notice Swap fromToken for toToken, ensures deadline and minimumToAmount and sends quoted amount to `to` address
+     * @dev This function assumes tax free token.
      * @param fromToken The token being inserted into Pool by user for swap
      * @param toToken The token wanted by user, leaving the Pool
      * @param fromAmount The amount of from token inserted
