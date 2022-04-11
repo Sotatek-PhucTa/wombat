@@ -39,10 +39,10 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
     uint256 public maxSupply;
 
     /// @notice An event thats emitted when max supply is updated
-    event MaxSupplyUpdated(uint256 previousMaxSupply, uint256 newMaxSupply);
+    event SetMaxSupply(uint256 previousMaxSupply, uint256 newMaxSupply);
 
     /// @notice An event thats emitted when pool address is updated
-    event PoolUpdated(address previousPoolAddr, address newPoolAddr);
+    event SetPool(address previousPoolAddr, address newPoolAddr);
 
     error WOMBAT_FORBIDDEN();
     error ASSET_OVERFLOW();
@@ -75,8 +75,8 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
      */
     function setPool(address pool_) external override onlyOwner {
         require(pool_ != address(0), 'Wombat: Pool address cannot be zero');
-        emit PoolUpdated(pool, pool_);
         pool = pool_;
+        emit SetPool(pool, pool_);
     }
 
     /**
@@ -84,8 +84,8 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
      * @param maxSupply_ the new asset's max supply
      */
     function setMaxSupply(uint256 maxSupply_) external onlyOwner {
-        emit MaxSupplyUpdated(maxSupply, maxSupply_);
         maxSupply = maxSupply_;
+        emit SetMaxSupply(maxSupply, maxSupply_);
     }
 
     /**

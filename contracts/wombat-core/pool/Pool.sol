@@ -92,6 +92,17 @@ contract Pool is
         address indexed to
     );
 
+    event SetDev(address addr);
+    event SetMasterWombat(address addr);
+    event SetFeeTo(address addr);
+
+    event SetMintFeeThreshold(uint256 value);
+    event SetFee(uint256 lpDividendRatio, uint256 retentionRatio);
+    event SetAmpFactor(uint256 value);
+    event SetHaircutRate(uint256 value);
+
+    event TransferTipBucket(address token, uint256 amount, address to);
+
     /* Errors */
 
     error WOMBAT_FORBIDDEN();
@@ -197,11 +208,13 @@ contract Pool is
     function setDev(address dev_) external onlyOwner {
         _checkAddress(dev_);
         dev = dev_;
+        emit SetDev(dev_);
     }
 
     function setMasterWombat(address masterWombat_) external onlyOwner {
         _checkAddress(masterWombat_);
         masterWombat = IMasterWombat(masterWombat_);
+        emit SetMasterWombat(masterWombat_);
     }
 
     /**
@@ -211,6 +224,7 @@ contract Pool is
     function setAmpFactor(uint256 ampFactor_) external onlyOwner {
         if (ampFactor_ > WAD) revert WOMBAT_INVALID_VALUE(); // ampFactor_ should not be set bigger than 1
         ampFactor = ampFactor_;
+        emit SetAmpFactor(ampFactor_);
     }
 
     /**
@@ -220,6 +234,7 @@ contract Pool is
     function setHaircutRate(uint256 haircutRate_) external onlyOwner {
         if (haircutRate_ > WAD) revert WOMBAT_INVALID_VALUE(); // haircutRate_ should not be set bigger than 1
         haircutRate = haircutRate_;
+        emit SetHaircutRate(haircutRate_);
     }
 
     function setFee(uint256 lpDividendRatio_, uint256 retentionRatio_) external onlyOwner {
@@ -227,6 +242,7 @@ contract Pool is
         mintAllFee();
         retentionRatio = retentionRatio_;
         lpDividendRatio = lpDividendRatio_;
+        emit SetFee(lpDividendRatio_, retentionRatio_);
     }
 
     /**
@@ -237,6 +253,7 @@ contract Pool is
     function setFeeTo(address feeTo_) external onlyOwner {
         if (feeTo_ == address(0)) revert WOMBAT_INVALID_VALUE();
         feeTo = feeTo_;
+        emit SetFeeTo(feeTo_);
     }
 
     /**
@@ -244,6 +261,7 @@ contract Pool is
      */
     function setMintFeeThreshold(uint256 mintFeeThreshold_) external onlyOwner {
         mintFeeThreshold = mintFeeThreshold_;
+        emit SetMintFeeThreshold(mintFeeThreshold_);
     }
 
     /* Assets */
@@ -819,6 +837,7 @@ contract Pool is
         }
 
         asset.transferUnderlyingToken(to, amount.fromWad(asset.underlyingTokenDecimals()));
+        emit TransferTipBucket(token, amount, to);
     }
 
     function _globalInvariantFunc() internal view returns (int256 D, int256 SL) {
