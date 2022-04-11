@@ -611,7 +611,12 @@ contract Pool is
 
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
         uint256 fromAmountInWad = _withdraw(fromAsset, liquidity, 0);
-        (toAmount, ) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount);
+        (toAmount, ) = _swap(
+            fromAsset,
+            toAsset,
+            fromAmountInWad,
+            minimumAmount.toWad(toAsset.underlyingTokenDecimals())
+        );
 
         toAmount = toAmount.fromWad(toAsset.underlyingTokenDecimals());
         toAsset.transferUnderlyingToken(to, toAmount);

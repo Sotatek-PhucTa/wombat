@@ -590,7 +590,7 @@ contract MasterWombat is
         IRewarder rewarder = poolInfo[_pid].rewarder;
         if (address(rewarder) != address(0)) {
             // wrap rewarder.onReward in try in case it causes DoS
-            try rewarder.onReward(msg.sender, user.amount) {} catch (bytes memory lowLevelData) {
+            try rewarder.onReward(msg.sender, 0) {} catch (bytes memory lowLevelData) {
                 // do nothing
             }
         }

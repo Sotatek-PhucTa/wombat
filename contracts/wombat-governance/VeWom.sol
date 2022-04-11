@@ -95,7 +95,7 @@ contract VeWom is
     function setMasterWombat(IMasterWombat _masterWombat) external onlyOwner {
         require(address(_masterWombat) != address(0), 'zero address');
         masterWombat = _masterWombat;
-        emit SetMasterWombat(_masterWombat);
+        emit SetMasterWombat(address(_masterWombat));
     }
 
     /// @notice sets whitelist address
@@ -103,7 +103,7 @@ contract VeWom is
     function setWhitelist(IWhitelist _whitelist) external onlyOwner {
         require(address(_whitelist) != address(0), 'zero address');
         whitelist = _whitelist;
-        emit SetWhiteList(_whitelist);
+        emit SetWhiteList(address(_whitelist));
     }
 
     function setMaxBreedingLength(uint256 _maxBreedingLength) external onlyOwner {
