@@ -19,7 +19,10 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
     using SafeERC20 for IERC20;
 
     /// @notice The underlying underlyingToken represented by this asset
-    address public override underlyingToken;
+    address public immutable override underlyingToken;
+
+    uint8 public immutable override underlyingTokenDecimals;
+
     /// @notice The Pool
     address public override pool;
 
@@ -31,8 +34,6 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
     /// @notice Total liability, equals to the sum of deposit and dividend
     /// @dev 18.18 fixed point decimals
     uint120 public override liability;
-
-    uint8 public override underlyingTokenDecimals;
 
     /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
     /// @dev if 0, means asset has no max
