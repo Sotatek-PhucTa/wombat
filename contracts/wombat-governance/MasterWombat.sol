@@ -102,7 +102,7 @@ contract MasterWombat is
     event UpdateEmissionRate(address indexed user, uint256 womPerSec);
     event UpdateEmissionPartition(address indexed user, uint256 basePartition, uint256 boostedPartition);
     event UpdateVeWOM(address indexed user, address oldVeWOM, address newVeWOM);
-    event EmergencyWomWithdraw();
+    event EmergencyWomWithdraw(address owner, uint256 balance);
 
     /// @dev Modifier ensuring that certain function can only be called by VeWom
     modifier onlyVeWom() {
@@ -693,6 +693,6 @@ contract MasterWombat is
     /// Sends all remaining wom from the contract to the owner
     function emergencyWomWithdraw() external onlyOwner {
         wom.safeTransfer(address(msg.sender), wom.balanceOf(address(this)));
-        emit EmergencyWomWithdraw();
+        emit EmergencyWomWithdraw(address(msg.sender), wom.balanceOf(address(this)));
     }
 }
