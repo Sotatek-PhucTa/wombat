@@ -101,6 +101,7 @@ contract Pool is
     event SetAmpFactor(uint256 value);
     event SetHaircutRate(uint256 value);
 
+    event FillPool(address token, uint256 amount);
     event TransferTipBucket(address token, uint256 amount, address to);
 
     /* Errors */
@@ -823,6 +824,7 @@ contract Pool is
         }
 
         asset.addCash(amount);
+        emit FillPool(token, amount);
     }
 
     // unit of amount should be in WAD
