@@ -51,6 +51,9 @@ contract VeWom is
 
     event Enter(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
     event Exit(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
+    event SetMasterWombat(address addr);
+    event SetWhiteList(address addr);
+    event SetMaxBreedingLength(uint256 len);
 
     error VEWOM_OVERFLOW();
 
@@ -92,6 +95,7 @@ contract VeWom is
     function setMasterWombat(IMasterWombat _masterWombat) external onlyOwner {
         require(address(_masterWombat) != address(0), 'zero address');
         masterWombat = _masterWombat;
+        emit SetMasterWombat(address(_masterWombat));
     }
 
     /// @notice sets whitelist address
@@ -99,11 +103,13 @@ contract VeWom is
     function setWhitelist(IWhitelist _whitelist) external onlyOwner {
         require(address(_whitelist) != address(0), 'zero address');
         whitelist = _whitelist;
+        emit SetWhiteList(address(_whitelist));
     }
 
     function setMaxBreedingLength(uint256 _maxBreedingLength) external onlyOwner {
         if (_maxBreedingLength > type(uint32).max) revert VEWOM_OVERFLOW();
         maxBreedingLength = uint32(_maxBreedingLength);
+        emit SetMaxBreedingLength(_maxBreedingLength);
     }
 
     /// @notice checks wether user _addr has wom staked

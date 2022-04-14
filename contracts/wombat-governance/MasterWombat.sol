@@ -102,6 +102,7 @@ contract MasterWombat is
     event UpdateEmissionRate(address indexed user, uint256 womPerSec);
     event UpdateEmissionPartition(address indexed user, uint256 basePartition, uint256 boostedPartition);
     event UpdateVeWOM(address indexed user, address oldVeWOM, address newVeWOM);
+    event EmergencyWomWithdraw(address owner, uint256 balance);
 
     /// @dev Modifier ensuring that certain function can only be called by VeWom
     modifier onlyVeWom() {
@@ -363,7 +364,7 @@ contract MasterWombat is
         uint256 _pid,
         uint256 _amount,
         address _user
-    ) external override nonReentrant {
+    ) external override nonReentrant whenNotPaused {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
 
@@ -585,6 +586,15 @@ contract MasterWombat is
         pool.sumOfFactors = pool.sumOfFactors - user.factor;
         user.factor = 0;
 
+        // reset rewarder
+        IRewarder rewarder = poolInfo[_pid].rewarder;
+        if (address(rewarder) != address(0)) {
+            // wrap rewarder.onReward in try in case it causes DoS
+            try rewarder.onReward(msg.sender, 0) {} catch (bytes memory lowLevelData) {
+                // do nothing
+            }
+        }
+
         // update base factors
         user.amount = 0;
         user.rewardDebt = 0;
@@ -683,5 +693,6 @@ contract MasterWombat is
     /// Sends all remaining wom from the contract to the owner
     function emergencyWomWithdraw() external onlyOwner {
         wom.safeTransfer(address(msg.sender), wom.balanceOf(address(this)));
+        emit EmergencyWomWithdraw(address(msg.sender), wom.balanceOf(address(this)));
     }
 }

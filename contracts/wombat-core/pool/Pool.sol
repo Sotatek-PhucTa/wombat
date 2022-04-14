@@ -92,6 +92,18 @@ contract Pool is
         address indexed to
     );
 
+    event SetDev(address addr);
+    event SetMasterWombat(address addr);
+    event SetFeeTo(address addr);
+
+    event SetMintFeeThreshold(uint256 value);
+    event SetFee(uint256 lpDividendRatio, uint256 retentionRatio);
+    event SetAmpFactor(uint256 value);
+    event SetHaircutRate(uint256 value);
+
+    event FillPool(address token, uint256 amount);
+    event TransferTipBucket(address token, uint256 amount, address to);
+
     /* Errors */
 
     error WOMBAT_FORBIDDEN();
@@ -197,11 +209,13 @@ contract Pool is
     function setDev(address dev_) external onlyOwner {
         _checkAddress(dev_);
         dev = dev_;
+        emit SetDev(dev_);
     }
 
     function setMasterWombat(address masterWombat_) external onlyOwner {
         _checkAddress(masterWombat_);
         masterWombat = IMasterWombat(masterWombat_);
+        emit SetMasterWombat(masterWombat_);
     }
 
     /**
@@ -211,6 +225,7 @@ contract Pool is
     function setAmpFactor(uint256 ampFactor_) external onlyOwner {
         if (ampFactor_ > WAD) revert WOMBAT_INVALID_VALUE(); // ampFactor_ should not be set bigger than 1
         ampFactor = ampFactor_;
+        emit SetAmpFactor(ampFactor_);
     }
 
     /**
@@ -220,6 +235,7 @@ contract Pool is
     function setHaircutRate(uint256 haircutRate_) external onlyOwner {
         if (haircutRate_ > WAD) revert WOMBAT_INVALID_VALUE(); // haircutRate_ should not be set bigger than 1
         haircutRate = haircutRate_;
+        emit SetHaircutRate(haircutRate_);
     }
 
     function setFee(uint256 lpDividendRatio_, uint256 retentionRatio_) external onlyOwner {
@@ -227,6 +243,7 @@ contract Pool is
         mintAllFee();
         retentionRatio = retentionRatio_;
         lpDividendRatio = lpDividendRatio_;
+        emit SetFee(lpDividendRatio_, retentionRatio_);
     }
 
     /**
@@ -237,6 +254,7 @@ contract Pool is
     function setFeeTo(address feeTo_) external onlyOwner {
         if (feeTo_ == address(0)) revert WOMBAT_INVALID_VALUE();
         feeTo = feeTo_;
+        emit SetFeeTo(feeTo_);
     }
 
     /**
@@ -244,6 +262,7 @@ contract Pool is
      */
     function setMintFeeThreshold(uint256 mintFeeThreshold_) external onlyOwner {
         mintFeeThreshold = mintFeeThreshold_;
+        emit SetMintFeeThreshold(mintFeeThreshold_);
     }
 
     /* Assets */
@@ -411,7 +430,7 @@ contract Pool is
 
     /**
      * @notice Deposits amount of tokens into pool ensuring deadline
-     * @dev Asset needs to be created and added to pool before any operation
+     * @dev Asset needs to be created and added to pool before any operation. This function assumes tax free token.
      * @param token The token address to be deposited
      * @param amount The amount to be deposited
      * @param to The user accountable for deposit, receiving the Wombat assets (lp)
@@ -556,7 +575,8 @@ contract Pool is
         IAsset asset = _assetOf(token);
         // request lp token from user
         IERC20(asset).safeTransferFrom(address(msg.sender), address(asset), liquidity);
-        amount = _withdraw(asset, liquidity, minimumAmount).fromWad(asset.underlyingTokenDecimals());
+        uint8 decimals = asset.underlyingTokenDecimals();
+        amount = _withdraw(asset, liquidity, minimumAmount.toWad(decimals)).fromWad(decimals);
         asset.transferUnderlyingToken(to, amount);
 
         emit Withdraw(msg.sender, token, amount, liquidity, to);
@@ -582,6 +602,7 @@ contract Pool is
     ) external nonReentrant whenNotPaused returns (uint256 toAmount) {
         _checkAddress(to);
         _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
         _ensure(deadline);
         requireAssetNotPaused(fromToken);
 
@@ -591,7 +612,12 @@ contract Pool is
 
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
         uint256 fromAmountInWad = _withdraw(fromAsset, liquidity, 0);
-        (toAmount, ) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount);
+        (toAmount, ) = _swap(
+            fromAsset,
+            toAsset,
+            fromAmountInWad,
+            minimumAmount.toWad(toAsset.underlyingTokenDecimals())
+        );
 
         toAmount = toAmount.fromWad(toAsset.underlyingTokenDecimals());
         toAsset.transferUnderlyingToken(to, toAmount);
@@ -680,6 +706,7 @@ contract Pool is
 
     /**
      * @notice Swap fromToken for toToken, ensures deadline and minimumToAmount and sends quoted amount to `to` address
+     * @dev This function assumes tax free token.
      * @param fromToken The token being inserted into Pool by user for swap
      * @param toToken The token wanted by user, leaving the Pool
      * @param fromAmount The amount of from token inserted
@@ -797,6 +824,7 @@ contract Pool is
         }
 
         asset.addCash(amount);
+        emit FillPool(token, amount);
     }
 
     // unit of amount should be in WAD
@@ -816,6 +844,7 @@ contract Pool is
         }
 
         asset.transferUnderlyingToken(to, amount.fromWad(asset.underlyingTokenDecimals()));
+        emit TransferTipBucket(token, amount, to);
     }
 
     function _globalInvariantFunc() internal view returns (int256 D, int256 SL) {
