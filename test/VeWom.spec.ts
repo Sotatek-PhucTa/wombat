@@ -154,15 +154,15 @@ describe('VeWOM', function () {
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
 
     await this.veWom.connect(users[0]).mint(parseEther('10'), 14)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('3.128739858787603784'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('0.978901310396626401'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('90'))
 
     await this.veWom.connect(users[0]).mint(parseEther('1'), 1000)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('4.038312619725963228'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('1.806223917837655463'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('89'))
 
     await this.veWom.connect(users[0]).mint(parseEther('10'), 7)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('6.669258751241872299'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('2.498411672531507406'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('79'))
   })
 
@@ -173,7 +173,7 @@ describe('VeWOM', function () {
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
 
     await this.veWom.connect(users[0]).mint(parseEther('100'), 7)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('26.309461315159090706'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('6.921877546938519430'))
   })
 
   it('lock 1 years', async function () {
@@ -183,7 +183,7 @@ describe('VeWOM', function () {
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
 
     await this.veWom.connect(users[0]).mint(parseEther('100'), 365)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('70.698575306381174755'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('49.982885503520444767'))
   })
 
   it('lock 4 years', async function () {
@@ -193,7 +193,7 @@ describe('VeWOM', function () {
     await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
 
     await this.veWom.connect(users[0]).mint(parseEther('100'), 1461)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('99.999999999999973347'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('99.999999999999835750'))
   })
 
   it('should respect maxBreedingLength', async function () {
@@ -222,21 +222,21 @@ describe('VeWOM', function () {
     await this.veWom.connect(users[0]).mint(parseEther('10'), 7)
     await this.veWom.connect(users[0]).mint(parseEther('20'), 7)
     await this.veWom.connect(users[0]).mint(parseEther('5'), 7)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('9.208311460305681747'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('2.422657141428481800'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('65'))
 
     const secondsInDay = 86400
     advanceTimeAndBlock(secondsInDay * 7)
 
     // balance should be the same after expiry
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('9.208311460305681747'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('2.422657141428481800'))
 
     await this.veWom.connect(users[0]).burn(0)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('6.577365328789772676'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('1.730469386734629857'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('75'))
 
     await this.veWom.connect(users[0]).burn(1)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('1.315473065757954535'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.equal(parseEther('0.346093877346925971'))
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('95'))
 
     await this.veWom.connect(users[0]).burn(0)

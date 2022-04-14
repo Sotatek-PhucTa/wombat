@@ -134,8 +134,8 @@ contract VeWom is
     }
 
     function _expectedVeWomAmount(uint256 amount, uint256 lockDays) internal pure returns (uint256) {
-        // veWOM = 0.16 * lockDays^0.25
-        return amount.wmul(161747451270894000).wmul(LogExpMath.pow(lockDays * WAD, 25e16));
+        // veWOM = 0.026 * lockDays^0.5
+        return amount.wmul(26162237992630200).wmul(LogExpMath.pow(lockDays * WAD, 50e16));
     }
 
     /// @notice lock WOM into contract and mint veWOM
