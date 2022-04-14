@@ -75,8 +75,8 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
      */
     function setPool(address pool_) external override onlyOwner {
         require(pool_ != address(0), 'Wombat: Pool address cannot be zero');
-        pool = pool_;
         emit SetPool(pool, pool_);
+        pool = pool_;
     }
 
     /**
