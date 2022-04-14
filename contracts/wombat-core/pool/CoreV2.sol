@@ -12,8 +12,8 @@ import '../libraries/SignedSafeMath.sol';
 contract CoreV2 {
     using DSMath for uint256;
     using SignedSafeMath for int256;
-    int256 public constant WAD_I = 10**18;
-    uint256 public constant WAD = 10**18;
+    int256 internal constant WAD_I = 10**18;
+    uint256 internal constant WAD = 10**18;
 
     error CORE_UNDERFLOW();
 
