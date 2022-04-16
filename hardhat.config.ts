@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
       url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
       gasPrice: 20000000000,
-      accounts: [], // replace with mainnet wallet private key
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY as string], // replace with mainnet wallet private key
     },
   },
   etherscan: {
@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 10000,
           },
         },
       },
@@ -83,6 +83,9 @@ const config: HardhatUserConfig = {
     },
     user2: {
       default: 2,
+    },
+    mainnetDeployer: {
+      default: '0x8c6644415b3F3CD7FC0A453c5bE3d3306Fe0b2F9',
     },
   },
   docgen: {
