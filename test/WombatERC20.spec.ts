@@ -27,7 +27,7 @@ describe('WombatERC20', function () {
 
     // Deploy with factories
     // Default constructor setup => 'Wombat Token', 'WOM', 18, parseUnits('1000000', 18)
-    tokenContract = await TestWombatERC20Factory.connect(owner).deploy(parseUnits('1000000', 18)) // 1 mil WOM
+    tokenContract = await TestWombatERC20Factory.connect(owner).deploy(owner.address, parseUnits('1000000', 18)) // 1 mil WOM
 
     // wait for transactions to be mined
     await tokenContract.deployTransaction.wait()
