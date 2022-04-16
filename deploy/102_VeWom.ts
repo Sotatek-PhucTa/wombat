@@ -1,12 +1,13 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { MAINNET_GNOSIS_SAFE } from '../tokens.config'
 
 const contractName = 'VeWom'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, mainnetDeployer } = await getNamedAccounts()
 
   console.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -16,12 +17,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   // deterministicDeployment is used only for implementation but not the proxy contract
   // it is not useful in this case
   const deployResult = await deploy(`${contractName}_V2`, {
-    from: deployer,
+    from: hre.network.name == 'bsc_mainnet' ? mainnetDeployer : deployer,
     contract: 'VeWom',
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: deployer,
+      owner: hre.network.name == 'bsc_mainnet' ? MAINNET_GNOSIS_SAFE : deployer,
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {

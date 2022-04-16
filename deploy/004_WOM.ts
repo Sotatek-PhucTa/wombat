@@ -1,6 +1,7 @@
 import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { MAINNET_GNOSIS_SAFE } from '../tokens.config'
 
 interface IWombatToken {
   [token: string]: unknown[]
@@ -15,23 +16,31 @@ const contractName = 'WombatToken'
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, mainnetDeployer } = await getNamedAccounts()
 
-  console.log(`Step 004. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  console.log(`Step 004. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
   const womDeployResult = await deploy(contractName, {
-    from: deployer,
+    from: hre.network.name == 'bsc_mainnet' ? mainnetDeployer : deployer,
     contract: 'WombatERC20',
     log: true,
-    args: [parseEther(WOMBAT_TOKENS_ARGS['WOM'][3] as string)], // 1b tokens minted to msg.sender initially
+    args: [
+      hre.network.name == 'bsc_mainnet' ? MAINNET_GNOSIS_SAFE : deployer,
+      parseEther(WOMBAT_TOKENS_ARGS['WOM'][3] as string),
+    ], // 1b tokens minted to gnosis safe or msg.sender initially
     skipIfAlreadyDeployed: true,
-    deterministicDeployment: false, // use CREATE2 for deterministic address
+    deterministicDeployment: false, // will adopt bridging protocols/ wrapped addresses instead of CREATE2
   })
 
   // Mock WOM token only on localhost and bsc testnet
   if (womDeployResult.newlyDeployed) {
-    if (hre.network.name == 'localhost' || hre.network.name == 'hardhat' || hre.network.name == 'bsc_testnet') {
+    if (
+      hre.network.name == 'localhost' ||
+      hre.network.name == 'hardhat' ||
+      hre.network.name == 'bsc_testnet' ||
+      hre.network.name == 'bsc_mainnet'
+    ) {
       // Get freshly deployed WOM contract
       const womToken = await ethers.getContractAt('WombatERC20', womDeployResult.address)
 
@@ -42,7 +51,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const totalSupply = await womToken.totalSupply()
       const deployerBalance = await womToken.balanceOf(deployer)
       console.log(`Token details are ${name}, ${symbol}, ${decimals}, ${totalSupply}, ${deployerBalance}`)
-      console.log(`Deployer account is: ${deployer}`)
+      console.log(`Deployment complete.`)
     }
   }
 

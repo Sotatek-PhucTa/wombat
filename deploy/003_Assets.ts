@@ -1,17 +1,17 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-import { USD_TOKENS_MAP } from '../tokens.config'
+import { USD_TOKENS_MAP, MAINNET_GNOSIS_SAFE } from '../tokens.config'
 
 const contractName = 'Asset'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, mainnetDeployer } = await getNamedAccounts()
 
   // Get Deployer as Signer
-  const [owner] = await ethers.getSigners()
+  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 003. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -36,8 +36,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
-    const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}_V2`, {
-      from: deployer,
+    const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}`, {
+      from: hre.network.name == 'bsc_mainnet' ? mainnetDeployer : deployer,
       contract: 'Asset',
       log: true,
       args: [tokenAddress, name, symbol],
@@ -56,6 +56,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       await addPool(asset, owner, poolAddress)
 
       console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
+
+      // transfer asset LP token contract ownership to Gnosis Safe
+      console.log(`Transferring ownership of ${tokenAddress} to ${MAINNET_GNOSIS_SAFE}...`)
+      // The owner of the asset contract can change our pool address and change asset max supply
+      await asset.connect(owner).transferOwnership(MAINNET_GNOSIS_SAFE)
+      console.log(`Transferred ownership of ${tokenAddress} to:`, MAINNET_GNOSIS_SAFE)
+
       console.log(
         `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
       )
