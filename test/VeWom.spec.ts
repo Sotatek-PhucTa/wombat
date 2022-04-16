@@ -39,7 +39,7 @@ describe('VeWOM', function () {
   beforeEach(async function () {
     const startTime = (await latest()).add(60)
 
-    this.wom = await this.Wom.connect(owner).deploy(parseEther('1000000000')) // 1 bil WOM tokens
+    this.wom = await this.Wom.connect(owner).deploy(owner.address, parseEther('1000000000')) // 1 bil WOM tokens
     this.veWom = await this.VeWom.deploy()
     this.veWom.deployed()
 
