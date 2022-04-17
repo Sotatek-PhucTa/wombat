@@ -252,7 +252,7 @@ contract Pool is
      * @param feeTo_ new fee beneficiary
      */
     function setFeeTo(address feeTo_) external onlyOwner {
-        if (feeTo_ == address(0)) revert WOMBAT_INVALID_VALUE();
+        _checkAddress(feeTo_);
         feeTo = feeTo_;
         emit SetFeeTo(feeTo_);
     }
