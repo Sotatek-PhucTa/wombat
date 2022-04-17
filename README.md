@@ -32,6 +32,12 @@ _Requires `node@>=14` and `node@<=16`, visit [node.js](https://nodejs.org/en/) f
 - Run `yarn deploy_bsc_testnet` and that's it.
 - Run `yarn bsc_testnet_demo` to run a demo of core smart contracts interactions via scripts.
 
+### For BSC mainnet network
+
+- Update your private key in `.env` and update your key at `bsc_mainnet` => `accounts` of `hardhat.config.ts`
+- Run `yarn deploy_bsc_mainnet` and that's it.
+- Note: Token vesting contracts are deployed with respective cliffs on TGE.
+
 Behind the scenes:
 
 - [hardhat-deploy](https://github.com/wighawag/tutorial-hardhat-deploy) is used to help make the whole deployment flow easier and more robust
