@@ -86,7 +86,7 @@ const config: HardhatUserConfig = {
       default: 2,
     },
     multisig: {
-      bsc_mainnet: '0x8c6644415b3F3CD7FC0A453c5bE3d3306Fe0b2F9', // Gnosis Safe
+      bsc_mainnet: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
     },
   },
   docgen: {

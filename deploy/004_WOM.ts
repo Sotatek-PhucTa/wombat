@@ -1,7 +1,6 @@
 import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { MAINNET_GNOSIS_SAFE } from '../tokens.config'
 
 interface IWombatToken {
   [token: string]: unknown[]

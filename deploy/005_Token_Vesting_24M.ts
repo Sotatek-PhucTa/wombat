@@ -76,7 +76,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
         // transfer token vesting contract ownership to Gnosis Safe
         console.log(`Transferring ownership of ${tokenVestingDeployResult.address} to ${multisig}...`)
-        // The owner of the pool contract is very powerful!
+        // The owner of the token vesting contract is very powerful!
         await tokenVesting.connect(owner).transferOwnership(multisig)
         console.log(`Transferred ownership of ${tokenVestingDeployResult.address} to:`, multisig)
 
