@@ -1,24 +1,23 @@
 import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { MAINNET_GNOSIS_SAFE } from '../tokens.config'
 
 const contractName = 'Pool'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
-  const { deployer, mainnetDeployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
+  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 001. Deploying on : ${hre.network.name}...`)
-
   /// Deploy pool
   const deployResult = await deploy(contractName, {
-    from: hre.network.name == 'bsc_mainnet' ? mainnetDeployer : deployer,
+    from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: hre.network.name == 'bsc_mainnet' ? MAINNET_GNOSIS_SAFE : deployer,
+      owner: deployer, // change to Gnosis Safe after all admin scripts are done
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
@@ -47,8 +46,20 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     if (hre.network.name == 'bsc_mainnet') {
       console.log(`Transferring ownership of ProxyAdmin...`)
       // The owner of the ProxyAdmin can upgrade our contracts
-      await upgrades.admin.transferProxyAdminOwnership(MAINNET_GNOSIS_SAFE)
-      console.log(`Transferred ownership of ProxyAdmin to:`, MAINNET_GNOSIS_SAFE)
+      await upgrades.admin.transferProxyAdminOwnership(multisig)
+      console.log(`Transferred ownership of ProxyAdmin to:`, multisig)
+
+      // transfer pool contract dev to Gnosis Safe
+      console.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
+      // The dev of the pool contract can pause and unpause pools & assets!
+      await contract.connect(owner).setDev(multisig)
+      console.log(`Transferred dev of ${deployResult.address} to:`, multisig)
+
+      // transfer pool contract ownership to Gnosis Safe
+      console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
+      // The owner of the pool contract is very powerful!
+      await contract.connect(owner).transferOwnership(multisig)
+      console.log(`Transferred ownership of ${deployResult.address} to:`, multisig)
     }
     return deployResult
   } else {

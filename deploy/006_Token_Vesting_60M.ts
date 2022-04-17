@@ -2,18 +2,18 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
 import { parseUnits } from '@ethersproject/units'
+import beneficiaries from '../beneficiaries.json' // to be filled
 
-const contractName = 'TokenVesting'
+const contractName = 'TokenVesting60M'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
 
-  // Get Signers
   const [owner, user1, user2] = await ethers.getSigners()
 
-  console.log(`Step 005. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  console.log(`Step 006. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // Get deployed WOM token instance
   const womToken = await deployments.get('WombatToken')
@@ -22,13 +22,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // get last block time and init variables
   const lastBlock = await ethers.provider.getBlock('latest')
   const lastBlockTime = lastBlock.timestamp
-  const thirtyDaysCliff = 60 * 60 * 24 * 30
   const oneDayCliff = 60 * 60 * 24 * 1
 
   const mainnetInit = {
     intervalSeconds: (60 * 60 * 24 * 365) / 2, // 15768000, i.e. 6 months unlock interval
-    startCliff: thirtyDaysCliff, // 30 days cliff
-    startTimestamp: lastBlockTime + thirtyDaysCliff, // 30 days later
+    startCliff: oneDayCliff, // 1 day cliff
+    startTimestamp: lastBlockTime + oneDayCliff, // 1 day later
     durationSeconds: 60 * 60 * 24 * 365 * 5, // 1825 days, i.e. 5 years vesting period
   }
   const testnetInit = {
@@ -41,7 +40,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   /// Deploy token vesting
   const tokenVestingDeployResult = await deploy(contractName, {
     from: deployer,
-    contract: 'TokenVesting',
+    contract: 'TokenVesting60M',
     args:
       hre.network.name == 'bsc_mainnet'
         ? [womToken.address, mainnetInit.startTimestamp, mainnetInit.durationSeconds, mainnetInit.intervalSeconds]
@@ -51,21 +50,45 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   })
 
   if (tokenVestingDeployResult.newlyDeployed) {
-    if (hre.network.name == 'localhost' || hre.network.name == 'hardhat' || hre.network.name == 'bsc_testnet') {
-      // Get freshly deployed Pool contract
+    if (
+      hre.network.name == 'localhost' ||
+      hre.network.name == 'hardhat' ||
+      hre.network.name == 'bsc_testnet' ||
+      hre.network.name == 'bsc_mainnet'
+    ) {
+      // Get freshly deployed Token Vesting contract
       const tokenVesting = await ethers.getContractAt('TokenVesting', tokenVestingDeployResult.address)
 
       // Check vested token
       const vestedTokenAddress = await tokenVesting.vestedToken()
-      console.log(`Vested Token Address is : ${vestedTokenAddress}`)
+      console.log(`60 Month Vested Token Address is : ${vestedTokenAddress}`)
       console.log(`Deployer account is: ${deployer}`)
 
-      // set user1 and user2 as beneficiary WOM allocation
-      await tokenVesting.connect(owner).setBeneficiary(user1.address, parseUnits('10000', 18))
-      await tokenVesting.connect(owner).setBeneficiary(user2.address, parseUnits('1000.12345678', 18))
+      if (hre.network.name == 'bsc_mainnet') {
+        // set WOM allocation for beneficiaries
+        const beneficiariesList = beneficiaries['60M']
+        for (let i = 0; i < beneficiariesList.length; i++) {
+          await tokenVesting
+            .connect(owner)
+            .setBeneficiary(beneficiariesList[i].address, parseUnits(beneficiariesList[i].amount, 18))
+        }
 
-      // transfer 11000.12345678 WOM tokens to vesting contract
-      await womTokenContract.connect(owner).transfer(tokenVesting.address, parseUnits('11000.12345678', 18))
+        // transfer token vesting contract ownership to Gnosis Safe
+        console.log(`Transferring ownership of ${tokenVestingDeployResult.address} to ${multisig}...`)
+        // The owner of the pool contract is very powerful!
+        await tokenVesting.connect(owner).transferOwnership(multisig)
+        console.log(`Transferred ownership of ${tokenVestingDeployResult.address} to:`, multisig)
+
+        // Query totalAllocationBalance and transfer exact WOM tokens to vesting contract via multi-sig
+        // To be performed by Gnosis Safe [mainnet only]
+      } else {
+        // set WOM allocation for beneficiaries
+        await tokenVesting.connect(owner).setBeneficiary(user1.address, parseUnits('10000', 18))
+        await tokenVesting.connect(owner).setBeneficiary(user2.address, parseUnits('1000.12345678', 18))
+
+        // transfer exact WOM tokens to vesting contract
+        await womTokenContract.connect(owner).transfer(tokenVesting.address, parseUnits('11000.12345678', 18))
+      }
 
       // Check init deploy values
       const start = await tokenVesting.start()

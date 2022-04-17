@@ -2,16 +2,15 @@ import { BigNumber } from 'ethers'
 import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { USD_TOKENS_MAP, MAINNET_GNOSIS_SAFE } from '../tokens.config'
+import { USD_TOKENS_MAP } from '../tokens.config'
 
 const contractName = 'MasterWombat'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
-  const { deployer, mainnetDeployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
 
-  // Get Deployer as Signer
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
@@ -23,12 +22,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const latest = BigNumber.from(block.timestamp)
 
   const deployResult = await deploy(`${contractName}_V2`, {
-    from: hre.network.name == 'bsc_mainnet' ? mainnetDeployer : deployer,
+    from: deployer,
     contract: 'MasterWombat',
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: hre.network.name == 'bsc_mainnet' ? mainnetDeployer : deployer, // change to Gnosis Safe after all admin scripts are done
+      owner: deployer, // change to Gnosis Safe after all admin scripts are done
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
@@ -42,8 +41,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   // Get freshly deployed MasterWombat contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)
-  // const contractAddress = (await deployments.get(contractName)).address as string
-  // const contract = await ethers.getContractAt(contractName, contractAddress)
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)
@@ -71,10 +68,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`MasterWombatAddress is : ${masterWombatAddress}`)
 
     // transfer MasterWombat contract ownership to Gnosis Safe
-    console.log(`Transferring ownership of ${masterWombatAddress} to ${MAINNET_GNOSIS_SAFE}...`)
+    console.log(`Transferring ownership of ${masterWombatAddress} to ${multisig}...`)
     // The owner of the MasterWombat contract holds great powers!
-    await contract.connect(owner).transferOwnership(MAINNET_GNOSIS_SAFE)
-    console.log(`Transferred ownership of ${masterWombatAddress} to:`, MAINNET_GNOSIS_SAFE)
+    await contract.connect(owner).transferOwnership(multisig)
+    console.log(`Transferred ownership of ${masterWombatAddress} to:`, multisig)
 
     return deployResult
   } else {

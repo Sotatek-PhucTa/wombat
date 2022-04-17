@@ -16,24 +16,20 @@ const contractName = 'WombatToken'
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer, mainnetDeployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
 
   console.log(`Step 004. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
   const womDeployResult = await deploy(contractName, {
-    from: hre.network.name == 'bsc_mainnet' ? mainnetDeployer : deployer,
+    from: deployer,
     contract: 'WombatERC20',
     log: true,
-    args: [
-      hre.network.name == 'bsc_mainnet' ? MAINNET_GNOSIS_SAFE : deployer,
-      parseEther(WOMBAT_TOKENS_ARGS['WOM'][3] as string),
-    ], // 1b tokens minted to gnosis safe or msg.sender initially
+    args: [hre.network.name == 'bsc_mainnet' ? multisig : deployer, parseEther(WOMBAT_TOKENS_ARGS['WOM'][3] as string)], // 1b tokens minted to gnosis safe or msg.sender initially
     skipIfAlreadyDeployed: true,
     deterministicDeployment: false, // will adopt bridging protocols/ wrapped addresses instead of CREATE2
   })
 
-  // Mock WOM token only on localhost and bsc testnet
   if (womDeployResult.newlyDeployed) {
     if (
       hre.network.name == 'localhost' ||

@@ -6,8 +6,6 @@ interface IUSDTTokensInfo {
   [token: string]: unknown[]
 }
 
-export const MAINNET_GNOSIS_SAFE = '0x123456789' // Actual mainnet BNB chain multi-sig wallet address
-
 export const USD_TOKENS_MAP: IUSDTokens = {
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'],
