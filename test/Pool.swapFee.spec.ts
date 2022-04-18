@@ -81,7 +81,7 @@ describe('Pool - Fee', function () {
     it('should not set fee to 0', async function () {
       await expect(
         poolContract.connect(owner).setFeeTo('0x0000000000000000000000000000000000000000')
-      ).to.be.revertedWith('WOMBAT_INVALID_VALUE')
+      ).to.be.revertedWith('WOMBAT_ZERO_ADDRESS')
     })
 
     it('fee should not collected if retention ratio is 1', async function () {

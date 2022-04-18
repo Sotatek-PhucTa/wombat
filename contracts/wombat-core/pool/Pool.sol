@@ -123,23 +123,23 @@ contract Pool is
 
     /* Pesudo modifiers to safe gas */
 
-    function _checkLiquidity(uint256 liquidity) private view {
+    function _checkLiquidity(uint256 liquidity) private pure {
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
     }
 
-    function _checkAddress(address to) private view {
+    function _checkAddress(address to) private pure {
         if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
     }
 
-    function _checkSameAddress(address from, address to) private view {
+    function _checkSameAddress(address from, address to) private pure {
         if (from == to) revert WOMBAT_SAME_ADDRESS();
     }
 
-    function _checkAmount(uint256 minAmt, uint256 amt) private view {
+    function _checkAmount(uint256 minAmt, uint256 amt) private pure {
         if (minAmt > amt) revert WOMBAT_AMOUNT_TOO_LOW();
     }
 
-    function _checkAccount(address from, address to) private view {
+    function _checkAccount(address from, address to) private pure {
         if (from != to) revert WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
     }
 
@@ -252,7 +252,7 @@ contract Pool is
      * @param feeTo_ new fee beneficiary
      */
     function setFeeTo(address feeTo_) external onlyOwner {
-        if (feeTo_ == address(0)) revert WOMBAT_INVALID_VALUE();
+        _checkAddress(feeTo_);
         feeTo = feeTo_;
         emit SetFeeTo(feeTo_);
     }

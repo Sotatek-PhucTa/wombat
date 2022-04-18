@@ -131,7 +131,7 @@ contract TokenVesting is Context, Ownable {
         _beneficiaryInfo[beneficiary]._allocationBalance -= releasable;
         _beneficiaryInfo[beneficiary]._unlockIntervalsCount = _calculateInterval(block.timestamp);
         emit ERC20Released(address(vestedToken), releasable);
-        SafeERC20.safeTransfer(IERC20(vestedToken), beneficiary, releasable);
+        SafeERC20.safeTransfer(vestedToken, beneficiary, releasable);
     }
 
     /**
