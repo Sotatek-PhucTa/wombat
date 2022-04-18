@@ -46,19 +46,31 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     if (hre.network.name == 'bsc_mainnet') {
       console.log(`Transferring ownership of ProxyAdmin...`)
       // The owner of the ProxyAdmin can upgrade our contracts
-      await upgrades.admin.transferProxyAdminOwnership(multisig)
+      const transferProxyAdminTxn = await upgrades.admin.transferProxyAdminOwnership(multisig)
+      await transferProxyAdminTxn.wait()
       console.log(`Transferred ownership of ProxyAdmin to:`, multisig)
 
       // transfer pool contract dev to Gnosis Safe
       console.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
       // The dev of the pool contract can pause and unpause pools & assets!
-      await contract.connect(owner).setDev(multisig)
+      const setDevTxn = await contract.connect(owner).setDev(multisig)
+      await setDevTxn.wait()
       console.log(`Transferred dev of ${deployResult.address} to:`, multisig)
+
+      /// Admin scripts
+      console.log(`setFee to 0 for lpDividendRatio and ${10 ** 18} for retentionRatio...`)
+      const setFeeTxn = await contract.connect(owner).setFee(0, parseEther('1'))
+      await setFeeTxn.wait()
+
+      console.log(`setMintFeeThreshold to ${1000 ** 18}...`)
+      const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
+      await setMintFeeThresholdTxn.wait()
 
       // transfer pool contract ownership to Gnosis Safe
       console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the pool contract is very powerful!
-      await contract.connect(owner).transferOwnership(multisig)
+      const transferOwnershipTxn = await contract.connect(owner).transferOwnership(multisig)
+      await transferOwnershipTxn.wait()
       console.log(`Transferred ownership of ${deployResult.address} to:`, multisig)
     }
     return deployResult

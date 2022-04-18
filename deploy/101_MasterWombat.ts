@@ -48,17 +48,20 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
   for (const index in USD_TOKENS) {
     const tokenSymbol = USD_TOKENS[index][1] as string
-    const assetContractName = `Asset_${tokenSymbol}_V2`
+    const assetContractName = `Asset_P01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
 
     console.log('Adding asset', assetContractAddress)
     await addAsset(contract, owner, 10, assetContractAddress, ethers.constants.AddressZero)
   }
 
-  console.log('Setting pool contract for MasterWombat...')
   const poolContract = await ethers.getContractAt('Pool', pool.address)
-  const setMasterWombatTxn = await poolContract.setMasterWombat(deployResult.address)
-  await setMasterWombatTxn.wait()
+  // mainnet masterwombat would be added back to existing pool via multisig proposal
+  if (hre.network.name != 'bsc_mainnet') {
+    console.log('Setting pool contract for MasterWombat...')
+    const setMasterWombatTxn = await poolContract.connect(owner).setMasterWombat(deployResult.address)
+    await setMasterWombatTxn.wait()
+  }
 
   if (deployResult.newlyDeployed) {
     // Check setup config values
@@ -70,7 +73,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // transfer MasterWombat contract ownership to Gnosis Safe
     console.log(`Transferring ownership of ${masterWombatAddress} to ${multisig}...`)
     // The owner of the MasterWombat contract holds great powers!
-    await contract.connect(owner).transferOwnership(multisig)
+    const transferOwnershipTxn = await contract.connect(owner).transferOwnership(multisig)
+    await transferOwnershipTxn.wait()
     console.log(`Transferred ownership of ${masterWombatAddress} to:`, multisig)
 
     return deployResult

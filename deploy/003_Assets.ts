@@ -56,26 +56,32 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
       console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
 
-      // transfer asset LP token contract ownership to Gnosis Safe
-      console.log(`Transferring ownership of ${tokenAddress} to ${multisig}...`)
-      // The owner of the asset contract can change our pool address and change asset max supply
-      await asset.connect(owner).transferOwnership(multisig)
-      console.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
+      if (hre.network.name == 'bsc_mainnet') {
+        // transfer asset LP token contract ownership to Gnosis Safe
+        console.log(`Transferring ownership of ${tokenAddress} to ${multisig}...`)
+        // The owner of the asset contract can change our pool address and change asset max supply
+        const transferOwnershipTxn = await asset.connect(owner).transferOwnership(multisig)
+        await transferOwnershipTxn.wait()
+        console.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
+      }
 
       console.log(
         `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
       )
     } else {
-      // Add new Asset to existing Pool
-      await addAsset(pool, owner, tokenAddress, address)
+      // mainnet assets would be added back to existing pool via multisig proposal
+      if (hre.network.name != 'bsc_mainnet') {
+        // Add new Asset to existing Pool
+        await addAsset(pool, owner, tokenAddress, address)
 
-      // check existing asset have latest pool added
-      const existingPoolAddress = await asset.pool()
+        // check existing asset have latest pool added
+        const existingPoolAddress = await asset.pool()
 
-      if (existingPoolAddress !== poolAddress) {
-        // Add existing asset to newly-deployed Pool
-        console.log(`Adding existing Asset_${tokenSymbol} to new pool ${poolAddress}...`)
-        await addPool(asset, owner, poolAddress)
+        if (existingPoolAddress !== poolAddress) {
+          // Add existing asset to newly-deployed Pool
+          console.log(`Adding existing Asset_${tokenSymbol} to new pool ${poolAddress}...`)
+          await addPool(asset, owner, poolAddress)
+        }
       }
     }
   }
