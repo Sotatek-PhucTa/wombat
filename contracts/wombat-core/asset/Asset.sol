@@ -85,8 +85,8 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
      * @param maxSupply_ the new asset's max supply
      */
     function setMaxSupply(uint256 maxSupply_) external onlyOwner {
-        maxSupply = maxSupply_;
         emit SetMaxSupply(maxSupply, maxSupply_);
+        maxSupply = maxSupply_;
     }
 
     /**
