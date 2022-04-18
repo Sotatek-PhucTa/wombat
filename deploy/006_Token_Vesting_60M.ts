@@ -68,15 +68,18 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         // set WOM allocation for beneficiaries
         const beneficiariesList = beneficiaries['60M']
         for (let i = 0; i < beneficiariesList.length; i++) {
-          await tokenVesting
+          const setBeneficiaryTxn = await tokenVesting
             .connect(owner)
             .setBeneficiary(beneficiariesList[i].address, parseUnits(beneficiariesList[i].amount, 18))
+          await setBeneficiaryTxn.wait()
+          console.log(`Added Beneficiary ${beneficiariesList[i].address} with amount ${beneficiariesList[i].amount}`)
         }
 
         // transfer token vesting contract ownership to Gnosis Safe
         console.log(`Transferring ownership of ${tokenVestingDeployResult.address} to ${multisig}...`)
         // The owner of the token vesting contract is very powerful!
-        await tokenVesting.connect(owner).transferOwnership(multisig)
+        const transferOwnershipTxn = await tokenVesting.connect(owner).transferOwnership(multisig)
+        await transferOwnershipTxn.wait()
         console.log(`Transferred ownership of ${tokenVestingDeployResult.address} to:`, multisig)
 
         // Query totalAllocationBalance and transfer exact WOM tokens to vesting contract via multi-sig

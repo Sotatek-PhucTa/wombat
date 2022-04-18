@@ -8,6 +8,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
 
+  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+
   console.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
@@ -38,10 +40,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)
 
-  console.log('Setting veWOM contract for MasterWombat...')
   const masterWombatContract = await ethers.getContractAt('MasterWombat', masterWombat.address)
-  const setVeWomTxn = await masterWombatContract.setVeWom(deployResult.address)
-  await setVeWomTxn.wait()
+  // mainnet veWOM would be added back to existing masterwombat via multisig proposal
+  if (hre.network.name != 'bsc_mainnet') {
+    console.log('Setting veWOM contract for MasterWombat...')
+    const setVeWomTxn = await masterWombatContract.connect(owner).setVeWom(deployResult.address)
+    await setVeWomTxn.wait()
+  }
 
   if (deployResult.newlyDeployed) {
     // Check setup config values
