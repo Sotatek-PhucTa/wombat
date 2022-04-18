@@ -9,10 +9,9 @@ const contractName = 'MasterWombat'
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
 
-  // Get Deployer as Signer
-  const [owner] = await ethers.getSigners()
+  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -28,22 +27,20 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: deployer,
+      owner: deployer, // change to Gnosis Safe after all admin scripts are done
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, ethers.constants.AddressZero, parseEther('3.008642'), 375, latest],
+          args: [wombatToken.address, ethers.constants.AddressZero, parseEther('1.522070'), 375, latest],
         },
       },
     },
   })
 
-  // Get freshly deployed Pool contract
+  // Get freshly deployed MasterWombat contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)
-  // const contractAddress = (await deployments.get(contractName)).address as string
-  // const contract = await ethers.getContractAt(contractName, contractAddress)
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)
@@ -69,6 +66,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     const masterWombatAddress = await poolContract.masterWombat()
     console.log(`WomTokenAddress is : ${womTokenAddress}`)
     console.log(`MasterWombatAddress is : ${masterWombatAddress}`)
+
+    // transfer MasterWombat contract ownership to Gnosis Safe
+    console.log(`Transferring ownership of ${masterWombatAddress} to ${multisig}...`)
+    // The owner of the MasterWombat contract holds great powers!
+    await contract.connect(owner).transferOwnership(multisig)
+    console.log(`Transferred ownership of ${masterWombatAddress} to:`, multisig)
+
     return deployResult
   } else {
     console.log(`${contractName} Contract already deployed.`)

@@ -51,7 +51,7 @@ describe('TokenVesting', function () {
     const TestTokenVestingFactory = await ethers.getContractFactory('TestTokenVesting')
 
     // Deploy with factories
-    tokenContract = await TestWombatERC20Factory.connect(owner).deploy(parseUnits('1000000', 18)) // 1 mil WOM
+    tokenContract = await TestWombatERC20Factory.connect(owner).deploy(owner.address, parseUnits('1000000', 18)) // 1 mil WOM
     vestingContract = await TestTokenVestingFactory.connect(owner).deploy(
       tokenContract.address,
       startTimestamp,

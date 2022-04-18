@@ -6,7 +6,7 @@ const contractName = 'VeWom'
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
 
   console.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -21,7 +21,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: deployer,
+      owner: hre.network.name == 'bsc_mainnet' ? multisig : deployer,
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {

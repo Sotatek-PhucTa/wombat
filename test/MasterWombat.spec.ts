@@ -28,7 +28,7 @@ describe('MasterWombat', function () {
 
   beforeEach(async function () {
     this.lastBlock = await ethers.provider.getBlock('latest')
-    this.wom = await this.Wom.connect(owner).deploy(parseUnits('1000000', 18)) // 1 mil WOM
+    this.wom = await this.Wom.connect(owner).deploy(owner.address, parseUnits('1000000', 18)) // 1 mil WOM
     this.womPerSec = parseEther('1000000').mul(8).div(10).div(365).div(24).div(3600)
     await this.wom.deployed()
 

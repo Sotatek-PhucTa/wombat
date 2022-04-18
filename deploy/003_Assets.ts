@@ -8,10 +8,9 @@ const contractName = 'Asset'
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
 
-  // Get Deployer as Signer
-  const [owner] = await ethers.getSigners()
+  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 003. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -36,7 +35,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
-    const usdAssetDeployResult = await deploy(`Asset_${tokenSymbol}_V2`, {
+    const usdAssetDeployResult = await deploy(`Asset_P01_${tokenSymbol}`, {
       from: deployer,
       contract: 'Asset',
       log: true,
@@ -56,6 +55,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       await addPool(asset, owner, poolAddress)
 
       console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
+
+      // transfer asset LP token contract ownership to Gnosis Safe
+      console.log(`Transferring ownership of ${tokenAddress} to ${multisig}...`)
+      // The owner of the asset contract can change our pool address and change asset max supply
+      await asset.connect(owner).transferOwnership(multisig)
+      console.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
+
       console.log(
         `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
       )
