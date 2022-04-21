@@ -141,7 +141,7 @@ contract TokenVesting is Context, Ownable {
         uint256 _vestedAmount = _vestingSchedule(
             beneficiary,
             _beneficiaryInfo[beneficiary]._allocationBalance + released(beneficiary),
-            uint256(timestamp)
+            timestamp
         );
         return _vestedAmount;
     }
