@@ -799,7 +799,6 @@ contract Pool is
         (invariant, SL) = _globalInvariantFunc();
         equilCovRatio = uint256(_equilCovRatio(invariant, SL, int256(ampFactor)));
         invariantInUint = uint256(invariant);
-        return (equilCovRatio, invariantInUint);
     }
 
     function tipBucketBalance(address token) external view returns (uint256 balance) {
