@@ -60,7 +60,7 @@ contract Pool is
 
     address public feeTo;
 
-    IMasterWombat public masterWombat;
+    address public masterWombat;
 
     /// @notice Dividend collected by each asset (unit: WAD)
     mapping(IAsset => uint256) private _feeCollected;
@@ -214,7 +214,7 @@ contract Pool is
 
     function setMasterWombat(address masterWombat_) external onlyOwner {
         _checkAddress(masterWombat_);
-        masterWombat = IMasterWombat(masterWombat_);
+        masterWombat = masterWombat_;
         emit SetMasterWombat(masterWombat_);
     }
 
@@ -364,7 +364,7 @@ contract Pool is
      * @dev to be used externally
      * @param token The address of ERC20 token
      */
-    function assetOf(address token) external view returns (address) {
+    function addressOfAsset(address token) external view returns (address) {
         return address(_assetOf(token));
     }
 
@@ -456,14 +456,14 @@ contract Pool is
         if (!shouldStake) {
             liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), minimumLiquidity, to);
         } else {
-            _checkAddress(address(masterWombat));
+            _checkAddress(masterWombat);
             // deposit and stake on behalf of the user
             liquidity = _deposit(asset, amount.toWad(asset.underlyingTokenDecimals()), minimumLiquidity, address(this));
 
-            asset.approve(address(masterWombat), liquidity);
+            asset.approve(masterWombat, liquidity);
 
-            uint256 pid = masterWombat.getAssetPid(address(asset));
-            masterWombat.depositFor(pid, liquidity, to);
+            uint256 pid = IMasterWombat(masterWombat).getAssetPid(address(asset));
+            IMasterWombat(masterWombat).depositFor(pid, liquidity, to);
         }
 
         emit Deposit(msg.sender, token, amount, liquidity, to);
@@ -793,12 +793,12 @@ contract Pool is
         return xr = uint256(asset.liability()).wdiv(uint256(asset.totalSupply()));
     }
 
-    function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariant) {
+    function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariantInUint) {
         int256 invariant;
         int256 SL;
         (invariant, SL) = _globalInvariantFunc();
-        uint256 equilCovRatio = uint256(_equilCovRatio(invariant, SL, int256(ampFactor)));
-        return (equilCovRatio, uint256(invariant));
+        equilCovRatio = uint256(_equilCovRatio(invariant, SL, int256(ampFactor)));
+        invariantInUint = uint256(invariant);
     }
 
     function tipBucketBalance(address token) external view returns (uint256 balance) {

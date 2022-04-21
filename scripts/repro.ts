@@ -20,7 +20,7 @@ async function run() {
   await merc20.connect(user1).faucet(ethers.utils.parseEther('1234'))
   await merc20.connect(user1).approve(pool.address, ethers.constants.MaxUint256)
 
-  const asset = await ethers.getContractAt('Asset', await pool.assetOf(merc20.address))
+  const asset = await ethers.getContractAt('Asset', await pool.addressOfAsset(merc20.address))
   console.log('Asset', 'cash:', prettyPrint(await asset.cash()), 'liability:', prettyPrint(await asset.liability()))
 
   const amount = ethers.utils.parseEther('0.01')

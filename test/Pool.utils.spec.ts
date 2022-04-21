@@ -118,7 +118,7 @@ describe('Pool - Utils', function () {
         const receipt = await poolContract.connect(owner).addAsset(mockToken.address, mockAsset.address)
 
         // check if added and if event has been emitted
-        expect(await poolContract.assetOf(mockToken.address)).to.equal(mockAsset.address)
+        expect(await poolContract.addressOfAsset(mockToken.address)).to.equal(mockAsset.address)
         await expect(receipt).to.emit(poolContract, 'AssetAdded').withArgs(mockToken.address, mockAsset.address)
       })
 
@@ -178,10 +178,10 @@ describe('Pool - Utils', function () {
       })
     })
 
-    describe('assetOf', function () {
+    describe('addressOfAsset', function () {
       it('returns the address of asset', async function () {
-        expect(await poolContract.assetOf(token0.address)).to.equal(asset0.address)
-        expect(await poolContract.assetOf(token1.address)).to.equal(asset1.address)
+        expect(await poolContract.addressOfAsset(token0.address)).to.equal(asset0.address)
+        expect(await poolContract.addressOfAsset(token1.address)).to.equal(asset1.address)
       })
     })
   })
