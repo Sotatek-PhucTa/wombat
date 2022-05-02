@@ -18,10 +18,10 @@ describe('Pool - Withdraw', function () {
   let PoolFactory: ContractFactory
   let poolContract: Contract
   let token0: Contract // BUSD
-  let token1: Contract // USDC
+  let token1: Contract // vUSDC
   let token2: Contract // CAKE
   let asset0: Contract // BUSD LP
-  let asset1: Contract // USDC LP
+  let asset1: Contract // vUSDC LP
   let asset2: Contract // CAKE LP
   let lastBlockTime: number
   let fiveSecondsSince: number
@@ -492,6 +492,48 @@ describe('Pool - Withdraw', function () {
       await token2.connect(user2).approve(poolContract.address, ethers.constants.MaxUint256)
 
       await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
+    })
+
+    describe('quotePotentialWithdrawFromOtherAsset', () => {
+      it('works with assets with different decimals', async function () {
+        // asset 0 (BUSD, 18 decimals), asset 1 (vUSDC, 8 decimals)
+        // Adjust coverage ratio to around 0.6
+        await asset0.connect(owner).setPool(owner.address)
+        await asset0.connect(owner).removeCash(parseEther('40'))
+        await asset0.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
+        await asset0.connect(owner).addLiability(parseEther('1.768743776499783944'))
+        await asset0.connect(owner).setPool(poolContract.address)
+
+        await asset1.connect(owner).setPool(owner.address)
+        await asset1.connect(owner).removeCash(parseEther('40'))
+        await asset1.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
+        await asset1.connect(owner).addLiability(parseEther('1.768743776499783944'))
+        await asset1.connect(owner).setPool(poolContract.address)
+
+        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(token0.address, token1.address, parseEther('10'))
+        console.log(actualAmount, fee)
+        // The test now says insufficient CASH
+      })
+
+      it('works with assets with same decimals', async function () {
+        // asset 0 (BUSD, 18 decimals), asset 2 (CAKE, 18 decimals)
+        // Adjust coverage ratio to around 0.6
+        await asset0.connect(owner).setPool(owner.address)
+        await asset0.connect(owner).removeCash(parseEther('40'))
+        await asset0.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
+        await asset0.connect(owner).addLiability(parseEther('1.768743776499783944'))
+        await asset0.connect(owner).setPool(poolContract.address)
+
+        await asset2.connect(owner).setPool(owner.address)
+        await asset2.connect(owner).removeCash(parseEther('40'))
+        await asset2.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
+        await asset2.connect(owner).addLiability(parseEther('1.768743776499783944'))
+        await asset2.connect(owner).setPool(poolContract.address)
+
+        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(token0.address, token1.address, parseEther('10'))
+        console.log(actualAmount, fee)
+        // The test now says insufficient CASH
+      })
     })
 
     it('r* = 1, r = 0.8, withdraw fee > 0', async function () {
