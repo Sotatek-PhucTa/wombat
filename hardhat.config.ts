@@ -49,7 +49,7 @@ const config: HardhatUserConfig = {
     enabled: secrets.gas_breakdown_enabled,
     outputFile: '.gas-snapshot',
     noColors: true,
-    excludeContracts: ['contracts/wombat-governance/mocks/', 'contracts/wombat-core/test/TestERC20.sol'],
+    excludeContracts: ['contracts/wombat-governance/mocks/', 'contracts/wombat-core/test/'],
   },
   solidity: {
     compilers: [
