@@ -84,8 +84,6 @@ contract MasterWombatV2 is
     // Emissions: both must add to 1000 => 100%
     // base partition emissions (e.g. 300 for 30%)
     uint256 public basePartition;
-    // boosted partition emissions (e.g. 500 for 50%)
-    uint256 public boostedPartition;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint;
     // The timestamp when WOM mining starts.
@@ -138,7 +136,6 @@ contract MasterWombatV2 is
         veWom = _veWom;
         womPerSec = _womPerSec;
         basePartition = _basePartition;
-        boostedPartition = 1000 - _basePartition;
         startTimestamp = uint48(_startTimestamp);
         totalAllocPoint = 0;
     }
@@ -169,6 +166,10 @@ contract MasterWombatV2 is
     function getAssetPid(address asset) external view override returns (uint256) {
         // revert if asset not exist
         return assetPid[asset] - 1;
+    }
+
+    function boostedPartition() external view returns (uint256) {
+        return 1000 - basePartition;
     }
 
     /// @notice Add a new lp to the pool. Can only be called by the owner.
@@ -264,7 +265,7 @@ contract MasterWombatV2 is
             uint256 womReward = (secondsElapsed * womPerSec * pool.allocPoint) / totalAllocPoint;
             accWomPerShare += to104((womReward * 1e12 * basePartition) / (lpSupply * 1000));
             if (pool.sumOfFactors != 0) {
-                accWomPerFactorShare += to104((womReward * 1e12 * boostedPartition) / (pool.sumOfFactors * 1000));
+                accWomPerFactorShare += to104((womReward * 1e12 * (1000 - basePartition)) / (pool.sumOfFactors * 1000));
             }
         }
         pendingRewards =
@@ -332,7 +333,9 @@ contract MasterWombatV2 is
             if (pool.sumOfFactors == 0) {
                 pool.accWomPerFactorShare = 0;
             } else {
-                pool.accWomPerFactorShare += to104((womReward * 1e12 * boostedPartition) / (pool.sumOfFactors * 1000));
+                pool.accWomPerFactorShare += to104(
+                    (womReward * 1e12 * (1000 - basePartition)) / (pool.sumOfFactors * 1000)
+                );
             }
 
             // update lastRewardTimestamp to now
@@ -648,7 +651,6 @@ contract MasterWombatV2 is
         require(_basePartition <= 1000);
         massUpdatePools();
         basePartition = _basePartition;
-        boostedPartition = 1000 - _basePartition;
         emit UpdateEmissionPartition(msg.sender, _basePartition, 1000 - _basePartition);
     }
 
