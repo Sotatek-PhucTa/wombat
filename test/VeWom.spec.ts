@@ -22,7 +22,7 @@ describe('VeWOM', function () {
     owner = first
     users = rest
 
-    this.MasterWombat = await ethers.getContractFactory('MasterWombat')
+    this.MasterWombat = await ethers.getContractFactory('MasterWombatV2')
     this.MockAttacker = await ethers.getContractFactory('MockAttacker')
     this.Whitelist = await ethers.getContractFactory('Whitelist')
     this.Wom = await ethers.getContractFactory('WombatERC20')

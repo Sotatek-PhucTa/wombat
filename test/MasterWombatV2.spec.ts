@@ -14,14 +14,14 @@ chai.use(solidity)
 chai.use(near)
 chai.use(roughlyNear)
 
-describe.skip('MasterWombat', function () {
+describe('MasterWombat V2', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
   before(async function () {
     ;[owner, ...users] = await ethers.getSigners()
 
-    this.MasterWombat = await ethers.getContractFactory('MasterWombat')
+    this.MasterWombat = await ethers.getContractFactory('MasterWombatV2')
     this.Wom = await ethers.getContractFactory('WombatERC20')
     this.MockERC20 = await ethers.getContractFactory('MockERC20')
   })
