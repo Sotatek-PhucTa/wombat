@@ -479,8 +479,8 @@ describe('Pool - Withdraw', function () {
 
       // user1 deposits 100 vUSDC to pool contract
       await poolContract
-         .connect(user1)
-         .deposit(token0.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, false)
+        .connect(user1)
+        .deposit(token0.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, false)
 
       // Transfer 100k from vUSDC contract to users
       await token1.connect(owner).transfer(user1.address, parseUnits('100000', 8)) // 100 k
@@ -525,7 +525,11 @@ describe('Pool - Withdraw', function () {
         await asset1.connect(owner).addLiability(parseEther('1.768743776499783944'))
         await asset1.connect(owner).setPool(poolContract.address)
 
-        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(token0.address, token1.address, parseEther('10'))
+        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('10')
+        )
         console.log(actualAmount, fee)
       })
 
@@ -544,7 +548,11 @@ describe('Pool - Withdraw', function () {
         await asset0.connect(owner).addLiability(parseEther('1.768743776499783944'))
         await asset0.connect(owner).setPool(poolContract.address)
 
-        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(token1.address, token0.address, parseEther('10'))
+        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(
+          token1.address,
+          token0.address,
+          parseEther('10')
+        )
         console.log(actualAmount, fee)
       })
 
@@ -563,7 +571,11 @@ describe('Pool - Withdraw', function () {
         await asset2.connect(owner).addLiability(parseEther('1.768743776499783944'))
         await asset2.connect(owner).setPool(poolContract.address)
 
-        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(token0.address, token1.address, parseEther('10'))
+        const [actualAmount, fee] = await poolContract.quotePotentialWithdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('10')
+        )
         console.log(actualAmount, fee)
         // The test now says insufficient CASH
       })
