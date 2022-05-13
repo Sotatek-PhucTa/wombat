@@ -577,7 +577,6 @@ describe('Pool - Withdraw', function () {
           parseEther('10')
         )
         console.log(actualAmount, fee)
-        // The test now says insufficient CASH
       })
     })
 
