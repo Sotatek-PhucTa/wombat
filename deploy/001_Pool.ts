@@ -17,7 +17,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: deployer, // change to Gnosis Safe after all admin scripts are done
+      owner: multisig, // change to Gnosis Safe after all admin scripts are done
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
@@ -42,13 +42,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`Amplification factor is : ${ampFactor}`)
     console.log(`Haircut rate is : ${hairCutRate}`)
 
-    // transfer proxyAdmin to multi-sig, do it once and all proxy contracts will follow suit
     if (hre.network.name == 'bsc_mainnet') {
-      console.log(`Transferring ownership of ProxyAdmin...`)
+      // manually transfer proxyAdmin to multi-sig, do it once and all proxy contracts will follow suit
       // The owner of the ProxyAdmin can upgrade our contracts
-      const transferProxyAdminTxn = await upgrades.admin.transferProxyAdminOwnership(multisig)
-      await transferProxyAdminTxn.wait()
-      console.log(`Transferred ownership of ProxyAdmin to:`, multisig)
+      // The owner of the pool contract is very powerful!
 
       // transfer pool contract dev to Gnosis Safe
       console.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
@@ -62,16 +59,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const setFeeTxn = await contract.connect(owner).setFee(0, parseEther('1'))
       await setFeeTxn.wait()
 
-      console.log(`setMintFeeThreshold to ${1000 ** 18}...`)
+      console.log(`setMintFeeThreshold to ${10000 ** 18}...`)
       const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
       await setMintFeeThresholdTxn.wait()
-
-      // transfer pool contract ownership to Gnosis Safe
-      console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
-      // The owner of the pool contract is very powerful!
-      const transferOwnershipTxn = await contract.connect(owner).transferOwnership(multisig)
-      await transferOwnershipTxn.wait()
-      console.log(`Transferred ownership of ${deployResult.address} to:`, multisig)
     }
     return deployResult
   } else {
