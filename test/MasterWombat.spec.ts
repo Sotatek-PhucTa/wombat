@@ -14,7 +14,7 @@ chai.use(solidity)
 chai.use(near)
 chai.use(roughlyNear)
 
-describe.skip('MasterWombat', function () {
+describe('MasterWombat', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
