@@ -22,7 +22,7 @@ describe('VeWOM', function () {
     owner = first
     users = rest
 
-    this.MasterWombat = await ethers.getContractFactory('MasterWombat')
+    this.MasterWombat = await ethers.getContractFactory('MasterWombatV2')
     this.MockAttacker = await ethers.getContractFactory('MockAttacker')
     this.Whitelist = await ethers.getContractFactory('Whitelist')
     this.Wom = await ethers.getContractFactory('WombatERC20')
@@ -41,12 +41,12 @@ describe('VeWOM', function () {
 
     this.wom = await this.Wom.connect(owner).deploy(owner.address, parseEther('1000000000')) // 1 bil WOM tokens
     this.veWom = await this.VeWom.deploy()
-    this.veWom.deployed()
+    await this.veWom.deployed()
 
     this.mWom = await this.MasterWombat.deploy()
-    this.mWom.connect(owner).initialize(this.wom.address, this.veWom.address, this.womPerSec, 1000, startTime)
+    await this.mWom.connect(owner).initialize(this.wom.address, this.veWom.address, this.womPerSec, 1000, startTime)
 
-    this.mWom.deployed()
+    await this.mWom.deployed()
     this.veWom.initialize(this.wom.address, this.mWom.address)
   })
 

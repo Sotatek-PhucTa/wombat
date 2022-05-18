@@ -45,6 +45,12 @@ const config: HardhatUserConfig = {
     // Obtain one at https://bscscan.io/
     apiKey: secrets.bscscan_api_key,
   },
+  gasReporter: {
+    enabled: secrets.gas_breakdown_enabled,
+    outputFile: '.gas-snapshot',
+    noColors: true,
+    excludeContracts: ['contracts/wombat-governance/mocks/', 'contracts/wombat-core/test/'],
+  },
   solidity: {
     compilers: [
       {
@@ -95,12 +101,6 @@ const config: HardhatUserConfig = {
     runOnCompile: false,
     except: ['/test/*', '/mock/*'],
   },
-}
-
-config.gasReporter = {
-  enabled: secrets.gas_breakdown_enabled,
-  outputFile: '.gas-snapshot',
-  noColors: true,
 }
 
 export default config

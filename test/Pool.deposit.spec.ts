@@ -48,7 +48,7 @@ describe('Pool - Deposit', function () {
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
     PoolFactory = await ethers.getContractFactory('Pool')
-    MasterWombatFactory = await ethers.getContractFactory('MasterWombat')
+    MasterWombatFactory = await ethers.getContractFactory('MasterWombatV2')
     WomFactory = await ethers.getContractFactory('WombatERC20')
   })
 
