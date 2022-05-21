@@ -9,7 +9,7 @@ import { expectAssetValues } from './helpers/helper'
 const { expect } = chai
 chai.use(solidity)
 
-describe('Wombat Router01', function () {
+describe('WombatRouter', function () {
   let owner: SignerWithAddress
   let user1: SignerWithAddress
   let AssetFactory: ContractFactory
@@ -194,7 +194,7 @@ describe('Wombat Router01', function () {
       await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
 
       await expect(
-        this.router.connect(user1).quotePotentialSwaps([BUSD.address, USDT.address], [pool1.address], 0)
+        this.router.connect(user1).getAmountOut([BUSD.address, USDT.address], [pool1.address], 0)
       ).to.be.revertedWith('invalid from amount')
 
       // swap via router
@@ -209,7 +209,7 @@ describe('Wombat Router01', function () {
       await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
 
       await expect(
-        this.router.connect(user1).quotePotentialSwaps([BUSD.address], [pool1.address], parseEther('100'))
+        this.router.connect(user1).getAmountOut([BUSD.address], [pool1.address], parseEther('100'))
       ).to.be.revertedWith('invalid token path')
 
       // swap via router
@@ -233,7 +233,7 @@ describe('Wombat Router01', function () {
       await expect(
         this.router
           .connect(user1)
-          .quotePotentialSwaps([BUSD.address, USDT.address], [pool1.address, pool1.address], parseEther('100'))
+          .getAmountOut([BUSD.address, USDT.address], [pool1.address, pool1.address], parseEther('100'))
       ).to.be.revertedWith('invalid pool path')
 
       // swap via router
@@ -273,7 +273,7 @@ describe('Wombat Router01', function () {
       // swap via router
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
+        .getAmountOut([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
 
       await expect(
         this.router
@@ -299,7 +299,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
+        .getAmountOut([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
       // swap via router
       const receipt = await this.router.connect(user1).swapTokensForTokens(
         [BUSD.address, USDT.address],
@@ -354,7 +354,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
+        .getAmountOut([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
       // swap via router
       const receipt = await this.router.connect(user1).swapTokensForTokens(
         [BUSD.address, USDT.address],
@@ -411,11 +411,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [USDT.address, BUSD.address, UST.address],
-          [pool1.address, pool2.address],
-          parseEther('100')
-        )
+        .getAmountOut([USDT.address, BUSD.address, UST.address], [pool1.address, pool2.address], parseEther('100'))
 
       // swap via router
       const receipt = await this.router.connect(user1).swapTokensForTokens(
@@ -491,11 +487,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [USDT.address, BUSD.address, UST.address],
-          [pool1.address, pool2.address],
-          parseEther('100')
-        )
+        .getAmountOut([USDT.address, BUSD.address, UST.address], [pool1.address, pool2.address], parseEther('100'))
 
       // swap via router
       const receipt = await this.router.connect(user1).swapTokensForTokens(
@@ -568,7 +560,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
+        .getAmountOut(
           [USDT.address, BUSD.address, UST.address, vUSDC.address],
           [pool1.address, pool2.address, pool3.address],
           parseEther('100')
@@ -672,7 +664,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
+        .getAmountOut(
           [USDT.address, BUSD.address, UST.address, vUSDC.address],
           [pool1.address, pool2.address, pool3.address],
           parseEther('100')
@@ -764,7 +756,7 @@ describe('Wombat Router01', function () {
     })
   })
 
-  describe('Router quote with exact output', function () {
+  describe.only('Router quote with exact output', function () {
     it('works with exact output with haircut fee (1 pool) 1/3', async function () {
       const beforeFromBalance = await BUSD.balanceOf(user1.address)
       const beforeToBalance = await USDT.balanceOf(user1.address)
@@ -773,7 +765,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([BUSD.address, USDT.address], [pool1.address], parseEther('-100'))
+        .getAmountIn([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.13542948011617'))
@@ -805,7 +797,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([UST.address, vUSDC.address], [pool3.address], parseEther('-100'))
+        .getAmountIn([vUSDC.address, UST.address], [pool3.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.13542948', 8))
@@ -837,7 +829,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([vUSDC.address, UST.address], [pool3.address], parseUnits('-100', 8))
+        .getAmountIn([UST.address, vUSDC.address], [pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.13542947370139'))
@@ -872,7 +864,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([BUSD.address, USDT.address], [pool1.address], parseEther('-100'))
+        .getAmountIn([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.09533711523749'))
@@ -907,7 +899,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([UST.address, vUSDC.address], [pool3.address], parseEther('-100'))
+        .getAmountIn([vUSDC.address, UST.address], [pool3.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.09533711', 8))
@@ -942,7 +934,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps([vUSDC.address, UST.address], [pool3.address], parseUnits('-100', 8))
+        .getAmountIn([UST.address, vUSDC.address], [pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.09533710521842'))
@@ -974,11 +966,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [UST.address, BUSD.address, USDT.address],
-          [pool2.address, pool1.address],
-          parseEther('-100')
-        )
+        .getAmountIn([UST.address, BUSD.address, USDT.address], [pool2.address, pool1.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.27117191063727'))
@@ -1010,11 +998,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [vUSDC.address, UST.address, BUSD.address],
-          [pool3.address, pool2.address],
-          parseUnits('-100', 8)
-        )
+        .getAmountIn([BUSD.address, UST.address, vUSDC.address], [pool2.address, pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.27117190420765'))
@@ -1046,11 +1030,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [BUSD.address, UST.address, vUSDC.address],
-          [pool2.address, pool3.address],
-          parseEther('-100')
-        )
+        .getAmountIn([vUSDC.address, UST.address, BUSD.address], [pool3.address, pool2.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.27117191', 8))
@@ -1086,11 +1066,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [UST.address, BUSD.address, USDT.address],
-          [pool2.address, pool1.address],
-          parseEther('-100')
-        )
+        .getAmountIn([USDT.address, BUSD.address, UST.address], [pool1.address, pool2.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.19085620299796'))
@@ -1126,11 +1102,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [vUSDC.address, UST.address, BUSD.address],
-          [pool3.address, pool2.address],
-          parseUnits('-100', 8)
-        )
+        .getAmountIn([BUSD.address, UST.address, vUSDC.address], [pool2.address, pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.19085619295976'))
@@ -1166,11 +1138,7 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [BUSD.address, UST.address, vUSDC.address],
-          [pool2.address, pool3.address],
-          parseEther('-100')
-        )
+        .getAmountIn([vUSDC.address, UST.address, BUSD.address], [pool3.address, pool2.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.19085620', 8))
@@ -1202,10 +1170,10 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [vUSDC.address, UST.address, BUSD.address, USDT.address],
-          [pool3.address, pool2.address, pool1.address],
-          parseUnits('-100', 8)
+        .getAmountIn(
+          [USDT.address, BUSD.address, UST.address, vUSDC.address],
+          [pool1.address, pool2.address, pool3.address],
+          parseUnits('100', 8)
         )
 
       // check if input token amount is correct
@@ -1243,10 +1211,10 @@ describe('Wombat Router01', function () {
 
       const [quotedAmount] = await this.router
         .connect(user1)
-        .quotePotentialSwaps(
-          [vUSDC.address, UST.address, BUSD.address, USDT.address],
-          [pool3.address, pool2.address, pool1.address],
-          parseUnits('-100', 8)
+        .getAmountIn(
+          [USDT.address, BUSD.address, UST.address, vUSDC.address],
+          [pool1.address, pool2.address, pool3.address],
+          parseUnits('100', 8)
         )
 
       // check if input token amount is correct

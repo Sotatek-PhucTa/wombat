@@ -16,12 +16,6 @@ import '../interfaces/IWombatRouter.sol';
 contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
     using SafeERC20 for IERC20;
 
-    /// @dev Modifier ensuring a certain deadline for a function to complete execution
-    modifier ensure(uint256 deadline) {
-        require(deadline >= block.timestamp, 'expired');
-        _;
-    }
-
     /// @notice approve spending of router tokens by pool
     /// @param tokens array of tokens to be approved
     /// @param pool to be approved to spend
@@ -36,8 +30,8 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
     /// @param tokenPath An array of token addresses. path.length must be >= 2.
     /// @param tokenPath The first element of the path is the input token, the last element is the output token.
     /// @param poolPath An array of pool addresses. The pools where the pathTokens are contained in order.
-    /// @param fromAmount the amount in
-    /// @param minimumToAmount the minimum amount to get for user
+    /// @param amountIn the amount in
+    /// @param minimumamountOut the minimum amount to get for user
     /// @param to the user to send the tokens to
     /// @param deadline the deadline to respect
     /// @return amountOut received by user
@@ -45,43 +39,44 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
     function swapTokensForTokens(
         address[] calldata tokenPath,
         address[] calldata poolPath,
-        uint256 fromAmount,
-        uint256 minimumToAmount,
+        uint256 amountIn,
+        uint256 minimumamountOut,
         address to,
         uint256 deadline
-    ) external override ensure(deadline) nonReentrant returns (uint256 amountOut, uint256 haircut) {
-        require(fromAmount > 0, 'invalid from amount');
+    ) external override nonReentrant returns (uint256 amountOut, uint256 haircut) {
+        require(deadline >= block.timestamp, 'expired');
+        require(amountIn > 0, 'invalid from amount');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
         require(to != address(0), 'zero address');
 
         // get from token from users
-        IERC20(tokenPath[0]).safeTransferFrom(address(msg.sender), address(this), fromAmount);
+        IERC20(tokenPath[0]).safeTransferFrom(address(msg.sender), address(this), amountIn);
 
-        (amountOut, haircut) = _swap(tokenPath, poolPath, fromAmount, to);
-        require(amountOut >= minimumToAmount, 'amountOut too low');
+        (amountOut, haircut) = _swap(tokenPath, poolPath, amountIn, to);
+        require(amountOut >= minimumamountOut, 'amountOut too low');
     }
 
     /// @notice Private function to swap alone the token path
-    /// @dev Assumes router has initial fromAmount in balance.
+    /// @dev Assumes router has initial amountIn in balance.
     /// Assumes tokens being swapped have been approve via the approveSpendingByPool function
     /// @param tokenPath An array of token addresses. path.length must be >= 2.
     /// @param tokenPath The first element of the path is the input token, the last element is the output token.
     /// @param poolPath An array of pool addresses. The pools where the pathTokens are contained in order.
-    /// @param fromAmount the amount in
+    /// @param amountIn the amount in
     /// @param to the user to send the tokens to
     /// @return amountOut received by user
     /// @return haircut total fee charged by pool
     function _swap(
         address[] calldata tokenPath,
         address[] calldata poolPath,
-        uint256 fromAmount,
+        uint256 amountIn,
         address to
     ) internal returns (uint256 amountOut, uint256 haircut) {
         // haircut of current call
         uint256 localHaircut;
-        // next from amount, starts with fromAmount in arg
-        uint256 nextFromAmount = fromAmount;
+        // next from amount, starts with amountIn in arg
+        uint256 nextamountIn = amountIn;
 
         // first n - 1 swaps
         for (uint256 i; i < poolPath.length - 1; ++i) {
@@ -89,13 +84,12 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
             (amountOut, localHaircut) = IPool(poolPath[i]).swap(
                 tokenPath[i],
                 tokenPath[i + 1],
-                nextFromAmount,
+                nextamountIn,
                 0, // minimum amount received is ensured on calling function
                 address(this),
                 type(uint256).max // deadline is ensured on calling function
             );
-            nextFromAmount = amountOut;
-            // increment total haircut
+            nextamountIn = amountOut;
             haircut += localHaircut;
         }
 
@@ -104,52 +98,82 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         (amountOut, localHaircut) = IPool(poolPath[i]).swap(
                 tokenPath[i],
                 tokenPath[i + 1],
-                nextFromAmount,
+                nextamountIn,
                 0, // minimum amount received is ensured on calling function
                 to,
                 type(uint256).max // deadline is ensured on calling function
             );
+        haircut += localHaircut;
     }
 
     /**
-     * @notice Given an input asset amount and an array of token addresses, calculates the maximum output token amount.
-     * Slippage and haircut are included.
+     * @notice Given an input asset amount and an array of token addresses, calculates the 
+     * maximum output token amount (accounting for fees and slippage).
      * @param tokenPath The token swap path
      * @param poolPath The token pool path
-     * @param fromAmount The amount to quote
-     * @return potentialOutcome The potential final amount user would receive
+     * @param amountIn The from amount
+     * @return amountOut The potential final amount user would receive
      * @return haircut The total haircut that would be applied
      */
-    function quotePotentialSwaps(
+    function getAmountOut(
         address[] calldata tokenPath,
         address[] calldata poolPath,
-        int256 fromAmount
-    ) external view returns (uint256 potentialOutcome, uint256 haircut) {
-        require(fromAmount != 0, 'invalid from amount');
+        int256 amountIn
+    ) external view returns (uint256 amountOut, uint256 haircut) {
+        require(amountIn != 0, 'invalid from amount');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
 
-        bool direction = fromAmount > 0;
         // haircut of current call
         uint256 localHaircut;
-        // next from amount, starts with fromAmount in arg
-        int256 nextFromAmount = fromAmount;
+        // next from amount, starts with amountIn in arg
+        int256 nextamountIn = amountIn;
         // where to send tokens on next step
 
         for (uint256 i; i < poolPath.length; ++i) {
-            // check if we're reaching the beginning or end of the poolPath array
-            if (i != 0) {
-                nextFromAmount = direction ? int256(potentialOutcome) : int256(potentialOutcome) * -1;
-            }
-
             // make the swap with the correct arguments
-            (potentialOutcome, localHaircut) = IPool(poolPath[i]).quotePotentialSwap(
+            (amountOut, localHaircut) = IPool(poolPath[i]).quotePotentialSwap(
                 tokenPath[i],
                 tokenPath[i + 1],
-                nextFromAmount
+                nextamountIn
             );
-            // increment total haircut
             haircut += localHaircut;
+            nextamountIn = int256(amountOut);
+        }
+    }
+
+    /**
+     * @notice Returns the minimum input asset amount required to buy the given output asset amount
+     * (accounting for fees and slippage) given reserves.
+     * @param tokenPath The token swap path
+     * @param poolPath The token pool path
+     * @param amountOut The to amount
+     * @return amountIn The potential final amount user would receive
+     * @return haircut The total haircut that would be applied
+     */
+    function getAmountIn(
+        address[] calldata tokenPath,
+        address[] calldata poolPath,
+        uint256 amountOut
+    ) external view returns (uint256 amountIn, uint256 haircut) {
+        require(amountOut != 0, 'invalid from amount');
+        require(tokenPath.length >= 2, 'invalid token path');
+        require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
+
+        // haircut of current call
+        uint256 localHaircut;
+        // next from amount, starts with amountIn in arg
+        int256 nextAmountOut = int256(amountOut);
+        // where to send tokens on next step
+
+        for (uint256 i = poolPath.length; i > 0 ; --i) {
+            (amountIn, localHaircut) = IPool(poolPath[i - 1]).quotePotentialSwap(
+                tokenPath[i],
+                tokenPath[i - 1],
+                -nextAmountOut
+            );
+            haircut += localHaircut;
+            nextAmountOut = int256(amountIn);
         }
     }
 }
