@@ -117,7 +117,6 @@ contract WombatRouter is Ownable, IWombatRouter {
         address[] calldata poolPath,
         int256 amountIn
     ) external view override returns (uint256 amountOut, uint256 haircut) {
-        require(amountIn != 0, 'invalid from amount');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
 
@@ -153,7 +152,6 @@ contract WombatRouter is Ownable, IWombatRouter {
         address[] calldata poolPath,
         uint256 amountOut
     ) external view override returns (uint256 amountIn, uint256 haircut) {
-        require(amountOut != 0, 'invalid from amount');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
 

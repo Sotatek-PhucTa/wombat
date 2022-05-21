@@ -195,7 +195,7 @@ describe('WombatRouter', function () {
 
       await expect(
         this.router.connect(user1).getAmountOut([BUSD.address, USDT.address], [pool1.address], 0)
-      ).to.be.revertedWith('invalid from amount')
+      ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
 
       // swap via router
       await expect(
@@ -209,7 +209,7 @@ describe('WombatRouter', function () {
             user1.address,
             fiveSecondsSince
           )
-      ).to.be.revertedWith('invalid from amount')
+      ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
     })
 
     it('reverts if invalid token path', async function () {
@@ -269,10 +269,10 @@ describe('WombatRouter', function () {
             [pool1.address],
             parseEther('100'),
             parseEther('90'),
-            '0x0000000000000000000000000000000000000000',
+            ethers.constants.AddressZero,
             fiveSecondsSince
           )
-      ).to.be.revertedWith('zero address')
+      ).to.be.revertedWith('WOMBAT_ZERO_ADDRESS')
     })
 
     it('reverts if amountOut too low', async function () {
