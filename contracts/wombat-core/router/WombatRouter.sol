@@ -6,14 +6,14 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
 import '../interfaces/IPool.sol';
-import '../interfaces/IWombatRouter01.sol';
+import '../interfaces/IWombatRouter.sol';
 
 /**
- * @title WombatRouter01
+ * @title WombatRouter
  * @notice Allows routing on different wombat pools
  * @dev Owner is allowed and required to approve token spending by pools via approveSpendingByPool function
  */
-contract WombatRouter01 is Ownable, ReentrancyGuard, IWombatRouter01 {
+contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
     using SafeERC20 for IERC20;
 
     /// @dev Modifier ensuring a certain deadline for a function to complete execution

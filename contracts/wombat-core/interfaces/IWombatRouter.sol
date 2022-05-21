@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.5;
 
-interface IWombatRouter01 {
+interface IWombatRouter {
     function swapTokensForTokens(
         address[] calldata tokenPath,
         address[] calldata poolPath,
