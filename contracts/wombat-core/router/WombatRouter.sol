@@ -3,7 +3,6 @@ pragma solidity 0.8.5;
 
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
 import '../interfaces/IPool.sol';
 import '../interfaces/IWombatRouter.sol';
@@ -13,7 +12,7 @@ import '../interfaces/IWombatRouter.sol';
  * @notice Allows routing on different wombat pools
  * @dev Owner is allowed and required to approve token spending by pools via approveSpendingByPool function
  */
-contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
+contract WombatRouter is Ownable, IWombatRouter {
     using SafeERC20 for IERC20;
 
     /// @notice approve spending of router tokens by pool
@@ -36,19 +35,17 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
     /// @param deadline the deadline to respect
     /// @return amountOut received by user
     /// @return haircut total fee charged by pool
-    function swapTokensForTokens(
+    function swapExactTokensForTokens(
         address[] calldata tokenPath,
         address[] calldata poolPath,
         uint256 amountIn,
         uint256 minimumamountOut,
         address to,
         uint256 deadline
-    ) external override nonReentrant returns (uint256 amountOut, uint256 haircut) {
+    ) external override returns (uint256 amountOut, uint256 haircut) {
         require(deadline >= block.timestamp, 'expired');
-        require(amountIn > 0, 'invalid from amount');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
-        require(to != address(0), 'zero address');
 
         // get from token from users
         IERC20(tokenPath[0]).safeTransferFrom(address(msg.sender), address(this), amountIn);
@@ -96,18 +93,18 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         // last swap
         uint256 i = poolPath.length - 1;
         (amountOut, localHaircut) = IPool(poolPath[i]).swap(
-                tokenPath[i],
-                tokenPath[i + 1],
-                nextamountIn,
-                0, // minimum amount received is ensured on calling function
-                to,
-                type(uint256).max // deadline is ensured on calling function
-            );
+            tokenPath[i],
+            tokenPath[i + 1],
+            nextamountIn,
+            0, // minimum amount received is ensured on calling function
+            to,
+            type(uint256).max // deadline is ensured on calling function
+        );
         haircut += localHaircut;
     }
 
     /**
-     * @notice Given an input asset amount and an array of token addresses, calculates the 
+     * @notice Given an input asset amount and an array of token addresses, calculates the
      * maximum output token amount (accounting for fees and slippage).
      * @param tokenPath The token swap path
      * @param poolPath The token pool path
@@ -119,7 +116,7 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         address[] calldata tokenPath,
         address[] calldata poolPath,
         int256 amountIn
-    ) external view returns (uint256 amountOut, uint256 haircut) {
+    ) external view override returns (uint256 amountOut, uint256 haircut) {
         require(amountIn != 0, 'invalid from amount');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
@@ -155,7 +152,7 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         address[] calldata tokenPath,
         address[] calldata poolPath,
         uint256 amountOut
-    ) external view returns (uint256 amountIn, uint256 haircut) {
+    ) external view override returns (uint256 amountIn, uint256 haircut) {
         require(amountOut != 0, 'invalid from amount');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
@@ -166,7 +163,7 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         int256 nextAmountOut = int256(amountOut);
         // where to send tokens on next step
 
-        for (uint256 i = poolPath.length; i > 0 ; --i) {
+        for (uint256 i = poolPath.length; i > 0; --i) {
             (amountIn, localHaircut) = IPool(poolPath[i - 1]).quotePotentialSwap(
                 tokenPath[i],
                 tokenPath[i - 1],
