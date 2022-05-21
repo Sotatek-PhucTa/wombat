@@ -81,39 +81,33 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         uint256 localHaircut;
         // next from amount, starts with fromAmount in arg
         uint256 nextFromAmount = fromAmount;
-        // where to send tokens on next step
-        address nextTo;
 
-        for (uint256 i; i < poolPath.length; ++i) {
-            // check if we're reaching the beginning or end of the poolPath array
-            if (i == 0 && poolPath.length == 1) {
-                // only one element in pool path - simple swap
-                nextTo = to;
-            } else if (i == 0) {
-                // first element of a larger than one poolPath
-                nextTo = address(this);
-            } else if (i < poolPath.length - 1) {
-                // middle element of a larger than one poolPath
-                nextTo = address(this);
-                nextFromAmount = amountOut;
-            } else {
-                // send final swapped tokens to user
-                nextTo = to;
-                nextFromAmount = amountOut;
-            }
-
+        // first n - 1 swaps
+        for (uint256 i; i < poolPath.length - 1; ++i) {
             // make the swap with the correct arguments
             (amountOut, localHaircut) = IPool(poolPath[i]).swap(
                 tokenPath[i],
                 tokenPath[i + 1],
                 nextFromAmount,
                 0, // minimum amount received is ensured on calling function
-                nextTo,
+                address(this),
                 type(uint256).max // deadline is ensured on calling function
             );
+            nextFromAmount = amountOut;
             // increment total haircut
             haircut += localHaircut;
         }
+
+        // last swap
+        uint256 i = poolPath.length - 1;
+        (amountOut, localHaircut) = IPool(poolPath[i]).swap(
+                tokenPath[i],
+                tokenPath[i + 1],
+                nextFromAmount,
+                0, // minimum amount received is ensured on calling function
+                to,
+                type(uint256).max // deadline is ensured on calling function
+            );
     }
 
     /**
