@@ -32,7 +32,7 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         }
     }
 
-    /// @notice swapExactTokensForTokens swaps
+    /// @notice Swaps an exact amount of input tokens for as many output tokens as possible, along the route determined by the path
     /// @param tokenPath An array of token addresses. path.length must be >= 2.
     /// @param tokenPath The first element of the path is the input token, the last element is the output token.
     /// @param poolPath An array of pool addresses. The pools where the pathTokens are contained in order.
@@ -62,8 +62,9 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
         require(amountOut >= minimumToAmount, 'amountOut too low');
     }
 
-    /// @notice _swap private function. Assumes router has initial fromAmount in balance.
-    /// @dev assumes tokens being swapped have been approve via the approveSpendingByPool function
+    /// @notice Private function to swap alone the token path
+    /// @dev Assumes router has initial fromAmount in balance.
+    /// Assumes tokens being swapped have been approve via the approveSpendingByPool function
     /// @param tokenPath An array of token addresses. path.length must be >= 2.
     /// @param tokenPath The first element of the path is the input token, the last element is the output token.
     /// @param poolPath An array of pool addresses. The pools where the pathTokens are contained in order.
@@ -111,9 +112,8 @@ contract WombatRouter is Ownable, ReentrancyGuard, IWombatRouter {
     }
 
     /**
-     * @notice Quotes potential outcome of a swap given current tokenPath and poolPath,
-     taking in account slippage and haircut
-     * @dev To be used by frontend
+     * @notice Given an input asset amount and an array of token addresses, calculates the maximum output token amount.
+     * Slippage and haircut are included.
      * @param tokenPath The token swap path
      * @param poolPath The token pool path
      * @param fromAmount The amount to quote
