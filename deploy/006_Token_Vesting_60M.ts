@@ -90,7 +90,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         await tokenVesting.connect(owner).setBeneficiary(user2.address, parseUnits('1000.12345678', 18))
 
         // transfer exact WOM tokens to vesting contract
-        const transferWomTxn = await womTokenContract.connect(owner).transfer(tokenVesting.address, parseUnits('11000.12345678', 18))
+        const transferWomTxn = await womTokenContract
+          .connect(owner)
+          .transfer(tokenVesting.address, parseUnits('11000.12345678', 18))
         await transferWomTxn.wait()
       }
 
