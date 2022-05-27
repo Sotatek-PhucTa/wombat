@@ -119,7 +119,6 @@ contract Pool is
     error WOMBAT_SAME_ADDRESS();
     error WOMBAT_AMOUNT_TOO_LOW();
     error WOMBAT_CASH_NOT_ENOUGH();
-    error WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
 
     /* Pesudo modifiers to safe gas */
 
@@ -137,10 +136,6 @@ contract Pool is
 
     function _checkAmount(uint256 minAmt, uint256 amt) private pure {
         if (minAmt > amt) revert WOMBAT_AMOUNT_TOO_LOW();
-    }
-
-    function _checkAccount(address from, address to) private pure {
-        if (from != to) revert WOMBAT_INTERPOOL_SWAP_NOT_SUPPORTED();
     }
 
     function _ensure(uint256 deadline) private view {
