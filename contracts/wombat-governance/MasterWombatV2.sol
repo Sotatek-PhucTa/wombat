@@ -269,7 +269,7 @@ contract MasterWombatV2 is
             }
         }
         pendingRewards =
-            ((user.amount * accWomPerShare + user.factor * accWomPerFactorShare) / 1e12) +
+            ((uint256(user.amount) * accWomPerShare + uint256(user.factor) * accWomPerFactorShare) / 1e12) +
             user.pendingWom -
             user.rewardDebt;
         // If it's a double reward farm, we return info about the bonus token
@@ -384,7 +384,10 @@ contract MasterWombatV2 is
         _updatePool(_pid);
         if (user.amount > 0) {
             // Harvest WOM
-            uint256 pending = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) +
+            uint256 pending = ((uint256(user.amount) *
+                pool.accWomPerShare +
+                uint256(user.factor) *
+                pool.accWomPerFactorShare) / 1e12) +
                 user.pendingWom -
                 user.rewardDebt;
             user.pendingWom = 0;
@@ -402,7 +405,9 @@ contract MasterWombatV2 is
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = to128((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12);
+        user.rewardDebt = to128(
+            (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) / 1e12
+        );
 
         IRewarder rewarder = poolInfo[_pid].rewarder;
         if (address(rewarder) != address(0)) {
@@ -431,7 +436,8 @@ contract MasterWombatV2 is
         if (user.amount > 0) {
             // Harvest WOM
             pending =
-                ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) +
+                ((uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) /
+                    1e12) +
                 user.pendingWom -
                 user.rewardDebt;
             user.pendingWom = 0;
@@ -449,7 +455,9 @@ contract MasterWombatV2 is
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = to128((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12);
+        user.rewardDebt = to128(
+            (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) / 1e12
+        );
 
         IRewarder rewarder = poolInfo[_pid].rewarder;
         uint256 additionalRewards;
@@ -499,8 +507,10 @@ contract MasterWombatV2 is
 
                 PoolInfo storage pool = poolInfo[_pids[i]];
                 // increase pending to send all rewards once
-                uint256 poolRewards = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) /
-                    1e12) +
+                uint256 poolRewards = ((uint256(user.amount) *
+                    pool.accWomPerShare +
+                    uint256(user.factor) *
+                    pool.accWomPerFactorShare) / 1e12) +
                     user.pendingWom -
                     user.rewardDebt;
 
@@ -508,7 +518,8 @@ contract MasterWombatV2 is
 
                 // update reward debt
                 user.rewardDebt = to128(
-                    (user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12
+                    (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) /
+                        1e12
                 );
 
                 // increase pending
@@ -557,7 +568,10 @@ contract MasterWombatV2 is
         _updatePool(_pid);
 
         // Harvest WOM
-        uint256 pending = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) +
+        uint256 pending = ((uint256(user.amount) *
+            pool.accWomPerShare +
+            uint256(user.factor) *
+            pool.accWomPerFactorShare) / 1e12) +
             user.pendingWom -
             user.rewardDebt;
         user.pendingWom = 0;
@@ -576,7 +590,9 @@ contract MasterWombatV2 is
         pool.sumOfFactors = pool.sumOfFactors + user.factor - oldFactor;
 
         // update reward debt
-        user.rewardDebt = to128((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12);
+        user.rewardDebt = to128(
+            (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) / 1e12
+        );
 
         IRewarder rewarder = poolInfo[_pid].rewarder;
         uint256 additionalRewards = 0;
@@ -685,8 +701,10 @@ contract MasterWombatV2 is
             // first, update pool
             _updatePool(pid);
             // calculate pending
-            uint256 pending = ((user.amount * pool.accWomPerShare + user.factor * pool.accWomPerFactorShare) / 1e12) -
-                user.rewardDebt;
+            uint256 pending = ((uint256(user.amount) *
+                pool.accWomPerShare +
+                uint256(user.factor) *
+                pool.accWomPerFactorShare) / 1e12) - user.rewardDebt;
             // increase pendingWom
             user.pendingWom += to128(pending);
             // get oldFactor
@@ -696,7 +714,9 @@ contract MasterWombatV2 is
             // update user factor
             user.factor = to128(newFactor);
             // update reward debt, take into account newFactor
-            user.rewardDebt = to128((user.amount * pool.accWomPerShare + newFactor * pool.accWomPerFactorShare) / 1e12);
+            user.rewardDebt = to128(
+                (uint256(user.amount) * pool.accWomPerShare + newFactor * pool.accWomPerFactorShare) / 1e12
+            );
             // also, update sumOfFactors
             pool.sumOfFactors = pool.sumOfFactors + newFactor - oldFactor;
         }
