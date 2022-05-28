@@ -791,11 +791,12 @@ contract Pool is
     }
 
     /**
-     * @notice Quotes potential outcome of a swap given current state, taking in account slippage and haircut
+     * @notice Given an input asset amount and token addresses, calculates the
+     * maximum output token amount (accounting for fees and slippage).
      * @dev To be used by frontend
      * @param fromToken The initial ERC20 token
      * @param toToken The token wanted by user
-     * @param fromAmount The amount to quote
+     * @param fromAmount The given input amount
      * @return potentialOutcome The potential amount user would receive
      * @return haircut The haircut that would be applied
      */
@@ -803,7 +804,7 @@ contract Pool is
         address fromToken,
         address toToken,
         int256 fromAmount
-    ) external view returns (uint256 potentialOutcome, uint256 haircut) {
+    ) public view returns (uint256 potentialOutcome, uint256 haircut) {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
 
@@ -819,6 +820,24 @@ contract Pool is
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         potentialOutcome = potentialOutcome.fromWad(toAsset.underlyingTokenDecimals());
         haircut = haircut.fromWad(toAsset.underlyingTokenDecimals());
+    }
+
+    /**
+     * @notice Returns the minimum input asset amount required to buy the given output asset amount
+     * (accounting for fees and slippage)
+     * @dev To be used by frontend
+     * @param fromToken The initial ERC20 token
+     * @param toToken The token wanted by user
+     * @param toAmount The given output amount
+     * @return amountIn The input amount required
+     * @return haircut The haircut that would be applied
+     */
+    function quoteAmountIn(
+        address fromToken,
+        address toToken,
+        int256 toAmount
+    ) external view returns (uint256 amountIn, uint256 haircut) {
+        return quotePotentialSwap(toToken, fromToken, -toAmount);
     }
 
     /* Queries */

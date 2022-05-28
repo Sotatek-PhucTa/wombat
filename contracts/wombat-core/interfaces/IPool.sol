@@ -56,4 +56,10 @@ interface IPool {
         external
         view
         returns (uint256 amount, uint256 fee);
+
+    function quoteAmountIn(
+        address fromToken,
+        address toToken,
+        int256 toAmount
+    ) external view returns (uint256 amountIn, uint256 haircut);
 }

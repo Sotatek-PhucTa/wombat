@@ -140,7 +140,7 @@ contract WombatRouter is Ownable, IWombatRouter {
 
     /**
      * @notice Returns the minimum input asset amount required to buy the given output asset amount
-     * (accounting for fees and slippage) given reserves.
+     * (accounting for fees and slippage)
      * @param tokenPath The token swap path
      * @param poolPath The token pool path
      * @param amountOut The to amount
@@ -162,10 +162,10 @@ contract WombatRouter is Ownable, IWombatRouter {
         // where to send tokens on next step
 
         for (uint256 i = poolPath.length; i > 0; --i) {
-            (amountIn, localHaircut) = IPool(poolPath[i - 1]).quotePotentialSwap(
-                tokenPath[i],
+            (amountIn, localHaircut) = IPool(poolPath[i - 1]).quoteAmountIn(
                 tokenPath[i - 1],
-                -nextAmountOut
+                tokenPath[i],
+                nextAmountOut
             );
             haircut += localHaircut;
             nextAmountOut = int256(amountIn);
