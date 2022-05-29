@@ -295,7 +295,6 @@ describe('Pool - Withdraw', function () {
           token0.address,
           parseEther('10')
         )
-        console.log(quotedWithdrawl)
         const expectedAmount = parseEther('9.988002575408403004')
         expect(quotedWithdrawl).to.equal(expectedAmount)
 

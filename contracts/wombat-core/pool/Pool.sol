@@ -660,11 +660,18 @@ contract Pool is
     {
         _checkLiquidity(liquidity);
         IAsset fromAsset = _assetOf(fromToken);
-        (uint256 withdrawalAmount, , uint256 withdrawalFee) = _withdrawFrom(fromAsset, liquidity);
-
         IAsset toAsset = _assetOf(toToken);
-        (amount, fee) = _quoteFrom(fromAsset, toAsset, int256(withdrawalAmount));
-        fee += withdrawalFee;
+        
+        (uint256 withdrawalAmount, , uint256 withdrawalFee) = _withdrawFrom(fromAsset, liquidity);
+        amount = _swapQuoteFunc(
+            int256(uint256(fromAsset.cash()) - withdrawalAmount - withdrawalFee),
+            int256(uint256(toAsset.cash())),
+            int256(uint256(fromAsset.liability()) - liquidity),
+            int256(uint256(toAsset.liability())),
+            int256(withdrawalAmount),
+            int256(ampFactor)
+        );
+        fee = withdrawalFee;
         amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
 
