@@ -40,7 +40,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   /// Deploy token vesting
   const tokenVestingDeployResult = await deploy(contractName, {
     from: deployer,
-    contract: 'TokenVesting60M',
+    contract: 'TokenVesting',
     args:
       hre.network.name == 'bsc_mainnet'
         ? [womToken.address, mainnetInit.startTimestamp, mainnetInit.durationSeconds, mainnetInit.intervalSeconds]
@@ -90,7 +90,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         await tokenVesting.connect(owner).setBeneficiary(user2.address, parseUnits('1000.12345678', 18))
 
         // transfer exact WOM tokens to vesting contract
-        await womTokenContract.connect(owner).transfer(tokenVesting.address, parseUnits('11000.12345678', 18))
+        const transferWomTxn = await womTokenContract
+          .connect(owner)
+          .transfer(tokenVesting.address, parseUnits('11000.12345678', 18))
+        await transferWomTxn.wait()
       }
 
       // Check init deploy values
