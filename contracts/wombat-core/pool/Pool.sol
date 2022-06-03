@@ -672,6 +672,7 @@ contract Pool is
             int256(ampFactor)
         );
         fee = withdrawalFee;
+        amount = amount - amount.wmul(haircutRate);
         amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
 
