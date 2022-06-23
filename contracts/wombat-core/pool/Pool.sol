@@ -63,7 +63,7 @@ contract Pool is
     address public masterWombat;
 
     /// @notice Dividend collected by each asset (unit: WAD)
-    mapping(IAsset => uint256) internal _feeCollected;
+    mapping(IAsset => uint256) private _feeCollected;
 
     /// @notice A record of assets inside Pool
     AssetMap private _assets;
@@ -134,7 +134,7 @@ contract Pool is
         if (from == to) revert WOMBAT_SAME_ADDRESS();
     }
 
-    function _checkAmount(uint256 minAmt, uint256 amt) internal pure {
+    function _checkAmount(uint256 minAmt, uint256 amt) private pure {
         if (minAmt > amt) revert WOMBAT_AMOUNT_TOO_LOW();
     }
 
@@ -685,7 +685,7 @@ contract Pool is
         IAsset fromAsset,
         IAsset toAsset,
         int256 fromAmount
-    ) internal view returns (uint256 actualToAmount, uint256 haircut) {
+    ) internal view virtual returns (uint256 actualToAmount, uint256 haircut) {
         uint256 idealToAmount;
         uint256 toCash = toAsset.cash();
 
@@ -716,7 +716,7 @@ contract Pool is
         IAsset toAsset,
         uint256 fromAmount,
         uint256 minimumToAmount
-    ) internal virtual returns (uint256 actualToAmount, uint256 haircut) {
+    ) internal returns (uint256 actualToAmount, uint256 haircut) {
         (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
         _checkAmount(minimumToAmount, actualToAmount);
 
@@ -789,7 +789,7 @@ contract Pool is
         address fromToken,
         address toToken,
         int256 fromAmount
-    ) public view virtual returns (uint256 potentialOutcome, uint256 haircut) {
+    ) external view returns (uint256 potentialOutcome, uint256 haircut) {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
 

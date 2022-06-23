@@ -13,52 +13,40 @@ contract HighCovRatioFeePool is Pool {
     error WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
     error WOMBAT_DIRECT_REVERSE_QUOTE_NOT_SUPPORTED();
 
-    /**
-     * @notice charge high cov ratio fee if the final cov ratio of from asset is greater than the startCovRatio
-     */
-    function _swap(
-        IAsset fromAsset,
-        IAsset toAsset,
-        uint256 fromAmount,
-        uint256 minimumToAmount
-    ) internal override returns (uint256 actualToAmount, uint256 haircut) {
-        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
+    function setCovRatioFeeParam(uint128 startCovRatio_, uint128 endCovRatio_) external onlyOwner {
+        if (startCovRatio_ < 1e18 || startCovRatio_ > endCovRatio_) revert WOMBAT_INVALID_VALUE();
 
-        /************************ diff begin ************************/
-        uint256 finalFromAssetCovRatio = (fromAsset.cash() + fromAmount).wdiv(fromAsset.liability());
-        if (finalFromAssetCovRatio >= endCovRatio) {
-            // invalid swap
-            revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
-        } else if (finalFromAssetCovRatio > startCovRatio) {
-            // charge high cov ratio fee
-            uint256 fee = (finalFromAssetCovRatio - startCovRatio).wdiv(endCovRatio - startCovRatio).wmul(
-                actualToAmount
-            );
-
-            actualToAmount -= fee;
-            haircut += fee;
-        }
-        /************************ diff end ************************/
-
-        _checkAmount(minimumToAmount, actualToAmount);
-
-        _feeCollected[toAsset] += haircut;
-
-        fromAsset.addCash(fromAmount);
-
-        // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
-        toAsset.removeCash(actualToAmount + haircut);
-
-        // revert if cov ratio < 1% to avoid precision error
-        if (uint256(toAsset.cash()).wdiv(toAsset.liability()) < WAD / 100) revert WOMBAT_FORBIDDEN();
+        startCovRatio = startCovRatio_;
+        endCovRatio = endCovRatio_;
     }
 
-    function quotePotentialSwap(
-        address fromToken,
-        address toToken,
+    function _quoteFrom(
+        IAsset fromAsset,
+        IAsset toAsset,
         int256 fromAmount
-    ) public view virtual override returns (uint256 potentialOutcome, uint256 haircut) {
-        if (fromAmount < 0) revert WOMBAT_DIRECT_REVERSE_QUOTE_NOT_SUPPORTED();
-        return super.quotePotentialSwap(fromToken, toToken, fromAmount);
+    ) internal view override returns (uint256 actualToAmount, uint256 haircut) {
+        (actualToAmount, haircut) = super._quoteFrom(fromAsset, toAsset, fromAmount);
+
+        if (fromAmount >= 0) {
+            uint256 finalFromAssetCovRatio = (fromAsset.cash() + uint256(fromAmount)).wdiv(fromAsset.liability());
+            if (finalFromAssetCovRatio >= endCovRatio) {
+                // invalid swap
+                revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
+            } else if (finalFromAssetCovRatio > startCovRatio) {
+                // charge high cov ratio fee
+                uint256 highCovRatioFee = (finalFromAssetCovRatio - startCovRatio)
+                    .wdiv(endCovRatio - startCovRatio)
+                    .wmul(actualToAmount);
+
+                actualToAmount -= highCovRatioFee;
+                haircut += highCovRatioFee;
+            }
+        } else {
+            uint256 finalToAssetCovRatio = (toAsset.cash() + uint256(actualToAmount)).wdiv(fromAsset.liability());
+            if (finalToAssetCovRatio > startCovRatio) {
+                // reverse quote: the to asset exceed cov ratio. reverse quote is not suppored
+                revert WOMBAT_DIRECT_REVERSE_QUOTE_NOT_SUPPORTED();
+            }
+        }
     }
 }
