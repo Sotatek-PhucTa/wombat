@@ -651,27 +651,27 @@ contract Pool is
      * @param toToken The token wanting to be withdrawn (needs to be well covered)
      * @param liquidity The liquidity (amount of the lp assets) to be withdrawn
      * @return amount The potential amount user would receive
-     * @return fee The fee that would be applied
      */
-    function quotePotentialWithdrawFromOtherAsset(address fromToken, address toToken, uint256 liquidity)
-        external 
-        view
-        returns (uint256 amount, uint256 fee)
-    {
+    function quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    ) external view returns (uint256 amount) {
         _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
+
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
-        
-        (uint256 withdrawalAmount, , uint256 withdrawalFee) = _withdrawFrom(fromAsset, liquidity);
+
+        (uint256 withdrawalAmount, , ) = _withdrawFrom(fromAsset, liquidity);
         amount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash()) - withdrawalAmount - withdrawalFee),
+            int256(uint256(fromAsset.cash()) - withdrawalAmount),
             int256(uint256(toAsset.cash())),
             int256(uint256(fromAsset.liability()) - liquidity),
             int256(uint256(toAsset.liability())),
             int256(withdrawalAmount),
             int256(ampFactor)
         );
-        fee = withdrawalFee;
         amount = amount - amount.wmul(haircutRate);
         amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
