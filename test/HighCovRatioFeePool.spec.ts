@@ -92,6 +92,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         .connect(users[0])
         .swap(token0.address, token1.address, parseEther('100000'), 0, users[0].address, fiveSecondsSince)
 
+      // 96459 * (1.7-1.5)/(1.8-1.5) (high cov ratio fee) = 32153
       expect(await token1.balanceOf(users[0].address)).near(parseUnits('32153', 8))
     })
 
