@@ -20,6 +20,24 @@ contract HighCovRatioFeePool is Pool {
         endCovRatio = endCovRatio_;
     }
 
+    /**
+     * Assume finalCovRatio in range (startCovRatio, endCovRatio)
+     */
+    function _highCovRatioFee(uint256 initCovRatio, uint256 finalCovRatio) internal view returns (uint256 fee) {
+        uint256 a = initCovRatio <= startCovRatio
+            ? 0
+            : ((initCovRatio - startCovRatio)
+                .wmul(initCovRatio - startCovRatio)
+                .wdiv(finalCovRatio - initCovRatio)
+                .wdiv(endCovRatio - startCovRatio) / 2);
+        uint256 b = (finalCovRatio - startCovRatio)
+            .wmul(finalCovRatio - startCovRatio)
+            .wdiv(finalCovRatio - initCovRatio)
+            .wdiv(endCovRatio - startCovRatio) / 2;
+
+        return b - a;
+    }
+
     function _quoteFrom(
         IAsset fromAsset,
         IAsset toAsset,
@@ -28,15 +46,19 @@ contract HighCovRatioFeePool is Pool {
         (actualToAmount, haircut) = super._quoteFrom(fromAsset, toAsset, fromAmount);
 
         if (fromAmount >= 0) {
-            uint256 finalFromAssetCovRatio = (fromAsset.cash() + uint256(fromAmount)).wdiv(fromAsset.liability());
+            uint256 fromAssetCash = fromAsset.cash();
+            uint256 fromAssetLiability = fromAsset.liability();
+            uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(fromAmount)).wdiv(fromAssetLiability);
+
             if (finalFromAssetCovRatio >= endCovRatio) {
                 // invalid swap
                 revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
             } else if (finalFromAssetCovRatio > startCovRatio) {
                 // charge high cov ratio fee
-                uint256 highCovRatioFee = (finalFromAssetCovRatio - startCovRatio)
-                    .wdiv(endCovRatio - startCovRatio)
-                    .wmul(actualToAmount);
+                uint256 highCovRatioFee = _highCovRatioFee(
+                    fromAssetCash.wdiv(fromAssetLiability),
+                    finalFromAssetCovRatio
+                ).wmul(actualToAmount);
 
                 actualToAmount -= highCovRatioFee;
                 haircut += highCovRatioFee;
