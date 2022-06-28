@@ -122,6 +122,32 @@ describe('High Coverage Ratio Pool - Swap', function () {
       expect(await token1.balanceOf(users[0].address)).near(parseUnits('16044', 8))
     })
 
+    it('from asset: r = 1.6 -> r = 1.8', async function () {
+      const { token: token0 } = await createAsset(
+        ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
+        parseEther('1600000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      const { token: token1 } = await createAsset(
+        ['Venus USDC', 'vUSDC', 8, parseUnits('1000000', 8)],
+        parseEther('1000000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      await token0.connect(users[0]).faucet(parseUnits('199999', 6))
+      await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
+
+      await pool
+        .connect(users[0])
+        .swap(token0.address, token1.address, parseUnits('199999', 6), 0, users[0].address, fiveSecondsSince)
+
+      // 191542 * [1 - (1.7 - 1.5) / (1.8 - 1.5)] (high cov ratio fee) = 63848
+      expect(await token1.balanceOf(users[0].address)).near(parseUnits('63848', 8))
+    })
+
     it('from asset: r = 1.5 -> r = 1.7', async function () {
       const { token: token0 } = await createAsset(
         ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],

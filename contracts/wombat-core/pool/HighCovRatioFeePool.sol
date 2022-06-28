@@ -21,21 +21,25 @@ contract HighCovRatioFeePool is Pool {
     }
 
     /**
-     * Assume finalCovRatio in range (startCovRatio, endCovRatio)
+     * Calculate the high cov ratio fee of the from-asset in a swap
+     * `finalCovRatio` should be greater than `initCovRatio`
      */
     function _highCovRatioFee(uint256 initCovRatio, uint256 finalCovRatio) internal view returns (uint256 fee) {
-        uint256 a = initCovRatio <= startCovRatio
-            ? 0
-            : ((initCovRatio - startCovRatio)
-                .wmul(initCovRatio - startCovRatio)
-                .wdiv(finalCovRatio - initCovRatio)
-                .wdiv(endCovRatio - startCovRatio) / 2);
-        uint256 b = (finalCovRatio - startCovRatio)
-            .wmul(finalCovRatio - startCovRatio)
-            .wdiv(finalCovRatio - initCovRatio)
-            .wdiv(endCovRatio - startCovRatio) / 2;
+        if (finalCovRatio >= endCovRatio) {
+            // invalid swap
+            revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
+        } else if (finalCovRatio <= startCovRatio) {
+            return 0;
+        }
 
-        return b - a;
+        // 1. Calculate the area of fee(r) = (r - startCovRatio) / (endCovRatio - startCovRatio)
+        // when r increase from initCovRatio to finalCovRatio
+        // 2. Then multiply it by (endCovRatio - startCovRatio) / (finalCovRatio - initCovRatio)
+        // to get the average fee over the range
+        uint256 a = initCovRatio <= startCovRatio ? 0 : (initCovRatio - startCovRatio) * (initCovRatio - startCovRatio);
+        uint256 b = (finalCovRatio - startCovRatio) * (finalCovRatio - startCovRatio);
+
+        fee = ((b - a) / (finalCovRatio - initCovRatio) / 2).wdiv(endCovRatio - startCovRatio);
     }
 
     function _quoteFrom(
@@ -50,10 +54,7 @@ contract HighCovRatioFeePool is Pool {
             uint256 fromAssetLiability = fromAsset.liability();
             uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(fromAmount)).wdiv(fromAssetLiability);
 
-            if (finalFromAssetCovRatio >= endCovRatio) {
-                // invalid swap
-                revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
-            } else if (finalFromAssetCovRatio > startCovRatio) {
+            if (finalFromAssetCovRatio > startCovRatio) {
                 // charge high cov ratio fee
                 uint256 highCovRatioFee = _highCovRatioFee(
                     fromAssetCash.wdiv(fromAssetLiability),
