@@ -1,10 +1,9 @@
-import { ethers } from 'hardhat'
-import { BigNumber } from 'ethers'
 import { parseEther, parseUnits } from '@ethersproject/units'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { Contract, ContractFactory } from 'ethers'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { BigNumber, Contract, ContractFactory } from 'ethers'
+import { ethers } from 'hardhat'
 
 const { expect } = chai
 chai.use(solidity)
@@ -18,10 +17,10 @@ describe('Pool - Withdraw', function () {
   let PoolFactory: ContractFactory
   let poolContract: Contract
   let token0: Contract // BUSD
-  let token1: Contract // USDC
+  let token1: Contract // vUSDC
   let token2: Contract // CAKE
   let asset0: Contract // BUSD LP
-  let asset1: Contract // USDC LP
+  let asset1: Contract // vUSDC LP
   let asset2: Contract // CAKE LP
   let lastBlockTime: number
   let fiveSecondsSince: number
@@ -290,19 +289,14 @@ describe('Pool - Withdraw', function () {
       })
 
       it('withdraw token0 from token1 works', async function () {
+        const quotedWithdrawl = await poolContract.quotePotentialWithdrawFromOtherAsset(
+          token1.address,
+          token0.address,
+          parseEther('10')
+        )
+
         const expectedAmount = parseEther('9.988002575408403004')
-        {
-          // callStatic has no side-effect on-chain
-          const quoteAmount = await poolContract.callStatic.withdrawFromOtherAsset(
-            token1.address,
-            token0.address,
-            parseEther('10'),
-            0,
-            owner.address,
-            fiveSecondsSince
-          )
-          expect(quoteAmount).to.equal(expectedAmount)
-        }
+        expect(quotedWithdrawl).to.equal(expectedAmount)
 
         await expectBalanceChange(expectedAmount, owner, token0, async () => {
           const receipt = await withdrawFromOtherAsset(owner, parseEther('10'), token1, token0)
@@ -420,6 +414,47 @@ describe('Pool - Withdraw', function () {
         expect(fee).to.be.equal(0)
       })
     })
+
+    describe('quotePotentialWithdrawFromOtherAsset', () => {
+      beforeEach(async function () {
+        await token1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+        await asset1.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+
+        // Pool already has 100 token0 from user1.
+        // Now owner deposits 100 token1
+        await poolContract
+          .connect(owner)
+          .deposit(token1.address, parseUnits('10.1', 8), 0, owner.address, fiveSecondsSince, false)
+      })
+
+      it('works with fee (r = 0.6)', async function () {
+        // Adjust coverage ratio to around 0.6
+        await asset0.connect(owner).setPool(owner.address)
+        await asset0.connect(owner).removeCash(parseEther('40'))
+        await asset0.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
+        await asset0.connect(owner).setPool(poolContract.address)
+
+        const quotedWithdrawl = await poolContract.quotePotentialWithdrawFromOtherAsset(
+          token1.address,
+          token0.address,
+          parseEther('10')
+        )
+
+        const expectedAmount = parseEther('9.965901307178632867')
+        expect(quotedWithdrawl).to.equal(expectedAmount)
+
+        const withdrawAmount = await poolContract.callStatic.withdrawFromOtherAsset(
+          token1.address,
+          token0.address,
+          parseEther('10'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+
+        expect(withdrawAmount).to.equal(expectedAmount)
+      })
+    })
   })
 
   describe('Asset vUSDC (8 decimals)', function () {
@@ -438,6 +473,7 @@ describe('Pool - Withdraw', function () {
         .connect(user1)
         .deposit(token1.address, parseUnits('100', 8), 0, user1.address, fiveSecondsSince, false)
     })
+
     describe('withdraw', function () {
       it('works (first LP)', async function () {
         // Get vUSDC balance of user1
@@ -464,6 +500,47 @@ describe('Pool - Withdraw', function () {
         await expect(receipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token1.address, parseUnits('70', 8), parseEther('70'), user1.address)
+      })
+    })
+
+    describe('quotePotentialWithdrawFromOtherAsset', () => {
+      beforeEach(async function () {
+        await token0.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+        await asset0.connect(owner).approve(poolContract.address, ethers.constants.MaxUint256)
+
+        // Pool already has 100 token0 from user1.
+        // Now owner deposits 100 token1
+        await poolContract
+          .connect(owner)
+          .deposit(token0.address, parseEther('10.1'), 0, owner.address, fiveSecondsSince, false)
+      })
+
+      it('works with fee (r = 0.6)', async function () {
+        // Adjust coverage ratio to around 0.6
+        await asset1.connect(owner).setPool(owner.address)
+        await asset1.connect(owner).removeCash(parseEther('40'))
+        await asset1.connect(owner).transferUnderlyingToken(owner.address, parseUnits('40', 8))
+        await asset1.connect(owner).setPool(poolContract.address)
+
+        const quotedWithdrawl = await poolContract.quotePotentialWithdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('10')
+        )
+
+        const expectedAmount = parseUnits('9.96590130', 8)
+        expect(quotedWithdrawl).to.equal(expectedAmount)
+
+        const withdrawAmount = await poolContract.callStatic.withdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('10'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+
+        expect(withdrawAmount).to.equal(expectedAmount)
       })
     })
   })
@@ -493,7 +570,6 @@ describe('Pool - Withdraw', function () {
 
       await asset1.connect(user1).approve(poolContract.address, ethers.constants.MaxUint256)
     })
-
     it('r* = 1, r = 0.8, withdraw fee > 0', async function () {
       // Faucet
       await asset0.connect(owner).setPool(owner.address)

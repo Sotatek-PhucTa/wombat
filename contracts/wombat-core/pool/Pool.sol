@@ -639,6 +639,38 @@ contract Pool is
         amount = amount.fromWad(asset.underlyingTokenDecimals());
     }
 
+    /**
+     * @notice Quotes potential withdrawal from other asset from the pool
+     * @dev To be used by frontend
+     * @param fromToken The corresponding token user holds the LP (Asset) from
+     * @param toToken The token wanting to be withdrawn (needs to be well covered)
+     * @param liquidity The liquidity (amount of the lp assets) to be withdrawn
+     * @return amount The potential amount user would receive
+     */
+    function quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    ) external view returns (uint256 amount) {
+        _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
+
+        IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
+
+        (uint256 withdrawalAmount, , ) = _withdrawFrom(fromAsset, liquidity);
+        amount = _swapQuoteFunc(
+            int256(uint256(fromAsset.cash()) - withdrawalAmount),
+            int256(uint256(toAsset.cash())),
+            int256(uint256(fromAsset.liability()) - liquidity),
+            int256(uint256(toAsset.liability())),
+            int256(withdrawalAmount),
+            int256(ampFactor)
+        );
+        amount = amount - amount.wmul(haircutRate);
+        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
+    }
+
     /* Swap */
 
     /**
