@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.3.2 (utils/math/SignedSafeMath.sol)
 
-pragma solidity 0.8.5;
+pragma solidity ^0.8.5;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations.

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity 0.8.5;
+pragma solidity ^0.8.5;
 
 library DSMath {
     uint256 public constant WAD = 10**18;
