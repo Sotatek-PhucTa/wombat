@@ -7,7 +7,7 @@ import { ContractFactory, Contract } from 'ethers'
 chai.use(solidity)
 const { expect } = chai
 
-describe('SignedSafeMath', function () {
+describe.skip('SignedSafeMath', function () {
   let SignedSafeMathFactory: ContractFactory
   let SignedSafeMath: Contract
   before(async function () {
