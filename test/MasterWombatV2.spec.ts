@@ -1224,10 +1224,3 @@ describe('MasterWombat V2', function () {
     })
   })
 })
-
-after(async function () {
-  await network.provider.request({
-    method: 'hardhat_reset',
-    params: [],
-  })
-})

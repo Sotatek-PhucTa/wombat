@@ -1,6 +1,6 @@
 import { BigNumberish } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { ethers } from 'hardhat'
+import { ethers, network } from 'hardhat'
 import { BigNumber } from 'ethers'
 import bn from 'bignumber.js'
 
@@ -63,3 +63,10 @@ export function getBigNumber(amount: BigNumberish, decimals = 18) {
 }
 
 export * from './time'
+
+afterEach(async function () {
+  await network.provider.request({
+    method: 'hardhat_reset',
+    params: [],
+  })
+})

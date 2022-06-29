@@ -24,10 +24,6 @@ describe('High Coverage Ratio Pool - Swap', function () {
   before(async function () {
     ;[owner, ...users] = await ethers.getSigners()
 
-    const lastBlock = await ethers.provider.getBlock('latest')
-    const lastBlockTime = lastBlock.timestamp
-    fiveSecondsSince = lastBlockTime + 5 * 1000
-
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
@@ -35,6 +31,10 @@ describe('High Coverage Ratio Pool - Swap', function () {
   })
 
   beforeEach(async function () {
+    const lastBlock = await ethers.provider.getBlock('latest')
+    const lastBlockTime = lastBlock.timestamp
+    fiveSecondsSince = lastBlockTime + 5 * 1000
+
     pool = await PoolFactory.connect(owner).deploy()
 
     // initialize pool contract
