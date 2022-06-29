@@ -60,6 +60,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
     await asset.addLiability(liability)
 
     await token.transfer(asset.address, tokenParams[3])
+    await asset.mint(owner.address, liability)
 
     if (pool) {
       await asset.setPool(pool.address)
@@ -69,7 +70,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
     return { token, asset }
   }
 
-  describe('start = 1.5, end = 1.8', async function () {
+  describe('start = 1.5, end = 1.8 - swap', async function () {
     it('from asset: r = 1.6 -> r = 1.7', async function () {
       const { token: token0 } = await createAsset(
         ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
@@ -276,6 +277,132 @@ describe('High Coverage Ratio Pool - Swap', function () {
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('1', 6), 0, users[0].address, fiveSecondsSince)
       ).to.reverted
+    })
+  })
+
+  describe('start = 1.5, end = 1.8 - quotePotentialWithdrawFromOtherAsset', async function () {
+    it('from asset: r = 1.6 -> r = 1.7', async function () {
+      const { token: token0, asset: asset0 } = await createAsset(
+        ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
+        parseEther('1600000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      const { token: token1 } = await createAsset(
+        ['Venus USDC', 'vUSDC', 8, parseUnits('1000000', 8)],
+        parseEther('1000000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      await asset0.transfer(users[0].address, parseEther('100000'))
+      await asset0.connect(users[0]).approve(pool.address, parseEther('100000'))
+
+      const [quotedWithdrawl] = await pool.quotePotentialWithdrawFromOtherAsset(
+        token0.address,
+        token1.address,
+        parseEther('100000')
+      )
+
+      const expectedAmount = parseUnits('24657.58039438', 8)
+      expect(quotedWithdrawl).to.equal(expectedAmount)
+
+      const withdrawAmount = await pool
+        .connect(users[0])
+        .callStatic.withdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('100000'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+
+      // 0.00000001 difference in value! It probably comes from some rounding error
+      expect(withdrawAmount).to.equal(parseUnits('24657.58039437', 8))
+    })
+
+    it('from asset: r = 0.8 -> r = 0.9', async function () {
+      const { token: token0, asset: asset0 } = await createAsset(
+        ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
+        parseEther('800000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      const { token: token1 } = await createAsset(
+        ['Venus USDC', 'vUSDC', 8, parseUnits('1000000', 8)],
+        parseEther('1000000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      await asset0.transfer(users[0].address, parseEther('100000'))
+      await asset0.connect(users[0]).approve(pool.address, parseEther('100000'))
+
+      const [quotedWithdrawl] = await pool.quotePotentialWithdrawFromOtherAsset(
+        token0.address,
+        token1.address,
+        parseEther('100000')
+      )
+
+      const expectedAmount = parseUnits('101202.13561677', 8)
+      expect(quotedWithdrawl).to.equal(expectedAmount)
+
+      const withdrawAmount = await pool
+        .connect(users[0])
+        .callStatic.withdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('100000'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+
+      expect(withdrawAmount).to.equal(expectedAmount)
+    })
+
+    it('from asset: r = 1.4 -> r = 1.6', async function () {
+      const { token: token0, asset: asset0 } = await createAsset(
+        ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
+        parseEther('1400000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      const { token: token1 } = await createAsset(
+        ['Venus USDC', 'vUSDC', 8, parseUnits('1000000', 8)],
+        parseEther('1000000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      await asset0.transfer(users[0].address, parseEther('200000'))
+      await asset0.connect(users[0]).approve(pool.address, parseEther('200000'))
+
+      const [quotedWithdrawl] = await pool.quotePotentialWithdrawFromOtherAsset(
+        token0.address,
+        token1.address,
+        parseEther('200000')
+      )
+
+      const expectedAmount = parseUnits('111029.82818996', 8)
+      expect(quotedWithdrawl).to.equal(expectedAmount)
+
+      const withdrawAmount = await pool
+        .connect(users[0])
+        .callStatic.withdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('200000'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+
+      expect(withdrawAmount).to.equal(expectedAmount)
     })
   })
 })

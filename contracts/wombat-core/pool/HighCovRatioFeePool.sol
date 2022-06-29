@@ -50,6 +50,7 @@ contract HighCovRatioFeePool is Pool {
         (actualToAmount, haircut) = super._quoteFrom(fromAsset, toAsset, fromAmount);
 
         if (fromAmount >= 0) {
+            // normal quote
             uint256 fromAssetCash = fromAsset.cash();
             uint256 fromAssetLiability = fromAsset.liability();
             uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(fromAmount)).wdiv(fromAssetLiability);
@@ -65,11 +66,33 @@ contract HighCovRatioFeePool is Pool {
                 haircut += highCovRatioFee;
             }
         } else {
+            // reverse quote
             uint256 finalToAssetCovRatio = (toAsset.cash() + uint256(actualToAmount)).wdiv(fromAsset.liability());
             if (finalToAssetCovRatio > startCovRatio) {
-                // reverse quote: the to asset exceed cov ratio. reverse quote is not suppored
+                // reverse quote: cov ratio of to-asset exceed endCovRatio. direct reverse quote is not supported
                 revert WOMBAT_DIRECT_REVERSE_QUOTE_NOT_SUPPORTED();
             }
         }
+    }
+
+    function quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    ) external view override returns (uint256 amount, uint256 withdrewAmount) {
+        (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
+
+        IAsset fromAsset = _assetOf(fromToken);
+        uint256 fromAssetCash = fromAsset.cash() - withdrewAmount;
+        uint256 fromAssetLiability = fromAsset.liability() - liquidity;
+        uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(withdrewAmount)).wdiv(fromAssetLiability);
+
+        if (finalFromAssetCovRatio > startCovRatio) {
+            uint256 highCovRatioFee = _highCovRatioFee(fromAssetCash.wdiv(fromAssetLiability), finalFromAssetCovRatio)
+                .wmul(amount);
+
+            amount -= highCovRatioFee;
+        }
+        withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
     }
 }
