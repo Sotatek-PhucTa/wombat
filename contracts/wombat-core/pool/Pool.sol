@@ -12,6 +12,7 @@ import './CoreV2.sol';
 import '../interfaces/IAsset.sol';
 import './PausableAssets.sol';
 import '../../wombat-governance/interfaces/IMasterWombat.sol';
+import '../interfaces/IPool.sol';
 
 /**
  * @title Pool
@@ -21,6 +22,7 @@ import '../../wombat-governance/interfaces/IMasterWombat.sol';
  */
 contract Pool is
     Initializable,
+    IPool,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
@@ -63,10 +65,10 @@ contract Pool is
     address public masterWombat;
 
     /// @notice Dividend collected by each asset (unit: WAD)
-    mapping(IAsset => uint256) private _feeCollected;
+    mapping(IAsset => uint256) internal _feeCollected;
 
     /// @notice A record of assets inside Pool
-    AssetMap private _assets;
+    AssetMap internal _assets;
 
     /* Events */
 
@@ -122,27 +124,27 @@ contract Pool is
 
     /* Pesudo modifiers to safe gas */
 
-    function _checkLiquidity(uint256 liquidity) private pure {
+    function _checkLiquidity(uint256 liquidity) internal pure {
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
     }
 
-    function _checkAddress(address to) private pure {
+    function _checkAddress(address to) internal pure {
         if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
     }
 
-    function _checkSameAddress(address from, address to) private pure {
+    function _checkSameAddress(address from, address to) internal pure {
         if (from == to) revert WOMBAT_SAME_ADDRESS();
     }
 
-    function _checkAmount(uint256 minAmt, uint256 amt) private pure {
+    function _checkAmount(uint256 minAmt, uint256 amt) internal pure {
         if (minAmt > amt) revert WOMBAT_AMOUNT_TOO_LOW();
     }
 
-    function _ensure(uint256 deadline) private view {
+    function _ensure(uint256 deadline) internal view {
         if (deadline < block.timestamp) revert WOMBAT_EXPIRED();
     }
 
-    function _onlyDev() private view {
+    function _onlyDev() internal view {
         if (dev != msg.sender) revert WOMBAT_FORBIDDEN();
     }
 
@@ -306,7 +308,7 @@ contract Pool is
     /**
      * @notice Return list of tokens in the pool
      */
-    function getTokens() external view returns (address[] memory) {
+    function getTokens() external view override returns (address[] memory) {
         return _assets.keys;
     }
 
@@ -314,7 +316,7 @@ contract Pool is
      * @notice get length of asset list
      * @return the size of the asset list
      */
-    function _sizeOfAssetList() private view returns (uint256) {
+    function _sizeOfAssetList() internal view returns (uint256) {
         return _assets.keys.length;
     }
 
@@ -323,7 +325,7 @@ contract Pool is
      * @param key The address of token
      * @return the corresponding asset in state
      */
-    function _getAsset(address key) private view returns (IAsset) {
+    function _getAsset(address key) internal view returns (IAsset) {
         return _assets.values[key];
     }
 
@@ -332,7 +334,7 @@ contract Pool is
      * @param index the index
      * @return the key of index
      */
-    function _getKeyAtIndex(uint256 index) private view returns (address) {
+    function _getKeyAtIndex(uint256 index) internal view returns (address) {
         return _assets.keys[index];
     }
 
@@ -341,7 +343,7 @@ contract Pool is
      * @param token The address of token to look for
      * @return bool true if the asset is in asset list, false otherwise
      */
-    function _containsAsset(address token) private view returns (bool) {
+    function _containsAsset(address token) internal view returns (bool) {
         return _assets.values[token] != IAsset(address(0));
     }
 
@@ -359,7 +361,7 @@ contract Pool is
      * @dev to be used externally
      * @param token The address of ERC20 token
      */
-    function addressOfAsset(address token) external view returns (address) {
+    function addressOfAsset(address token) external view override returns (address) {
         return address(_assetOf(token));
     }
 
@@ -439,7 +441,7 @@ contract Pool is
         address to,
         uint256 deadline,
         bool shouldStake
-    ) external nonReentrant whenNotPaused returns (uint256 liquidity) {
+    ) external override nonReentrant whenNotPaused returns (uint256 liquidity) {
         if (amount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
         _ensure(deadline);
@@ -475,6 +477,7 @@ contract Pool is
     function quotePotentialDeposit(address token, uint256 amount)
         external
         view
+        override
         returns (uint256 liquidity, uint256 reward)
     {
         IAsset asset = _assetOf(token);
@@ -492,7 +495,7 @@ contract Pool is
      * @return fee
      */
     function _withdrawFrom(IAsset asset, uint256 liquidity)
-        private
+        internal
         view
         returns (
             uint256 amount,
@@ -529,7 +532,7 @@ contract Pool is
         IAsset asset,
         uint256 liquidity,
         uint256 minimumAmount
-    ) private returns (uint256 amount) {
+    ) internal returns (uint256 amount) {
         // collect fee before withdraw
         _mintFee(asset);
 
@@ -562,7 +565,7 @@ contract Pool is
         uint256 minimumAmount,
         address to,
         uint256 deadline
-    ) external nonReentrant whenNotPaused returns (uint256 amount) {
+    ) external override nonReentrant whenNotPaused returns (uint256 amount) {
         _checkLiquidity(liquidity);
         _checkAddress(to);
         _ensure(deadline);
@@ -594,7 +597,7 @@ contract Pool is
         uint256 minimumAmount,
         address to,
         uint256 deadline
-    ) external nonReentrant whenNotPaused returns (uint256 toAmount) {
+    ) external override nonReentrant whenNotPaused returns (uint256 toAmount) {
         _checkAddress(to);
         _checkLiquidity(liquidity);
         _checkSameAddress(fromToken, toToken);
@@ -631,6 +634,7 @@ contract Pool is
     function quotePotentialWithdraw(address token, uint256 liquidity)
         external
         view
+        override
         returns (uint256 amount, uint256 fee)
     {
         _checkLiquidity(liquidity);
@@ -762,7 +766,7 @@ contract Pool is
         uint256 minimumToAmount,
         address to,
         uint256 deadline
-    ) external nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
+    ) external override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
@@ -804,7 +808,7 @@ contract Pool is
         address fromToken,
         address toToken,
         int256 fromAmount
-    ) public view returns (uint256 potentialOutcome, uint256 haircut) {
+    ) public view override returns (uint256 potentialOutcome, uint256 haircut) {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
 
@@ -836,7 +840,7 @@ contract Pool is
         address fromToken,
         address toToken,
         int256 toAmount
-    ) external view returns (uint256 amountIn, uint256 haircut) {
+    ) external view override returns (uint256 amountIn, uint256 haircut) {
         return quotePotentialSwap(toToken, fromToken, -toAmount);
     }
 
@@ -933,7 +937,7 @@ contract Pool is
      * @notice Private function to send fee collected to the fee beneficiary
      * @param asset The address of the asset to collect fee
      */
-    function _mintFee(IAsset asset) private {
+    function _mintFee(IAsset asset) internal {
         uint256 feeCollected = _feeCollected[asset];
         if (feeCollected == 0 || feeCollected < mintFeeThreshold) {
             // early return
