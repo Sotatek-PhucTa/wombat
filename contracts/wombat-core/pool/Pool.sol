@@ -349,7 +349,7 @@ contract Pool is
      * @notice Gets Asset corresponding to ERC20 token. Reverts if asset does not exists in Pool.
      * @param token The address of ERC20 token
      */
-    function _assetOf(address token) private view returns (IAsset) {
+    function _assetOf(address token) internal view returns (IAsset) {
         if (!_containsAsset(token)) revert WOMBAT_ASSET_NOT_EXISTS();
         return _assets.values[token];
     }
@@ -639,6 +639,30 @@ contract Pool is
         amount = amount.fromWad(asset.underlyingTokenDecimals());
     }
 
+    function _quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    ) internal view returns (uint256 amount, uint256 withdrewAmount) {
+        _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
+
+        IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
+
+        (withdrewAmount, , ) = _withdrawFrom(fromAsset, liquidity);
+        amount = _swapQuoteFunc(
+            int256(uint256(fromAsset.cash()) - withdrewAmount),
+            int256(uint256(toAsset.cash())),
+            int256(uint256(fromAsset.liability()) - liquidity),
+            int256(uint256(toAsset.liability())),
+            int256(withdrewAmount),
+            int256(ampFactor)
+        );
+        amount = amount - amount.wmul(haircutRate);
+        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
+    }
+
     /**
      * @notice Quotes potential withdrawal from other asset from the pool
      * @dev To be used by frontend
@@ -646,29 +670,17 @@ contract Pool is
      * @param toToken The token wanting to be withdrawn (needs to be well covered)
      * @param liquidity The liquidity (amount of the lp assets) to be withdrawn
      * @return amount The potential amount user would receive
+     * @return withdrewAmount The amount of the from-token that is withdrew
      */
     function quotePotentialWithdrawFromOtherAsset(
         address fromToken,
         address toToken,
         uint256 liquidity
-    ) external view returns (uint256 amount) {
-        _checkLiquidity(liquidity);
-        _checkSameAddress(fromToken, toToken);
+    ) external view virtual returns (uint256 amount, uint256 withdrewAmount) {
+        (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
 
         IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-
-        (uint256 withdrawalAmount, , ) = _withdrawFrom(fromAsset, liquidity);
-        amount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash()) - withdrawalAmount),
-            int256(uint256(toAsset.cash())),
-            int256(uint256(fromAsset.liability()) - liquidity),
-            int256(uint256(toAsset.liability())),
-            int256(withdrawalAmount),
-            int256(ampFactor)
-        );
-        amount = amount - amount.wmul(haircutRate);
-        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
+        withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
     }
 
     /* Swap */
@@ -685,7 +697,7 @@ contract Pool is
         IAsset fromAsset,
         IAsset toAsset,
         int256 fromAmount
-    ) private view returns (uint256 actualToAmount, uint256 haircut) {
+    ) internal view virtual returns (uint256 actualToAmount, uint256 haircut) {
         uint256 idealToAmount;
         uint256 toCash = toAsset.cash();
 
@@ -702,8 +714,10 @@ contract Pool is
         haircut = idealToAmount.wmul(haircutRate);
         // exact output swap quote has added haircut already
         if (fromAmount > 0) {
+            // normal quote
             actualToAmount = idealToAmount - haircut;
         } else {
+            // reverse quote
             actualToAmount = idealToAmount;
         }
     }

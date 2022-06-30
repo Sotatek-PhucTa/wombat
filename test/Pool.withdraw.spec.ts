@@ -289,7 +289,7 @@ describe('Pool - Withdraw', function () {
       })
 
       it('withdraw token0 from token1 works', async function () {
-        const quotedWithdrawl = await poolContract.quotePotentialWithdrawFromOtherAsset(
+        const [quotedWithdrawl] = await poolContract.quotePotentialWithdrawFromOtherAsset(
           token1.address,
           token0.address,
           parseEther('10')
@@ -434,7 +434,7 @@ describe('Pool - Withdraw', function () {
         await asset0.connect(owner).transferUnderlyingToken(owner.address, parseEther('40'))
         await asset0.connect(owner).setPool(poolContract.address)
 
-        const quotedWithdrawl = await poolContract.quotePotentialWithdrawFromOtherAsset(
+        const [quotedWithdrawl] = await poolContract.quotePotentialWithdrawFromOtherAsset(
           token1.address,
           token0.address,
           parseEther('10')
@@ -522,7 +522,7 @@ describe('Pool - Withdraw', function () {
         await asset1.connect(owner).transferUnderlyingToken(owner.address, parseUnits('40', 8))
         await asset1.connect(owner).setPool(poolContract.address)
 
-        const quotedWithdrawl = await poolContract.quotePotentialWithdrawFromOtherAsset(
+        const [quotedWithdrawl] = await poolContract.quotePotentialWithdrawFromOtherAsset(
           token0.address,
           token1.address,
           parseEther('10')
