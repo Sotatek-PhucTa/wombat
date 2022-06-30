@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.5;
+pragma solidity ^0.8.14;
 
 import '../libraries/DSMath.sol';
 import './Pool.sol';

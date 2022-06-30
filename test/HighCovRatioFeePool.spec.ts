@@ -24,10 +24,6 @@ describe('High Coverage Ratio Pool - Swap', function () {
   before(async function () {
     ;[owner, ...users] = await ethers.getSigners()
 
-    const lastBlock = await ethers.provider.getBlock('latest')
-    const lastBlockTime = lastBlock.timestamp
-    fiveSecondsSince = lastBlockTime + 5 * 1000
-
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
@@ -35,6 +31,10 @@ describe('High Coverage Ratio Pool - Swap', function () {
   })
 
   beforeEach(async function () {
+    const lastBlock = await ethers.provider.getBlock('latest')
+    const lastBlockTime = lastBlock.timestamp
+    fiveSecondsSince = lastBlockTime + 5 * 1000
+
     pool = await PoolFactory.connect(owner).deploy()
 
     // initialize pool contract
@@ -277,6 +277,50 @@ describe('High Coverage Ratio Pool - Swap', function () {
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('1', 6), 0, users[0].address, fiveSecondsSince)
       ).to.reverted
+    })
+
+    it('from asset: r = 1.7 -> 1.4 (should not change high cov ratio fee)', async function () {
+      const { token: token0 } = await createAsset(
+        ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
+        parseEther('1700000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      const { token: token1 } = await createAsset(
+        ['Venus USDC', 'vUSDC', 8, parseUnits('1000000', 8)],
+        parseEther('1000000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      await token1.connect(users[0]).faucet(parseUnits('300000', 8))
+      await token1.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
+
+      await pool
+        .connect(users[0])
+        .swap(token1.address, token0.address, parseUnits('300000', 8), 0, users[0].address, fiveSecondsSince)
+
+      expect(await token0.balanceOf(users[0].address)).near(parseUnits('304983.186365', 6))
+    })
+
+    it('from asset: r = 1.7 - withdraw should not charge high cov ratio fee', async function () {
+      const { token: token0, asset: asset0 } = await createAsset(
+        ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
+        parseEther('1700000'),
+        parseEther('1000000'),
+        pool
+      )
+
+      await asset0.transfer(users[0].address, parseEther('100000'))
+      await asset0.connect(users[0]).approve(pool.address, parseEther('100000'))
+
+      const expectedAmount = parseUnits('99113.285043', 6)
+      const withdrawAmount = await pool
+        .connect(users[0])
+        .callStatic.withdraw(token0.address, parseEther('100000'), 0, owner.address, fiveSecondsSince)
+
+      expect(withdrawAmount).to.equal(expectedAmount)
     })
   })
 

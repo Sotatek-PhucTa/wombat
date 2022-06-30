@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.5;
+pragma solidity ^0.8.5;
 
 interface IWom {
     event Approval(address indexed owner, address indexed spender, uint256 value);

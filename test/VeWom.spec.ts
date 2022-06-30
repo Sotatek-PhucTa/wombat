@@ -377,10 +377,3 @@ describe('VeWOM', function () {
     expect(await this.wom.balanceOf(users[0].address)).to.be.equal(parseEther('100'))
   })
 })
-
-after(async function () {
-  await network.provider.request({
-    method: 'hardhat_reset',
-    params: [],
-  })
-})
