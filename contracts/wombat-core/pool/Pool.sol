@@ -151,7 +151,7 @@ contract Pool is
     /**
      * @notice Initializes pool. Dev is set to be the account calling this function.
      */
-    function initialize(uint256 ampFactor_, uint256 haircutRate_) external initializer {
+    function initialize(uint256 ampFactor_, uint256 haircutRate_) public virtual initializer {
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
@@ -723,7 +723,6 @@ contract Pool is
             haircut = idealToAmount.wmul(haircutRate);
             actualToAmount = idealToAmount - haircut;
         } else {
-            // reverse quote
             // exact output swap quote count haircut in the fromAmount
             actualToAmount = idealToAmount;
             haircut = (uint256(-fromAmount)).wmul(haircutRate);
