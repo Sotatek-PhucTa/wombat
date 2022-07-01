@@ -196,45 +196,45 @@ describe('High Coverage Ratio Pool - Swap', function () {
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('63847.82205890', 8))
     })
 
-    it('from asset: r = 1.5 -> r = 1.7', async function () {
+    it('from asset: r = 1.5 -> r = 1.7 (18 decimals)', async function () {
       const { token: token0 } = await createAsset(
-        ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
+        ['Binance USD', 'BUSD', 18, parseUnits('1000000', 18)],
         parseEther('1500000'),
         parseEther('1000000'),
         pool
       )
 
       const { token: token1 } = await createAsset(
-        ['Venus USDC', 'vUSDC', 8, parseUnits('1000000', 8)],
+        ['Venus USDC', 'vUSDC', 18, parseUnits('1000000', 18)],
         parseEther('1000000'),
         parseEther('1000000'),
         pool
       )
 
-      await token0.connect(users[0]).faucet(parseUnits('200000', 6))
+      await token0.connect(users[0]).faucet(parseUnits('200000', 18))
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('200000', 6))
-      expect(quote).equal(parseUnits('127973.79520834', 8))
-      expect(haircut).equal(parseUnits('64063.71260729', 8))
+      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('200000', 18))
+      expect(quote).equal(parseUnits('127973.795208341950948787', 18))
+      expect(haircut).equal(parseUnits('64063.712607297231051213', 18))
 
       // reverse quote
       const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
-        parseUnits('-127973.79520834', 8)
+        parseUnits('-127973.795208341950948787', 18)
       )
-      expect(reverseQuote).equal(parseUnits('200000', 6))
-      expect(reverseHaircut).equal(parseUnits('64063.712607', 6))
+      expect(reverseQuote).equal(parseUnits('199999.999999999999500000', 18))
+      expect(reverseHaircut).equal(parseUnits('64063.712607297231051213', 18))
 
       // swap
       await pool
         .connect(users[0])
-        .swap(token0.address, token1.address, parseUnits('200000', 6), 0, users[0].address, fiveSecondsSince)
+        .swap(token0.address, token1.address, parseUnits('200000', 18), 0, users[0].address, fiveSecondsSince)
 
-      // 191194?? * [1 - (1.6 - 1.5) / (1.8 - 1.5)] (high cov ratio fee) = 126188
-      expect(await token1.balanceOf(users[0].address)).equal(parseUnits('127973.79520834', 8))
+      // 189282 * [1 - (1.6 - 1.5) / (1.8 - 1.5)] (high cov ratio fee) = 126188
+      expect(await token1.balanceOf(users[0].address)).equal(parseUnits('127973.795208341950948787', 18))
     })
 
     it('from asset: r = 1.4 -> r = 1.7', async function () {

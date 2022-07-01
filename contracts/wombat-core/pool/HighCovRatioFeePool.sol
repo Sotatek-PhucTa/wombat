@@ -108,7 +108,7 @@ contract HighCovRatioFeePool is Pool {
     ) internal view returns (uint256 upperBound) {
         uint8 decimals = fromAsset.underlyingTokenDecimals();
         uint256 toWadFactor = DSMath.toWad(1, decimals);
-        // we search with the
+        // the search value uses the same number of digits as the token
         uint256 high = ((fromAsset.liability() * uint256(endCovRatio)) / WAD - fromAsset.cash()).fromWad(decimals);
         uint256 low = 1;
 
@@ -117,11 +117,11 @@ contract HighCovRatioFeePool is Pool {
         (quote, ) = _quoteFrom(fromAsset, toAsset, int256(high * toWadFactor));
         if (quote < toAmount) revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
 
-        // Note: we might limit the maximum number of rounds if the request is always rejected by RPC
+        // Note: we might limit the maximum number of rounds if the request is always rejected by the RPC server
         while (low < high) {
             uint256 mid = (low + high) / 2;
             (quote, ) = _quoteFrom(fromAsset, toAsset, int256(mid * toWadFactor));
-            if (quote > toAmount) {
+            if (quote >= toAmount) {
                 high = mid;
             } else {
                 low = mid + 1;
