@@ -308,7 +308,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseUnits('-97315.57802417', 8)
       )
       expect(reverseQuote).equal(parseUnits('99999.999999', 6))
-      expect(reverseHaircut).equal(parseUnits('38.941807', 6)) // Q: why is the haircut higher than expected?
+      expect(reverseHaircut).equal(parseUnits('38.941807', 6))
 
       // swap
       await pool
@@ -442,7 +442,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseUnits('-304983.18636529', 8)
       )
       expect(reverseQuote).equal(parseUnits('299999.999999', 6))
-      expect(reverseHaircut).equal(parseUnits('122.042091', 6)) // Q: why is the haircut smaller than expected?
+      expect(reverseHaircut).equal(parseUnits('122.042091', 6))
 
       // swap
       await pool
