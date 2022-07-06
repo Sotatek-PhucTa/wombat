@@ -28,7 +28,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log('Contract address:', deployResult.address)
 
   if (deployResult.newlyDeployed) {
-
     const veWomContract = await ethers.getContractAt('VeWom', veWom.address)
     console.log('Setting whitelist contract for VeWom...')
     const setWhitelistTxn = await veWomContract.connect(owner).setWhitelist(deployResult.address)
@@ -47,9 +46,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       console.log(`Transferred ownership of ${whitelistAddress} to:`, multisig)
     }
 
-    console.log(
-      `To verify, run: hh verify --network ${hre.network.name} ${whitelistAddress}`
-    )
+    console.log(`To verify, run: hh verify --network ${hre.network.name} ${whitelistAddress}`)
 
     return deployResult
   } else {
