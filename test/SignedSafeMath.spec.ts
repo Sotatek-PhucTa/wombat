@@ -7,6 +7,7 @@ import { ContractFactory, Contract } from 'ethers'
 chai.use(solidity)
 const { expect } = chai
 
+// skipped as it fails lint
 describe.skip('SignedSafeMath', function () {
   let SignedSafeMathFactory: ContractFactory
   let SignedSafeMath: Contract

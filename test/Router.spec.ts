@@ -174,6 +174,7 @@ describe('WombatRouter', function () {
     await pool3.connect(user1).deposit(vUSDT.address, parseUnits('10000', 8), 0, user1.address, fiveSecondsSince, false)
   })
 
+  // skipped as it fails lint
   describe.skip('Router', function () {
     it('reverts if expired', async function () {
       await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
