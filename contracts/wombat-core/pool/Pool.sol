@@ -122,7 +122,7 @@ contract Pool is
 
     /* Pesudo modifiers to safe gas */
 
-    function _checkLiquidity(uint256 liquidity) private pure {
+    function _checkLiquidity(uint256 liquidity) internal pure {
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
     }
 
@@ -130,7 +130,7 @@ contract Pool is
         if (to == address(0)) revert WOMBAT_ZERO_ADDRESS();
     }
 
-    function _checkSameAddress(address from, address to) private pure {
+    function _checkSameAddress(address from, address to) internal pure {
         if (from == to) revert WOMBAT_SAME_ADDRESS();
     }
 
@@ -314,7 +314,7 @@ contract Pool is
      * @notice get length of asset list
      * @return the size of the asset list
      */
-    function _sizeOfAssetList() private view returns (uint256) {
+    function _sizeOfAssetList() internal view returns (uint256) {
         return _assets.keys.length;
     }
 
@@ -323,7 +323,7 @@ contract Pool is
      * @param key The address of token
      * @return the corresponding asset in state
      */
-    function _getAsset(address key) private view returns (IAsset) {
+    function _getAsset(address key) internal view returns (IAsset) {
         return _assets.values[key];
     }
 
@@ -332,7 +332,7 @@ contract Pool is
      * @param index the index
      * @return the key of index
      */
-    function _getKeyAtIndex(uint256 index) private view returns (address) {
+    function _getKeyAtIndex(uint256 index) internal view returns (address) {
         return _assets.keys[index];
     }
 
@@ -492,7 +492,7 @@ contract Pool is
      * @return fee
      */
     function _withdrawFrom(IAsset asset, uint256 liquidity)
-        private
+        internal
         view
         returns (
             uint256 amount,
@@ -643,14 +643,17 @@ contract Pool is
         address fromToken,
         address toToken,
         uint256 liquidity
-    ) internal view returns (uint256 amount, uint256 withdrewAmount) {
+    ) internal view virtual returns (uint256 amount, uint256 withdrewAmount) {
         _checkLiquidity(liquidity);
         _checkSameAddress(fromToken, toToken);
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
+        // quote withdraw
         (withdrewAmount, , ) = _withdrawFrom(fromAsset, liquidity);
+
+        // quote swap
         amount = _swapQuoteFunc(
             int256(uint256(fromAsset.cash()) - withdrewAmount),
             int256(uint256(toAsset.cash())),
@@ -890,7 +893,7 @@ contract Pool is
         emit TransferTipBucket(token, amount, to);
     }
 
-    function _globalInvariantFunc() internal view returns (int256 D, int256 SL) {
+    function _globalInvariantFunc() internal view virtual returns (int256 D, int256 SL) {
         int256 A = int256(ampFactor);
 
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {

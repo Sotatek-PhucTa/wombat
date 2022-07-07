@@ -86,7 +86,7 @@ contract HighCovRatioFeePool is Pool {
                 // happy path: no high cov ratio fee is charged
                 return (actualToAmount, haircut);
             } else if (toAssetCash.wdiv(toAssetLiability) >= endCovRatio) {
-                // the to-asset exceeds it's cov ratio limit, further swap to increase cov ratio in impossible
+                // the to-asset exceeds it's cov ratio limit, further swap to increase cov ratio is impossible
                 revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
             }
 
