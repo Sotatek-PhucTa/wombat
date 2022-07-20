@@ -24,21 +24,21 @@ contract DynamicPool is Pool {
         IAsset toAsset,
         uint256 fromCash,
         uint256 fromLiability,
-        uint256 fromAmount
+        int256 fromAmount
     )
         internal
         view
         returns (
             uint256,
             uint256,
-            uint256
+            int256
         )
     {
         uint256 fromAssetRelativePrice = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
         if (fromAssetRelativePrice != WAD) {
             fromCash = (fromCash * fromAssetRelativePrice) / 1e18;
             fromLiability = (fromLiability * fromAssetRelativePrice) / 1e18;
-            fromAmount = (fromAmount * fromAssetRelativePrice) / 1e18;
+            fromAmount = (fromAmount * int256(fromAssetRelativePrice)) / 1e18;
         }
 
         // theoretically we should multiply toCash, toLiability and idealToAmount by toAssetRelativePrice
@@ -47,7 +47,7 @@ contract DynamicPool is Pool {
         if (toAssetRelativePrice != WAD) {
             fromCash = (fromCash * 1e18) / toAssetRelativePrice;
             fromLiability = (fromLiability * 1e18) / toAssetRelativePrice;
-            fromAmount = (fromAmount * 1e18) / toAssetRelativePrice;
+            fromAmount = (fromAmount * 1e18) / int256(toAssetRelativePrice);
         }
 
         return (fromCash, fromLiability, fromAmount);
@@ -67,15 +67,13 @@ contract DynamicPool is Pool {
         uint256 fromLiability = uint256(fromAsset.liability());
         uint256 toCash = uint256(toAsset.cash());
 
-        uint256 tempFromAmount;
-        (fromCash, fromLiability, tempFromAmount) = _scaleQuoteAmount(
+        (fromCash, fromLiability, fromAmount) = _scaleQuoteAmount(
             fromAsset,
             toAsset,
             fromCash,
             fromLiability,
-            uint256(fromAmount)
+            fromAmount
         );
-        fromAmount = int256(tempFromAmount);
 
         uint256 idealToAmount;
         idealToAmount = _swapQuoteFunc(
@@ -119,13 +117,15 @@ contract DynamicPool is Pool {
         uint256 fromCash = uint256(fromAsset.cash()) - withdrewAmount;
         uint256 fromLiability = uint256(fromAsset.liability()) - liquidity;
 
-        (fromCash, fromLiability, withdrewAmount) = _scaleQuoteAmount(
+        int256 withdrewAmount_i;
+        (fromCash, fromLiability, withdrewAmount_i) = _scaleQuoteAmount(
             fromAsset,
             toAsset,
             fromCash,
             fromLiability,
-            withdrewAmount
+            int256(withdrewAmount)
         );
+        withdrewAmount = uint256(withdrewAmount_i);
 
         amount = _swapQuoteFunc(
             int256(fromCash),

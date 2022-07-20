@@ -224,7 +224,7 @@ describe('Pool - Withdraw', function () {
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('99008.94795060', 8))
 
       // time pass, increase price of token1
-      asset1.setRelativePrice(parseEther('1.2'))
+      await asset1.setRelativePrice(parseEther('1.2'))
 
       await pool
         .connect(users[0])
@@ -267,7 +267,7 @@ describe('Pool - Withdraw', function () {
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('99008.94795060', 8))
 
       // time pass, increase price of token0
-      asset0.setRelativePrice(parseEther('1.2'))
+      await asset0.setRelativePrice(parseEther('1.2'))
 
       await pool
         .connect(users[0])
@@ -295,7 +295,7 @@ describe('Pool - Withdraw', function () {
       await token0.connect(users[0]).approve(pool.address, parseUnits('1000', 8))
 
       // increase price of token0, deposit should not change
-      asset0.setRelativePrice(parseEther('1.2'))
+      await asset0.setRelativePrice(parseEther('1.2'))
 
       const receipt = await pool
         .connect(users[0])
@@ -321,7 +321,7 @@ describe('Pool - Withdraw', function () {
       )
 
       // increase price of token0, withdraw should not change
-      asset0.setRelativePrice(parseEther('1.2'))
+      await asset0.setRelativePrice(parseEther('1.2'))
 
       await asset0.transfer(users[0].address, parseEther('100000'))
       await asset0.connect(users[0]).approve(pool.address, parseEther('100000'))
@@ -350,8 +350,8 @@ describe('Pool - Withdraw', function () {
       )
 
       // increase price of token0 and token 1
-      asset0.setRelativePrice(parseEther('1.2'))
-      asset1.setRelativePrice(parseEther('1.1'))
+      await asset0.setRelativePrice(parseEther('1.2'))
+      await asset1.setRelativePrice(parseEther('1.1'))
 
       await asset0.transfer(users[0].address, parseEther('100000'))
       await asset0.connect(users[0]).approve(pool.address, parseEther('100000'))
