@@ -151,7 +151,7 @@ contract Pool is
     /**
      * @notice Initializes pool. Dev is set to be the account calling this function.
      */
-    function initialize(uint256 ampFactor_, uint256 haircutRate_) external initializer {
+    function initialize(uint256 ampFactor_, uint256 haircutRate_) public virtual initializer {
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
@@ -698,6 +698,11 @@ contract Pool is
         IAsset toAsset,
         int256 fromAmount
     ) internal view virtual returns (uint256 actualToAmount, uint256 haircut) {
+        // exact output swap quote should count haircut before swap
+        if (fromAmount < 0) {
+            fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
+        }
+
         uint256 idealToAmount;
         uint256 toCash = toAsset.cash();
 
@@ -709,16 +714,18 @@ contract Pool is
             fromAmount,
             int256(ampFactor)
         );
-        if (toCash < idealToAmount) revert WOMBAT_CASH_NOT_ENOUGH();
+        if ((fromAmount > 0 && toCash < idealToAmount) || (fromAmount < 0 && fromAsset.cash() < uint256(-fromAmount))) {
+            revert WOMBAT_CASH_NOT_ENOUGH();
+        }
 
-        haircut = idealToAmount.wmul(haircutRate);
-        // exact output swap quote has added haircut already
         if (fromAmount > 0) {
             // normal quote
+            haircut = idealToAmount.wmul(haircutRate);
             actualToAmount = idealToAmount - haircut;
         } else {
-            // reverse quote
+            // exact output swap quote count haircut in the fromAmount
             actualToAmount = idealToAmount;
+            haircut = (uint256(-fromAmount)).wmul(haircutRate);
         }
     }
 
@@ -809,11 +816,6 @@ contract Pool is
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
-
-        // exact output swap quote adds haircut
-        if (fromAmount < 0) {
-            fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
-        }
 
         fromAmount = fromAmount.toWad(fromAsset.underlyingTokenDecimals());
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
