@@ -11,7 +11,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 001. Deploying on : ${hre.network.name}...`)
-  
+
   /// Deploy pool
   const deployResult = await deploy(contractName, {
     from: deployer,
