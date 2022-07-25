@@ -643,7 +643,7 @@ contract Pool is
         address fromToken,
         address toToken,
         uint256 liquidity
-    ) internal view virtual returns (uint256 amount, uint256 withdrewAmount) {
+    ) internal view returns (uint256 amount, uint256 withdrewAmount) {
         _checkLiquidity(liquidity);
         _checkSameAddress(fromToken, toToken);
 
@@ -654,10 +654,23 @@ contract Pool is
         (withdrewAmount, , ) = _withdrawFrom(fromAsset, liquidity);
 
         // quote swap
+        uint256 fromCash = uint256(fromAsset.cash()) - withdrewAmount;
+        uint256 fromLiability = uint256(fromAsset.liability()) - liquidity;
+
+        int256 withdrewAmount_i;
+        (fromCash, fromLiability, withdrewAmount_i) = _scaleQuoteAmount(
+            fromAsset,
+            toAsset,
+            fromCash,
+            fromLiability,
+            int256(withdrewAmount)
+        );
+        withdrewAmount = uint256(withdrewAmount_i);
+
         amount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash()) - withdrewAmount),
+            int256(fromCash),
             int256(uint256(toAsset.cash())),
-            int256(uint256(fromAsset.liability()) - liquidity),
+            int256(fromLiability),
             int256(uint256(toAsset.liability())),
             int256(withdrewAmount),
             int256(ampFactor)
@@ -689,6 +702,30 @@ contract Pool is
     /* Swap */
 
     /**
+     * @notice multiply / divide the cash, liability and amount of a swap by relative price
+     * @dev not applicable to a plain pool
+     */
+    function _scaleQuoteAmount(
+        IAsset, // fromAsset
+        IAsset, // toAsset
+        uint256 fromCash,
+        uint256 fromLiability,
+        int256 fromAmount
+    )
+        internal
+        view
+        virtual
+        returns (
+            uint256 fromCash_,
+            uint256 fromLiability_,
+            int256 fromAmount_
+        )
+    {
+        // virtual function; do nothing
+        return (fromCash, fromLiability, fromAmount);
+    }
+
+    /**
      * @notice Quotes the actual amount user would receive in a swap, taking in account slippage and haircut
      * @param fromAsset The initial asset
      * @param toAsset The asset wanted by user
@@ -706,13 +743,23 @@ contract Pool is
             fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
         }
 
-        uint256 idealToAmount;
-        uint256 toCash = toAsset.cash();
+        uint256 fromCash = uint256(fromAsset.cash());
+        uint256 fromLiability = uint256(fromAsset.liability());
+        uint256 toCash = uint256(toAsset.cash());
 
+        (fromCash, fromLiability, fromAmount) = _scaleQuoteAmount(
+            fromAsset,
+            toAsset,
+            fromCash,
+            fromLiability,
+            fromAmount
+        );
+
+        uint256 idealToAmount;
         idealToAmount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash())),
+            int256(fromCash),
             int256(toCash),
-            int256(uint256(fromAsset.liability())),
+            int256(fromLiability),
             int256(uint256(toAsset.liability())),
             fromAmount,
             int256(ampFactor)
@@ -847,7 +894,7 @@ contract Pool is
         invariantInUint = uint256(invariant);
     }
 
-    function tipBucketBalance(address token) external view returns (uint256 balance) {
+    function tipBucketBalance(address token) public view returns (uint256 balance) {
         IAsset asset = _assetOf(token);
         return
             asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) - asset.cash() - _feeCollected[asset];
@@ -880,9 +927,7 @@ contract Pool is
         address to
     ) external onlyOwner {
         IAsset asset = _assetOf(token);
-        uint256 tipBucketBal = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
-            asset.cash() -
-            _feeCollected[asset];
+        uint256 tipBucketBal = tipBucketBalance(token);
 
         if (amount > tipBucketBal) {
             // revert if there's not enough amount in the tip bucket

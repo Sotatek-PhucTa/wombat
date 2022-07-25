@@ -28,10 +28,11 @@ contract DynamicPool is Pool {
     )
         internal
         view
+        override
         returns (
-            uint256,
-            uint256,
-            int256
+            uint256 fromCash_,
+            uint256 fromLiability_,
+            int256 fromAmount_
         )
     {
         uint256 fromAssetRelativePrice = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
@@ -51,92 +52,6 @@ contract DynamicPool is Pool {
         }
 
         return (fromCash, fromLiability, fromAmount);
-    }
-
-    function _quoteFrom(
-        IAsset fromAsset,
-        IAsset toAsset,
-        int256 fromAmount
-    ) internal view override returns (uint256 actualToAmount, uint256 haircut) {
-        // exact output swap quote should count haircut before swap
-        if (fromAmount < 0) {
-            fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
-        }
-
-        uint256 fromCash = uint256(fromAsset.cash());
-        uint256 fromLiability = uint256(fromAsset.liability());
-        uint256 toCash = uint256(toAsset.cash());
-
-        (fromCash, fromLiability, fromAmount) = _scaleQuoteAmount(
-            fromAsset,
-            toAsset,
-            fromCash,
-            fromLiability,
-            fromAmount
-        );
-
-        uint256 idealToAmount;
-        idealToAmount = _swapQuoteFunc(
-            int256(fromCash),
-            int256(toCash),
-            int256(fromLiability),
-            int256(uint256(toAsset.liability())),
-            fromAmount,
-            int256(ampFactor)
-        );
-        if ((fromAmount > 0 && toCash < idealToAmount) || (fromAmount < 0 && fromAsset.cash() < uint256(-fromAmount))) {
-            revert WOMBAT_CASH_NOT_ENOUGH();
-        }
-
-        if (fromAmount > 0) {
-            // normal quote
-            haircut = idealToAmount.wmul(haircutRate);
-            actualToAmount = idealToAmount - haircut;
-        } else {
-            // exact output swap quote count haircut in the fromAmount
-            actualToAmount = idealToAmount;
-            haircut = (uint256(-fromAmount)).wmul(haircutRate);
-        }
-    }
-
-    function _quotePotentialWithdrawFromOtherAsset(
-        address fromToken,
-        address toToken,
-        uint256 liquidity
-    ) internal view override returns (uint256 amount, uint256 withdrewAmount) {
-        _checkLiquidity(liquidity);
-        _checkSameAddress(fromToken, toToken);
-
-        IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-
-        // quote withdraw
-        (withdrewAmount, , ) = _withdrawFrom(fromAsset, liquidity);
-
-        // quote swap
-        uint256 fromCash = uint256(fromAsset.cash()) - withdrewAmount;
-        uint256 fromLiability = uint256(fromAsset.liability()) - liquidity;
-
-        int256 withdrewAmount_i;
-        (fromCash, fromLiability, withdrewAmount_i) = _scaleQuoteAmount(
-            fromAsset,
-            toAsset,
-            fromCash,
-            fromLiability,
-            int256(withdrewAmount)
-        );
-        withdrewAmount = uint256(withdrewAmount_i);
-
-        amount = _swapQuoteFunc(
-            int256(fromCash),
-            int256(uint256(toAsset.cash())),
-            int256(fromLiability),
-            int256(uint256(toAsset.liability())),
-            int256(withdrewAmount),
-            int256(ampFactor)
-        );
-        amount = amount - amount.wmul(haircutRate);
-        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
 
     /**
