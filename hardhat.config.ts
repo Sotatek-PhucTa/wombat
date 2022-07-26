@@ -102,6 +102,7 @@ const config: HardhatUserConfig = {
       default: 2,
     },
     multisig: {
+      bsc_testnet: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452', // same as deployer
       bsc_mainnet: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
     },
   },

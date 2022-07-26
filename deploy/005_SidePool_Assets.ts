@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-import { USD_TOKENS_MAP } from '../tokens.config'
+import { USD_SIDEPOOL_TOKENS_MAP } from '../tokens.config'
 
-const contractName = 'Asset'
+const contractName = 'MockAsset'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -12,30 +12,30 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 003. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  console.log(`Step 005. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
+  const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
 
   // Get Pool Instance
-  const poolDeployment = await deployments.get('Pool')
+  const poolDeployment = await deployments.get('SidePool_01')
   const poolAddress = poolDeployment.address
   const pool = await ethers.getContractAt('Pool', poolAddress)
 
-  for (const index in USD_TOKENS) {
-    console.log('Attemping to deploy Asset contract : ' + USD_TOKENS[index][0])
-    const tokenSymbol = USD_TOKENS[index][1] as string
-    const tokenName = USD_TOKENS[index][0] as string
+  for (const index in USD_SIDEPOOL_TOKENS) {
+    console.log('Attemping to deploy Asset contract : ' + USD_SIDEPOOL_TOKENS[index][0])
+    const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
+    const tokenName = USD_SIDEPOOL_TOKENS[index][0] as string
 
     const tokenAddress: string =
       hre.network.name == 'bsc_mainnet'
-        ? (USD_TOKENS[index][2] as string)
+        ? (USD_SIDEPOOL_TOKENS[index][2] as string)
         : ((await deployments.get(tokenSymbol)).address as string)
     console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
-    const usdAssetDeployResult = await deploy(`Asset_P01_${tokenSymbol}`, {
+    const usdAssetDeployResult = await deploy(`Asset_SP01_${tokenSymbol}`, {
       from: deployer,
       contract: 'Asset',
       log: true,
@@ -125,4 +125,4 @@ async function addPool(asset: any, owner: any, poolAddress: string) {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['Pool'] // this ensure the Token script above is executed first, so `deployments.get('Pool')` succeeds
+deployFunc.dependencies = ['SidePool'] // this ensure the Token script above is executed first, so `deployments.get('SidePool')` succeeds

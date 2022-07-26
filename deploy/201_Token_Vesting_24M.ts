@@ -13,7 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner, user1, user2] = await ethers.getSigners()
 
-  console.log(`Step 005. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  console.log(`Step 201. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // Get deployed WOM token instance
   const womToken = await deployments.get('WombatToken')
