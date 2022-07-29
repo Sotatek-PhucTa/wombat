@@ -644,9 +644,6 @@ contract Pool is
         address toToken,
         uint256 liquidity
     ) internal view returns (uint256 amount, uint256 withdrewAmount) {
-        _checkLiquidity(liquidity);
-        _checkSameAddress(fromToken, toToken);
-
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
@@ -657,17 +654,15 @@ contract Pool is
         uint256 fromCash = uint256(fromAsset.cash()) - withdrewAmount;
         uint256 fromLiability = uint256(fromAsset.liability()) - liquidity;
 
-        int256 withdrewAmount_i;
-        (fromCash, fromLiability, withdrewAmount_i) = _scaleQuoteAmount(
-            fromAsset,
-            toAsset,
-            fromCash,
-            fromLiability,
-            int256(withdrewAmount)
-        );
-        withdrewAmount = uint256(withdrewAmount_i);
+        uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
+        if (scaleFactor != WAD) {
+            // apply scale factor on from-amounts
+            fromCash = (fromCash * scaleFactor) / 1e18;
+            fromLiability = (fromLiability * scaleFactor) / 1e18;
+            withdrewAmount = (withdrewAmount * scaleFactor) / 1e18;
+        }
 
-        amount = _swapQuoteFunc(
+        uint256 idealToAmount = _swapQuoteFunc(
             int256(fromCash),
             int256(uint256(toAsset.cash())),
             int256(fromLiability),
@@ -675,8 +670,8 @@ contract Pool is
             int256(withdrewAmount),
             int256(ampFactor)
         );
-        amount = amount - amount.wmul(haircutRate);
-        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
+        // remove haircut
+        amount = idealToAmount - idealToAmount.wmul(haircutRate);
     }
 
     /**
@@ -693,36 +688,30 @@ contract Pool is
         address toToken,
         uint256 liquidity
     ) external view virtual returns (uint256 amount, uint256 withdrewAmount) {
+        _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
+
         (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
 
         IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
+        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
 
     /* Swap */
 
     /**
-     * @notice multiply / divide the cash, liability and amount of a swap by relative price
+     * @notice Return the scale factor that should applied on from-amounts in a swap given
+     * the from-asset and the to-asset.
      * @dev not applicable to a plain pool
      */
-    function _scaleQuoteAmount(
+    function _quoteFactor(
         IAsset, // fromAsset
-        IAsset, // toAsset
-        uint256 fromCash,
-        uint256 fromLiability,
-        int256 fromAmount
-    )
-        internal
-        view
-        virtual
-        returns (
-            uint256 fromCash_,
-            uint256 fromLiability_,
-            int256 fromAmount_
-        )
-    {
+        IAsset // toAsset
+    ) internal view virtual returns (uint256) {
         // virtual function; do nothing
-        return (fromCash, fromLiability, fromAmount);
+        return 1e18;
     }
 
     /**
@@ -747,16 +736,15 @@ contract Pool is
         uint256 fromLiability = uint256(fromAsset.liability());
         uint256 toCash = uint256(toAsset.cash());
 
-        (fromCash, fromLiability, fromAmount) = _scaleQuoteAmount(
-            fromAsset,
-            toAsset,
-            fromCash,
-            fromLiability,
-            fromAmount
-        );
+        uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
+        if (scaleFactor != WAD) {
+            // apply scale factor on from-amounts
+            fromCash = (fromCash * scaleFactor) / 1e18;
+            fromLiability = (fromLiability * scaleFactor) / 1e18;
+            fromAmount = (fromAmount * int256(scaleFactor)) / 1e18;
+        }
 
-        uint256 idealToAmount;
-        idealToAmount = _swapQuoteFunc(
+        uint256 idealToAmount = _swapQuoteFunc(
             int256(fromCash),
             int256(toCash),
             int256(fromLiability),

@@ -499,7 +499,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseEther('100000')
       )
 
-      const expectedAmount = parseUnits('24657.58039438', 8)
+      const expectedAmount = parseUnits('24657.58039437', 8)
       expect(quotedWithdrawl).to.equal(expectedAmount)
 
       const withdrawAmount = await pool
