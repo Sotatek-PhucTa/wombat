@@ -135,9 +135,12 @@ contract HighCovRatioFeePool is Pool {
         address toToken,
         uint256 liquidity
     ) external view override returns (uint256 amount, uint256 withdrewAmount) {
+        _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
         (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
 
         IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
         uint256 fromAssetCash = fromAsset.cash() - withdrewAmount;
         uint256 fromAssetLiability = fromAsset.liability() - liquidity;
         uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(withdrewAmount)).wdiv(fromAssetLiability);
@@ -149,5 +152,6 @@ contract HighCovRatioFeePool is Pool {
             amount -= highCovRatioFee;
         }
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
+        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
 }

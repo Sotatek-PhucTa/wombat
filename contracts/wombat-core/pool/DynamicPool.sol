@@ -19,39 +19,13 @@ contract DynamicPool is Pool {
      * @notice multiply / divide the cash, liability and amount of a swap by relative price
      * Invariant: D = Sum of P_i * L_i * (r_i - A / r_i)
      */
-    function _scaleQuoteAmount(
-        IAsset fromAsset,
-        IAsset toAsset,
-        uint256 fromCash,
-        uint256 fromLiability,
-        int256 fromAmount
-    )
-        internal
-        view
-        override
-        returns (
-            uint256 fromCash_,
-            uint256 fromLiability_,
-            int256 fromAmount_
-        )
-    {
+    function _quoteFactor(IAsset fromAsset, IAsset toAsset) internal view override returns (uint256) {
         uint256 fromAssetRelativePrice = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
-        if (fromAssetRelativePrice != WAD) {
-            fromCash = (fromCash * fromAssetRelativePrice) / 1e18;
-            fromLiability = (fromLiability * fromAssetRelativePrice) / 1e18;
-            fromAmount = (fromAmount * int256(fromAssetRelativePrice)) / 1e18;
-        }
-
         // theoretically we should multiply toCash, toLiability and idealToAmount by toAssetRelativePrice
         // however we simplify the calculation by dividing "from amounts" by toAssetRelativePrice
         uint256 toAssetRelativePrice = IRelativePriceProvider(address(toAsset)).getRelativePrice();
-        if (toAssetRelativePrice != WAD) {
-            fromCash = (fromCash * 1e18) / toAssetRelativePrice;
-            fromLiability = (fromLiability * 1e18) / toAssetRelativePrice;
-            fromAmount = (fromAmount * 1e18) / int256(toAssetRelativePrice);
-        }
 
-        return (fromCash, fromLiability, fromAmount);
+        return (1e18 * fromAssetRelativePrice) / toAssetRelativePrice;
     }
 
     /**
