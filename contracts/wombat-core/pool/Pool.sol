@@ -648,23 +648,34 @@ contract Pool is
         address toToken,
         uint256 liquidity
     ) internal view returns (uint256 amount, uint256 withdrewAmount) {
-        _checkLiquidity(liquidity);
-        _checkSameAddress(fromToken, toToken);
-
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
 
+        // quote withdraw
         (withdrewAmount, , ) = _withdrawFrom(fromAsset, liquidity);
-        amount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash()) - withdrewAmount),
+
+        // quote swap
+        uint256 fromCash = uint256(fromAsset.cash()) - withdrewAmount;
+        uint256 fromLiability = uint256(fromAsset.liability()) - liquidity;
+
+        uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
+        if (scaleFactor != WAD) {
+            // apply scale factor on from-amounts
+            fromCash = (fromCash * scaleFactor) / 1e18;
+            fromLiability = (fromLiability * scaleFactor) / 1e18;
+            withdrewAmount = (withdrewAmount * scaleFactor) / 1e18;
+        }
+
+        uint256 idealToAmount = _swapQuoteFunc(
+            int256(fromCash),
             int256(uint256(toAsset.cash())),
-            int256(uint256(fromAsset.liability()) - liquidity),
+            int256(fromLiability),
             int256(uint256(toAsset.liability())),
             int256(withdrewAmount),
             int256(ampFactor)
         );
-        amount = amount - amount.wmul(haircutRate);
-        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
+        // remove haircut
+        amount = idealToAmount - idealToAmount.wmul(haircutRate);
     }
 
     /**
@@ -681,13 +692,31 @@ contract Pool is
         address toToken,
         uint256 liquidity
     ) external view virtual returns (uint256 amount, uint256 withdrewAmount) {
+        _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
+
         (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
 
         IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
+        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
 
     /* Swap */
+
+    /**
+     * @notice Return the scale factor that should applied on from-amounts in a swap given
+     * the from-asset and the to-asset.
+     * @dev not applicable to a plain pool
+     */
+    function _quoteFactor(
+        IAsset, // fromAsset
+        IAsset // toAsset
+    ) internal view virtual returns (uint256) {
+        // virtual function; do nothing
+        return 1e18;
+    }
 
     /**
      * @notice Quotes the actual amount user would receive in a swap, taking in account slippage and haircut
@@ -707,13 +736,22 @@ contract Pool is
             fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
         }
 
-        uint256 idealToAmount;
-        uint256 toCash = toAsset.cash();
+        uint256 fromCash = uint256(fromAsset.cash());
+        uint256 fromLiability = uint256(fromAsset.liability());
+        uint256 toCash = uint256(toAsset.cash());
 
-        idealToAmount = _swapQuoteFunc(
-            int256(uint256(fromAsset.cash())),
+        uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
+        if (scaleFactor != WAD) {
+            // apply scale factor on from-amounts
+            fromCash = (fromCash * scaleFactor) / 1e18;
+            fromLiability = (fromLiability * scaleFactor) / 1e18;
+            fromAmount = (fromAmount * int256(scaleFactor)) / 1e18;
+        }
+
+        uint256 idealToAmount = _swapQuoteFunc(
+            int256(fromCash),
             int256(toCash),
-            int256(uint256(fromAsset.liability())),
+            int256(fromLiability),
             int256(uint256(toAsset.liability())),
             fromAmount,
             int256(ampFactor)
@@ -867,7 +905,7 @@ contract Pool is
         invariantInUint = uint256(invariant);
     }
 
-    function tipBucketBalance(address token) external view returns (uint256 balance) {
+    function tipBucketBalance(address token) public view returns (uint256 balance) {
         IAsset asset = _assetOf(token);
         return
             asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) - asset.cash() - _feeCollected[asset];
@@ -900,9 +938,7 @@ contract Pool is
         address to
     ) external onlyOwner {
         IAsset asset = _assetOf(token);
-        uint256 tipBucketBal = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
-            asset.cash() -
-            _feeCollected[asset];
+        uint256 tipBucketBal = tipBucketBalance(token);
 
         if (amount > tipBucketBal) {
             // revert if there's not enough amount in the tip bucket
@@ -913,7 +949,7 @@ contract Pool is
         emit TransferTipBucket(token, amount, to);
     }
 
-    function _globalInvariantFunc() internal view returns (int256 D, int256 SL) {
+    function _globalInvariantFunc() internal view virtual returns (int256 D, int256 SL) {
         int256 A = int256(ampFactor);
 
         for (uint256 i = 0; i < _sizeOfAssetList(); i++) {

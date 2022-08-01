@@ -86,7 +86,7 @@ contract HighCovRatioFeePool is Pool {
                 // happy path: no high cov ratio fee is charged
                 return (actualToAmount, haircut);
             } else if (toAssetCash.wdiv(toAssetLiability) >= endCovRatio) {
-                // the to-asset exceeds it's cov ratio limit, further swap to increase cov ratio in impossible
+                // the to-asset exceeds it's cov ratio limit, further swap to increase cov ratio is impossible
                 revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
             }
 
@@ -135,9 +135,12 @@ contract HighCovRatioFeePool is Pool {
         address toToken,
         uint256 liquidity
     ) external view override returns (uint256 amount, uint256 withdrewAmount) {
+        _checkLiquidity(liquidity);
+        _checkSameAddress(fromToken, toToken);
         (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
 
         IAsset fromAsset = _assetOf(fromToken);
+        IAsset toAsset = _assetOf(toToken);
         uint256 fromAssetCash = fromAsset.cash() - withdrewAmount;
         uint256 fromAssetLiability = fromAsset.liability() - liquidity;
         uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(withdrewAmount)).wdiv(fromAssetLiability);
@@ -149,5 +152,6 @@ contract HighCovRatioFeePool is Pool {
             amount -= highCovRatioFee;
         }
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
+        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
     }
 }
