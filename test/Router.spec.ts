@@ -840,7 +840,7 @@ describe('WombatRouter', function () {
         .getAmountIn([UST.address, vUSDC.address], [pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
-      expect(quotedAmount).to.be.equal(parseEther('100.13542948011617')) 
+      expect(quotedAmount).to.be.equal(parseEther('100.13542948011617'))
 
       await this.router.connect(user1).swapExactTokensForTokens(
         [UST.address, vUSDC.address],
