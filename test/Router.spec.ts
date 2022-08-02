@@ -840,7 +840,7 @@ describe('WombatRouter', function () {
         .getAmountIn([UST.address, vUSDC.address], [pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
-      expect(quotedAmount).to.be.equal(parseEther('100.13542947370139'))
+      expect(quotedAmount).to.be.equal(parseEther('100.13542948011617'))
 
       await this.router.connect(user1).swapExactTokensForTokens(
         [UST.address, vUSDC.address],
@@ -945,7 +945,7 @@ describe('WombatRouter', function () {
         .getAmountIn([UST.address, vUSDC.address], [pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
-      expect(quotedAmount).to.be.equal(parseEther('100.09533710521842'))
+      expect(quotedAmount).to.be.equal(parseEther('100.09533711523749'))
 
       await this.router.connect(user1).swapExactTokensForTokens(
         [UST.address, vUSDC.address],
@@ -1009,7 +1009,7 @@ describe('WombatRouter', function () {
         .getAmountIn([BUSD.address, UST.address, vUSDC.address], [pool2.address, pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
-      expect(quotedAmount).to.be.equal(parseEther('100.27117190420765'))
+      expect(quotedAmount).to.be.equal(parseEther('100.27117191063727'))
 
       await this.router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, UST.address, vUSDC.address],
@@ -1113,7 +1113,7 @@ describe('WombatRouter', function () {
         .getAmountIn([BUSD.address, UST.address, vUSDC.address], [pool2.address, pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
-      expect(quotedAmount).to.be.equal(parseEther('100.19085619295976'))
+      expect(quotedAmount).to.be.equal(parseEther('100.19085620299796'))
 
       await this.router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, UST.address, vUSDC.address],
@@ -1185,7 +1185,7 @@ describe('WombatRouter', function () {
         )
 
       // check if input token amount is correct
-      expect(quotedAmount).to.be.equal(parseEther('100.40722836032113'))
+      expect(quotedAmount).to.be.equal(parseEther('100.40722836676563'))
 
       await this.router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address, vUSDC.address],
@@ -1226,7 +1226,7 @@ describe('WombatRouter', function () {
         )
 
       // check if input token amount is correct
-      expect(quotedAmount).to.be.equal(parseEther('100.28655777477072'))
+      expect(quotedAmount).to.be.equal(parseEther('100.28655778482811'))
 
       await this.router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address, vUSDC.address],
