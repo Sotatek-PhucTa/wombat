@@ -42,11 +42,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     /// Mock BNB DYNAMICPOOL TOKENS ///
     const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
     const tokenSymbol = BNB_DYNAMICPOOL_TOKENS['WBNB'][1] as string
+    const args = BNB_DYNAMICPOOL_TOKENS['WBNB']
+    args.pop()
     await deploy(tokenSymbol, {
       from: deployer,
       log: true,
       contract: 'TestERC20',
-      args: BNB_DYNAMICPOOL_TOKENS['WBNB'],
+      args: args,
       skipIfAlreadyDeployed: true,
     })
   }
