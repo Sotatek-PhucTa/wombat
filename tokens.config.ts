@@ -79,7 +79,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
       'BNBx',
       '0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275',
       '0x7276241a669489E4BBB76f63d2A43Bfe63080F2F',
-      'Bnbx'
+      'Bnbx',
     ],
   },
   bsc_testnet: {
@@ -89,14 +89,14 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
       'stkBNB',
       '0xF7CE8444b3b1c62e785a25343a8B4764198A81B8',
       '0x7CdFba1Ee6A8D1e688B4B34A56b62287ce400802',
-      'Stkbnb'
+      'Stkbnb',
     ],
     BNBX: [
       'Liquid Staking BNB',
       'BNBx',
       '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
       '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
-      'Bnbx'
+      'Bnbx',
     ],
   },
   localhost: {
@@ -113,7 +113,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
       'BNBx',
       '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
       '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
-      'Bnbx'
+      'Bnbx',
     ],
   },
   hardhat: {
@@ -123,14 +123,14 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
       'stkBNB',
       '0xF7CE8444b3b1c62e785a25343a8B4764198A81B8',
       '0x7CdFba1Ee6A8D1e688B4B34A56b62287ce400802',
-      'Stkbnb'
+      'Stkbnb',
     ],
     BNBX: [
       'Liquid Staking BNB',
       'BNBx',
       '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
       '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
-      'Bnbx'
+      'Bnbx',
     ],
   },
 }

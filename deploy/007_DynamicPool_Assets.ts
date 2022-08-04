@@ -32,11 +32,11 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const symbol = `LP-${tokenSymbol}`
 
     const tokenAddress = BNB_DYNAMICPOOL_TOKENS[index][2] as string
-    let args: string[] = [tokenAddress, name, symbol, oracleAddress]
+    const args: string[] = [tokenAddress, name, symbol, oracleAddress]
 
     if (BNB_DYNAMICPOOL_TOKENS[index][1] == 'WBNB') {
       if (hre.network.name !== 'bsc_mainnet') {
-        args[0] = await deployments.get(tokenSymbol).address as string
+        args[0] = await deployments.get(tokenSymbol).address
       }
       args.pop() // WBNB has no oracleAddress
     }
