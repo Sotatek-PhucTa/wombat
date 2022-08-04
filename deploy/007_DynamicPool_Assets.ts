@@ -36,7 +36,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     if (BNB_DYNAMICPOOL_TOKENS[index][1] == 'WBNB') {
       if (hre.network.name !== 'bsc_mainnet') {
-        args[0] = await deployments.get(tokenSymbol).address
+        args[0] = (await deployments.get(tokenSymbol)).address
       }
       args.pop() // WBNB has no oracleAddress
     }
