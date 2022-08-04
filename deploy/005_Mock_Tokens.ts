@@ -41,7 +41,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     /// Mock BNB DYNAMICPOOL TOKENS ///
     const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-    const tokenSymbol = USD_SIDEPOOL_TOKENS['WBNB'][1] as string
+    const tokenSymbol = BNB_DYNAMICPOOL_TOKENS['WBNB'][1] as string
     await deploy(tokenSymbol, {
       from: deployer,
       log: true,
