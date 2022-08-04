@@ -12,7 +12,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 007. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  console.log(`Step 031. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
   const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
@@ -31,12 +31,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
 
-    const tokenAddress = BNB_DYNAMICPOOL_TOKENS[index][2] as string
+    let tokenAddress = BNB_DYNAMICPOOL_TOKENS[index][2] as string
     const args: string[] = [tokenAddress, name, symbol, oracleAddress]
 
     if (BNB_DYNAMICPOOL_TOKENS[index][1] == 'WBNB') {
       if (hre.network.name !== 'bsc_mainnet') {
-        args[0] = (await deployments.get(tokenSymbol)).address
+        tokenAddress = (await deployments.get(tokenSymbol)).address
+        args[0] = tokenAddress
       }
       args.pop() // WBNB has no oracleAddress
     }

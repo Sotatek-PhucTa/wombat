@@ -10,7 +10,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 003. Deploying on : ${hre.network.name}...`)
+  console.log(`Step 030. Deploying on : ${hre.network.name}...`)
 
   /// Deploy sidepool
   const deployResult = await deploy(contractName, {

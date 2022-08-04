@@ -2,7 +2,7 @@ import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-const contractName = 'SidePool_01'
+const contractName = 'Pool'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -10,13 +10,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 002. Deploying on : ${hre.network.name}...`)
+  console.log(`Step 010. Deploying on : ${hre.network.name}...`)
 
-  /// Deploy sidepool
+  /// Deploy pool
   const deployResult = await deploy(contractName, {
     from: deployer,
     log: true,
-    contract: 'Pool', // TBC with 'HighCovRatioFeePool' after audit
     skipIfAlreadyDeployed: true,
     proxy: {
       owner: multisig, // change to Gnosis Safe after all admin scripts are done
@@ -25,14 +24,14 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [parseEther('0.02'), parseEther('0.001')], // [A, haircut] are 10x of main pool
+          args: [parseEther('0.002'), parseEther('0.0001')], // [A, haircut => 1bps]
         },
       },
     },
   })
 
-  // Get freshly deployed SubPool contract
-  const contract = await ethers.getContractAt('Pool', deployResult.address)
+  // Get freshly deployed Pool contract
+  const contract = await ethers.getContractAt(contractName, deployResult.address)
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)
