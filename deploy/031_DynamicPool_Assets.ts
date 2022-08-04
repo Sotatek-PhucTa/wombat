@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-import { USD_SIDEPOOL_TOKENS_MAP } from '../tokens.config'
+import { BNB_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
 
 const contractName = 'MockAsset'
 
@@ -12,41 +12,48 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 005. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  console.log(`Step 031. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
+  const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
 
   // Get Pool Instance
-  const poolDeployment = await deployments.get('SidePool_01')
+  const poolDeployment = await deployments.get('DynamicPool_01')
   const poolAddress = poolDeployment.address
-  const pool = await ethers.getContractAt('Pool', poolAddress)
+  const pool = await ethers.getContractAt('DynamicPool', poolAddress)
 
-  for (const index in USD_SIDEPOOL_TOKENS) {
-    console.log('Attemping to deploy Asset contract : ' + USD_SIDEPOOL_TOKENS[index][0])
-    const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
-    const tokenName = USD_SIDEPOOL_TOKENS[index][0] as string
-
-    const tokenAddress: string =
-      hre.network.name == 'bsc_mainnet'
-        ? (USD_SIDEPOOL_TOKENS[index][2] as string)
-        : ((await deployments.get(tokenSymbol)).address as string)
-    console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
-
+  for (const index in BNB_DYNAMICPOOL_TOKENS) {
+    console.log('Attemping to deploy Asset contract : ' + BNB_DYNAMICPOOL_TOKENS[index][0])
+    const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
+    const tokenName = BNB_DYNAMICPOOL_TOKENS[index][0] as string
+    const tokenType = BNB_DYNAMICPOOL_TOKENS[index][4] as string
+    const oracleAddress = BNB_DYNAMICPOOL_TOKENS[index][3] as string
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
-    const usdAssetDeployResult = await deploy(`Asset_SP01_${tokenSymbol}`, {
+
+    let tokenAddress = BNB_DYNAMICPOOL_TOKENS[index][2] as string
+    const args: string[] = [tokenAddress, name, symbol, oracleAddress]
+
+    if (BNB_DYNAMICPOOL_TOKENS[index][1] == 'WBNB') {
+      if (hre.network.name !== 'bsc_mainnet') {
+        tokenAddress = (await deployments.get(tokenSymbol)).address
+        args[0] = tokenAddress
+      }
+      args.pop() // WBNB has no oracleAddress
+    }
+
+    const bnbAssetDeployResult = await deploy(`Asset_DP01_${tokenSymbol}`, {
       from: deployer,
-      contract: 'Asset',
+      contract: `${tokenType}Asset`,
       log: true,
-      args: [tokenAddress, name, symbol],
+      args: args,
       skipIfAlreadyDeployed: true,
     })
-    const address = usdAssetDeployResult.address
-    const asset = await ethers.getContractAt('Asset', address)
+    const address = bnbAssetDeployResult.address
+    const asset = await ethers.getContractAt(`${tokenType}Asset`, address)
 
     // newly-deployed Asset
-    if (usdAssetDeployResult.newlyDeployed) {
+    if (bnbAssetDeployResult.newlyDeployed) {
       // Remove old and add new Asset to newly-deployed Pool
       await removeAsset(pool, owner, tokenAddress)
       await addAsset(pool, owner, tokenAddress, address)
@@ -125,4 +132,4 @@ async function addPool(asset: any, owner: any, poolAddress: string) {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['SidePool'] // this ensure the Token script above is executed first, so `deployments.get('SidePool')` succeeds
+deployFunc.dependencies = ['DynamicPool'] // this ensure the Token script above is executed first, so `deployments.get('DynamicPool')` succeeds
