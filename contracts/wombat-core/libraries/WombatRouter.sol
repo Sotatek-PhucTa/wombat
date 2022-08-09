@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: BUSL-1.1
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.5;
 
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
@@ -7,13 +7,29 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '../interfaces/IPool.sol';
 import '../interfaces/IWombatRouter.sol';
 
+interface IWNative {
+    function deposit() external payable;
+
+    function withdraw(uint256 wad) external;
+}
+
 /**
  * @title WombatRouter
  * @notice Allows routing on different wombat pools
- * @dev Owner is allowed and required to approve token spending by pools via approveSpendingByPool function
+ * @dev Owner is allowed and required to approve token spending by pools via approveSpendingByPool function.
+ * With great thanks to the uniswap team for your contribution to the opensource community
+ * reference: https://github.com/Uniswap/v2-periphery/blob/master/contracts/UniswapV2Router02.sol
  */
 contract WombatRouter is Ownable, IWombatRouter {
     using SafeERC20 for IERC20;
+
+    IWNative public immutable wNative;
+
+    constructor(IWNative _wNative) {
+        wNative = _wNative;
+    }
+
+    receive() external payable {}
 
     /// @notice approve spending of router tokens by pool
     /// @param tokens array of tokens to be approved
@@ -23,6 +39,55 @@ contract WombatRouter is Ownable, IWombatRouter {
         for (uint256 i; i < tokens.length; ++i) {
             IERC20(tokens[i]).approve(pool, type(uint256).max);
         }
+    }
+
+    function addLiquidityNative(
+        IPool pool,
+        uint256 minimumLiquidity,
+        address to,
+        uint256 deadline,
+        bool shouldStake
+    ) external payable override returns (uint256 liquidity) {
+        wNative.deposit{value: msg.value}();
+        return pool.deposit(address(wNative), msg.value, minimumLiquidity, to, deadline, shouldStake);
+    }
+
+    function removeLiquidityNative(
+        IPool pool,
+        uint256 liquidity,
+        uint256 minimumAmount,
+        address to,
+        uint256 deadline
+    ) external override returns (uint256 amount) {
+        address asset = pool.addressOfAsset(address(wNative));
+        IERC20(asset).transferFrom(address(msg.sender), address(this), liquidity);
+
+        amount = pool.withdraw(address(wNative), liquidity, minimumAmount, address(this), deadline);
+        wNative.withdraw(amount);
+        _safeTransferNative(to, amount);
+    }
+
+    function removeLiquidityFromOtherAssetAsNative(
+        IPool pool,
+        address fromToken,
+        uint256 liquidity,
+        uint256 minimumAmount,
+        address to,
+        uint256 deadline
+    ) external returns (uint256 amount) {
+        address asset = pool.addressOfAsset(fromToken);
+        IERC20(asset).transferFrom(address(msg.sender), address(this), liquidity);
+
+        amount = pool.withdrawFromOtherAsset(
+            fromToken,
+            address(wNative),
+            liquidity,
+            minimumAmount,
+            address(this),
+            deadline
+        );
+        wNative.withdraw(amount);
+        _safeTransferNative(to, amount);
     }
 
     /// @notice Swaps an exact amount of input tokens for as many output tokens as possible, along the route determined by the path
@@ -52,6 +117,46 @@ contract WombatRouter is Ownable, IWombatRouter {
 
         (amountOut, haircut) = _swap(tokenPath, poolPath, amountIn, to);
         require(amountOut >= minimumamountOut, 'amountOut too low');
+    }
+
+    function swapExactNativeForTokens(
+        address[] calldata tokenPath,
+        address[] calldata poolPath,
+        uint256 minimumamountOut,
+        address to,
+        uint256 deadline
+    ) external payable override returns (uint256 amountOut, uint256 haircut) {
+        require(tokenPath[0] == address(wNative), 'the first address should be wrapped token');
+        require(deadline >= block.timestamp, 'expired');
+        require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
+
+        // get wrapped tokens
+        wNative.deposit{value: msg.value}();
+
+        (amountOut, haircut) = _swap(tokenPath, poolPath, msg.value, to);
+        require(amountOut >= minimumamountOut, 'amountOut too low');
+    }
+
+    function swapExactTokensForNative(
+        address[] calldata tokenPath,
+        address[] calldata poolPath,
+        uint256 amountIn,
+        uint256 minimumamountOut,
+        address to,
+        uint256 deadline
+    ) external override returns (uint256 amountOut, uint256 haircut) {
+        require(tokenPath[tokenPath.length - 1] == address(wNative), 'the last address should be wrapped token');
+        require(deadline >= block.timestamp, 'expired');
+        require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
+
+        // get from token from users
+        IERC20(tokenPath[0]).safeTransferFrom(address(msg.sender), address(this), amountIn);
+
+        (amountOut, haircut) = _swap(tokenPath, poolPath, amountIn, address(this));
+        require(amountOut >= minimumamountOut, 'amountOut too low');
+
+        wNative.withdraw(amountOut);
+        _safeTransferNative(to, amountOut);
     }
 
     /// @notice Private function to swap alone the token path
@@ -141,6 +246,8 @@ contract WombatRouter is Ownable, IWombatRouter {
     /**
      * @notice Returns the minimum input asset amount required to buy the given output asset amount
      * (accounting for fees and slippage)
+     * Note: This function should be used as estimation only. The actual swap amount might
+     * be different due to precision error (the error is typically under 1e-6)
      * @param tokenPath The token swap path
      * @param poolPath The token pool path
      * @param amountOut The to amount
@@ -170,5 +277,10 @@ contract WombatRouter is Ownable, IWombatRouter {
             haircut += localHaircut;
             nextAmountOut = int256(amountIn);
         }
+    }
+
+    function _safeTransferNative(address to, uint256 value) internal {
+        (bool success, ) = to.call{value: value}(new bytes(0));
+        require(success, '_safeTransferNative fails');
     }
 }

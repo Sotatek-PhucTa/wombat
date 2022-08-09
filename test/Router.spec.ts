@@ -1,30 +1,51 @@
-import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { Contract, ContractFactory } from 'ethers'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { ethers } from 'hardhat'
+import {
+  Asset__factory,
+  DynamicAsset,
+  DynamicAsset__factory,
+  DynamicPool,
+  DynamicPool__factory,
+  TestERC20,
+  TestERC20__factory,
+  WETH,
+  WETH__factory,
+  WombatRouter,
+  WombatRouter__factory,
+} from '../build/typechain'
+import { near } from './assertions/near'
 import { expectAssetValues } from './helpers/helper'
 
 const { expect } = chai
 chai.use(solidity)
+chai.use(near)
 
 describe('WombatRouter', function () {
   let owner: SignerWithAddress
   let user1: SignerWithAddress
-  let AssetFactory: ContractFactory
-  let TestERC20Factory: ContractFactory
+  let AssetFactory: Asset__factory
+  let DynamicAssetFactory: DynamicAsset__factory
+  let TestERC20Factory: TestERC20__factory
   let PoolFactory: ContractFactory
-  let Router: ContractFactory
+  let DynamicPoolFactory: DynamicPool__factory
+  let WBNBFactory: WETH__factory
+  let Router: WombatRouter__factory
   let pool1: Contract
   let pool2: Contract
   let pool3: Contract
+  let bnbPool: DynamicPool
   let BUSD: Contract
   let USDC: Contract
   let USDT: Contract
   let vUSDC: Contract
   let vUSDT: Contract
   let UST: Contract
+  let WBNB: WETH
+  let StkBnb: TestERC20
   let assetBUSD: Contract
   let assetBUSD2: Contract
   let assetUSDC: Contract
@@ -33,14 +54,15 @@ describe('WombatRouter', function () {
   let assetvUSDT: Contract
   let assetUST: Contract
   let assetUST2: Contract
+  let assetWBNB: DynamicAsset
+  let assetStkBnb: DynamicAsset
+  let router: WombatRouter
   let lastBlockTime: number
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
 
-  beforeEach(async function () {
-    const [first, ...rest] = await ethers.getSigners()
-    owner = first
-    user1 = rest[0]
+  before(async function () {
+    ;[owner, user1] = await ethers.getSigners()
 
     // get last block time
     const lastBlock = await ethers.provider.getBlock('latest')
@@ -50,17 +72,22 @@ describe('WombatRouter', function () {
 
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
+    DynamicAssetFactory = await ethers.getContractFactory('DynamicAsset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
     PoolFactory = await ethers.getContractFactory('Pool')
     Router = await ethers.getContractFactory('WombatRouter')
+    WBNBFactory = await ethers.getContractFactory('WETH')
+    DynamicPoolFactory = await ethers.getContractFactory('DynamicPool')
+  })
 
+  beforeEach(async function () {
     // Deploy with factories
-    BUSD = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    USDC = await TestERC20Factory.deploy('USD Coin', 'USDC', 18, parseUnits('1000000', 18)) // 1 mil USDC
-    USDT = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('1000000', 18)) // 1 mil USDT
-    vUSDC = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('1000000', 8)) // 1 mil vUSDC
-    vUSDT = await TestERC20Factory.deploy('Venus USDT', 'vUSDT', 8, parseUnits('1000000', 8)) // 1 mil vUSDT
-    UST = await TestERC20Factory.deploy('TerraUSD', 'UST', 18, parseUnits('1000000', 18)) // 1 mil UST
+    BUSD = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('10000000', 18)) // 10 mil BUSD
+    USDC = await TestERC20Factory.deploy('USD Coin', 'USDC', 18, parseUnits('10000000', 18)) // 10 mil USDC
+    USDT = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('10000000', 18)) // 10 mil USDT
+    vUSDC = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
+    vUSDT = await TestERC20Factory.deploy('Venus USDT', 'vUSDT', 8, parseUnits('10000000', 8)) // 10 mil vUSDT
+    UST = await TestERC20Factory.deploy('TerraUSD', 'UST', 18, parseUnits('10000000', 18)) // 10 mil UST
     assetBUSD = await AssetFactory.deploy(BUSD.address, 'Binance USD LP 1', 'BUSD-LP01')
     assetBUSD2 = await AssetFactory.deploy(BUSD.address, 'Binance USD LP 2', 'BUSD-LP02')
     assetUSDC = await AssetFactory.deploy(USDC.address, 'USD Coin LP', 'USDC-LP')
@@ -70,30 +97,11 @@ describe('WombatRouter', function () {
     assetUST = await AssetFactory.deploy(UST.address, 'TerraUST LP', 'UST-LP')
     assetUST2 = await AssetFactory.deploy(UST.address, 'TerraUST LP 2', 'UST-LP02')
 
+    WBNB = await WBNBFactory.deploy()
+
     pool1 = await PoolFactory.connect(owner).deploy() // Main Pool
     pool2 = await PoolFactory.connect(owner).deploy() // Alt Pool 1
     pool3 = await PoolFactory.connect(owner).deploy() // Alt Pool 2
-
-    // wait for transactions to be mined
-    await BUSD.deployTransaction.wait()
-    await USDC.deployTransaction.wait()
-    await USDT.deployTransaction.wait()
-    await vUSDC.deployTransaction.wait()
-    await vUSDT.deployTransaction.wait()
-    await UST.deployTransaction.wait()
-
-    await assetBUSD.deployTransaction.wait()
-    await assetBUSD2.deployTransaction.wait()
-    await assetUSDC.deployTransaction.wait()
-    await assetUSDT.deployTransaction.wait()
-    await assetvUSDC.deployTransaction.wait()
-    await assetvUSDT.deployTransaction.wait()
-    await assetUST.deployTransaction.wait()
-    await assetUST2.deployTransaction.wait()
-
-    await pool1.deployTransaction.wait()
-    await pool2.deployTransaction.wait()
-    await pool3.deployTransaction.wait()
 
     // set main pool address
     await assetBUSD.setPool(pool1.address)
@@ -110,9 +118,9 @@ describe('WombatRouter', function () {
     await assetvUSDT.setPool(pool3.address)
 
     // initialize pool contract
-    pool1.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
-    pool2.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
-    pool3.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+    await pool1.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+    await pool2.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+    await pool3.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
     // Add BUSD & USDC & USDT assets to main pool
     await pool1.connect(owner).addAsset(BUSD.address, assetBUSD.address)
@@ -129,18 +137,14 @@ describe('WombatRouter', function () {
     await pool3.connect(owner).addAsset(vUSDT.address, assetvUSDT.address)
 
     // deploy Router
-    this.router = await Router.deploy()
-    await this.router.deployTransaction.wait()
+    this.router = router = await Router.deploy(WBNB.address)
 
     // IMPORTANT FOR THE ROUTER TO WORK EFFICIENTLY
     // approve pool spending tokens from router
     await this.router.connect(owner).approveSpendingByPool([BUSD.address, USDC.address, USDT.address], pool1.address)
-
     await this.router.connect(owner).approveSpendingByPool([BUSD.address, UST.address], pool2.address)
-
     await this.router.connect(owner).approveSpendingByPool([UST.address, vUSDC.address, vUSDT.address], pool3.address)
-  })
-  beforeEach(async function () {
+
     // Transfer 100k of stables to user1
     await BUSD.connect(owner).transfer(user1.address, parseEther('200000'))
     await USDC.connect(owner).transfer(user1.address, parseEther('100000'))
@@ -174,8 +178,7 @@ describe('WombatRouter', function () {
     await pool3.connect(user1).deposit(vUSDT.address, parseUnits('10000', 8), 0, user1.address, fiveSecondsSince, false)
   })
 
-  // skipped as it fails lint
-  describe.skip('Router', function () {
+  describe('Router', function () {
     it('reverts if expired', async function () {
       await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
       // swap via router
@@ -1245,6 +1248,152 @@ describe('WombatRouter', function () {
 
       expect(tokenSent).to.be.equal(parseEther('-100.28655777477072'))
       expect(tokenGot).to.be.equal(parseUnits('99.99999999', 8)) // rounding error
+    })
+  })
+
+  describe('Native token', function () {
+    beforeEach(async function () {
+      bnbPool = await DynamicPoolFactory.deploy()
+      await bnbPool.initialize(parseEther('0.05'), parseEther('0.0004'))
+
+      StkBnb = await TestERC20Factory.deploy('stkBnb', 'stkBnb', 18, parseEther('1000000'))
+
+      assetStkBnb = await DynamicAssetFactory.deploy(StkBnb.address, 'stkBnb LP', 'stkBnb-LP')
+      assetWBNB = await DynamicAssetFactory.deploy(WBNB.address, 'WBNB LP', 'WBNB-LP')
+
+      await assetStkBnb.setPool(bnbPool.address)
+      await assetWBNB.setPool(bnbPool.address)
+
+      await bnbPool.addAsset(StkBnb.address, assetStkBnb.address)
+      await bnbPool.addAsset(WBNB.address, assetWBNB.address)
+
+      await StkBnb.connect(user1).approve(bnbPool.address, parseEther('10000'))
+
+      // both the token and the asset needs to be approved
+      await router.approveSpendingByPool(
+        [StkBnb.address, WBNB.address, assetWBNB.address, assetStkBnb.address],
+        bnbPool.address
+      )
+    })
+
+    it('add liquidity and remove liquidity', async function () {
+      // prepare
+      await StkBnb.connect(user1).faucet(parseEther('10'))
+      await bnbPool
+        .connect(user1)
+        .deposit(StkBnb.address, parseEther('5'), parseEther('5'), user1.address, fiveSecondsSince, false)
+
+      // addLiquidityNative
+      await router
+        .connect(user1)
+        .addLiquidityNative(bnbPool.address, parseEther('5'), user1.address, fiveSecondsSince, false, {
+          value: parseEther('5'),
+        })
+
+      expect(await assetWBNB.balanceOf(user1.address)).to.equal(parseEther('5'))
+
+      // removeLiquidityNative
+      let balanceBefore = await user1.getBalance()
+
+      await assetWBNB.connect(user1).approve(router.address, parseEther('100'))
+      await router
+        .connect(user1)
+        .removeLiquidityNative(bnbPool.address, parseEther('1'), parseEther('1'), user1.address, fiveSecondsSince)
+
+      expect(await assetWBNB.balanceOf(user1.address)).to.equal(parseEther('4'))
+      expect((await user1.getBalance()).sub(balanceBefore)).to.near(parseEther('1'))
+
+      // removeLiquidityFromOtherAssetAsNative
+      balanceBefore = await user1.getBalance()
+
+      await assetStkBnb.connect(user1).approve(router.address, parseEther('100'))
+      await router
+        .connect(user1)
+        .removeLiquidityFromOtherAssetAsNative(
+          bnbPool.address,
+          StkBnb.address,
+          parseEther('1'),
+          parseEther('0.9'),
+          user1.address,
+          fiveSecondsSince
+        )
+
+      expect((await user1.getBalance()).sub(balanceBefore)).to.near(parseEther('0.9748'))
+    })
+
+    it('swap', async function () {
+      // prepare
+      await StkBnb.connect(user1).faucet(parseEther('10'))
+      await bnbPool
+        .connect(user1)
+        .deposit(StkBnb.address, parseEther('5'), parseEther('5'), user1.address, fiveSecondsSince, false)
+
+      await router
+        .connect(user1)
+        .addLiquidityNative(bnbPool.address, parseEther('3'), user1.address, fiveSecondsSince, false, {
+          value: parseEther('3'),
+        })
+
+      // swapExactNativeForTokens
+      const stkBnbBalanceBefore = await StkBnb.balanceOf(user1.address)
+
+      await router
+        .connect(user1)
+        .swapExactNativeForTokens(
+          [WBNB.address, StkBnb.address],
+          [bnbPool.address],
+          parseEther('0.9'),
+          user1.address,
+          fiveSecondsSince,
+          { value: parseEther('1') }
+        )
+
+      expect((await StkBnb.balanceOf(user1.address)).sub(stkBnbBalanceBefore)).to.near(parseEther('0.9764'))
+
+      // swapExactTokensForNative
+      const balanceBefore = await user1.getBalance()
+
+      await StkBnb.connect(user1).approve(router.address, parseEther('10000'))
+      await router
+        .connect(user1)
+        .swapExactTokensForNative(
+          [StkBnb.address, WBNB.address],
+          [bnbPool.address],
+          parseEther('1'),
+          parseEther('0.9'),
+          user1.address,
+          fiveSecondsSince
+        )
+
+      expect((await user1.getBalance()).sub(balanceBefore)).to.near(parseEther('1.022'))
+    })
+
+    it('util', async function () {
+      await expect(
+        router
+          .connect(user1)
+          .swapExactNativeForTokens(
+            [StkBnb.address, StkBnb.address],
+            [bnbPool.address],
+            parseEther('0.9'),
+            user1.address,
+            fiveSecondsSince,
+            { value: parseEther('1') }
+          )
+      ).to.be.revertedWith('the first address should be wrapped token')
+
+      await expect(
+        router
+          .connect(user1)
+          .swapExactTokensForNative(
+            [StkBnb.address, StkBnb.address],
+            [bnbPool.address],
+            parseEther('1'),
+            parseEther('0.9'),
+            user1.address,
+            fiveSecondsSince
+          )
+      ).to.be.revertedWith('the last address should be wrapped token')
     })
   })
 })
