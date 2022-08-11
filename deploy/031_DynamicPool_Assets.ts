@@ -24,14 +24,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   for (const index in BNB_DYNAMICPOOL_TOKENS) {
     console.log('Attemping to deploy Asset contract : ' + BNB_DYNAMICPOOL_TOKENS[index][0])
-    const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
     const tokenName = BNB_DYNAMICPOOL_TOKENS[index][0] as string
-    const tokenType = BNB_DYNAMICPOOL_TOKENS[index][4] as string
+    const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
+    const tokenAddress = BNB_DYNAMICPOOL_TOKENS[index][2] as string
     const oracleAddress = BNB_DYNAMICPOOL_TOKENS[index][3] as string
+    const tokenType = BNB_DYNAMICPOOL_TOKENS[index][4] as string
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
 
-    let tokenAddress = BNB_DYNAMICPOOL_TOKENS[index][2] as string
     const args: string[] = [tokenAddress, name, symbol, oracleAddress]
 
     if (BNB_DYNAMICPOOL_TOKENS[index][1] == 'TWBNB') {
