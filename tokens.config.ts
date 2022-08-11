@@ -84,6 +84,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
   },
   bsc_testnet: {
     WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic'],
+    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic'],
     STKBNB: [
       'Staked BNB',
       'stkBNB',
@@ -101,6 +102,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
   },
   localhost: {
     WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic'],
+    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic'],
     STKBNB: [
       'Staked BNB',
       'stkBNB',
@@ -118,6 +120,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
   },
   hardhat: {
     WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic'],
+    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic'],
     STKBNB: [
       'Staked BNB',
       'stkBNB',
