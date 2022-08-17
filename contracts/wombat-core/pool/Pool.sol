@@ -842,7 +842,7 @@ contract Pool is
     /**
      * @notice Given an input asset amount and token addresses, calculates the
      * maximum output token amount (accounting for fees and slippage).
-     * @dev To be used by frontend
+     * @dev In reverse quote, the haircut is in the `fromAsset`
      * @param fromToken The initial ERC20 token
      * @param toToken The token wanted by user
      * @param fromAmount The given input amount
@@ -863,7 +863,11 @@ contract Pool is
         fromAmount = fromAmount.toWad(fromAsset.underlyingTokenDecimals());
         (potentialOutcome, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount);
         potentialOutcome = potentialOutcome.fromWad(toAsset.underlyingTokenDecimals());
-        haircut = haircut.fromWad(toAsset.underlyingTokenDecimals());
+        if (fromAmount >= 0) {
+            haircut = haircut.fromWad(toAsset.underlyingTokenDecimals());
+        } else {
+            haircut = haircut.fromWad(fromAsset.underlyingTokenDecimals());
+        }
     }
 
     /**

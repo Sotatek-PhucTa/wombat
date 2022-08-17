@@ -23,13 +23,17 @@ interface IWNative {
 contract WombatRouter is Ownable, IWombatRouter {
     using SafeERC20 for IERC20;
 
+    // WBNB (mainnet): 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c
+    // WBNB (testnet): 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd
     IWNative public immutable wNative;
 
     constructor(IWNative _wNative) {
         wNative = _wNative;
     }
 
-    receive() external payable {}
+    receive() external payable {
+        require(msg.sender == address(wNative));
+    }
 
     /// @notice approve spending of router tokens by pool
     /// @param tokens array of tokens to be approved
@@ -37,7 +41,8 @@ contract WombatRouter is Ownable, IWombatRouter {
     /// @dev needs to be done after asset deployment for router to be able to support the tokens
     function approveSpendingByPool(address[] calldata tokens, address pool) external onlyOwner {
         for (uint256 i; i < tokens.length; ++i) {
-            IERC20(tokens[i]).approve(pool, type(uint256).max);
+            IERC20(tokens[i]).safeApprove(pool, 0);
+            IERC20(tokens[i]).safeApprove(pool, type(uint256).max);
         }
     }
 
@@ -99,7 +104,6 @@ contract WombatRouter is Ownable, IWombatRouter {
     /// @param to the user to send the tokens to
     /// @param deadline the deadline to respect
     /// @return amountOut received by user
-    /// @return haircut total fee charged by pool
     function swapExactTokensForTokens(
         address[] calldata tokenPath,
         address[] calldata poolPath,
@@ -107,7 +111,7 @@ contract WombatRouter is Ownable, IWombatRouter {
         uint256 minimumamountOut,
         address to,
         uint256 deadline
-    ) external override returns (uint256 amountOut, uint256 haircut) {
+    ) external override returns (uint256 amountOut) {
         require(deadline >= block.timestamp, 'expired');
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
@@ -115,7 +119,7 @@ contract WombatRouter is Ownable, IWombatRouter {
         // get from token from users
         IERC20(tokenPath[0]).safeTransferFrom(address(msg.sender), address(this), amountIn);
 
-        (amountOut, haircut) = _swap(tokenPath, poolPath, amountIn, to);
+        amountOut = _swap(tokenPath, poolPath, amountIn, to);
         require(amountOut >= minimumamountOut, 'amountOut too low');
     }
 
@@ -125,7 +129,7 @@ contract WombatRouter is Ownable, IWombatRouter {
         uint256 minimumamountOut,
         address to,
         uint256 deadline
-    ) external payable override returns (uint256 amountOut, uint256 haircut) {
+    ) external payable override returns (uint256 amountOut) {
         require(tokenPath[0] == address(wNative), 'the first address should be wrapped token');
         require(deadline >= block.timestamp, 'expired');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
@@ -133,7 +137,7 @@ contract WombatRouter is Ownable, IWombatRouter {
         // get wrapped tokens
         wNative.deposit{value: msg.value}();
 
-        (amountOut, haircut) = _swap(tokenPath, poolPath, msg.value, to);
+        amountOut = _swap(tokenPath, poolPath, msg.value, to);
         require(amountOut >= minimumamountOut, 'amountOut too low');
     }
 
@@ -144,7 +148,7 @@ contract WombatRouter is Ownable, IWombatRouter {
         uint256 minimumamountOut,
         address to,
         uint256 deadline
-    ) external override returns (uint256 amountOut, uint256 haircut) {
+    ) external override returns (uint256 amountOut) {
         require(tokenPath[tokenPath.length - 1] == address(wNative), 'the last address should be wrapped token');
         require(deadline >= block.timestamp, 'expired');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
@@ -152,7 +156,7 @@ contract WombatRouter is Ownable, IWombatRouter {
         // get from token from users
         IERC20(tokenPath[0]).safeTransferFrom(address(msg.sender), address(this), amountIn);
 
-        (amountOut, haircut) = _swap(tokenPath, poolPath, amountIn, address(this));
+        amountOut = _swap(tokenPath, poolPath, amountIn, address(this));
         require(amountOut >= minimumamountOut, 'amountOut too low');
 
         wNative.withdraw(amountOut);
@@ -168,22 +172,19 @@ contract WombatRouter is Ownable, IWombatRouter {
     /// @param amountIn the amount in
     /// @param to the user to send the tokens to
     /// @return amountOut received by user
-    /// @return haircut total fee charged by pool
     function _swap(
         address[] calldata tokenPath,
         address[] calldata poolPath,
         uint256 amountIn,
         address to
-    ) internal returns (uint256 amountOut, uint256 haircut) {
-        // haircut of current call
-        uint256 localHaircut;
+    ) internal returns (uint256 amountOut) {
         // next from amount, starts with amountIn in arg
         uint256 nextamountIn = amountIn;
 
         // first n - 1 swaps
         for (uint256 i; i < poolPath.length - 1; ++i) {
             // make the swap with the correct arguments
-            (amountOut, localHaircut) = IPool(poolPath[i]).swap(
+            (amountOut, ) = IPool(poolPath[i]).swap(
                 tokenPath[i],
                 tokenPath[i + 1],
                 nextamountIn,
@@ -192,12 +193,11 @@ contract WombatRouter is Ownable, IWombatRouter {
                 type(uint256).max // deadline is ensured on calling function
             );
             nextamountIn = amountOut;
-            haircut += localHaircut;
         }
 
         // last swap
         uint256 i = poolPath.length - 1;
-        (amountOut, localHaircut) = IPool(poolPath[i]).swap(
+        (amountOut, ) = IPool(poolPath[i]).swap(
             tokenPath[i],
             tokenPath[i + 1],
             nextamountIn,
@@ -205,7 +205,6 @@ contract WombatRouter is Ownable, IWombatRouter {
             to,
             type(uint256).max // deadline is ensured on calling function
         );
-        haircut += localHaircut;
     }
 
     /**
@@ -215,30 +214,26 @@ contract WombatRouter is Ownable, IWombatRouter {
      * @param poolPath The token pool path
      * @param amountIn The from amount
      * @return amountOut The potential final amount user would receive
-     * @return haircut The total haircut that would be applied
      */
     function getAmountOut(
         address[] calldata tokenPath,
         address[] calldata poolPath,
         int256 amountIn
-    ) external view override returns (uint256 amountOut, uint256 haircut) {
+    ) external view override returns (uint256 amountOut, uint256[] memory haircuts) {
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
 
-        // haircut of current call
-        uint256 localHaircut;
         // next from amount, starts with amountIn in arg
         int256 nextamountIn = amountIn;
-        // where to send tokens on next step
+        haircuts = new uint256[](poolPath.length);
 
         for (uint256 i; i < poolPath.length; ++i) {
             // make the swap with the correct arguments
-            (amountOut, localHaircut) = IPool(poolPath[i]).quotePotentialSwap(
+            (amountOut, haircuts[i]) = IPool(poolPath[i]).quotePotentialSwap(
                 tokenPath[i],
                 tokenPath[i + 1],
                 nextamountIn
             );
-            haircut += localHaircut;
             nextamountIn = int256(amountOut);
         }
     }
@@ -252,29 +247,25 @@ contract WombatRouter is Ownable, IWombatRouter {
      * @param poolPath The token pool path
      * @param amountOut The to amount
      * @return amountIn The potential final amount user would receive
-     * @return haircut The total haircut that would be applied
      */
     function getAmountIn(
         address[] calldata tokenPath,
         address[] calldata poolPath,
         uint256 amountOut
-    ) external view override returns (uint256 amountIn, uint256 haircut) {
+    ) external view override returns (uint256 amountIn, uint256[] memory haircuts) {
         require(tokenPath.length >= 2, 'invalid token path');
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
 
-        // haircut of current call
-        uint256 localHaircut;
         // next from amount, starts with amountIn in arg
         int256 nextAmountOut = int256(amountOut);
-        // where to send tokens on next step
+        haircuts = new uint256[](poolPath.length);
 
         for (uint256 i = poolPath.length; i > 0; --i) {
-            (amountIn, localHaircut) = IPool(poolPath[i - 1]).quoteAmountIn(
+            (amountIn, haircuts[i - 1]) = IPool(poolPath[i - 1]).quoteAmountIn(
                 tokenPath[i - 1],
                 tokenPath[i],
                 nextAmountOut
             );
-            haircut += localHaircut;
             nextAmountOut = int256(amountIn);
         }
     }

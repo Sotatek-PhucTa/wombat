@@ -8,7 +8,7 @@ import { ethers } from 'hardhat'
 const { expect } = chai
 chai.use(solidity)
 
-describe('Pool - Withdraw', function () {
+describe('DynamicPool', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
@@ -99,7 +99,7 @@ describe('Pool - Withdraw', function () {
         parseUnits('-99008.94795060', 8)
       )
       expect(reverseQuote).equal(parseUnits('99999.999999', 6))
-      expect(reverseHaircut).equal(parseUnits('39.619426', 6))
+      expect(reverseHaircut).equal(parseUnits('39.61942695', 8))
 
       // swap
       await pool

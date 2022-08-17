@@ -101,7 +101,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseUnits('-48229.70731636', 8)
       )
       expect(reverseQuote).equal(parseUnits('100000', 6))
-      expect(reverseHaircut).equal(parseUnits('48268.306521', 6))
+      expect(reverseHaircut).equal(parseUnits('48268.30652189', 8))
 
       // swap
       await pool
@@ -143,7 +143,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
       )
       // we need less than 100000 as the marginal swap fee when r approach 1.8 is almost 100%
       expect(reverseQuote).equal(parseUnits('99355.893005', 6))
-      expect(reverseHaircut).equal(parseUnits('79644.705669', 6))
+      expect(reverseHaircut).equal(parseUnits('79644.70566988', 8))
 
       // swap
       await pool
@@ -185,7 +185,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
       )
       // we need less than 200000 as the marginal swap fee when r approach 1.8 is almost 100%
       expect(reverseQuote).equal(parseUnits('196910.494181', 6))
-      expect(reverseHaircut).equal(parseUnits('124857.264843', 6))
+      expect(reverseHaircut).equal(parseUnits('124857.26484320', 8))
 
       // swap
       await pool
@@ -267,7 +267,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseUnits('-222549.82030921', 8)
       )
       expect(reverseQuote).equal(parseUnits('300000', 6))
-      expect(reverseHaircut).equal(parseUnits('63700.162938', 6))
+      expect(reverseHaircut).equal(parseUnits('63700.16293879', 8))
 
       // swap
       await pool
@@ -308,7 +308,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseUnits('-97315.57802417', 8)
       )
       expect(reverseQuote).equal(parseUnits('99999.999999', 6))
-      expect(reverseHaircut).equal(parseUnits('38.941807', 6))
+      expect(reverseHaircut).equal(parseUnits('38.94180793', 8))
 
       // swap
       await pool
@@ -442,7 +442,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseUnits('-304983.18636529', 8)
       )
       expect(reverseQuote).equal(parseUnits('299999.999999', 6))
-      expect(reverseHaircut).equal(parseUnits('122.042091', 6))
+      expect(reverseHaircut).equal(parseUnits('122.04209138', 8))
 
       // swap
       await pool

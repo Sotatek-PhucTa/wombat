@@ -130,6 +130,9 @@ contract HighCovRatioFeePool is Pool {
         return high * toWadFactor;
     }
 
+    /**
+     * @dev take into account high cov ratio fee
+     */
     function quotePotentialWithdrawFromOtherAsset(
         address fromToken,
         address toToken,
