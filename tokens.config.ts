@@ -6,6 +6,11 @@ interface ITokensInfo {
   [token: string]: unknown[]
 }
 
+export const WRAPPED_NATIVE_TOKENS_MAP: { [network: string]: string } = {
+  bsc_mainnet: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+  bsc_testnet: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+}
+
 export const USD_TOKENS_MAP: ITokens = {
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'],
