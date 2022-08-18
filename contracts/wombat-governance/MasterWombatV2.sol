@@ -5,16 +5,14 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import './libraries/DSMath.sol';
 import './interfaces/IVeWom.sol';
-import './interfaces/IWom.sol';
-import './interfaces/IMasterWombat.sol';
-import './interfaces/IRewarder.sol';
+import './interfaces/IMasterWombatV2.sol';
+import './interfaces/IMultiRewarder.sol';
 
 /// @title MasterWombatV2
 /// MasterWombat is a boss. He is not afraid of any snakes. In fact, he drinks their venoms. So, veWom holders boost their (boosted) emissions.
@@ -26,14 +24,14 @@ import './interfaces/IRewarder.sol';
 /// Updates:
 /// - pack struct
 /// - move pendingWom into UserInfo
+/// - use MultiRewarderPerSec
 contract MasterWombatV2 is
     Initializable,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
-    IMasterWombat
+    IMasterWombatV2
 {
-    using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // Info of each user.
@@ -64,13 +62,13 @@ contract MasterWombatV2 is
         IERC20 lpToken; // Address of LP token contract.
         uint96 allocPoint; // How many allocation points assigned to this pool. WOMs to distribute per second.
         // storage slot 2
-        IRewarder rewarder;
+        IMultiRewarder rewarder;
         // storage slot 3
         uint256 sumOfFactors; // the sum of all boosted factors by all of the users in the pool
         // storage slot 4
         uint104 accWomPerShare; // 19.12 fixed point. Accumulated WOMs per share, times 1e12.
         uint104 accWomPerFactorShare; // 19.12 fixed point.accumulated wom per factor share
-        uint48 lastRewardTimestamp; // Last timestamp that WOMs distribution occurs.
+        uint40 lastRewardTimestamp; // Last timestamp that WOMs distribution occurs.
     }
 
     // Wom token
@@ -78,16 +76,16 @@ contract MasterWombatV2 is
     // Venom does not seem to hurt the Wombat, it only makes it stronger.
     IVeWom public veWom;
     // New Master Wombat address for future migrations
-    IMasterWombat newMasterWombat;
+    IMasterWombatV2 newMasterWombat;
     // WOM tokens created per second.
-    uint256 public womPerSec;
+    uint104 public womPerSec;
     // Emissions: both must add to 1000 => 100%
     // base partition emissions (e.g. 300 for 30%)
-    uint256 public basePartition;
+    uint16 public basePartition;
     // Total allocation points. Must be the sum of all allocation points in all pools.
-    uint256 public totalAllocPoint;
+    uint96 public totalAllocPoint;
     // The timestamp when WOM mining starts.
-    uint48 public startTimestamp;
+    uint40 public startTimestamp;
     // Info of each pool.
     PoolInfo[] public poolInfo;
     // Set of all LP tokens that have been added as pools
@@ -97,8 +95,8 @@ contract MasterWombatV2 is
     // Mapping of asset to pid. Offset by +1 to distinguish with default value
     mapping(address => uint256) internal assetPid;
 
-    event Add(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken, IRewarder indexed rewarder);
-    event Set(uint256 indexed pid, uint256 allocPoint, IRewarder indexed rewarder, bool overwrite);
+    event Add(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken, IMultiRewarder indexed rewarder);
+    event Set(uint256 indexed pid, uint256 allocPoint, IMultiRewarder indexed rewarder, bool overwrite);
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event DepositFor(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -119,14 +117,13 @@ contract MasterWombatV2 is
     function initialize(
         IERC20 _wom,
         IVeWom _veWom,
-        uint256 _womPerSec,
-        uint256 _basePartition,
-        uint256 _startTimestamp
+        uint104 _womPerSec,
+        uint16 _basePartition,
+        uint40 _startTimestamp
     ) external initializer {
         require(address(_wom) != address(0), 'wom address cannot be zero');
         require(_womPerSec != 0, 'wom per sec cannot be zero');
         require(_basePartition <= 1000, 'base partition must be in range 0, 1000');
-        require(_startTimestamp <= type(uint48).max, 'invalid timestamp');
 
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
@@ -136,7 +133,7 @@ contract MasterWombatV2 is
         veWom = _veWom;
         womPerSec = _womPerSec;
         basePartition = _basePartition;
-        startTimestamp = uint48(_startTimestamp);
+        startTimestamp = _startTimestamp;
         totalAllocPoint = 0;
     }
 
@@ -154,7 +151,7 @@ contract MasterWombatV2 is
         _unpause();
     }
 
-    function setNewMasterWombat(IMasterWombat _newMasterWombat) external onlyOwner {
+    function setNewMasterWombat(IMasterWombatV2 _newMasterWombat) external onlyOwner {
         newMasterWombat = _newMasterWombat;
     }
 
@@ -178,9 +175,9 @@ contract MasterWombatV2 is
     /// @param _lpToken the corresponding lp token
     /// @param _rewarder the rewarder
     function add(
-        uint256 _allocPoint,
+        uint96 _allocPoint,
         IERC20 _lpToken,
-        IRewarder _rewarder
+        IMultiRewarder _rewarder
     ) external onlyOwner {
         require(Address.isContract(address(_lpToken)), 'add: LP token must be a valid contract');
         require(
@@ -193,10 +190,10 @@ contract MasterWombatV2 is
         massUpdatePools();
 
         // update last time rewards were calculated to now
-        uint48 lastRewardTimestamp = block.timestamp > startTimestamp ? uint48(block.timestamp) : startTimestamp;
+        uint40 lastRewardTimestamp = block.timestamp > startTimestamp ? uint40(block.timestamp) : startTimestamp;
 
         // add _allocPoint to total alloc points
-        totalAllocPoint = totalAllocPoint + _allocPoint;
+        totalAllocPoint += _allocPoint;
 
         // update PoolInfo with the new LP
         poolInfo.push(
@@ -224,8 +221,8 @@ contract MasterWombatV2 is
     /// @param overwrite overwrite rewarder?
     function set(
         uint256 _pid,
-        uint256 _allocPoint,
-        IRewarder _rewarder,
+        uint96 _allocPoint,
+        IMultiRewarder _rewarder,
         bool overwrite
     ) external onlyOwner {
         require(
@@ -250,9 +247,9 @@ contract MasterWombatV2 is
         override
         returns (
             uint256 pendingRewards,
-            address bonusTokenAddress,
-            string memory bonusTokenSymbol,
-            uint256 pendingBonusRewards
+            IERC20[] memory bonusTokenAddresses,
+            string[] memory bonusTokenSymbols,
+            uint256[] memory pendingBonusRewards
         )
     {
         PoolInfo storage pool = poolInfo[_pid];
@@ -274,7 +271,7 @@ contract MasterWombatV2 is
             user.rewardDebt;
         // If it's a double reward farm, we return info about the bonus token
         if (address(pool.rewarder) != address(0)) {
-            (bonusTokenAddress, bonusTokenSymbol) = rewarderBonusTokenInfo(_pid);
+            (bonusTokenAddresses, bonusTokenSymbols) = rewarderBonusTokenInfo(_pid);
             pendingBonusRewards = pool.rewarder.pendingTokens(_user);
         }
     }
@@ -285,12 +282,22 @@ contract MasterWombatV2 is
         public
         view
         override
-        returns (address bonusTokenAddress, string memory bonusTokenSymbol)
+        returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols)
     {
         PoolInfo storage pool = poolInfo[_pid];
-        if (address(pool.rewarder) != address(0)) {
-            bonusTokenAddress = address(pool.rewarder.rewardToken());
-            bonusTokenSymbol = IERC20Metadata(pool.rewarder.rewardToken()).symbol();
+        if (address(pool.rewarder) == address(0)) {
+            return (bonusTokenAddresses, bonusTokenSymbols);
+        }
+
+        bonusTokenAddresses = pool.rewarder.rewardTokens();
+        uint256 len = bonusTokenAddresses.length;
+        bonusTokenSymbols = new string[](len);
+        for (uint256 i; i < len; ++i) {
+            if (address(bonusTokenAddresses[i]) == address(0)) {
+                bonusTokenSymbols[i] = 'BNB';
+            } else {
+                bonusTokenSymbols[i] = IERC20Metadata(address(bonusTokenAddresses[i])).symbol();
+            }
         }
     }
 
@@ -317,7 +324,7 @@ contract MasterWombatV2 is
 
             // if balance of lp supply is 0, update lastRewardTime and quit function
             if (lpSupply == 0) {
-                pool.lastRewardTimestamp = uint48(block.timestamp);
+                pool.lastRewardTimestamp = uint40(block.timestamp);
                 return;
             }
             // calculate seconds elapsed since last update
@@ -339,7 +346,7 @@ contract MasterWombatV2 is
             }
 
             // update lastRewardTimestamp to now
-            pool.lastRewardTimestamp = uint48(block.timestamp);
+            pool.lastRewardTimestamp = uint40(block.timestamp);
             emit UpdatePool(_pid, pool.lastRewardTimestamp, lpSupply, pool.accWomPerShare);
         }
     }
@@ -409,12 +416,13 @@ contract MasterWombatV2 is
             (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) / 1e12
         );
 
-        IRewarder rewarder = poolInfo[_pid].rewarder;
+        IMultiRewarder rewarder = poolInfo[_pid].rewarder;
         if (address(rewarder) != address(0)) {
             rewarder.onReward(_user, user.amount);
         }
 
-        pool.lpToken.safeTransferFrom(msg.sender, address(this), _amount);
+        // safe transfer is not needed for Asset
+        pool.lpToken.transferFrom(msg.sender, address(this), _amount);
         emit DepositFor(_user, _pid, _amount);
     }
 
@@ -427,7 +435,7 @@ contract MasterWombatV2 is
         override
         nonReentrant
         whenNotPaused
-        returns (uint256, uint256)
+        returns (uint256, uint256[] memory)
     {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -459,13 +467,14 @@ contract MasterWombatV2 is
             (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) / 1e12
         );
 
-        IRewarder rewarder = poolInfo[_pid].rewarder;
-        uint256 additionalRewards;
+        IMultiRewarder rewarder = poolInfo[_pid].rewarder;
+        uint256[] memory additionalRewards;
         if (address(rewarder) != address(0)) {
             additionalRewards = rewarder.onReward(msg.sender, user.amount);
         }
 
-        pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+        // safe transfer is not needed for Asset
+        pool.lpToken.transferFrom(address(msg.sender), address(this), _amount);
         emit Deposit(msg.sender, _pid, _amount);
         return (pending, additionalRewards);
     }
@@ -480,7 +489,7 @@ contract MasterWombatV2 is
         returns (
             uint256,
             uint256[] memory,
-            uint256[] memory
+            uint256[][] memory
         )
     {
         return _multiClaim(_pids);
@@ -493,13 +502,13 @@ contract MasterWombatV2 is
         returns (
             uint256,
             uint256[] memory,
-            uint256[] memory
+            uint256[][] memory
         )
     {
         // accumulate rewards for each one of the pids in pending
         uint256 pending;
         uint256[] memory amounts = new uint256[](_pids.length);
-        uint256[] memory additionalRewards = new uint256[](_pids.length);
+        uint256[][] memory additionalRewards = new uint256[][](_pids.length);
         for (uint256 i = 0; i < _pids.length; ++i) {
             UserInfo storage user = userInfo[_pids[i]][msg.sender];
             if (user.amount > 0) {
@@ -527,7 +536,7 @@ contract MasterWombatV2 is
 
                 amounts[i] = poolRewards;
                 // if existant, get external rewarder rewards for pool
-                IRewarder rewarder = pool.rewarder;
+                IMultiRewarder rewarder = pool.rewarder;
                 if (address(rewarder) != address(0)) {
                     additionalRewards[i] = rewarder.onReward(msg.sender, user.amount);
                 }
@@ -559,7 +568,7 @@ contract MasterWombatV2 is
         override
         nonReentrant
         whenNotPaused
-        returns (uint256, uint256)
+        returns (uint256, uint256[] memory)
     {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -594,13 +603,14 @@ contract MasterWombatV2 is
             (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) / 1e12
         );
 
-        IRewarder rewarder = poolInfo[_pid].rewarder;
-        uint256 additionalRewards = 0;
+        IMultiRewarder rewarder = poolInfo[_pid].rewarder;
+        uint256[] memory additionalRewards;
         if (address(rewarder) != address(0)) {
             additionalRewards = rewarder.onReward(msg.sender, user.amount);
         }
 
-        pool.lpToken.safeTransfer(address(msg.sender), _amount);
+        // safe transfer is not needed for Asset
+        pool.lpToken.transfer(address(msg.sender), _amount);
         emit Withdraw(msg.sender, _pid, _amount);
         return (pending, additionalRewards);
     }
@@ -610,19 +620,17 @@ contract MasterWombatV2 is
     function emergencyWithdraw(uint256 _pid) external override nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        pool.lpToken.safeTransfer(address(msg.sender), user.amount);
+        // safe transfer is not needed for Asset
+        pool.lpToken.transfer(address(msg.sender), user.amount);
 
         // update boosted factor
         pool.sumOfFactors = pool.sumOfFactors - user.factor;
         user.factor = 0;
 
         // reset rewarder
-        IRewarder rewarder = poolInfo[_pid].rewarder;
+        IMultiRewarder rewarder = poolInfo[_pid].rewarder;
         if (address(rewarder) != address(0)) {
-            // wrap rewarder.onReward in try in case it causes DoS
-            try rewarder.onReward(msg.sender, 0) {} catch (bytes memory lowLevelData) {
-                // do nothing
-            }
+            rewarder.onReward(msg.sender, 0);
         }
 
         // update base factors
@@ -655,7 +663,7 @@ contract MasterWombatV2 is
     /// @param _womPerSec wom amount to be updated
     /// @dev Pancake has to add hidden dummy pools inorder to alter the emission,
     /// @dev here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _womPerSec) external onlyOwner {
+    function updateEmissionRate(uint104 _womPerSec) external onlyOwner {
         massUpdatePools();
         womPerSec = _womPerSec;
         emit UpdateEmissionRate(msg.sender, _womPerSec);
@@ -663,7 +671,7 @@ contract MasterWombatV2 is
 
     /// @notice updates emission partition
     /// @param _basePartition the future base partition
-    function updateEmissionPartition(uint256 _basePartition) external onlyOwner {
+    function updateEmissionPartition(uint16 _basePartition) external onlyOwner {
         require(_basePartition <= 1000);
         massUpdatePools();
         basePartition = _basePartition;
@@ -725,7 +733,8 @@ contract MasterWombatV2 is
     /// @notice In case we need to manually migrate WOM funds from MasterChef
     /// Sends all remaining wom from the contract to the owner
     function emergencyWomWithdraw() external onlyOwner {
-        wom.safeTransfer(address(msg.sender), wom.balanceOf(address(this)));
+        // safe transfer is not needed for WOM
+        wom.transfer(address(msg.sender), wom.balanceOf(address(this)));
         emit EmergencyWomWithdraw(address(msg.sender), wom.balanceOf(address(this)));
     }
 
