@@ -64,23 +64,23 @@ describe('WombatRouter', function () {
   before(async function () {
     ;[owner, user1] = await ethers.getSigners()
 
+    // Get Factories
+    AssetFactory = (await ethers.getContractFactory('Asset')) as Asset__factory
+    DynamicAssetFactory = (await ethers.getContractFactory('DynamicAsset')) as DynamicAsset__factory
+    TestERC20Factory = (await ethers.getContractFactory('TestERC20')) as TestERC20__factory
+    PoolFactory = await ethers.getContractFactory('Pool')
+    Router = (await ethers.getContractFactory('WombatRouter')) as WombatRouter__factory
+    WBNBFactory = (await ethers.getContractFactory('WETH')) as WETH__factory
+    DynamicPoolFactory = (await ethers.getContractFactory('DynamicPool')) as DynamicPool__factory
+  })
+
+  beforeEach(async function () {
     // get last block time
     const lastBlock = await ethers.provider.getBlock('latest')
     lastBlockTime = lastBlock.timestamp
     fiveSecondsSince = lastBlockTime + 5 * 1000
     fiveSecondsAgo = lastBlockTime - 5 * 1000
 
-    // Get Factories
-    AssetFactory = await ethers.getContractFactory('Asset')
-    DynamicAssetFactory = await ethers.getContractFactory('DynamicAsset')
-    TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('Pool')
-    Router = await ethers.getContractFactory('WombatRouter')
-    WBNBFactory = await ethers.getContractFactory('WETH')
-    DynamicPoolFactory = await ethers.getContractFactory('DynamicPool')
-  })
-
-  beforeEach(async function () {
     // Deploy with factories
     BUSD = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('10000000', 18)) // 10 mil BUSD
     USDC = await TestERC20Factory.deploy('USD Coin', 'USDC', 18, parseUnits('10000000', 18)) // 10 mil USDC
