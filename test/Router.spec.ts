@@ -65,13 +65,13 @@ describe('WombatRouter', function () {
     ;[owner, user1] = await ethers.getSigners()
 
     // Get Factories
-    AssetFactory = (await ethers.getContractFactory('Asset')) as ContractFactory & Asset__factory
-    DynamicAssetFactory = (await ethers.getContractFactory('DynamicAsset')) as ContractFactory & DynamicAsset__factory
-    TestERC20Factory = (await ethers.getContractFactory('TestERC20')) as ContractFactory & TestERC20__factory
+    AssetFactory = await ethers.getContractFactory('Asset') as Asset__factory
+    DynamicAssetFactory = await ethers.getContractFactory('DynamicAsset') as DynamicAsset__factory
+    TestERC20Factory = await ethers.getContractFactory('TestERC20') as TestERC20__factory
     PoolFactory = await ethers.getContractFactory('Pool')
-    Router = (await ethers.getContractFactory('WombatRouter')) as ContractFactory & WombatRouter__factory
-    WBNBFactory = (await ethers.getContractFactory('WETH')) as ContractFactory & WETH__factory
-    DynamicPoolFactory = (await ethers.getContractFactory('DynamicPool')) as ContractFactory & DynamicPool__factory
+    Router = await ethers.getContractFactory('WombatRouter') as WombatRouter__factory
+    WBNBFactory = await ethers.getContractFactory('WETH') as WETH__factory
+    DynamicPoolFactory = await ethers.getContractFactory('DynamicPool') as DynamicPool__factory
   })
 
   beforeEach(async function () {
