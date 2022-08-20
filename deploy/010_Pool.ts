@@ -1,12 +1,13 @@
 import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { DeploymentsExtension } from 'hardhat-deploy/types'
 
 const contractName = 'Pool'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
-  const { deploy } = deployments
+  const { deploy } = deployments as DeploymentsExtension
   const { deployer, multisig } = await getNamedAccounts()
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
