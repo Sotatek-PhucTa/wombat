@@ -8,6 +8,6 @@
     "resolveJsonModule": true,
     "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "include": ["./scripts", "./test", "./build/typechain"],
+  "include": ["./scripts", "./test", "./deploy"],
   "files": ["./hardhat.config.ts"]
 }

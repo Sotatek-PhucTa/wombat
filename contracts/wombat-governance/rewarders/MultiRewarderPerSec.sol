@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.5;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 import '../interfaces/IMasterWombat.sol';
@@ -29,9 +29,10 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     IMasterWombat public immutable masterWombat;
 
     struct UserInfo {
-        uint128 amount;
+        uint128 amount; // 20.18 fixed point.
+        // if the pool is activated, rewardDebt should be > 0
         uint128 rewardDebt; // 20.18 fixed point. distributed reward per weight
-        uint256 unpaidRewards; // 20.18 fixed point. unpaid rewards
+        uint256 unpaidRewards; // 20.18 fixed point.
     }
 
     /// @notice Info of each masterWombat rewardInfo.
@@ -64,6 +65,9 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         require(msg.sender == owner() || msg.sender == operator, 'onlyOperatorOrOwner');
         _;
     }
+
+    /// @notice payable function needed to receive BNB
+    receive() external payable {}
 
     constructor(
         IMasterWombat _MP,
@@ -150,8 +154,8 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     function onReward(address _user, uint256 _lpAmount)
         external
         override
-        nonReentrant
         onlyMW
+        nonReentrant
         returns (uint256[] memory rewards)
     {
         _updateReward();
@@ -173,6 +177,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
                     // is native token
                     uint256 tokenBalance = address(this).balance;
                     if (pending > tokenBalance) {
+                        // Note: this line may fail if the receiver is a contract and refuse to receive BNB
                         (bool success, ) = _user.call{value: tokenBalance}('');
                         require(success, 'Transfer failed');
                         rewards[i] = tokenBalance;
@@ -285,9 +290,6 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
             }
         }
     }
-
-    /// @notice payable function needed to receive BNB
-    receive() external payable {}
 
     function toUint128(uint256 val) internal pure returns (uint128) {
         if (val > type(uint128).max) revert('uint128 overflow');

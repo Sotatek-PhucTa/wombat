@@ -1,6 +1,9 @@
+import { BigNumber } from 'ethers'
+import { parseEther, parseUnits } from 'ethers/lib/utils'
+
 // starting 4 stables, all 18 decimals
-interface ITokens {
-  [network: string]: ITokensInfo
+interface ITokens<T> {
+  [network: string]: T
 }
 interface ITokensInfo {
   [token: string]: unknown[]
@@ -11,7 +14,14 @@ export const WRAPPED_NATIVE_TOKENS_MAP: { [network: string]: string } = {
   bsc_testnet: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
 }
 
-export const USD_TOKENS_MAP: ITokens = {
+export interface IRewarder {
+  lpToken: string
+  rewardToken: string
+  secondsToStart: number
+  tokenPerSec: BigNumber
+}
+
+export const USD_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'],
     USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'],
@@ -44,7 +54,7 @@ export const USD_TOKENS_MAP: ITokens = {
   },
 }
 
-export const USD_SIDEPOOL_TOKENS_MAP: ITokens = {
+export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'],
     TUSD: ['TrueUSD', 'TUSD', '0x14016E85a25aeb13065688cAFB43044C2ef86784'],
@@ -75,7 +85,7 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens = {
   },
 }
 
-export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
+export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_mainnet: {
     WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic'], // last 2 items are exchange rate oracle and asset type
     STKBNB: ['Staked BNB', 'stkBNB', '', '', 'Stkbnb'], // TBC on mainnet
@@ -140,5 +150,22 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens = {
       '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
       'Bnbx',
     ],
+  },
+}
+
+export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
+  bsc_testnet: {
+    BUSD: {
+      lpToken: '0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567',
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0.1'),
+    },
+    USDC: {
+      lpToken: '0x61ABD791773a7E583aD439F558C6c0F157707e7b',
+      rewardToken: '0x615f8656b763ff4a6a82b3cbbd54d392834df13f',
+      secondsToStart: 60,
+      tokenPerSec: parseUnits('0.035', 8),
+    },
   },
 }
