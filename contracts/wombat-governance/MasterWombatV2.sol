@@ -15,13 +15,13 @@ import './interfaces/IMasterWombatV2.sol';
 import './interfaces/IMultiRewarder.sol';
 
 /// @title MasterWombatV2
-/// MasterWombat is a boss. He is not afraid of any snakes. In fact, he drinks their venoms. So, veWom holders boost their (boosted) emissions.
-/// This contract rewards users in function of their amount of lp staked (base pool) factor (boosted pool)
+/// @notice MasterWombat is a boss. He is not afraid of any snakes. In fact, he drinks their venoms. So, veWom holders boost
+/// their (boosted) emissions. This contract rewards users in function of their amount of lp staked (base pool) factor (boosted pool)
 /// Factor and sumOfFactors are updated by contract VeWom.sol after any veWom minting/burning (veERC20Upgradeable hook).
 /// Note that it's ownable and the owner wields tremendous power. The ownership
 /// will be transferred to a governance smart contract once Wombat is sufficiently
 /// distributed and the community can show to govern itself.
-/// Updates:
+/// @dev Updates:
 /// - pack struct
 /// - move pendingWom into UserInfo
 /// - use MultiRewarderPerSec
@@ -77,12 +77,12 @@ contract MasterWombatV2 is
     IVeWom public veWom;
     // New Master Wombat address for future migrations
     IMasterWombatV2 newMasterWombat;
-    // WOM tokens created per second.
+    /// @notice WOM tokens created per second. 13.18 fixed point
     uint104 public womPerSec;
     // Emissions: both must add to 1000 => 100%
     // base partition emissions (e.g. 300 for 30%)
     uint16 public basePartition;
-    // Total allocation points. Must be the sum of all allocation points in all pools.
+    // Total allocation points. Must be the sum of all allocation points in all pools. 10.18 fixed point
     uint96 public totalAllocPoint;
     // The timestamp when WOM mining starts.
     uint40 public startTimestamp;
