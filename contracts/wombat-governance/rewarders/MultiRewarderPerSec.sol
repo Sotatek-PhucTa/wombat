@@ -106,6 +106,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     }
 
     function addRewardToken(IERC20 _rewardToken, uint96 _tokenPerSec) external onlyOwner {
+        _updateReward();
         // use non-zero amount for accTokenPerShare as we want to check if user
         // has activated the pool by checking rewardDebt > 0
         RewardInfo memory reward = RewardInfo({
@@ -140,7 +141,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         require(_tokenPerSec <= 10000e18, 'reward rate too high'); // in case of accTokenPerShare overflow
         _updateReward();
 
-        uint256 oldRate = _tokenPerSec;
+        uint256 oldRate = rewardInfo[_tokenId].tokenPerSec;
         rewardInfo[_tokenId].tokenPerSec = _tokenPerSec;
 
         emit RewardRateUpdated(address(rewardInfo[_tokenId].rewardToken), oldRate, _tokenPerSec);
