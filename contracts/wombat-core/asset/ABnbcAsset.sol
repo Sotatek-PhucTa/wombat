@@ -4,9 +4,6 @@ pragma solidity ^0.8.5;
 import '../interfaces/IRelativePriceProvider.sol';
 import './DynamicAsset.sol';
 
-// SPDX-License-Identifier: GPL-3.0-only
-pragma solidity ^0.8.6;
-
 interface IBondToken {
     function ratio() external view returns (uint256); // 
 }
