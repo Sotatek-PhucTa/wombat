@@ -13,6 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 011. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  return
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]

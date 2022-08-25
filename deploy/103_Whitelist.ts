@@ -36,16 +36,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // Check setup config values
     const whitelistAddress = await veWomContract.whitelist()
     console.log(`VeWomAddress is : ${whitelistAddress}`)
-
-    if (hre.network.name == 'bsc_mainnet') {
-      // transfer whitelist contract ownership to multi-sig
-      console.log(`Transferring ownership of ${whitelistAddress} to ${multisig}...`)
-      // The owner of the whitelist contract can approve or revoke whitelist addresses
-      const transferOwnershipTxn = await contract.connect(owner).transferOwnership(multisig)
-      await transferOwnershipTxn.wait()
-      console.log(`Transferred ownership of ${whitelistAddress} to:`, multisig)
-    }
-
     console.log(`To verify, run: hh verify --network ${hre.network.name} ${whitelistAddress}`)
 
     return deployResult
