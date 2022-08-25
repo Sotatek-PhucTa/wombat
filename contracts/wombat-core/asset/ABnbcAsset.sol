@@ -21,7 +21,7 @@ contract ABnbcAsset is DynamicAsset {
         address underlyingToken_,
         string memory name_,
         string memory symbol_,
-        IStakePool _exchangeRateOracle
+        IBondToken _exchangeRateOracle
     ) DynamicAsset(underlyingToken_, name_, symbol_) {
         exchangeRateOracle = _exchangeRateOracle;
     }
