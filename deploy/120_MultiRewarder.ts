@@ -13,7 +13,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const masterWombat = await deployments.get('MasterWombatV2')
 
   console.log(`Step 120. Deploying on: ${hre.network.name}...`)
-  return
 
   for await (const [token, rewarder] of Object.entries(REWARDERS_MAP[hre.network.name])) {
     const deadline = getDeadlineFromNow(rewarder.secondsToStart)

@@ -87,7 +87,7 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
 
 export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_mainnet: {
-    WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic', 10], // last 2 items are exchange rate oracle and asset type
+    WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic', 10], // last 3 items are exchange rate oracle, asset type, and pool alloc points
     STKBNB: [
       'Staked BNB',
       'stkBNB',
@@ -109,7 +109,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
       'aBNBc',
       '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
       '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
-      'ABNBc',
+      'ABnbc',
       10,
     ],
   },
@@ -137,7 +137,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
       'aBNBc',
       '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
       '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      'ABNBc',
+      'ABnbc',
       10,
     ],
   },
@@ -165,7 +165,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
       'aBNBc',
       '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
       '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      'ABNBc',
+      'ABnbc',
       10,
     ],
   },
@@ -193,7 +193,7 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
       'aBNBc',
       '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
       '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      'ABNBc',
+      'ABnbc',
       10,
     ],
   },

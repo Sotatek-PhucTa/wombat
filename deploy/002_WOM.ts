@@ -18,7 +18,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
 
   console.log(`Step 002. Deploying on : ${hre.network.name}...`)
-  return
 
   /// Deploy pool
   const womDeployResult = await deploy(contractName, {

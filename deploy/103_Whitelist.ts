@@ -12,7 +12,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`Step 103. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
-  const veWom = await deployments.get('VeWom_V2')
+  const veWom = await deployments.get('VeWom')
 
   /// Deploy whitelist
   const deployResult = await deploy(contractName, {

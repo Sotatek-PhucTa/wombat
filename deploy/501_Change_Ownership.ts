@@ -1,7 +1,13 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-const contractNames = ['Pool', 'DynamicPool_01', 'MasterWombatV2', 'VeWom', 'Whitelist']
+const contractNames = [
+  ['Pool', 'Pool'],
+  ['DynamicPool_01', 'DynamicPool'],
+  ['MasterWombatV2', 'MasterWombatV2'],
+  ['VeWom', 'VeWom'],
+  ['Whitelist', 'Whitelist'],
+] // [contract name, contract template]
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -10,14 +16,16 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 501. Changing contract ownerships on : ${hre.network.name} with account : ${deployer}`)
+  /// NOTE: Manual ownership check and transfer seems to be more robust. This script however can be used if necessary
+  return
 
   if (hre.network.name == 'bsc_mainnet') {
     for (const contractName of contractNames) {
       // Get deployments
-      const contractDeployment = await deployments.get(contractName)
+      const contractDeployment = await deployments.get(contractName[0])
 
       // Get deployed contract
-      const contract = await ethers.getContractAt(contractName, contractDeployment.address)
+      const contract = await ethers.getContractAt(contractName[1], contractDeployment.address)
       console.log('Contract address:', contractDeployment.address)
 
       // transfer contract ownership to multi-sig

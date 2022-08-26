@@ -16,7 +16,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
-  const pool = await deployments.get('Pool')
+  const dynamicPool = await deployments.get('DynamicPool_01')
 
   const block = await ethers.provider.getBlock('latest')
   const latest = BigNumber.from(block.timestamp)
@@ -27,13 +27,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: deployer, // change to Gnosis Safe after all admin scripts are done
+      owner: multisig,
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, ethers.constants.AddressZero, parseEther('1.522070'), 375, latest],
+          args: [wombatToken.address, ethers.constants.AddressZero, parseEther('1.522070'), 375, latest], // ~4M WOM emissions per month
         },
       },
     },
@@ -67,10 +67,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     await addAsset(contract, owner, tokenAllocPoint, assetContractAddress, ethers.constants.AddressZero)
   }
 
-  const poolContract = await ethers.getContractAt('Pool', pool.address)
-  // mainnet masterwombat would be added back to existing pool via multisig proposal
+  const poolContract = await ethers.getContractAt('DynamicPool', dynamicPool.address)
+  // NOTE: mainnet masterwombat would be added back to main pool via multisig proposal
 
-  console.log('Setting pool contract for MasterWombat...')
+  console.log('Setting dynamic pool contract for MasterWombat...')
   const setMasterWombatTxn = await poolContract.connect(owner).setMasterWombat(deployResult.address)
   await setMasterWombatTxn.wait()
 

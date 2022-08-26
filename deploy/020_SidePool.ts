@@ -11,13 +11,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 020. Deploying on : ${hre.network.name}...`)
-  return
 
   /// Deploy sidepool
   const deployResult = await deploy(contractName, {
     from: deployer,
     log: true,
-    contract: 'Pool', // TBC with 'HighCovRatioFeePool' after audit
+    contract: 'HighCovRatioFeePool',
     skipIfAlreadyDeployed: true,
     proxy: {
       owner: multisig, // change to Gnosis Safe after all admin scripts are done

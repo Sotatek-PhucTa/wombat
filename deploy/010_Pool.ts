@@ -19,7 +19,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: deployer, // change to Gnosis Safe after all admin scripts are done
+      owner: multisig, // change to Gnosis Safe after all admin scripts are done
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
