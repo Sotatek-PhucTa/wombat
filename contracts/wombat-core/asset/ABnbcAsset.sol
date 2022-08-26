@@ -30,6 +30,6 @@ contract ABnbcAsset is DynamicAsset {
      * @notice get the relative price in WAD
      */
     function getRelativePrice() external view override returns (uint256) {
-        return 1e18 / exchangeRateOracle.ratio();
+        return 1e36 / exchangeRateOracle.ratio();
     }
 }
