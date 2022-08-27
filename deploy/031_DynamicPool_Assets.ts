@@ -34,7 +34,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     const args: string[] = [tokenAddress, name, symbol, oracleAddress]
 
-    if (BNB_DYNAMICPOOL_TOKENS[index][1] == 'TWBNB') {
+    if (BNB_DYNAMICPOOL_TOKENS[index][1] == 'TWBNB' || BNB_DYNAMICPOOL_TOKENS[index][1] == 'WBNB') {
       args.pop() // Testnet WBNB has no oracleAddress
     }
 

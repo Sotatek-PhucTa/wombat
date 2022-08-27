@@ -16,7 +16,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const deployResult = await deploy(contractName, {
     from: deployer,
     log: true,
-    contract: 'Pool', // TBC with 'HighCovRatioFeePool' after audit
+    contract: 'HighCovRatioFeePool',
     skipIfAlreadyDeployed: true,
     proxy: {
       owner: multisig, // change to Gnosis Safe after all admin scripts are done

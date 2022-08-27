@@ -19,7 +19,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     contract: 'DynamicPool', // Use latest (if any) with 'DynamicPool' after audit
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: multisig, // change to Gnosis Safe after all admin scripts are done
+      owner: multisig,
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
