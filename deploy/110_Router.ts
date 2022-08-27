@@ -32,23 +32,29 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       hre.network.name == 'bsc_testnet' ||
       hre.network.name == 'bsc_mainnet'
     ) {
-      // Approve pool spending tokens from router
       const router = await ethers.getContractAt(contractName, deployResult.address)
       const usdTokens = []
+      const usdAssetsAddress = []
       const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
       for (const index in USD_TOKENS) {
         usdTokens.push(USD_TOKENS[index][2]) // token address
+        const asset = await deployments.get(`Asset_P01_${USD_TOKENS[index][1]}`)
+        usdAssetsAddress.push(asset.address) // asset address
       }
 
       const bnbTokens = []
+      const bnbAssetsAddress = []
       const BNB_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
       for (const index in BNB_TOKENS) {
         bnbTokens.push(BNB_TOKENS[index][2])
+        const asset = await deployments.get(`Asset_DP01_${BNB_TOKENS[index][1]}`)
+        bnbAssetsAddress.push(asset.address)
       }
 
       const mainPoolDeployment = await deployments.get('Pool')
       const dynamicPoolDeployment = await deployments.get('DynamicPool_01')
 
+      // Approve pool spending tokens from router
       const approveSpendingTxn1 = await router
         .connect(owner)
         .approveSpendingByPool(usdTokens, mainPoolDeployment.address)
@@ -57,6 +63,17 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         .connect(owner)
         .approveSpendingByPool(bnbTokens, dynamicPoolDeployment.address)
       await approveSpendingTxn2.wait()
+
+      // Approve pool assets from router
+      const approveSpendingTxn3 = await router
+        .connect(owner)
+        .approveSpendingByPool(usdAssetsAddress, mainPoolDeployment.address)
+      await approveSpendingTxn3.wait()
+
+      const approveSpendingTxn4 = await router
+        .connect(owner)
+        .approveSpendingByPool(bnbAssetsAddress, dynamicPoolDeployment.address)
+      await approveSpendingTxn4.wait()
     }
 
     console.log(`Deployment complete.`)
