@@ -65,7 +65,7 @@
   "60M": [
     { "address": "0x14bA0D857C496C03A8c8D5Fcc6c92d30Df804775", "amount": "52500000" },
     { "address": "0x8c6644415b3F3CD7FC0A453c5bE3d3306Fe0b2F9", "amount": "45000000" },
-    { "address": "", "amount": "25000000" },
+    { "address": "0xD18162360CF491072100C109c87B5df7923A4162", "amount": "25000000" },
     { "address": "0xc221c0e86f24f88B6cd754AF13de9d359A5f3dDf", "amount": "20000000" },
     { "address": "0x4DF09A3a0eed4Debf21048d2210AF3362A08951E", "amount": "50000000" },
     { "address": "0x369234320D0f59adda121Db2C487EaEB2446445f", "amount": "150000000" }
