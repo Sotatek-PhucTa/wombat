@@ -23,31 +23,28 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // const womTokenContract = await ethers.getContractAt('WombatERC20', '0x55d398326f99059fF775485246999027B3197955')
 
   if (hre.network.name == 'bsc_mainnet') {
-
     // Check WOM token
     console.log(`WOM Token Address is : ${womToken.address}`)
     console.log(`Deployer account is: ${deployer}`)
 
-    if (hre.network.name == 'bsc_mainnet') {
-      // send WOM allocation for beneficiaries 2.5% TGE
-      const beneficiariesList = beneficiaries['TGE']
-      let totalAmt = 0
-      for (let i = 0; i < beneficiariesList.length; i++) {
-        const initialUserBalance = await womTokenContract.balanceOf(beneficiariesList[i].address)
-        console.log(`Beneficiary initial WOM balance is: ${ethers.utils.formatEther(initialUserBalance)}`)
-        // totalAmt += +beneficiariesList[i].amount
+    // send WOM allocation for beneficiaries 2.5% TGE
+    const beneficiariesList = beneficiaries['TGE']
+    // let totalAmt = 0
+    for (let i = 0; i < beneficiariesList.length; i++) {
+      const initialUserBalance = await womTokenContract.balanceOf(beneficiariesList[i].address)
+      console.log(`Beneficiary initial WOM balance is: ${ethers.utils.formatEther(initialUserBalance)}`)
+      // totalAmt += +beneficiariesList[i].amount
 
-        const sendBeneficiaryTxn = await womTokenContract
-          .connect(owner)
-          .transfer(beneficiariesList[i].address, parseUnits(beneficiariesList[i].amount, 18))
-        await sendBeneficiaryTxn.wait()
-        console.log(`Sent Beneficiary ${beneficiariesList[i].address} with amount ${beneficiariesList[i].amount}`)
+      const sendBeneficiaryTxn = await womTokenContract
+        .connect(owner)
+        .transfer(beneficiariesList[i].address, parseUnits(beneficiariesList[i].amount, 18))
+      await sendBeneficiaryTxn.wait()
+      console.log(`Sent Beneficiary ${beneficiariesList[i].address} with amount ${beneficiariesList[i].amount}`)
 
-        const userBalance = await womTokenContract.balanceOf(beneficiariesList[i].address)
-        console.log(`Beneficiary latest WOM balance is: ${ethers.utils.formatEther(userBalance)}`)
-      }
-      // console.log(32, totalAmt)
+      const userBalance = await womTokenContract.balanceOf(beneficiariesList[i].address)
+      console.log(`Beneficiary latest WOM balance is: ${ethers.utils.formatEther(userBalance)}`)
     }
+    // console.log(32, totalAmt)
   }
 }
 
