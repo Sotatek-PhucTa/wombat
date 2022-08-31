@@ -27,7 +27,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const mainnetInit = {
     intervalSeconds: (60 * 60 * 24 * 365) / 2, // 15768000, i.e. 6 months unlock interval
     startCliff: oneDayCliff, // 1 day cliff
-    startTimestamp: lastBlockTime + oneDayCliff, // 1 day later
+    startTimestamp: lastBlockTime, // 0 day later
     durationSeconds: 60 * 60 * 24 * 365 * 5, // 1825 days, i.e. 5 years vesting period
   }
   const testnetInit = {
