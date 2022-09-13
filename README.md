@@ -51,6 +51,15 @@ Hardhat Verify:
 - Follow steps at [Binance Chain Docs](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html) on verifying contracts on bscscan.com such that you can `read/write` directly with your web3 metamask wallet.
 - E.g. `npx hardhat verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
 
+Deployed contracts (BSC Mainnet):
+
+- Wombat Rewarders
+
+  - MultiRewarderPerSec_WBNB => `0x414D1a760320f948147FB71113851BB11CB53976`
+  - MultiRewarderPerSec_PSTAKE => `0x946207061de96bfc2a5CD544EA4eC2F7fBE84A98`
+  - MultiRewarderPerSec_ANKR => `0x2DC5C0A6b83Dc3B7eC92c4A868a87b464Aa27501`
+  - MultiRewarderPerSec_SD => `0x053cd96D5BeB742189E21D9B9112a9195E19435f`
+
 Deployed contracts v1 (BSC Testnet):
 
 - BSC Wallet Accounts
