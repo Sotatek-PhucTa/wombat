@@ -25,14 +25,14 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [parseEther('0.02'), parseEther('0.001')], // [A, haircut] are 10x of main pool
+          args: [parseEther('0.02'), parseEther('0.0004')], // [A, haircut] are 10x and 4x of main pool respectively
         },
       },
     },
   })
 
   // Get freshly deployed SubPool contract
-  const contract = await ethers.getContractAt('Pool', deployResult.address)
+  const contract = await ethers.getContractAt('HighCovRatioFeePool', deployResult.address)
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)

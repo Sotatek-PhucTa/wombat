@@ -20,7 +20,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // Get Pool Instance
   const poolDeployment = await deployments.get('SidePool_01')
   const poolAddress = poolDeployment.address
-  const pool = await ethers.getContractAt('Pool', poolAddress)
+  const pool = await ethers.getContractAt('HighCovRatioFeePool', poolAddress)
 
   for (const index in USD_SIDEPOOL_TOKENS) {
     console.log('Attemping to deploy Asset contract : ' + USD_SIDEPOOL_TOKENS[index][0])
@@ -125,4 +125,4 @@ async function addPool(asset: any, owner: any, poolAddress: string) {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['SidePool'] // this ensure the Token script above is executed first, so `deployments.get('SidePool')` succeeds
+deployFunc.dependencies = ['SidePool_01'] // this ensure the Token script above is executed first, so `deployments.get('SidePool_01')` succeeds
