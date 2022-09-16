@@ -1,6 +1,11 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { WRAPPED_NATIVE_TOKENS_MAP, USD_TOKENS_MAP, BNB_DYNAMICPOOL_TOKENS_MAP, USD_SIDEPOOL_TOKENS_MAP } from '../tokens.config'
+import {
+  WRAPPED_NATIVE_TOKENS_MAP,
+  USD_TOKENS_MAP,
+  BNB_DYNAMICPOOL_TOKENS_MAP,
+  USD_SIDEPOOL_TOKENS_MAP,
+} from '../tokens.config'
 
 const contractName = 'WombatRouter'
 
@@ -69,12 +74,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         .connect(owner)
         .approveSpendingByPool(usdTokens, mainPoolDeployment.address)
       await approveSpendingTxn1.wait()
-      
+
       const approveSpendingTxn2 = await router
         .connect(owner)
         .approveSpendingByPool(bnbTokens, dynamicPoolDeployment.address)
       await approveSpendingTxn2.wait()
-      
+
       const approveSpendingTxn3 = await router
         .connect(owner)
         .approveSpendingByPool(sidepoolTokens, sidePoolDeployment.address)
