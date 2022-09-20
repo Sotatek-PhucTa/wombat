@@ -86,20 +86,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       await approveSpendingTxn3.wait()
 
       // Approve pool assets from router
-      const approveSpendingTxn4 = await router
-        .connect(owner)
-        .approveSpendingByPool(usdAssetsAddress, mainPoolDeployment.address)
-      await approveSpendingTxn4.wait()
-
       const approveSpendingTxn5 = await router
         .connect(owner)
         .approveSpendingByPool(bnbAssetsAddress, dynamicPoolDeployment.address)
       await approveSpendingTxn5.wait()
-
-      const approveSpendingTxn6 = await router
-        .connect(owner)
-        .approveSpendingByPool(sidepoolAssetsAddress, sidePoolDeployment.address)
-      await approveSpendingTxn6.wait()
     }
 
     console.log(`Deployment complete.`)
