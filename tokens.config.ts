@@ -239,5 +239,17 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 60,
       tokenPerSec: parseUnits('0.035', 8),
     },
+    FRAX_BUSD: {
+      lpToken: '0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44',
+      rewardToken: '0xa5c67cD016df71f9CDCfd9e76A749a1DDca6209d',
+      secondsToStart: 60,
+      tokenPerSec: parseUnits('0.035', 8),
+    },
+    FRAX: {
+      lpToken: '0xc5f2B1df25B9Bfc61444b002121330bEa9460F3e',
+      rewardToken: '0xa5c67cD016df71f9CDCfd9e76A749a1DDca6209d',
+      secondsToStart: 60,
+      tokenPerSec: parseUnits('0.035', 8),
+    },
   },
 }
