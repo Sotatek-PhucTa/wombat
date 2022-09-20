@@ -1,6 +1,11 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { WRAPPED_NATIVE_TOKENS_MAP, USD_TOKENS_MAP, BNB_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import {
+  WRAPPED_NATIVE_TOKENS_MAP,
+  USD_TOKENS_MAP,
+  BNB_DYNAMICPOOL_TOKENS_MAP,
+  USD_SIDEPOOL_TOKENS_MAP,
+} from '../tokens.config'
 
 const contractName = 'WombatRouter'
 
@@ -25,7 +30,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   const address = deployResult.address
 
-  if (deployResult.newlyDeployed) {
+  if (!deployResult.newlyDeployed) {
     if (
       hre.network.name == 'localhost' ||
       hre.network.name == 'hardhat' ||
@@ -51,29 +56,40 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         bnbAssetsAddress.push(asset.address)
       }
 
+      const sidepoolTokens = []
+      const sidepoolAssetsAddress = []
+      const SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
+      for (const index in SIDEPOOL_TOKENS) {
+        sidepoolTokens.push(SIDEPOOL_TOKENS[index][2])
+        const asset = await deployments.get(`Asset_SP01_${SIDEPOOL_TOKENS[index][1]}`)
+        sidepoolAssetsAddress.push(asset.address)
+      }
+
       const mainPoolDeployment = await deployments.get('Pool')
       const dynamicPoolDeployment = await deployments.get('DynamicPool_01')
+      const sidePoolDeployment = await deployments.get('SidePool_01')
 
       // Approve pool spending tokens from router
       const approveSpendingTxn1 = await router
         .connect(owner)
         .approveSpendingByPool(usdTokens, mainPoolDeployment.address)
       await approveSpendingTxn1.wait()
+
       const approveSpendingTxn2 = await router
         .connect(owner)
         .approveSpendingByPool(bnbTokens, dynamicPoolDeployment.address)
       await approveSpendingTxn2.wait()
 
-      // Approve pool assets from router
       const approveSpendingTxn3 = await router
         .connect(owner)
-        .approveSpendingByPool(usdAssetsAddress, mainPoolDeployment.address)
+        .approveSpendingByPool(sidepoolTokens, sidePoolDeployment.address)
       await approveSpendingTxn3.wait()
 
-      const approveSpendingTxn4 = await router
+      // Approve pool assets from router
+      const approveSpendingTxn5 = await router
         .connect(owner)
         .approveSpendingByPool(bnbAssetsAddress, dynamicPoolDeployment.address)
-      await approveSpendingTxn4.wait()
+      await approveSpendingTxn5.wait()
     }
 
     console.log(`Deployment complete.`)

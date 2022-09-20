@@ -51,7 +51,49 @@ Hardhat Verify:
 - Follow steps at [Binance Chain Docs](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html) on verifying contracts on bscscan.com such that you can `read/write` directly with your web3 metamask wallet.
 - E.g. `npx hardhat verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
 
-Deployed contracts (BSC Mainnet):
+### BSC mainnet deployed contracts:
+
+- Wombat Proxy Admin
+
+  - Default Proxy Admin (Proxy Admin) => `0xa75F185888F1E8d2320e80dCd2e7a4c9A17e013B`
+
+- Wombat Governance
+
+  - MasterWombatV2 Proxy => `0xE2C07d20AF0Fb50CAE6cDD615CA44AbaAA31F9c8`
+  - VeWom Proxy => `0x3DA62816dD31c56D9CdF22C6771ddb892cB5b0Cc`
+  - Whitelist => `0xD61C53dcd6F3b4258E28c7Eb1C328789fa71B591`
+
+- Wombat Token
+
+  - WOM (BEP20) => `0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1`
+  - Token Vesting 24M => `0x45a51Af45C370d1F8a0359913c7531D55a687D29`
+  - Token Vesting 60M => `0x297622907E5c6C133Df6CCED61aFc03FEF534Fd9`
+
+- Wombat Router
+
+  - WombatRouter => `0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7`
+
+- Wombat Main Pool
+
+  - Pool Proxy (Main entry) => `0x312Bc7eAAF93f1C60Dc5AfC115FcCDE161055fb0`
+  - Asset_P01_BUSD (LP-BUSD) => `0xF319947eCe3823b790dd87b0A509396fE325745a`
+  - Asset_P01_USDC (LP-USDC) => `0xb43Ee2863370a56D3b7743EDCd8407259100b8e2`
+  - Asset_P01_USDT (LP-USDT) => `0x4F95fE57BEA74b7F642cF9c097311959B9b988F7`
+  - Asset_P01_DAI (LP-DAI) => `0x9D0a463D5dcB82008e86bF506eb048708a15dd84`
+
+- Wombat Side Pool
+
+  - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
+  - Asset_SP01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
+  - Asset_SP01_HAY (LP-HAY) => `0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b`
+
+- Wombat Dynamic Pool
+
+  - Pool Proxy (Main entry) => `0x0029b7e8e9eD8001c868AA09c74A1ac6269D4183`
+  - Asset_DP01_WBNB (LP-WBNB) => `0x74f019A5C4eD2C2950Ce16FaD7Af838549092c5b`
+  - Asset_DP01_stkBNB (LP-stkBNB) => `0xc496f42eA6Fc72aF434F48469b847A469fe0D17f`
+  - Asset_DP01_BNBx (LP-BNBx) => `0x10F7C62f47F19e3cE08fef38f74E3C0bB31FC24f`
+  - Asset_DP01_aBNBc (LP-aBNBc) => `0x9d2deaD9547EB65Aa78E239647a0c783f296406B`
 
 - Wombat Rewarders
 
@@ -60,7 +102,7 @@ Deployed contracts (BSC Mainnet):
   - MultiRewarderPerSec_ANKR => `0x2DC5C0A6b83Dc3B7eC92c4A868a87b464Aa27501`
   - MultiRewarderPerSec_SD => `0x053cd96D5BeB742189E21D9B9112a9195E19435f`
 
-Deployed contracts v1 (BSC Testnet):
+### BSC testnet deployed contracts:
 
 - BSC Wallet Accounts
 
