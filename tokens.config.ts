@@ -201,30 +201,30 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
 
 export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
   bsc_mainnet: {
-    // WBNB: {
-    //   lpToken: '0x74f019A5C4eD2C2950Ce16FaD7Af838549092c5b',
-    //   rewardToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-    //   secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-    //   tokenPerSec: parseEther('0.000015'), // total 38-40 WBNB from 3 liquid staking providers
-    // },
-    // PSTAKE: {
-    //   lpToken: '0xc496f42eA6Fc72aF434F48469b847A469fe0D17f', // stkBNB-LP
-    //   rewardToken: '0x4C882ec256823eE773B25b414d36F92ef58a7c0C', // PSTAKE
-    //   secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-    //   tokenPerSec: parseEther('0.031659'),
-    // },
-    // ANKR: {
-    //   lpToken: '0x9d2deaD9547EB65Aa78E239647a0c783f296406B', // aBNBc-LP
-    //   rewardToken: '0xf307910a4c7bbc79691fd374889b36d8531b08e3', // ANKR
-    //   secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-    //   tokenPerSec: parseEther('0.160218'),
-    // },
-    // SD: {
-    //   lpToken: '0x10F7C62f47F19e3cE08fef38f74E3C0bB31FC24f', // BNBx-LP
-    //   rewardToken: '0x3bc5ac0dfdc871b365d159f728dd1b9a0b5481e8', // SD-Wormhole
-    //   secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-    //   tokenPerSec: parseEther('0.014773'),
-    // },
+    WBNB: {
+      lpToken: '0x74f019A5C4eD2C2950Ce16FaD7Af838549092c5b',
+      rewardToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
+      tokenPerSec: parseEther('0.000015'), // total 38-40 WBNB from 3 liquid staking providers
+    },
+    PSTAKE: {
+      lpToken: '0xc496f42eA6Fc72aF434F48469b847A469fe0D17f', // stkBNB-LP
+      rewardToken: '0x4C882ec256823eE773B25b414d36F92ef58a7c0C', // PSTAKE
+      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
+      tokenPerSec: parseEther('0.031659'),
+    },
+    ANKR: {
+      lpToken: '0x9d2deaD9547EB65Aa78E239647a0c783f296406B', // aBNBc-LP
+      rewardToken: '0xf307910a4c7bbc79691fd374889b36d8531b08e3', // ANKR
+      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
+      tokenPerSec: parseEther('0.160218'),
+    },
+    SD: {
+      lpToken: '0x10F7C62f47F19e3cE08fef38f74E3C0bB31FC24f', // BNBx-LP
+      rewardToken: '0x3bc5ac0dfdc871b365d159f728dd1b9a0b5481e8', // SD-Wormhole
+      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
+      tokenPerSec: parseEther('0.014773'),
+    },
     BUSD: {
       lpToken: '0xA649Be04619a8F3B3475498E1ac15C90C9661C1A', // BUSD-LP (Sidepool)
       rewardToken: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
