@@ -259,21 +259,21 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
 
         for (uint256 i; i < length; ++i) {
             RewardInfo storage pool = rewardInfo[i];
-            if (address(pool.rewardToken) == address(0)) {
-                // is native token
-                (bool success, ) = msg.sender.call{value: address(this).balance}('');
-                require(success, 'Transfer failed');
-            } else {
-                pool.rewardToken.safeTransfer(address(msg.sender), pool.rewardToken.balanceOf(address(this)));
-            }
+            emergencyTokenWithdraw(address(pool.rewardToken));
         }
     }
 
     /// @notice avoids loosing funds in case there is any tokens sent to this contract
     /// @dev only to be called by owner
-    function emergencyTokenWithdraw(address token) external onlyOwner {
+    function emergencyTokenWithdraw(address token) public onlyOwner {
         // send that balance back to owner
-        IERC20(token).safeTransfer(msg.sender, IERC20(token).balanceOf(address(this)));
+        if (token == address(0)) {
+            // is native token
+            (bool success, ) = msg.sender.call{value: address(this).balance}('');
+            require(success, 'Transfer failed');
+        } else {
+            IERC20(token).safeTransfer(msg.sender, IERC20(token).balanceOf(address(this)));
+        }
     }
 
     /// @notice View function to see balances of reward token.
