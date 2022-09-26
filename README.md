@@ -101,6 +101,8 @@ Hardhat Verify:
   - MultiRewarderPerSec_PSTAKE => `0x946207061de96bfc2a5CD544EA4eC2F7fBE84A98`
   - MultiRewarderPerSec_ANKR => `0x2DC5C0A6b83Dc3B7eC92c4A868a87b464Aa27501`
   - MultiRewarderPerSec_SD => `0x053cd96D5BeB742189E21D9B9112a9195E19435f`
+  - MultiRewarderPerSec_BUSD => `0xBD28Fb07c755408ecB81EB8Fcd3e380E4b315f0F`
+  - MultiRewarderPerSec_HAY => `0xf812166D8Ff0C90f125b3ad7A59ff9ad6e2BC77D`
 
 ### BSC testnet deployed contracts:
 

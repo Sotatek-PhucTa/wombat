@@ -225,6 +225,18 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
       tokenPerSec: parseEther('0.014773'),
     },
+    BUSD: {
+      lpToken: '0xA649Be04619a8F3B3475498E1ac15C90C9661C1A', // BUSD-LP (Sidepool)
+      rewardToken: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
+      secondsToStart: 75600, // 21 hours later, i.e. deploy on 9/20/2022 1:00pm HKT
+      tokenPerSec: parseEther('0.005708'),
+    },
+    HAY: {
+      lpToken: '0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b', // HAY-LP
+      rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
+      secondsToStart: 75600, // 21 hours later, i.e. deploy on 9/20/2022 1:00pm HKT
+      tokenPerSec: parseEther('0.005708'),
+    },
   },
   bsc_testnet: {
     BUSD: {
