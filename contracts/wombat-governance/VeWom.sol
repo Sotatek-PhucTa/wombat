@@ -218,7 +218,7 @@ contract VeWom is
 
         require(originalUnlockTime < newUnlockTime, 'the new end date must be greater than existing end date');
         require(
-            originalVeWomAmount < newVeWomAmount, 
+            originalVeWomAmount < newVeWomAmount,
             'the new veWom amount must be greater than existing veWom amount'
         );
 
