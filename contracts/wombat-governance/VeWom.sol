@@ -54,7 +54,7 @@ contract VeWom is
     event SetMasterWombat(address addr);
     event SetWhiteList(address addr);
     event SetMaxBreedingLength(uint256 len);
-    event UpdateLockTime(address addr, uint256 unlockTime, uint256 veWomAmount);
+    event UpdateLockTime(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
 
     error VEWOM_OVERFLOW();
 
@@ -210,7 +210,7 @@ contract VeWom is
         uint256 originalUnlockTime = uint256(users[msg.sender].breedings[slot].unlockTime);
         uint256 originalWomAmount = uint256(users[msg.sender].breedings[slot].womAmount);
         uint256 originalVeWomAmount = uint256(users[msg.sender].breedings[slot].veWomAmount);
-        uint256 newUnlockTime = block.timestamp + 86400 * lockDays;
+        uint256 newUnlockTime = block.timestamp + 1 days * lockDays;
         uint256 newVeWomAmount = _expectedVeWomAmount(originalWomAmount, lockDays);
 
         if (newUnlockTime > uint256(type(uint48).max)) revert VEWOM_OVERFLOW();
@@ -229,7 +229,7 @@ contract VeWom is
         _mint(msg.sender, newVeWomAmount - originalVeWomAmount);
 
         // emit event
-        emit UpdateLockTime(msg.sender, newUnlockTime, newVeWomAmount);
+        emit UpdateLockTime(msg.sender, newUnlockTime, originalWomAmount, newVeWomAmount);
     }
 
     /// @notice asserts addres in param is not a smart contract.
