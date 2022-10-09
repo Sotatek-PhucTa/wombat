@@ -213,8 +213,8 @@ contract VeWom is
         uint256 newUnlockTime = block.timestamp + 86400 * lockDays;
         uint256 newVeWomAmount = _expectedVeWomAmount(originalWomAmount, lockDays);
 
-        if (newUnlockTime > uint256(type(uint48).max)) revert VEWOM_OVERFLOW();
-        if (newVeWomAmount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
+        if (newUnlockTime > type(uint48).max) revert VEWOM_OVERFLOW();
+        if (newVeWomAmount > type(uint104).max) revert VEWOM_OVERFLOW();
 
         require(originalUnlockTime < newUnlockTime, 'the new end date must be greater than existing end date');
         require(
