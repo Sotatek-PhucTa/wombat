@@ -210,7 +210,7 @@ contract VeWom is
         uint256 originalUnlockTime = uint256(users[msg.sender].breedings[slot].unlockTime);
         uint256 originalWomAmount = uint256(users[msg.sender].breedings[slot].womAmount);
         uint256 originalVeWomAmount = uint256(users[msg.sender].breedings[slot].veWomAmount);
-        uint256 newUnlockTime = block.timestamp + 86400 * lockDays;
+        uint256 newUnlockTime = block.timestamp + 1 days * lockDays;
         uint256 newVeWomAmount = _expectedVeWomAmount(originalWomAmount, lockDays);
 
         if (newUnlockTime > type(uint48).max) revert VEWOM_OVERFLOW();
