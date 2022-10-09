@@ -276,7 +276,9 @@ describe('VeWOM', function () {
 
     // lock 7 days
     await this.veWom.connect(users[0]).mint(parseEther('100'), 7)
-    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.be.equal(parseEther('6.921877546938519430'))
+    expect(await this.veWom.connect(users[0]).balanceOf(users[0].address)).to.be.equal(
+      parseEther('6.921877546938519430')
+    )
 
     // update slot 0's lockDays to 365 days
     await this.veWom.connect(users[0]).update(0, 365)
@@ -294,7 +296,7 @@ describe('VeWOM', function () {
     await this.veWom.connect(users[0]).mint(parseEther('100'), 365)
 
     // update slot 0's lockDays to 7 days
-    await expect(this.veWom.connect(users[0]).update(0,7)).to.be.revertedWith(
+    await expect(this.veWom.connect(users[0]).update(0, 7)).to.be.revertedWith(
       'the new end date must be greater than existing end date'
     )
   })
@@ -310,7 +312,7 @@ describe('VeWOM', function () {
     await this.veWom.connect(users[0]).mint(parseEther('100'), 365)
 
     // update slot 0's lockDays to 365 days (unchanged)
-    await expect(this.veWom.connect(users[0]).update(0,365)).to.be.revertedWith(
+    await expect(this.veWom.connect(users[0]).update(0, 365)).to.be.revertedWith(
       'the new veWom amount must be greater than existing veWom amount'
     )
   })
@@ -326,10 +328,10 @@ describe('VeWOM', function () {
     await this.veWom.connect(users[0]).mint(parseEther('100'), 365)
 
     // invalid lock days (4 days)
-    await expect(this.veWom.connect(users[0]).update(0,4)).to.be.revertedWith('lock days is invalid')
+    await expect(this.veWom.connect(users[0]).update(0, 4)).to.be.revertedWith('lock days is invalid')
 
     // invalid lock days (2000 days)
-    await expect(this.veWom.connect(users[0]).update(0,2000)).to.be.revertedWith('lock days is invalid')
+    await expect(this.veWom.connect(users[0]).update(0, 2000)).to.be.revertedWith('lock days is invalid')
   })
 
   it.skip('cannot stake nft if user has no wom staked', async function () {
