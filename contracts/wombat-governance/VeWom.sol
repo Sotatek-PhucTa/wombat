@@ -54,7 +54,13 @@ contract VeWom is
     event SetMasterWombat(address addr);
     event SetWhiteList(address addr);
     event SetMaxBreedingLength(uint256 len);
-    event UpdateLockTime(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
+    event UpdateLockTime(
+        address addr,
+        uint256 unlockTime,
+        uint256 womAmount,
+        uint256 originalVeWomAmount,
+        uint256 newVeWomAmount
+    );
 
     error VEWOM_OVERFLOW();
 
@@ -199,7 +205,13 @@ contract VeWom is
     /// @notice update the WOM lock days such that the end date is `now` + `lockDays`
     /// @param slot the veWOM slot
     /// @param lockDays the new lock days (it should be larger than original lock days)
-    function update(uint256 slot, uint256 lockDays) external {
+    function update(uint256 slot, uint256 lockDays)
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (uint256 newVeWomAmount)
+    {
         _assertNotContract(msg.sender);
 
         require(lockDays >= uint256(minLockDays) && lockDays <= uint256(maxLockDays), 'lock days is invalid');
@@ -211,7 +223,7 @@ contract VeWom is
         uint256 originalWomAmount = uint256(users[msg.sender].breedings[slot].womAmount);
         uint256 originalVeWomAmount = uint256(users[msg.sender].breedings[slot].veWomAmount);
         uint256 newUnlockTime = block.timestamp + 1 days * lockDays;
-        uint256 newVeWomAmount = _expectedVeWomAmount(originalWomAmount, lockDays);
+        newVeWomAmount = _expectedVeWomAmount(originalWomAmount, lockDays);
 
         if (newUnlockTime > type(uint48).max) revert VEWOM_OVERFLOW();
         if (newVeWomAmount > type(uint104).max) revert VEWOM_OVERFLOW();
@@ -229,7 +241,7 @@ contract VeWom is
         _mint(msg.sender, newVeWomAmount - originalVeWomAmount);
 
         // emit event
-        emit UpdateLockTime(msg.sender, newUnlockTime, originalWomAmount, newVeWomAmount);
+        emit UpdateLockTime(msg.sender, newUnlockTime, originalWomAmount, originalVeWomAmount, newVeWomAmount);
     }
 
     /// @notice asserts addres in param is not a smart contract.

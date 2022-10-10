@@ -29,5 +29,5 @@ interface IVeWom {
 
     function burn(uint256 slot) external;
 
-    function update(uint256 slot, uint256 lockDays) external;
+    function update(uint256 slot, uint256 lockDays) external returns (uint256 newVeWomAmount);
 }
