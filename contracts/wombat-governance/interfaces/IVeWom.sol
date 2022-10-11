@@ -28,4 +28,6 @@ interface IVeWom {
     function mint(uint256 amount, uint256 lockDays) external returns (uint256 veWomAmount);
 
     function burn(uint256 slot) external;
+
+    function update(uint256 slot, uint256 lockDays) external returns (uint256 newVeWomAmount);
 }

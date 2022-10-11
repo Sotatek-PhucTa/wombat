@@ -902,7 +902,46 @@ describe('MasterWombat V2', function () {
       expect(mimPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('20000'))))
 
       /// === Third part === ///
-      /// (3) then burn vewom and see if factor and sumOfFactors updates correctly for each pool
+      /// (3) then update vewom lock and see if factor and sumOfFactors updates correctly for each pool
+      await this.mockVeWom.connect(users[10]).update2(parseEther('10000'), parseEther('100000'), 365)
+
+      // USDT
+      usdtPoolInfo = await this.mw.poolInfo(0)
+      userInfoUsdt = await this.mw.userInfo(0, users[10].address)
+      expect(userInfoUsdt.factor).to.be.equal(sqrt(parseUnits('10000', 6).mul(parseEther('110000'))))
+      // users[7] now has vewom so sumOfFactors is updated
+      expect(usdtPoolInfo.sumOfFactors).to.be.equal(
+        sqrt(parseUnits('50000000', 6).mul(parseEther('10000'))).add(
+          sqrt(parseUnits('10000', 6).mul(parseEther('110000')))
+        )
+      )
+
+      // USDC
+      usdcPoolInfo = await this.mw.poolInfo(1)
+      userInfoUsdc = await this.mw.userInfo(1, users[10].address)
+      usdcSumOfFactors = sqrt(parseUnits('60000', 6).mul(parseEther('22000')))
+        .add(sqrt(parseUnits('350000', 6).mul(parseEther('3000'))))
+        .add(sqrt(parseUnits('1500000', 6).mul(parseEther('128000'))))
+        .add(sqrt(parseUnits('18000000', 6).mul(parseEther('5129300'))))
+        .add(sqrt(parseUnits('30000000', 6).mul(parseEther('16584200'))))
+        .add(sqrt(parseUnits('10000', 6).mul(parseEther('110000'))))
+      expect(userInfoUsdc.factor).to.be.equal(sqrt(parseUnits('10000', 6).mul(parseEther('110000'))))
+      expect(usdcPoolInfo.sumOfFactors).to.be.equal(usdcSumOfFactors)
+
+      // DAI
+      daiPoolInfo = await this.mw.poolInfo(2)
+      userInfoDai = await this.mw.userInfo(2, users[10].address)
+      expect(userInfoDai.factor).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
+      expect(daiPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
+
+      // MIM
+      mimPoolInfo = await this.mw.poolInfo(3)
+      userInfoMim = await this.mw.userInfo(3, users[10].address)
+      expect(userInfoMim.factor).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
+      expect(mimPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
+
+      /// === Fourth part === ///
+      /// (4) then burn vewom and see if factor and sumOfFactors updates correctly for each pool
       await this.mockVeWom.connect(users[10]).burn2(await this.mockVeWom.balanceOf(users[10].address))
 
       // USDT

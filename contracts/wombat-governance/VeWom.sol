@@ -54,6 +54,13 @@ contract VeWom is
     event SetMasterWombat(address addr);
     event SetWhiteList(address addr);
     event SetMaxBreedingLength(uint256 len);
+    event UpdateLockTime(
+        address addr,
+        uint256 unlockTime,
+        uint256 womAmount,
+        uint256 originalVeWomAmount,
+        uint256 newVeWomAmount
+    );
 
     error VEWOM_OVERFLOW();
 
@@ -134,7 +141,7 @@ contract VeWom is
     }
 
     function _expectedVeWomAmount(uint256 amount, uint256 lockDays) internal pure returns (uint256) {
-        // veWOM = 0.026 * lockDays^0.5
+        // veWOM = WOM * 0.026 * lockDays^0.5
         return amount.wmul(26162237992630200).wmul(LogExpMath.pow(lockDays * WAD, 50e16));
     }
 
@@ -193,6 +200,48 @@ contract VeWom is
         _burn(msg.sender, breeding.veWomAmount);
 
         emit Exit(msg.sender, breeding.unlockTime, breeding.womAmount, breeding.veWomAmount);
+    }
+
+    /// @notice update the WOM lock days such that the end date is `now` + `lockDays`
+    /// @param slot the veWOM slot
+    /// @param lockDays the new lock days (it should be larger than original lock days)
+    function update(uint256 slot, uint256 lockDays)
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (uint256 newVeWomAmount)
+    {
+        _assertNotContract(msg.sender);
+
+        require(lockDays >= uint256(minLockDays) && lockDays <= uint256(maxLockDays), 'lock days is invalid');
+
+        uint256 length = users[msg.sender].breedings.length;
+        require(slot < length, 'slot position should be less than the number of slots');
+
+        uint256 originalUnlockTime = uint256(users[msg.sender].breedings[slot].unlockTime);
+        uint256 originalWomAmount = uint256(users[msg.sender].breedings[slot].womAmount);
+        uint256 originalVeWomAmount = uint256(users[msg.sender].breedings[slot].veWomAmount);
+        uint256 newUnlockTime = block.timestamp + 1 days * lockDays;
+        newVeWomAmount = _expectedVeWomAmount(originalWomAmount, lockDays);
+
+        if (newUnlockTime > type(uint48).max) revert VEWOM_OVERFLOW();
+        if (newVeWomAmount > type(uint104).max) revert VEWOM_OVERFLOW();
+
+        require(originalUnlockTime < newUnlockTime, 'the new end date must be greater than existing end date');
+        require(
+            originalVeWomAmount < newVeWomAmount,
+            'the new veWom amount must be greater than existing veWom amount'
+        );
+
+        // change unlock time and veWom amount
+        users[msg.sender].breedings[slot].unlockTime = uint48(newUnlockTime);
+        users[msg.sender].breedings[slot].veWomAmount = uint104(newVeWomAmount);
+
+        _mint(msg.sender, newVeWomAmount - originalVeWomAmount);
+
+        // emit event
+        emit UpdateLockTime(msg.sender, newUnlockTime, originalWomAmount, originalVeWomAmount, newVeWomAmount);
     }
 
     /// @notice asserts addres in param is not a smart contract.
