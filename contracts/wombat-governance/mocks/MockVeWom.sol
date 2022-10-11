@@ -18,4 +18,9 @@ contract MockVeWom is Initializable, VeWom {
     function burn2(uint256 _amount) external {
         _burn(msg.sender, _amount);
     }
+
+    // update is already declared in VeWom.sol
+    function update2(uint256 originalAmount, uint256 amount, uint256 lockDays) external returns (uint256 veWomAmount) {
+        _mint(msg.sender, amount - originalAmount);
+    }
 }
