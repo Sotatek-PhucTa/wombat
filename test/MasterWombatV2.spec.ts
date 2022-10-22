@@ -600,7 +600,7 @@ describe('MasterWombat V2', function () {
         this.wom.address,
         this.mockVeWom.address,
         this.womPerSec,
-        375, // 37.5% base => corresponds to 30% / 50% (with 20 % allocated externally)
+        375, // 37.5% base => corresponds to 30% / 50%
         startTime
       )
 
@@ -712,7 +712,7 @@ describe('MasterWombat V2', function () {
         this.wom.address,
         this.mockVeWom.address,
         this.womPerSec,
-        375, // 37.5% base => corresponds to 30% / 50% (with 20 % allocated externally)
+        375, // 37.5% base => corresponds to 30% / 50%
         startTime
       )
 
@@ -995,7 +995,7 @@ describe('MasterWombat V2', function () {
         this.wom.address,
         this.mockVeWom.address,
         this.womPerSec,
-        375, // 37.5% base => corresponds to 30% / 50% (with 20 % allocated externally)
+        375, // 37.5% base => corresponds to 30% / 50%
         startTime
       )
 
@@ -1092,7 +1092,7 @@ describe('MasterWombat V2', function () {
         this.wom.address,
         this.mockVeWom.address,
         this.womPerSec,
-        500, // 50% base => corresponds to 40% / 40% (with 20 % allocated externally)
+        500, // 50% base => corresponds to 40% / 40%
         startTime
       )
       await this.mwV2.add('30', this.usdt.address, ethers.constants.AddressZero)
@@ -1132,7 +1132,7 @@ describe('MasterWombat V2', function () {
         this.wom.address,
         this.mockVeWom.address,
         this.womPerSec,
-        500, // 50% base => corresponds to 40% / 40% (with 20 % allocated externally)
+        500, // 50% base => corresponds to 40% / 40%
         startTime
       )
       await this.mwV2.add('30', this.usdt.address, ethers.constants.AddressZero)
@@ -1177,7 +1177,7 @@ describe('MasterWombat V2', function () {
           this.wom.address,
           this.mockVeWom.address,
           this.womPerSec,
-          375, // 37.5% base => corresponds to 30% / 50% (with 20 % allocated externally)
+          375, // 37.5% base => corresponds to 30% / 50%
           startTime
         )
 

@@ -13,6 +13,10 @@ import './interfaces/IMasterWombat.sol';
 import './interfaces/IVeWom.sol';
 import './VeERC20Upgradeable.sol';
 
+interface IVe {
+    function vote(address user, int256 voteDelta) external;
+}
+
 /// @title VeWom
 /// @notice Wombat Waddle: the staking contract for WOM, as well as the token used for governance.
 /// Note Waddling does not seem to slow the Wombat, it only makes it sturdier.
@@ -25,7 +29,8 @@ contract VeWom is
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
     VeERC20Upgradeable,
-    IVeWom
+    IVeWom,
+    IVe
 {
     using SafeERC20 for IERC20;
     using DSMath for uint256;
@@ -49,9 +54,15 @@ contract VeWom is
     /// @notice user info mapping
     mapping(address => UserInfo) internal users;
 
+    /// @notice Address of the Voter contract
+    address public voter;
+    /// @notice amount of vote used currently for each user
+    mapping(address => uint256) public usedVote;
+
     event Enter(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
     event Exit(address addr, uint256 unlockTime, uint256 womAmount, uint256 veWomAmount);
     event SetMasterWombat(address addr);
+    event SetVoter(address addr);
     event SetWhiteList(address addr);
     event SetMaxBreedingLength(uint256 len);
     event UpdateLockTime(
@@ -83,6 +94,14 @@ contract VeWom is
         maxLockDays = 1461;
     }
 
+    function _verifyVoteIsEnough(address _user) internal view {
+        require(balanceOf(_user) >= usedVote[_user], 'VeWom: not enough vote');
+    }
+
+    function _onlyVoter() internal view {
+        require(msg.sender == voter, 'VeWom: caller is not voter');
+    }
+
     /**
      * @dev pause pool, restricting certain operations
      */
@@ -103,6 +122,14 @@ contract VeWom is
         require(address(_masterWombat) != address(0), 'zero address');
         masterWombat = _masterWombat;
         emit SetMasterWombat(address(_masterWombat));
+    }
+
+    /// @notice sets voter contract address
+    /// @param _voter the new NFT contract address
+    function setVoter(address _voter) external onlyOwner {
+        require(address(_voter) != address(0), 'zero address');
+        voter = _voter;
+        emit SetVoter(_voter);
     }
 
     /// @notice sets whitelist address
@@ -261,6 +288,19 @@ contract VeWom is
     /// @param _account the account being affected
     /// @param _newBalance the newVeWomBalance of the user
     function _afterTokenOperation(address _account, uint256 _newBalance) internal override {
+        _verifyVoteIsEnough(_account);
         masterWombat.updateFactor(_account, _newBalance);
+    }
+
+    function vote(address _user, int256 _voteDelta) external override {
+        _onlyVoter();
+
+        if (_voteDelta >= 0) {
+            usedVote[_user] += uint256(_voteDelta);
+            _verifyVoteIsEnough(_user);
+        } else {
+            // reverts if usedVote[_user] < -_voteDelta
+            usedVote[_user] -= uint256(-_voteDelta);
+        }
     }
 }
