@@ -16,8 +16,6 @@ import './interfaces/IMultiRewarder.sol';
 
 interface IVoter {
     function distribute(address _lpToken) external;
-
-    function pendingWom(address _lpToken) external view returns (uint256);
 }
 
 /// @title MasterWombatV3
@@ -63,11 +61,20 @@ contract MasterWombatV3 is
     // Info of each pool.
     struct PoolInfo {
         IERC20 lpToken; // Address of LP token contract.
+        ////
         IMultiRewarder rewarder;
-        uint256 sumOfFactors; // the sum of all boosted factors by all of the users in the pool
-        uint128 accWomPerShare; // 19.12 fixed point. Accumulated WOMs per share, times 1e12.
-        uint128 accWomPerFactorShare; // 19.12 fixed point.accumulated wom per factor share
+        uint40 periodFinish;
+        ////
+        uint128 sumOfFactors; // 20.18 fixed point. the sum of all boosted factors by all of the users in the pool
+        uint128 rewardRate; // 20.18 fixed point.
+        ////
+        uint104 accWomPerShare; // 19.12 fixed point. Accumulated WOM per share, times 1e12.
+        uint104 accWomPerFactorShare; // 19.12 fixed point. Accumulated WOM per factor share
+        uint40 lastRewardTimestamp;
     }
+
+    uint256 public constant REWARD_DURATION = 7 days;
+    uint256 public constant ACC_TOKEN_PRECISION = 1e12;
 
     // Wom token
     IERC20 public wom;
@@ -144,20 +151,6 @@ contract MasterWombatV3 is
         newMasterWombat = _newMasterWombat;
     }
 
-    function boostedPartition() external view returns (uint256) {
-        return 1000 - basePartition;
-    }
-
-    /// @notice returns pool length
-    function poolLength() external view override returns (uint256) {
-        return poolInfo.length;
-    }
-
-    function getAssetPid(address asset) external view override returns (uint256) {
-        // revert if asset not exist
-        return assetPid[asset] - 1;
-    }
-
     /// @notice Add a new lp to the pool. Can only be called by the owner.
     /// @dev Reverts if the same LP token is added more than once.
     /// @param _lpToken the corresponding lp token
@@ -174,10 +167,13 @@ contract MasterWombatV3 is
         poolInfo.push(
             PoolInfo({
                 lpToken: _lpToken,
-                rewarder: _rewarder,
-                sumOfFactors: 0,
+                lastRewardTimestamp: uint40(block.timestamp),
                 accWomPerShare: 0,
-                accWomPerFactorShare: 0
+                rewarder: _rewarder,
+                accWomPerFactorShare: 0,
+                sumOfFactors: 0,
+                periodFinish: uint40(block.timestamp),
+                rewardRate: 0
             })
         );
         assetPid[address(_lpToken)] = poolInfo.length;
@@ -202,75 +198,6 @@ contract MasterWombatV3 is
         emit SetRewarder(_pid, _rewarder);
     }
 
-    /// @notice View function to see pending WOMs on frontend.
-    /// @param _pid the pool id
-    /// @param _user the user address
-    function pendingTokens(uint256 _pid, address _user)
-        external
-        view
-        override
-        returns (
-            uint256 pendingRewards,
-            IERC20[] memory bonusTokenAddresses,
-            string[] memory bonusTokenSymbols,
-            uint256[] memory pendingBonusRewards
-        )
-    {
-        PoolInfo storage pool = poolInfo[_pid];
-
-        // calculate accWomPerShare and accWomPerFactorShare
-        uint256 accWomPerShare = pool.accWomPerShare;
-        uint256 accWomPerFactorShare = pool.accWomPerFactorShare;
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-
-        if (lpSupply != 0) {
-            uint256 pendingWomForLp = IVoter(voter).pendingWom(address(pool.lpToken));
-            accWomPerShare += (pendingWomForLp * 1e12 * basePartition) / (lpSupply * 1000);
-
-            if (pool.sumOfFactors != 0) {
-                accWomPerFactorShare += (pendingWomForLp * 1e12 * (1000 - basePartition)) / (pool.sumOfFactors * 1000);
-            }
-        }
-
-        UserInfo storage user = userInfo[_pid][_user];
-        pendingRewards =
-            ((uint256(user.amount) * accWomPerShare + uint256(user.factor) * accWomPerFactorShare) / 1e12) +
-            user.pendingWom -
-            user.rewardDebt;
-
-        // If it's a double reward farm, return info about the bonus token
-        if (address(pool.rewarder) != address(0)) {
-            (bonusTokenAddresses, bonusTokenSymbols) = rewarderBonusTokenInfo(_pid);
-            pendingBonusRewards = pool.rewarder.pendingTokens(_user);
-        }
-    }
-
-    /// @notice Get bonus token info from the rewarder contract for a given pool, if it is a double reward farm
-    /// @param _pid the pool id
-    function rewarderBonusTokenInfo(uint256 _pid)
-        public
-        view
-        override
-        returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols)
-    {
-        PoolInfo storage pool = poolInfo[_pid];
-        if (address(pool.rewarder) == address(0)) {
-            return (bonusTokenAddresses, bonusTokenSymbols);
-        }
-
-        bonusTokenAddresses = pool.rewarder.rewardTokens();
-
-        uint256 len = bonusTokenAddresses.length;
-        bonusTokenSymbols = new string[](len);
-        for (uint256 i; i < len; ++i) {
-            if (address(bonusTokenAddresses[i]) == address(0)) {
-                bonusTokenSymbols[i] = 'BNB';
-            } else {
-                bonusTokenSymbols[i] = IERC20Metadata(address(bonusTokenAddresses[i])).symbol();
-            }
-        }
-    }
-
     /// @notice Update reward variables for all pools.
     /// @dev Be careful of gas spending!
     function massUpdatePools() external override {
@@ -288,31 +215,41 @@ contract MasterWombatV3 is
 
     function _updatePool(uint256 _pid) private {
         PoolInfo storage pool = poolInfo[_pid];
+
+        // Shall we skip to minimize gas?
         IVoter(voter).distribute(address(pool.lpToken));
+
+        if (block.timestamp > pool.lastRewardTimestamp) {
+            (uint256 accWomPerShare, uint256 accWomPerFactorShare) = calRewardPerUnit(_pid);
+            pool.accWomPerShare = to104(accWomPerShare);
+            pool.accWomPerFactorShare = to104(accWomPerFactorShare);
+            pool.lastRewardTimestamp = uint40(lastTimeRewardApplicable(pool.periodFinish));
+        }
     }
 
-    /// @dev We might distribute WOM over a period of time to prevent front-running
-    /// Refer to synthetix/StakingRewards.sol notifyRewardAmount
+    /// @notice Distribute WOM over a period of 7 days
+    /// @dev Refer to synthetix/StakingRewards.sol notifyRewardAmount
     /// Note: This looks safe from reentrancy.
     function notifyRewardAmount(address _lpToken, uint256 _amount) external override {
         require(_amount > 0, 'notifyRewardAmount: zero amount');
 
         // this line reverts if asset is not in the list
-        uint256 pid = lpTokens._inner._indexes[bytes32(uint256(uint160(_lpToken)))] - 1;
+        uint256 pid = assetPid[_lpToken] - 1;
         PoolInfo storage pool = poolInfo[pid];
-
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        if (lpSupply == 0) {
-            return;
+        if (block.timestamp >= pool.periodFinish) {
+            pool.rewardRate = to128(_amount / REWARD_DURATION);
+        } else {
+            uint256 remainingTime = pool.periodFinish - block.timestamp;
+            uint256 leftoverReward = remainingTime * pool.rewardRate;
+            pool.rewardRate = to128((_amount + leftoverReward) / REWARD_DURATION);
         }
 
-        // update accWomPerShare to reflect base rewards
-        pool.accWomPerShare += to128((_amount * 1e12 * basePartition) / (lpSupply * 1000));
+        pool.lastRewardTimestamp = uint40(block.timestamp);
+        pool.periodFinish = uint40(block.timestamp + REWARD_DURATION);
 
-        // update accWomPerFactorShare to reflect boosted rewards
-        if (pool.sumOfFactors > 0) {
-            pool.accWomPerFactorShare += to128((_amount * 1e12 * (1000 - basePartition)) / (pool.sumOfFactors * 1000));
-        }
+        // sanity check
+        uint256 balance = IERC20(wom).balanceOf(address(this));
+        require(pool.rewardRate <= balance / REWARD_DURATION, 'notifyRewardAmount: Provided reward too high');
 
         // Event is not emitted as Voter should have already emitted it
     }
@@ -356,7 +293,8 @@ contract MasterWombatV3 is
 
         // update pool in case user has deposited
         _updatePool(_pid);
-        _updateFor(_pid, _user, user.amount + _amount);
+
+        _updateUserAmount(_pid, _user, user.amount + _amount);
 
         // safe transfer is not needed for Asset
         pool.lpToken.transferFrom(msg.sender, address(this), _amount);
@@ -377,8 +315,10 @@ contract MasterWombatV3 is
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
 
+        // update pool in case user has deposited
         _updatePool(_pid);
-        (reward, additionalRewards) = _updateFor(_pid, msg.sender, user.amount + _amount);
+
+        (reward, additionalRewards) = _updateUserAmount(_pid, msg.sender, user.amount + _amount);
 
         // safe transfer is not needed for Asset
         pool.lpToken.transferFrom(address(msg.sender), address(this), _amount);
@@ -416,15 +356,15 @@ contract MasterWombatV3 is
         additionalRewards = new uint256[][](_pids.length);
         for (uint256 i; i < _pids.length; ++i) {
             UserInfo storage user = userInfo[_pids[i]][msg.sender];
-            if (user.amount > 0) {
-                _updatePool(_pids[i]);
-                PoolInfo storage pool = poolInfo[_pids[i]];
+            _updatePool(_pids[i]);
 
+            if (user.amount > 0) {
+                PoolInfo storage pool = poolInfo[_pids[i]];
                 // increase pending to send all rewards once
                 uint256 poolRewards = ((uint256(user.amount) *
                     pool.accWomPerShare +
                     uint256(user.factor) *
-                    pool.accWomPerFactorShare) / 1e12) +
+                    pool.accWomPerFactorShare) / ACC_TOKEN_PRECISION) +
                     user.pendingWom -
                     user.rewardDebt;
 
@@ -433,7 +373,7 @@ contract MasterWombatV3 is
                 // update reward debt
                 user.rewardDebt = to128(
                     (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) /
-                        1e12
+                        ACC_TOKEN_PRECISION
                 );
 
                 // increase reward
@@ -470,16 +410,17 @@ contract MasterWombatV3 is
         UserInfo storage user = userInfo[_pid][msg.sender];
         require(user.amount >= _amount, 'withdraw: not enough balance');
 
-        IVoter(voter).distribute(address(pool.lpToken));
-        (reward, additionalRewards) = _updateFor(_pid, msg.sender, user.amount - _amount);
+        _updatePool(_pid);
+
+        (reward, additionalRewards) = _updateUserAmount(_pid, msg.sender, user.amount - _amount);
 
         // SafeERC20 is not needed as Asset will revert if transfer fails
         pool.lpToken.transfer(msg.sender, _amount);
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
-    /// @notice Distribute WOM rewards and Update user balance
-    function _updateFor(
+    /// @notice Update user balance and distribute WOM rewards
+    function _updateUserAmount(
         uint256 _pid,
         address _user,
         uint256 _amount
@@ -491,7 +432,7 @@ contract MasterWombatV3 is
         if (user.amount > 0 || user.pendingWom > 0) {
             reward =
                 ((uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) /
-                    1e12) +
+                    ACC_TOKEN_PRECISION) +
                 user.pendingWom -
                 user.rewardDebt;
             user.pendingWom = 0;
@@ -510,7 +451,8 @@ contract MasterWombatV3 is
 
         // update reward debt
         user.rewardDebt = to128(
-            (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) / 1e12
+            (uint256(user.amount) * pool.accWomPerShare + uint256(user.factor) * pool.accWomPerFactorShare) /
+                ACC_TOKEN_PRECISION
         );
 
         // update rewarder before we update lpSupply and sumOfFactors
@@ -587,7 +529,7 @@ contract MasterWombatV3 is
             uint256 pending = ((uint256(user.amount) *
                 pool.accWomPerShare +
                 uint256(user.factor) *
-                pool.accWomPerFactorShare) / 1e12) - user.rewardDebt;
+                pool.accWomPerFactorShare) / ACC_TOKEN_PRECISION) - user.rewardDebt;
             // increase pendingWom
             user.pendingWom += to128(pending);
 
@@ -597,10 +539,11 @@ contract MasterWombatV3 is
             user.factor = to128(newFactor);
             // update reward debt, take into account newFactor
             user.rewardDebt = to128(
-                (uint256(user.amount) * pool.accWomPerShare + newFactor * pool.accWomPerFactorShare) / 1e12
+                (uint256(user.amount) * pool.accWomPerShare + newFactor * pool.accWomPerFactorShare) /
+                    ACC_TOKEN_PRECISION
             );
             // also, update sumOfFactors
-            pool.sumOfFactors = pool.sumOfFactors + newFactor - oldFactor;
+            pool.sumOfFactors = to128(pool.sumOfFactors + newFactor - oldFactor);
         }
     }
 
@@ -612,8 +555,116 @@ contract MasterWombatV3 is
         emit EmergencyWomWithdraw(address(msg.sender), wom.balanceOf(address(this)));
     }
 
+    /**
+     * Read-only functions
+     */
+
+    /// @notice Get bonus token info from the rewarder contract for a given pool, if it is a double reward farm
+    /// @param _pid the pool id
+    function rewarderBonusTokenInfo(uint256 _pid)
+        public
+        view
+        override
+        returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols)
+    {
+        PoolInfo storage pool = poolInfo[_pid];
+        if (address(pool.rewarder) == address(0)) {
+            return (bonusTokenAddresses, bonusTokenSymbols);
+        }
+
+        bonusTokenAddresses = pool.rewarder.rewardTokens();
+
+        uint256 len = bonusTokenAddresses.length;
+        bonusTokenSymbols = new string[](len);
+        for (uint256 i; i < len; ++i) {
+            if (address(bonusTokenAddresses[i]) == address(0)) {
+                bonusTokenSymbols[i] = 'BNB';
+            } else {
+                bonusTokenSymbols[i] = IERC20Metadata(address(bonusTokenAddresses[i])).symbol();
+            }
+        }
+    }
+
+    function boostedPartition() external view returns (uint256) {
+        return 1000 - basePartition;
+    }
+
+    /// @notice returns pool length
+    function poolLength() external view override returns (uint256) {
+        return poolInfo.length;
+    }
+
+    function getAssetPid(address asset) external view override returns (uint256) {
+        // revert if asset not exist
+        return assetPid[asset] - 1;
+    }
+
+    function lastTimeRewardApplicable(uint256 _periodFinish) public view returns (uint256) {
+        return block.timestamp < _periodFinish ? block.timestamp : _periodFinish;
+    }
+
+    function calRewardPerUnit(uint256 _pid) public view returns (uint256 accWomPerShare, uint256 accWomPerFactorShare) {
+        PoolInfo storage pool = poolInfo[_pid];
+        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+
+        accWomPerShare = pool.accWomPerShare;
+        accWomPerFactorShare = pool.accWomPerFactorShare;
+
+        if (lpSupply == 0 || block.timestamp <= pool.lastRewardTimestamp) {
+            // update only if now > lastRewardTimestamp
+            return (accWomPerShare, accWomPerFactorShare);
+        }
+
+        uint256 secondsElapsed = lastTimeRewardApplicable(pool.periodFinish) - pool.lastRewardTimestamp;
+        uint256 womReward = secondsElapsed * pool.rewardRate;
+        accWomPerShare += (womReward * ACC_TOKEN_PRECISION * basePartition) / (lpSupply * 1000);
+
+        if (pool.sumOfFactors != 0) {
+            accWomPerFactorShare +=
+                (womReward * ACC_TOKEN_PRECISION * (1000 - basePartition)) /
+                (pool.sumOfFactors * 1000);
+        }
+    }
+
+    /// @notice View function to see pending WOMs on frontend.
+    /// @param _pid the pool id
+    /// @param _user the user address
+    function pendingTokens(uint256 _pid, address _user)
+        external
+        view
+        override
+        returns (
+            uint256 pendingRewards,
+            IERC20[] memory bonusTokenAddresses,
+            string[] memory bonusTokenSymbols,
+            uint256[] memory pendingBonusRewards
+        )
+    {
+        PoolInfo storage pool = poolInfo[_pid];
+
+        // calculate accWomPerShare and accWomPerFactorShare
+        (uint256 accWomPerShare, uint256 accWomPerFactorShare) = calRewardPerUnit(_pid);
+
+        UserInfo storage user = userInfo[_pid][_user];
+        pendingRewards =
+            ((user.amount * accWomPerShare + user.factor * accWomPerFactorShare) / ACC_TOKEN_PRECISION) +
+            user.pendingWom -
+            user.rewardDebt;
+
+        // If it's a double reward farm, return info about the bonus token
+        if (address(pool.rewarder) != address(0)) {
+            (bonusTokenAddresses, bonusTokenSymbols) = rewarderBonusTokenInfo(_pid);
+            pendingBonusRewards = pool.rewarder.pendingTokens(_user);
+        }
+    }
+
     function to128(uint256 val) internal pure returns (uint128) {
         if (val > type(uint128).max) revert('uint128 overflow');
         return uint128(val);
+    }
+
+    function to104(uint256 val) internal pure returns (uint104) {
+        if (val > type(uint104).max) revert('uint104 overflow');
+        return uint104(val);
     }
 }

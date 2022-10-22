@@ -75,6 +75,11 @@ contract VeWom is
 
     error VEWOM_OVERFLOW();
 
+    modifier onlyVoter() {
+        require(msg.sender == voter, 'VeWom: caller is not voter');
+        _;
+    }
+
     function initialize(IERC20 _wom, IMasterWombat _masterWombat) external initializer {
         require(address(_masterWombat) != address(0), 'zero address');
         require(address(_wom) != address(0), 'zero address');
@@ -96,10 +101,6 @@ contract VeWom is
 
     function _verifyVoteIsEnough(address _user) internal view {
         require(balanceOf(_user) >= usedVote[_user], 'VeWom: not enough vote');
-    }
-
-    function _onlyVoter() internal view {
-        require(msg.sender == voter, 'VeWom: caller is not voter');
     }
 
     /**
@@ -292,9 +293,7 @@ contract VeWom is
         masterWombat.updateFactor(_account, _newBalance);
     }
 
-    function vote(address _user, int256 _voteDelta) external override {
-        _onlyVoter();
-
+    function vote(address _user, int256 _voteDelta) external override onlyVoter {
         if (_voteDelta >= 0) {
             usedVote[_user] += uint256(_voteDelta);
             _verifyVoteIsEnough(_user);
