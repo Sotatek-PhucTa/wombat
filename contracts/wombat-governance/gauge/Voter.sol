@@ -184,7 +184,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     function vote(IERC20[] calldata _lpVote, int256[] calldata _deltas)
         external
         nonReentrant
-        returns (uint256[] memory bribeRewards)
+        returns (uint256[][] memory bribeRewards)
     {
         // 1. call _updateFor() to update WOM emission
         // 2. update related lpToken weight and total lpToken weight
@@ -198,7 +198,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         uint256 voteCnt = _lpVote.length;
         int256 voteDelta;
 
-        bribeRewards = new uint256[](voteCnt);
+        bribeRewards = new uint256[][](voteCnt);
 
         for (uint256 i; i < voteCnt; ++i) {
             IERC20 lpToken = _lpVote[i];
@@ -239,8 +239,8 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
 
     /// @notice Claim bribes for LP tokens
     /// @dev This function looks safe from re-entrancy attack
-    function claimBribes(IERC20[] calldata _lpTokens) external returns (uint256[] memory bribeRewards) {
-        bribeRewards = new uint256[](_lpTokens.length);
+    function claimBribes(IERC20[] calldata _lpTokens) external returns (uint256[][] memory bribeRewards) {
+        bribeRewards = new uint256[][](_lpTokens.length);
         for (uint256 i; i < _lpTokens.length; ++i) {
             IERC20 lpToken = _lpTokens[i];
             _checkGaugeExist(lpToken);
@@ -307,9 +307,9 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     function pendingBribes(IERC20[] calldata _lpTokens, address _user)
         external
         view
-        returns (uint256[] memory bribeRewards)
+        returns (uint256[][] memory bribeRewards)
     {
-        bribeRewards = new uint256[](_lpTokens.length);
+        bribeRewards = new uint256[][](_lpTokens.length);
         for (uint256 i; i < _lpTokens.length; ++i) {
             IERC20 lpToken = _lpTokens[i];
             if (address(infos[lpToken].bribe) != address(0)) {

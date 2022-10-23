@@ -5,28 +5,26 @@ import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-
-import '../interfaces/IMasterWombat.sol';
 import '../interfaces/IMultiRewarder.sol';
 
 /**
- * This is a sample contract to be used in the MasterWombat contract for partners to reward
+ * This is a sample contract to be used in the Master contract for partners to reward
  * stakers with their native token alongside WOM.
  *
  * It assumes no minting rights, so requires a set amount of reward tokens to be transferred to this contract prior.
  * E.g. say you've allocated 100,000 XYZ to the WOM-XYZ farm over 30 days. Then you would need to transfer
  * 100,000 XYZ and set the block reward accordingly so it's fully distributed after 30 days.
  *
- * - This contract has no knowledge on the LP amount and MasterWombat is
+ * - This contract has no knowledge on the LP amount and Master is
  *   responsible to pass the amount into this contract
  * - Supports multiple reward tokens
  */
 contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    uint256 private constant ACC_TOKEN_PRECISION = 1e12;
+    uint256 internal constant ACC_TOKEN_PRECISION = 1e12;
     IERC20 public immutable lpToken;
-    IMasterWombat public immutable masterWombat;
+    address public immutable master;
 
     struct UserInfo {
         uint128 amount; // 20.18 fixed point.
@@ -35,7 +33,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         uint256 unpaidRewards; // 20.18 fixed point.
     }
 
-    /// @notice Info of each masterWombat rewardInfo.
+    /// @notice Info of each rewardInfo.
     struct RewardInfo {
         IERC20 rewardToken; // if rewardToken is 0, native token is used as reward token
         uint96 tokenPerSec; // 10.18 fixed point
@@ -56,8 +54,8 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     event OnReward(address indexed rewardToken, address indexed user, uint256 amount);
     event RewardRateUpdated(address indexed rewardToken, uint256 oldRate, uint256 newRate);
 
-    modifier onlyMW() {
-        require(msg.sender == address(masterWombat), 'onlyMW: only MasterWombat can call this function');
+    modifier onlyMaster() {
+        require(msg.sender == address(master), 'onlyMaster: only Master can call this function');
         _;
     }
 
@@ -70,7 +68,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     receive() external payable {}
 
     constructor(
-        IMasterWombat _MP,
+        address _master,
         IERC20 _lpToken,
         uint256 _startTimestamp,
         IERC20 _rewardToken,
@@ -81,10 +79,10 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
             'constructor: reward token must be a valid contract'
         );
         require(Address.isContract(address(_lpToken)), 'constructor: LP token must be a valid contract');
-        require(Address.isContract(address(_MP)), 'constructor: MasterWombat must be a valid contract');
+        require(Address.isContract(address(_master)), 'constructor: Master must be a valid contract');
         require(_startTimestamp >= block.timestamp);
 
-        masterWombat = _MP;
+        master = _master;
         lpToken = _lpToken;
 
         lastRewardTimestamp = _startTimestamp;
@@ -118,19 +116,24 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         emit RewardRateUpdated(address(_rewardToken), 0, _tokenPerSec);
     }
 
+    function updateReward() public {
+        _updateReward();
+    }
+
     /// @dev This function should be called before lpSupply and sumOfFactors update
     function _updateReward() internal {
-        uint256 length = rewardInfo.length;
-        uint256 lpSupply = lpToken.balanceOf(address(masterWombat));
+        _updateReward(_getTotalShare());
+    }
 
-        if (block.timestamp > lastRewardTimestamp && lpSupply > 0) {
+    function _updateReward(uint256 totalShare) internal {
+        if (block.timestamp > lastRewardTimestamp && totalShare > 0) {
+            uint256 length = rewardInfo.length;
             for (uint256 i; i < length; ++i) {
                 RewardInfo storage reward = rewardInfo[i];
                 uint256 timeElapsed = block.timestamp - lastRewardTimestamp;
                 uint256 tokenReward = timeElapsed * reward.tokenPerSec;
-                reward.accTokenPerShare += toUint128((tokenReward * ACC_TOKEN_PRECISION) / lpSupply);
+                reward.accTokenPerShare += toUint128((tokenReward * ACC_TOKEN_PRECISION) / totalShare);
             }
-
             lastRewardTimestamp = block.timestamp;
         }
     }
@@ -147,20 +150,24 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         emit RewardRateUpdated(address(rewardInfo[_tokenId].rewardToken), oldRate, _tokenPerSec);
     }
 
-    /// @notice Function called by MasterWombat whenever staker claims WOM harvest.
+    /// @notice Function called by Master whenever staker claims WOM harvest.
     /// @notice Allows staker to also receive a 2nd reward token.
-    /// @dev Assume lpSupply and sumOfFactors isn't updated yet when this function is called
+    /// @dev Assume `_getTotalShare` isn't updated yet when this function is called
     /// @param _user Address of user
     /// @param _lpAmount The new amount of LP
     function onReward(address _user, uint256 _lpAmount)
         external
+        virtual
         override
-        onlyMW
+        onlyMaster
         nonReentrant
         returns (uint256[] memory rewards)
     {
         _updateReward();
+        return _onReward(_user, _lpAmount);
+    }
 
+    function _onReward(address _user, uint256 _lpAmount) internal virtual returns (uint256[] memory rewards) {
         uint256 length = rewardInfo.length;
         rewards = new uint256[](length);
         for (uint256 i; i < length; ++i) {
@@ -211,14 +218,22 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     }
 
     /// @notice returns reward length
-    function rewardLength() external view returns (uint256) {
+    function rewardLength() external view virtual returns (uint256) {
+        return _rewardLength();
+    }
+
+    function _rewardLength() internal view returns (uint256) {
         return rewardInfo.length;
     }
 
     /// @notice View function to see pending tokens
     /// @param _user Address of user.
     /// @return rewards reward for a given user.
-    function pendingTokens(address _user) external view override returns (uint256[] memory rewards) {
+    function pendingTokens(address _user) external view virtual returns (uint256[] memory rewards) {
+        return _pendingTokens(_user);
+    }
+
+    function _pendingTokens(address _user) internal view returns (uint256[] memory rewards) {
         uint256 length = rewardInfo.length;
         rewards = new uint256[](length);
 
@@ -227,12 +242,12 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
             UserInfo storage user = userInfo[i][_user];
 
             uint256 accTokenPerShare = pool.accTokenPerShare;
-            uint256 lpSupply = lpToken.balanceOf(address(masterWombat));
+            uint256 totalShare = _getTotalShare();
 
-            if (block.timestamp > lastRewardTimestamp && lpSupply > 0) {
+            if (block.timestamp > lastRewardTimestamp && totalShare > 0) {
                 uint256 timeElapsed = block.timestamp - lastRewardTimestamp;
                 uint256 tokenReward = timeElapsed * pool.tokenPerSec;
-                accTokenPerShare += (tokenReward * ACC_TOKEN_PRECISION) / lpSupply;
+                accTokenPerShare += (tokenReward * ACC_TOKEN_PRECISION) / totalShare;
             }
 
             rewards[i] =
@@ -242,14 +257,22 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         }
     }
 
+    function _getTotalShare() internal view virtual returns (uint256) {
+        return lpToken.balanceOf(address(master));
+    }
+
     /// @notice return an array of reward tokens
-    function rewardTokens() external view override returns (IERC20[] memory tokens) {
+    function _rewardTokens() internal view returns (IERC20[] memory tokens) {
         uint256 length = rewardInfo.length;
         tokens = new IERC20[](length);
         for (uint256 i; i < length; ++i) {
             RewardInfo memory pool = rewardInfo[i];
             tokens[i] = pool.rewardToken;
         }
+    }
+
+    function rewardTokens() external view virtual returns (IERC20[] memory tokens) {
+        return _rewardTokens();
     }
 
     /// @notice In case rewarder is stopped before emissions finished, this function allows

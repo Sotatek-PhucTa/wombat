@@ -5,7 +5,7 @@ import '../interfaces/IRelativePriceProvider.sol';
 import './DynamicAsset.sol';
 
 interface IBondToken {
-    function ratio() external view returns (uint256); 
+    function ratio() external view returns (uint256);
 }
 
 /**

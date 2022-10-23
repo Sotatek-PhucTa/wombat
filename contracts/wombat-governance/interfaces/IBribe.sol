@@ -8,9 +8,11 @@ interface IBribe {
         address user,
         uint256 newVote,
         uint256 originalTotalVotes
-    ) external returns (uint256);
+    ) external returns (uint256[] memory rewards);
 
-    function pendingTokens(address user) external view returns (uint256 pending);
+    function pendingTokens(address _user) external view returns (uint256[] memory rewards);
 
-    function rewardToken() external view returns (IERC20);
+    function rewardTokens() external view returns (IERC20[] memory tokens);
+
+    function rewardLength() external view returns (uint256);
 }
