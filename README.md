@@ -95,6 +95,12 @@ Hardhat Verify:
   - Asset_DP01_BNBx (LP-BNBx) => `0x10F7C62f47F19e3cE08fef38f74E3C0bB31FC24f`
   - Asset_DP01_aBNBc (LP-aBNBc) => `0x9d2deaD9547EB65Aa78E239647a0c783f296406B`
 
+  - Wombat Side Pool (WOM-wmxWom)
+
+  - Pool Proxy (Main entry) => `0xeEB5a751E0F5231Fc21c7415c4A4c6764f67ce2e`
+  - Asset_wmxWOMPool_wmxWom (LP-wmxWom) => `0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688`
+  - Asset_wmxWOMPool_WOM (LP-WOM) => `0xF9BdC872D75f76B946E0770f96851b1f2F653caC`
+
 - Wombat Rewarders
 
   - MultiRewarderPerSec_WBNB => `0x414D1a760320f948147FB71113851BB11CB53976`
