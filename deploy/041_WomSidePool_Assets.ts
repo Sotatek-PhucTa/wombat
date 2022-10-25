@@ -29,8 +29,11 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
       const tokenName = args[0] as string
       const tokenSymbol = args[1] as string
-      const tokenDeployment = await deployments.get(tokenSymbol)
-      const tokenAddress = tokenDeployment.address
+      const tokenAddress =
+        hre.network.name == 'bsc_mainnet'
+          ? (args[2] as string)
+          : ((await deployments.get(tokenSymbol)).address as string)
+      console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
       await deployAsset(
         hre.network.name,
