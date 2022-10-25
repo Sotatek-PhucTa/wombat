@@ -257,10 +257,16 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       tokenPerSec: parseEther('0.005708'),
     },
     WMX: {
-      lpToken: '', // wmxWOM-LP TBD
+      lpToken: '0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688', // wmxWOM-LP TBD
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
-      secondsToStart: 64800, // 18 hours later, i.e. deploy on 10/25/2022 4:00pm HKT
-      tokenPerSec: parseEther('0'), // TBD
+      secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
+      tokenPerSec: parseEther('0.009513'),
+    },
+    WOM: {
+      lpToken: '0xF9BdC872D75f76B946E0770f96851b1f2F653caC', // wmxWOM-LP TBD
+      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
+      tokenPerSec: parseEther('0.019026'),
     },
   },
   bsc_testnet: {

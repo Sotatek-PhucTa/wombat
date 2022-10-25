@@ -27,7 +27,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     })
 
     if (deployResult.newlyDeployed) {
-      console.log(`Deployment complete.`)
+      console.log(`MultiRewarderPerSec_${token} Deployment complete.`)
     }
 
     const address = deployResult.address
