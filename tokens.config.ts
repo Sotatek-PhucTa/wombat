@@ -88,7 +88,7 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
 export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
   bsc_mainnet: {
     wmxWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0],  // last item is pool alloc point
+      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
       wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
     },
   },

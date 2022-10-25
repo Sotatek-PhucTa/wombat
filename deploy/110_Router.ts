@@ -67,8 +67,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         sidepoolAssetsAddress.push(asset.address)
       }
 
-      let womSidePoolTokens = []
-      let womSidePoolAssets = []
+      const womSidePoolTokens = []
+      const womSidePoolAssets = []
       const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
       for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
         for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
