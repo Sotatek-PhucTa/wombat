@@ -277,5 +277,11 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 60,
       tokenPerSec: parseUnits('0.035', 8),
     },
+    wWOM: {
+      lpToken: '0x505b0159871F86Ae0F4512BB52dB5030E31E2459',
+      rewardToken: '0x9bbc325eb7a7367be610bce614c91ef7f29c69dc',
+      secondsToStart: 60,
+      tokenPerSec: parseUnits('0.00035', 18),
+    },
   },
 }
