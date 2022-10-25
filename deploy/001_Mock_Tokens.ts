@@ -1,6 +1,11 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
-import { USD_TOKENS_MAP, USD_SIDEPOOL_TOKENS_MAP, BNB_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import {
+  USD_TOKENS_MAP,
+  USD_SIDEPOOL_TOKENS_MAP,
+  BNB_DYNAMICPOOL_TOKENS_MAP,
+  WOM_DYNAMICPOOL_TOKENS_MAP,
+} from '../tokens.config'
 
 const contractName = 'MockTokens'
 
@@ -51,6 +56,22 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       args: args,
       skipIfAlreadyDeployed: true,
     })
+
+    /// Mock WOM DynamicPool Tokens ///
+    const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
+    for (const tokens of Object.values(WOM_SIDEPOOL_TOKENS)) {
+      for (const deployArgs of Object.values(tokens)) {
+        deployArgs.pop()
+        const tokenSymbol = deployArgs[1] as string
+        await deploy(tokenSymbol, {
+          from: deployer,
+          log: true,
+          contract: 'TestERC20',
+          args: deployArgs,
+          skipIfAlreadyDeployed: true,
+        })
+      }
+    }
   }
 }
 export default deployFunc

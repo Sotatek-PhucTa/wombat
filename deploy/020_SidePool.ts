@@ -1,10 +1,11 @@
 import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
+import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const contractName = 'SidePool_01'
 
-const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
+const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
@@ -65,10 +66,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
       await setMintFeeThresholdTxn.wait()
     }
-    return deployResult
   } else {
     console.log(`${contractName} Contract already deployed.`)
-    return deployResult
   }
 }
 

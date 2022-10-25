@@ -85,6 +85,20 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   },
 }
 
+export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
+  bsc_mainnet: {},
+  bsc_testnet: {
+    wmxWOMPool: {
+      WOM: ['Wombat Token', 'WOM', '18', 0],
+      wmxWOM: ['WMX WOM', 'wmxWOM', '18', 0],
+    },
+    mWOMPool: {
+      WOM: ['Wombat Token', 'WOM', '18', 0],
+      mWOM: ['M WOM', 'mWOM', '18', 0],
+    },
+  },
+}
+
 export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_mainnet: {
     WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic', 10], // last 3 items are exchange rate oracle, asset type, and pool alloc points

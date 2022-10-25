@@ -1,10 +1,12 @@
 import { parseEther } from '@ethersproject/units'
+import { formatEther } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
+import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const contractName = 'DynamicPool_01'
 
-const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
+const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
@@ -41,8 +43,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // Check setup config values
     const ampFactor = await contract.ampFactor()
     const hairCutRate = await contract.haircutRate()
-    console.log(`Amplification factor is : ${ampFactor}`)
-    console.log(`Haircut rate is : ${hairCutRate}`)
+    console.log(`Amplification factor is : ${formatEther(ampFactor)}`)
+    console.log(`Haircut rate is : ${formatEther(hairCutRate)}`)
 
     if (hre.network.name == 'bsc_mainnet') {
       // manually transfer proxyAdmin to multi-sig, do it once and all proxy contracts will follow suit
@@ -65,10 +67,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
       await setMintFeeThresholdTxn.wait()
     }
-    return deployResult
   } else {
     console.log(`${contractName} Contract already deployed.`)
-    return deployResult
   }
 }
 
