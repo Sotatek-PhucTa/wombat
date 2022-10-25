@@ -105,7 +105,7 @@ describe('MasterWombatV3', async function () {
     await veWom.setVoter(voter.address)
 
     const startTime = await latest()
-    await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7))
+    await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7), 0)
 
     await wom.transfer(voter.address, parseEther('100000000'))
   })

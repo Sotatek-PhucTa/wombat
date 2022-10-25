@@ -91,7 +91,7 @@ describe('Voter', async function () {
 
     await voter.deployed()
     const startTime = await latest()
-    await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7))
+    await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7), 0)
 
     await veWom.setVoter(voter.address)
     await wom.transfer(voter.address, parseEther('100000000'))
@@ -138,9 +138,9 @@ describe('Voter', async function () {
       expect(await voter.votes(users[1].address, lpToken2.address)).equals(parseEther('10'))
       expect(await voter.votes(users[1].address, lpToken3.address)).equals(parseEther('10'))
 
-      expect(await voter.weights(lpToken1.address)).equals(parseEther('20'))
-      expect(await voter.weights(lpToken2.address)).equals(parseEther('40'))
-      expect(await voter.weights(lpToken3.address)).equals(parseEther('10'))
+      expect((await voter.weights(lpToken1.address)).voteWeight).equals(parseEther('20'))
+      expect((await voter.weights(lpToken2.address)).voteWeight).equals(parseEther('40'))
+      expect((await voter.weights(lpToken3.address)).voteWeight).equals(parseEther('10'))
 
       expect(await voter.totalWeight()).equals(parseEther('70'))
     })
@@ -154,9 +154,9 @@ describe('Voter', async function () {
       expect(await voter.votes(users[0].address, lpToken2.address)).equals(parseEther('30'))
       expect(await voter.votes(users[0].address, lpToken3.address)).equals(parseEther('105'))
 
-      expect(await voter.weights(lpToken1.address)).equals(parseEther('25'))
-      expect(await voter.weights(lpToken2.address)).equals(parseEther('30'))
-      expect(await voter.weights(lpToken3.address)).equals(parseEther('105'))
+      expect((await voter.weights(lpToken1.address)).voteWeight).equals(parseEther('25'))
+      expect((await voter.weights(lpToken2.address)).voteWeight).equals(parseEther('30'))
+      expect((await voter.weights(lpToken3.address)).voteWeight).equals(parseEther('105'))
 
       expect(await voter.totalWeight()).equals(parseEther('160'))
     })
@@ -168,8 +168,8 @@ describe('Voter', async function () {
       expect(await voter.votes(users[0].address, lpToken1.address)).equals(parseEther('0'))
       expect(await voter.votes(users[0].address, lpToken2.address)).equals(parseEther('25'))
 
-      expect(await voter.weights(lpToken1.address)).equals(parseEther('0'))
-      expect(await voter.weights(lpToken2.address)).equals(parseEther('25'))
+      expect((await voter.weights(lpToken1.address)).voteWeight).equals(parseEther('0'))
+      expect((await voter.weights(lpToken2.address)).voteWeight).equals(parseEther('25'))
 
       expect(await voter.totalWeight()).equals(parseEther('25'))
 
@@ -187,8 +187,8 @@ describe('Voter', async function () {
       expect(await voter.votes(users[0].address, lpToken1.address)).equals(parseEther('5'))
       expect(await voter.votes(users[0].address, lpToken2.address)).equals(parseEther('5'))
 
-      expect(await voter.weights(lpToken1.address)).equals(parseEther('5'))
-      expect(await voter.weights(lpToken2.address)).equals(parseEther('5'))
+      expect((await voter.weights(lpToken1.address)).voteWeight).equals(parseEther('5'))
+      expect((await voter.weights(lpToken2.address)).voteWeight).equals(parseEther('5'))
 
       expect(await voter.totalWeight()).equals(parseEther('10'))
     })
@@ -196,7 +196,7 @@ describe('Voter', async function () {
     it('duplicating LP token', async function () {
       await voter.connect(users[0]).vote([lpToken1.address, lpToken1.address], [parseEther('5'), parseEther('5')])
       expect(await voter.votes(users[0].address, lpToken1.address)).equals(parseEther('10'))
-      expect(await voter.weights(lpToken1.address)).equals(parseEther('10'))
+      expect((await voter.weights(lpToken1.address)).voteWeight).equals(parseEther('10'))
       expect(await voter.totalWeight()).equals(parseEther('10'))
     })
 
@@ -233,198 +233,480 @@ describe('Voter', async function () {
       await lpToken3.connect(users[1]).approve(mw.address, parseEther('1000000000'))
     })
 
-    it('distribute reward', async function () {
-      await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address, lpToken3.address], [10, 20, 30])
+    describe('Base Allocation', async function () {
+      beforeEach(async function () {
+        await voter.setBasePartition(1000)
+      })
 
-      await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
-      await mw.connect(users[0]).deposit(1, parseUnits('1'))
-      await mw.connect(users[0]).deposit(2, parseEther('10000'))
+      it('Single User', async function () {
+        await voter.setAllocPoint(lpToken1.address, parseEther('10'))
+        await voter.setAllocPoint(lpToken2.address, parseEther('20'))
+        await voter.setAllocPoint(lpToken3.address, parseEther('30'))
 
-      // wait for the next epoch start
-      await advanceTimeAndBlock(86400 * 7)
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        await mw.connect(users[0]).deposit(1, parseUnits('1'))
+        await mw.connect(users[0]).deposit(2, parseEther('10000'))
 
-      // should have been accumulated for 1 week
-      expect(await voter.pendingWom(lpToken1.address)).near(parseEther('93330'))
-      expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
+        // wait for the next epoch start
+        await advanceTimeAndBlock(86400 * 7)
 
-      // trigger Voter.distribute
-      const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
-      await expect(receipt1).to.emit(voter, 'DistributeReward')
+        // should have been accumulated for 1 week
+        expect(await voter.pendingWom(lpToken1.address)).near(parseEther('93330'))
+        expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
 
-      // claim reward
-      await advanceTimeAndBlock(600)
+        // trigger Voter.distribute
+        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await expect(receipt1).to.emit(voter, 'DistributeReward')
 
-      expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('92.703'))
-      expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('186.03'))
+        // claim reward
+        await advanceTimeAndBlock(600)
 
-      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
-      const balance1: BigNumber = await wom.balanceOf(users[0].address)
-      await mw.connect(users[0]).multiClaim([0])
-      const balance2: BigNumber = await wom.balanceOf(users[0].address)
-      expect(balance2.sub(balance1)).roughlyNear(parseEther('92.702'))
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('92.703'))
+        expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('186.03'))
 
-      expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
-      await mw.connect(users[0]).multiClaim([1])
-      const balance3 = await wom.balanceOf(users[0].address)
-      expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
+        const balance1: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        const balance2: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance2.sub(balance1)).roughlyNear(parseEther('92.702'))
 
-      expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('279.01'))
-      await mw.connect(users[0]).multiClaim([2])
-      const balance4 = await wom.balanceOf(users[0].address)
-      expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
+        await mw.connect(users[0]).multiClaim([1])
+        const balance3 = await wom.balanceOf(users[0].address)
+        expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
 
-      // expect events to emit
-      await expect(receipt1).to.emit(mw, 'Harvest')
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('279.01'))
+        await mw.connect(users[0]).multiClaim([2])
+        const balance4 = await wom.balanceOf(users[0].address)
+        expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
 
-      // claim again
-      await advanceTimeAndBlock(600)
-      expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('185'))
+        // expect events to emit
+        await expect(receipt1).to.emit(mw, 'Harvest')
 
-      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
-      const balance5: BigNumber = await wom.balanceOf(users[0].address)
-      await mw.connect(users[0]).multiClaim([0])
-      const balance6: BigNumber = await wom.balanceOf(users[0].address)
-      expect(balance6.sub(balance5)).roughlyNear(parseEther('93.02'))
+        // claim again
+        await advanceTimeAndBlock(600)
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('185'))
 
-      // withdraw, deposit and claim again, the same reward is expected
-      await advanceTimeAndBlock(600)
-      await mw.connect(users[0]).withdraw(0, parseUnits('0.0001'))
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
+        const balance5: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        const balance6: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance6.sub(balance5)).roughlyNear(parseEther('93.02'))
 
-      await advanceTimeAndBlock(600)
-      await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        // withdraw, deposit and claim again, the same reward is expected
+        await advanceTimeAndBlock(600)
+        await mw.connect(users[0]).withdraw(0, parseUnits('0.0001'))
 
-      await advanceTimeAndBlock(600)
-      expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('464'))
+        await advanceTimeAndBlock(600)
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
 
-      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('93.01'))
-      const balance7: BigNumber = await wom.balanceOf(users[0].address)
-      await mw.connect(users[0]).multiClaim([0])
-      const balance8: BigNumber = await wom.balanceOf(users[0].address)
-      expect(balance8.sub(balance7)).roughlyNear(parseEther('93.002'))
+        await advanceTimeAndBlock(600)
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('464'))
+
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('93.01'))
+        const balance7: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        const balance8: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance8.sub(balance7)).roughlyNear(parseEther('93.002'))
+      })
+
+      it('Multiple Epochs', async function () {
+        await voter.setAllocPoint(lpToken1.address, parseEther('1'))
+        await voter.setAllocPoint(lpToken2.address, parseEther('2'))
+        await voter.setAllocPoint(lpToken3.address, parseEther('3'))
+
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        await mw.connect(users[0]).deposit(1, parseUnits('1'))
+        await mw.connect(users[0]).deposit(2, parseEther('10000'))
+
+        // wait for the next epoch start
+        await advanceTimeAndBlock(86400 * 7)
+
+        // should have been accumulated for 1 week
+        expect(await voter.pendingWom(lpToken1.address)).near(parseEther('93330'))
+        expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
+        expect(await voter.pendingWom(lpToken3.address)).near(parseEther('279990'))
+
+        // trigger Voter.distribute
+        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await expect(receipt1).to.emit(voter, 'DistributeReward')
+
+        // claim reward
+        await advanceTimeAndBlock(600)
+
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
+        let balance1: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        let balance2: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance2.sub(balance1)).roughlyNear(parseEther('92.702'))
+
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
+        await mw.connect(users[0]).multiClaim([1])
+        let balance3 = await wom.balanceOf(users[0].address)
+        expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
+
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('279.01'))
+        await mw.connect(users[0]).multiClaim([2])
+        let balance4 = await wom.balanceOf(users[0].address)
+        expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
+
+        // pass 1 day, change voting
+        await advanceTimeAndBlock(86400 - 600)
+        await voter.setAllocPoint(lpToken1.address, parseEther('3001'))
+        await voter.setAllocPoint(lpToken2.address, parseEther('2002'))
+        await voter.setAllocPoint(lpToken3.address, parseEther('1003'))
+
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('13300'))
+        expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('26600'))
+        expect(await voter.pendingWom(lpToken3.address)).roughlyNear(parseEther('39900'))
+
+        // pass 6 day
+        await advanceTimeAndBlock(86400 * 6)
+
+        // should have been accumulated for 1 week
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('251700')) // 13300 + 238400
+        expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700')) // 26600 + 160100
+        expect(await voter.pendingWom(lpToken3.address)).near(parseEther('120160')) // 39900 + 81700
+
+        // trigger Voter.distribute
+        const receipt2 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await expect(receipt2).to.emit(voter, 'DistributeReward')
+
+        // claim reward
+        await advanceTimeAndBlock(600)
+
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('250.01'))
+        balance1 = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        balance2 = await wom.balanceOf(users[0].address)
+        expect(balance2.sub(balance1)).roughlyNear(parseEther('250.02'))
+
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
+        await mw.connect(users[0]).multiClaim([1])
+        balance3 = await wom.balanceOf(users[0].address)
+        expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
+
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('121.01'))
+        await mw.connect(users[0]).multiClaim([2])
+        balance4 = await wom.balanceOf(users[0].address)
+        expect(balance4.sub(balance3)).roughlyNear(parseEther('121.02'))
+      })
+
+      it('Multiple Users', async function () {
+        await voter.setAllocPoint(lpToken1.address, parseEther('1'))
+        await voter.setAllocPoint(lpToken2.address, parseEther('1'))
+        await voter.setAllocPoint(lpToken3.address, parseEther('1'))
+
+        // wait for the next epoch start
+        await advanceTimeAndBlock(86400 * 7)
+
+        // trigger Voter.distribute
+        await mw.connect(users[0]).multiClaim([0, 1, 2])
+
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        await mw.connect(users[0]).deposit(1, parseUnits('1'))
+        await mw.connect(users[0]).deposit(2, parseEther('10000'))
+
+        // user 1 deposit 10x of user 0
+        await mw.connect(users[1]).deposit(0, parseUnits('0.001'))
+        await mw.connect(users[1]).deposit(1, parseUnits('10'))
+        await mw.connect(users[1]).deposit(2, parseEther('100000'))
+
+        // claim token 1
+        await advanceTimeAndBlock(600)
+
+        await mw.connect(users[0]).multiClaim([0])
+        await mw.connect(users[1]).multiClaim([0])
+        const balance1 = await wom.balanceOf(users[0].address)
+        const balance2 = await wom.balanceOf(users[1].address)
+
+        expect(balance1).roughlyNear(parseEther('17.845'))
+        expect(balance2).roughlyNear(parseEther('169.47'))
+
+        // claim token 2
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('17.8'))
+        expect((await mw.pendingTokens(1, users[1].address)).pendingRewards).roughlyNear(parseEther('169'))
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('17.8'))
+        expect((await mw.pendingTokens(2, users[1].address)).pendingRewards).roughlyNear(parseEther('169'))
+
+        await mw.connect(users[0]).multiClaim([1, 2])
+        await mw.connect(users[1]).multiClaim([1, 2])
+        const balance3 = await wom.balanceOf(users[0].address)
+        const balance4 = await wom.balanceOf(users[1].address)
+
+        // user[0] claim amount
+        expect(balance3.sub(balance1)).roughlyNear(parseEther('35.718'))
+        // user[1] claim amount
+        expect(balance4.sub(balance2)).near(parseEther('339.23'))
+      })
     })
 
-    it('distribute reward (multiple epochs)', async function () {
-      await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address, lpToken3.address], [10, 20, 30])
+    describe('Vote Allocation', async function () {
+      it('Single User', async function () {
+        await voter
+          .connect(users[0])
+          .vote(
+            [lpToken1.address, lpToken2.address, lpToken3.address],
+            [parseEther('10'), parseEther('20'), parseEther('30')]
+          )
 
-      await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
-      await mw.connect(users[0]).deposit(1, parseUnits('1'))
-      await mw.connect(users[0]).deposit(2, parseEther('10000'))
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        await mw.connect(users[0]).deposit(1, parseUnits('1'))
+        await mw.connect(users[0]).deposit(2, parseEther('10000'))
 
-      // wait for the next epoch start
-      await advanceTimeAndBlock(86400 * 7)
+        // wait for the next epoch start
+        await advanceTimeAndBlock(86400 * 7)
 
-      // should have been accumulated for 1 week
-      expect(await voter.pendingWom(lpToken1.address)).near(parseEther('93330'))
-      expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
-      expect(await voter.pendingWom(lpToken3.address)).near(parseEther('279990'))
+        // should have been accumulated for 1 week
+        expect(await voter.pendingWom(lpToken1.address)).near(parseEther('93330'))
+        expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
 
-      // trigger Voter.distribute
-      const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
-      await expect(receipt1).to.emit(voter, 'DistributeReward')
+        // trigger Voter.distribute
+        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await expect(receipt1).to.emit(voter, 'DistributeReward')
 
-      // claim reward
-      await advanceTimeAndBlock(600)
+        // claim reward
+        await advanceTimeAndBlock(600)
 
-      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
-      let balance1: BigNumber = await wom.balanceOf(users[0].address)
-      await mw.connect(users[0]).multiClaim([0])
-      let balance2: BigNumber = await wom.balanceOf(users[0].address)
-      expect(balance2.sub(balance1)).roughlyNear(parseEther('92.702'))
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('92.703'))
+        expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('186.03'))
 
-      expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
-      await mw.connect(users[0]).multiClaim([1])
-      let balance3 = await wom.balanceOf(users[0].address)
-      expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
+        const balance1: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        const balance2: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance2.sub(balance1)).roughlyNear(parseEther('92.702'))
 
-      expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('279.01'))
-      await mw.connect(users[0]).multiClaim([2])
-      let balance4 = await wom.balanceOf(users[0].address)
-      expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
+        await mw.connect(users[0]).multiClaim([1])
+        const balance3 = await wom.balanceOf(users[0].address)
+        expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
 
-      // pass 1 day, change voting
-      await advanceTimeAndBlock(86400 - 600)
-      await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address, lpToken3.address], [3000, 2000, 1000])
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('279.01'))
+        await mw.connect(users[0]).multiClaim([2])
+        const balance4 = await wom.balanceOf(users[0].address)
+        expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
 
-      expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('13300'))
-      expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('26600'))
-      expect(await voter.pendingWom(lpToken3.address)).roughlyNear(parseEther('39900'))
+        // expect events to emit
+        await expect(receipt1).to.emit(mw, 'Harvest')
 
-      // pass 6 day
-      await advanceTimeAndBlock(86400 * 6)
+        // claim again
+        await advanceTimeAndBlock(600)
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('185'))
 
-      // should have been accumulated for 1 week
-      expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('251700')) // 13300 + 238400
-      expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700')) // 26600 + 160100
-      expect(await voter.pendingWom(lpToken3.address)).near(parseEther('121600')) // 39900 + 81700
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
+        const balance5: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        const balance6: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance6.sub(balance5)).roughlyNear(parseEther('93.02'))
 
-      // trigger Voter.distribute
-      const receipt2 = await mw.connect(users[0]).multiClaim([0, 1, 2])
-      await expect(receipt2).to.emit(voter, 'DistributeReward')
+        // withdraw, deposit and claim again, the same reward is expected
+        await advanceTimeAndBlock(600)
+        await mw.connect(users[0]).withdraw(0, parseUnits('0.0001'))
 
-      // claim reward
-      await advanceTimeAndBlock(600)
+        await advanceTimeAndBlock(600)
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
 
-      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('250.01'))
-      balance1 = await wom.balanceOf(users[0].address)
-      await mw.connect(users[0]).multiClaim([0])
-      balance2 = await wom.balanceOf(users[0].address)
-      expect(balance2.sub(balance1)).roughlyNear(parseEther('250.02'))
+        await advanceTimeAndBlock(600)
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('464'))
 
-      expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
-      await mw.connect(users[0]).multiClaim([1])
-      balance3 = await wom.balanceOf(users[0].address)
-      expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('93.01'))
+        const balance7: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        const balance8: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance8.sub(balance7)).roughlyNear(parseEther('93.002'))
+      })
 
-      expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('121.01'))
-      await mw.connect(users[0]).multiClaim([2])
-      balance4 = await wom.balanceOf(users[0].address)
-      expect(balance4.sub(balance3)).roughlyNear(parseEther('121.02'))
-    })
+      it('Multiple Epochs', async function () {
+        await voter
+          .connect(users[0])
+          .vote(
+            [lpToken1.address, lpToken2.address, lpToken3.address],
+            [parseEther('10'), parseEther('20'), parseEther('30')]
+          )
 
-    it('distribute reward (multi users)', async function () {
-      await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address, lpToken3.address], [10000, 10000, 10000])
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        await mw.connect(users[0]).deposit(1, parseUnits('1'))
+        await mw.connect(users[0]).deposit(2, parseEther('10000'))
 
-      // wait for the next epoch start
-      await advanceTimeAndBlock(86400 * 7)
+        // wait for the next epoch start
+        await advanceTimeAndBlock(86400 * 7)
 
-      // trigger Voter.distribute
-      await mw.connect(users[0]).multiClaim([0, 1, 2])
+        // should have been accumulated for 1 week
+        expect(await voter.pendingWom(lpToken1.address)).near(parseEther('93330'))
+        expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
+        expect(await voter.pendingWom(lpToken3.address)).near(parseEther('279990'))
 
-      await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
-      await mw.connect(users[0]).deposit(1, parseUnits('1'))
-      await mw.connect(users[0]).deposit(2, parseEther('10000'))
+        // trigger Voter.distribute
+        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await expect(receipt1).to.emit(voter, 'DistributeReward')
 
-      // user 1 deposit 10x of user 0
-      await mw.connect(users[1]).deposit(0, parseUnits('0.001'))
-      await mw.connect(users[1]).deposit(1, parseUnits('10'))
-      await mw.connect(users[1]).deposit(2, parseEther('100000'))
+        // claim reward
+        await advanceTimeAndBlock(600)
 
-      // claim token 1
-      await advanceTimeAndBlock(600)
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('92.701'))
+        let balance1: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        let balance2: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance2.sub(balance1)).roughlyNear(parseEther('92.702'))
 
-      await mw.connect(users[0]).multiClaim([0])
-      await mw.connect(users[1]).multiClaim([0])
-      const balance1 = await wom.balanceOf(users[0].address)
-      const balance2 = await wom.balanceOf(users[1].address)
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
+        await mw.connect(users[0]).multiClaim([1])
+        let balance3 = await wom.balanceOf(users[0].address)
+        expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
 
-      expect(balance1).roughlyNear(parseEther('17.845'))
-      expect(balance2).roughlyNear(parseEther('169.47'))
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('279.01'))
+        await mw.connect(users[0]).multiClaim([2])
+        let balance4 = await wom.balanceOf(users[0].address)
+        expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
 
-      // claim token 2
-      expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('17.8'))
-      expect((await mw.pendingTokens(1, users[1].address)).pendingRewards).roughlyNear(parseEther('169'))
-      expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('17.8'))
-      expect((await mw.pendingTokens(2, users[1].address)).pendingRewards).roughlyNear(parseEther('169'))
+        // pass 1 day, change voting
+        await advanceTimeAndBlock(86400 - 600)
+        await voter
+          .connect(users[0])
+          .vote(
+            [lpToken1.address, lpToken2.address, lpToken3.address],
+            [parseEther('3000'), parseEther('2000'), parseEther('1000')]
+          )
 
-      await mw.connect(users[0]).multiClaim([1, 2])
-      await mw.connect(users[1]).multiClaim([1, 2])
-      const balance3 = await wom.balanceOf(users[0].address)
-      const balance4 = await wom.balanceOf(users[1].address)
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('13300'))
+        expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('26600'))
+        expect(await voter.pendingWom(lpToken3.address)).roughlyNear(parseEther('39900'))
 
-      // user[0] claim amount
-      expect(balance3.sub(balance1)).roughlyNear(parseEther('35.718'))
-      // user[1] claim amount
-      expect(balance4.sub(balance2)).near(parseEther('339.23'))
+        // pass 6 day
+        await advanceTimeAndBlock(86400 * 6)
+
+        // should have been accumulated for 1 week
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('251700')) // 13300 + 238400
+        expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700')) // 26600 + 160100
+        expect(await voter.pendingWom(lpToken3.address)).near(parseEther('121600')) // 39900 + 81700
+
+        // trigger Voter.distribute
+        const receipt2 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await expect(receipt2).to.emit(voter, 'DistributeReward')
+
+        // claim reward
+        await advanceTimeAndBlock(600)
+
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('250.01'))
+        balance1 = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        balance2 = await wom.balanceOf(users[0].address)
+        expect(balance2.sub(balance1)).roughlyNear(parseEther('250.02'))
+
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('186.01'))
+        await mw.connect(users[0]).multiClaim([1])
+        balance3 = await wom.balanceOf(users[0].address)
+        expect(balance3.sub(balance2)).roughlyNear(parseEther('186.02'))
+
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('121.01'))
+        await mw.connect(users[0]).multiClaim([2])
+        balance4 = await wom.balanceOf(users[0].address)
+        expect(balance4.sub(balance3)).roughlyNear(parseEther('121.02'))
+      })
+
+      it('Multiple Users', async function () {
+        await voter
+          .connect(users[0])
+          .vote(
+            [lpToken1.address, lpToken2.address, lpToken3.address],
+            [parseEther('1'), parseEther('1'), parseEther('1')]
+          )
+
+        // wait for the next epoch start
+        await advanceTimeAndBlock(86400 * 7)
+
+        // trigger Voter.distribute
+        await mw.connect(users[0]).multiClaim([0, 1, 2])
+
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        await mw.connect(users[0]).deposit(1, parseUnits('1'))
+        await mw.connect(users[0]).deposit(2, parseEther('10000'))
+
+        // user 1 deposit 10x of user 0
+        await mw.connect(users[1]).deposit(0, parseUnits('0.001'))
+        await mw.connect(users[1]).deposit(1, parseUnits('10'))
+        await mw.connect(users[1]).deposit(2, parseEther('100000'))
+
+        // claim token 1
+        await advanceTimeAndBlock(600)
+
+        await mw.connect(users[0]).multiClaim([0])
+        await mw.connect(users[1]).multiClaim([0])
+        const balance1 = await wom.balanceOf(users[0].address)
+        const balance2 = await wom.balanceOf(users[1].address)
+
+        expect(balance1).roughlyNear(parseEther('17.845'))
+        expect(balance2).roughlyNear(parseEther('169.47'))
+
+        // claim token 2
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('17.8'))
+        expect((await mw.pendingTokens(1, users[1].address)).pendingRewards).roughlyNear(parseEther('169'))
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('17.8'))
+        expect((await mw.pendingTokens(2, users[1].address)).pendingRewards).roughlyNear(parseEther('169'))
+
+        await mw.connect(users[0]).multiClaim([1, 2])
+        await mw.connect(users[1]).multiClaim([1, 2])
+        const balance3 = await wom.balanceOf(users[0].address)
+        const balance4 = await wom.balanceOf(users[1].address)
+
+        // user[0] claim amount
+        expect(balance3.sub(balance1)).roughlyNear(parseEther('35.718'))
+        // user[1] claim amount
+        expect(balance4.sub(balance2)).near(parseEther('339.23'))
+      })
+
+      it('Base Allocation + Vote Allocation', async function () {
+        await voter.setBasePartition(600)
+
+        await voter.setAllocPoint(lpToken1.address, parseEther('1'))
+        await voter.setAllocPoint(lpToken2.address, parseEther('2'))
+        await voter.setAllocPoint(lpToken3.address, parseEther('3'))
+
+        await advanceTimeAndBlock(86400 * 4)
+
+        expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('32000'))
+        expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('64000'))
+        expect(await voter.pendingWom(lpToken3.address)).roughlyNear(parseEther('96000'))
+
+        await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address], [parseEther('200'), parseEther('100')])
+
+        await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+        await mw.connect(users[0]).deposit(1, parseUnits('1'))
+        await mw.connect(users[0]).deposit(2, parseEther('10000'))
+
+        // wait for the next epoch start
+        await advanceTimeAndBlock(86400 * 3)
+
+        // should have been accumulated for 1 week
+        // 120k, 92k
+        expect(await voter.pendingWom(lpToken1.address)).near(parseEther('120000')) // 560000 * (0.6 * 1/6 + 0.4 * 3/7 * 200/300)
+        expect(await voter.pendingWom(lpToken2.address)).near(parseEther('144000')) // 560000 * (0.6 * 2/6 + 0.4 * 3/7 * 100/300)
+        expect(await voter.pendingWom(lpToken3.address)).near(parseEther('168000')) // 560000 * 0.6 * 3/6
+
+        // trigger Voter.distribute
+        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await expect(receipt1).to.emit(voter, 'DistributeReward')
+
+        // claim reward
+        await advanceTimeAndBlock(600)
+
+        expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('119'))
+        const balance1: BigNumber = await wom.balanceOf(users[0].address)
+        await mw.connect(users[0]).multiClaim([0])
+        const balance2: BigNumber = await wom.balanceOf(users[0].address)
+        expect(balance2.sub(balance1)).roughlyNear(parseEther('119'))
+
+        expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('143'))
+        await mw.connect(users[0]).multiClaim([1])
+        const balance3 = await wom.balanceOf(users[0].address)
+        expect(balance3.sub(balance2)).roughlyNear(parseEther('143'))
+
+        expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('167'))
+        await mw.connect(users[0]).multiClaim([2])
+        const balance4 = await wom.balanceOf(users[0].address)
+        expect(balance4.sub(balance3)).roughlyNear(parseEther('167'))
+      })
     })
   })
 
@@ -528,7 +810,12 @@ describe('Voter', async function () {
       await lpToken1.connect(users[0]).approve(mw.address, parseEther('1000000000'))
 
       // vote & deposit
-      await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address, lpToken3.address], [10, 20, 30])
+      await voter
+        .connect(users[0])
+        .vote(
+          [lpToken1.address, lpToken2.address, lpToken3.address],
+          [parseEther('10'), parseEther('20'), parseEther('30')]
+        )
       await mw.connect(users[0]).deposit(0, parseUnits('1'))
 
       // wait for the next epoch start
@@ -600,7 +887,12 @@ describe('Voter', async function () {
       await lpToken1.connect(users[0]).approve(mw.address, parseEther('1000000000'))
 
       // vote & deposit
-      await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address, lpToken3.address], [10, 20, 30])
+      await voter
+        .connect(users[0])
+        .vote(
+          [lpToken1.address, lpToken2.address, lpToken3.address],
+          [parseEther('10'), parseEther('20'), parseEther('30')]
+        )
       await mw.connect(users[0]).deposit(0, parseUnits('1'))
 
       // pause

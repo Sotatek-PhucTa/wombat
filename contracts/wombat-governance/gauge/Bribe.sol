@@ -10,8 +10,13 @@ import '../interfaces/IBribe.sol';
 import '../rewarders/MultiRewarderPerSec.sol';
 
 interface IVoter {
+    struct GaugeWeight {
+        uint128 allocPoint;
+        uint128 voteWeight; // total amount of votes for an LP-token
+    }
+
     // lpToken => weight, equals to sum of votes for a LP token
-    function weights(address _lpToken) external view returns (uint256);
+    function weights(address _lpToken) external view returns (GaugeWeight memory);
 
     // user address => lpToken => votes
     function votes(address _user, address _lpToken) external view returns (uint256);
@@ -53,7 +58,7 @@ contract Bribe is IBribe, MultiRewarderPerSec {
     }
 
     function _getTotalShare() internal view override returns (uint256) {
-        return IVoter(master).weights(address(lpToken));
+        return IVoter(master).weights(address(lpToken)).voteWeight;
     }
 
     function rewardLength() external view override(IBribe, MultiRewarderPerSec) returns (uint256) {
