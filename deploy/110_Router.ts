@@ -5,7 +5,9 @@ import {
   USD_TOKENS_MAP,
   BNB_DYNAMICPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
+  WOM_DYNAMICPOOL_TOKENS_MAP,
 } from '../tokens.config'
+import { getPoolContractName } from './040_WomSidePool'
 
 const contractName = 'WombatRouter'
 
@@ -65,31 +67,67 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         sidepoolAssetsAddress.push(asset.address)
       }
 
+      const womSidePoolTokens = []
+      const womSidePoolAssets = []
+      const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
+      for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
+        for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
+          womSidePoolTokens.push(args[2] as string)
+          const asset = await deployments.get(`Asset_${poolName}_${args[1]}`)
+          womSidePoolAssets.push(asset.address)
+        }
+        const contractName = getPoolContractName(poolName)
+        const womSidePoolDeployment = await deployments.get(contractName)
+
+        // approve by poolName
+        console.log(`Approving pool tokens for Pool: ${contractName}...`)
+        const approveSpendingTxnByPool1 = await router
+          .connect(owner)
+          .approveSpendingByPool(womSidePoolTokens, womSidePoolDeployment.address)
+        await approveSpendingTxnByPool1.wait()
+
+        console.log(`Approving pool assets for Pool: ${contractName}...`)
+        const approveSpendingTxnByPool2 = await router
+          .connect(owner)
+          .approveSpendingByPool(womSidePoolAssets, womSidePoolDeployment.address)
+        await approveSpendingTxnByPool2.wait()
+
+        // reset array
+        womSidePoolTokens.length = 0
+        womSidePoolAssets.length = 0
+      }
+
       const mainPoolDeployment = await deployments.get('Pool')
       const dynamicPoolDeployment = await deployments.get('DynamicPool_01')
       const sidePoolDeployment = await deployments.get('SidePool_01')
 
-      // Approve pool spending tokens from router
-      const approveSpendingTxn1 = await router
-        .connect(owner)
-        .approveSpendingByPool(usdTokens, mainPoolDeployment.address)
-      await approveSpendingTxn1.wait()
+      /**
+       * APPROVE POOL TOKENS
+       **/
 
-      const approveSpendingTxn2 = await router
-        .connect(owner)
-        .approveSpendingByPool(bnbTokens, dynamicPoolDeployment.address)
-      await approveSpendingTxn2.wait()
+      // const approveSpendingTxn1 = await router
+      //   .connect(owner)
+      //   .approveSpendingByPool(usdTokens, mainPoolDeployment.address)
+      // await approveSpendingTxn1.wait()
 
-      const approveSpendingTxn3 = await router
-        .connect(owner)
-        .approveSpendingByPool(sidepoolTokens, sidePoolDeployment.address)
-      await approveSpendingTxn3.wait()
+      // const approveSpendingTxn2 = await router
+      //   .connect(owner)
+      //   .approveSpendingByPool(bnbTokens, dynamicPoolDeployment.address)
+      // await approveSpendingTxn2.wait()
 
-      // Approve pool assets from router
-      const approveSpendingTxn5 = await router
-        .connect(owner)
-        .approveSpendingByPool(bnbAssetsAddress, dynamicPoolDeployment.address)
-      await approveSpendingTxn5.wait()
+      // const approveSpendingTxn3 = await router
+      //   .connect(owner)
+      //   .approveSpendingByPool(sidepoolTokens, sidePoolDeployment.address)
+      // await approveSpendingTxn3.wait()
+
+      /**
+       * APPROVE POOL ASSETS
+       **/
+
+      // const approveSpendingTxn5 = await router
+      //   .connect(owner)
+      //   .approveSpendingByPool(bnbAssetsAddress, dynamicPoolDeployment.address)
+      // await approveSpendingTxn5.wait()
     }
 
     console.log(`Deployment complete.`)

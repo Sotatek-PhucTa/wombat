@@ -31,7 +31,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         execute: {
           init: {
             methodName: 'initialize',
-            args: [parseEther('0.1'), parseEther('0.001')], // [A, haircut] are 10x of main pool
+            args: [parseEther('0.1'), parseEther('0.0025')], // [A, haircut] are 0.1 and 0.25% respectively
           },
         },
       },

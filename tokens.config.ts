@@ -86,7 +86,12 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
 }
 
 export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
-  bsc_mainnet: {},
+  bsc_mainnet: {
+    wmxWOMPool: {
+      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+      wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
+    },
+  },
   bsc_testnet: {
     wmxWOMPool: {
       WOM: ['Wombat Token', 'WOM', '18', 0],
@@ -250,6 +255,18 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
       secondsToStart: 75600, // 21 hours later, i.e. deploy on 9/20/2022 1:00pm HKT
       tokenPerSec: parseEther('0.005708'),
+    },
+    WMX: {
+      lpToken: '0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688', // wmxWOM-LP TBD
+      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
+      tokenPerSec: parseEther('0.009513'),
+    },
+    WOM: {
+      lpToken: '0xF9BdC872D75f76B946E0770f96851b1f2F653caC', // wmxWOM-LP TBD
+      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
+      tokenPerSec: parseEther('0.019026'),
     },
   },
   bsc_testnet: {
