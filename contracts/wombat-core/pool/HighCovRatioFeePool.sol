@@ -7,8 +7,8 @@ import './Pool.sol';
 contract HighCovRatioFeePool is Pool {
     using DSMath for uint256;
 
-    uint128 startCovRatio; // 1.5
-    uint128 endCovRatio; // 1.8
+    uint128 public startCovRatio; // 1.5
+    uint128 public endCovRatio; // 1.8
 
     error WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
     error WOMBAT_DIRECT_REVERSE_QUOTE_NOT_SUPPORTED();
