@@ -16,6 +16,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const block = await ethers.provider.getBlock('latest')
   const latest = BigNumber.from(block.timestamp)
+  const epochStart = latest.add(300) // T+5min
 
   // Deploy Voter
   const deployResult = await deploy('Voter', {
@@ -30,7 +31,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, vewom.address, ethers.constants.Zero, latest, latest, 375],
+          args: [wombatToken.address, vewom.address, ethers.constants.Zero, latest, epochStart, 375],
         },
       },
     },
