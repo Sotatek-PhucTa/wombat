@@ -16,7 +16,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
-  const dynamicPool = await deployments.get('DynamicPool_01')
+  const veWom = await deployments.get('VeWom')
+  const voter = await deployments.get('Voter')
 
   const block = await ethers.provider.getBlock('latest')
   const latest = BigNumber.from(block.timestamp)
@@ -33,7 +34,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, ethers.constants.AddressZero, parseEther('1.522070'), 375, latest], // ~4M WOM emissions per month
+          args: [wombatToken.address, veWom.address, voter.address, 375],
         },
       },
     },
@@ -67,6 +68,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     await addAsset(contract, owner, tokenAllocPoint, assetContractAddress, ethers.constants.AddressZero)
   }
 
+  const dynamicPool = await deployments.get('DynamicPool_01')
   const poolContract = await ethers.getContractAt('DynamicPool', dynamicPool.address)
   // NOTE: mainnet masterwombat would be added back to main pool via multisig proposal
 
@@ -100,4 +102,15 @@ async function addAsset(contract: any, owner: any, allocPoint: number, assetAddr
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['Pool', 'Asset', 'SidePool_01', 'SideMockAsset', 'DynamicPool_01', 'DynamicMockAsset', 'WomSidePool', 'WomMockAsset', 'WombatToken']
+deployFunc.dependencies = [
+  'Pool',
+  'Asset',
+  'SidePool_01',
+  'SideMockAsset',
+  'DynamicPool_01',
+  'DynamicMockAsset',
+  'WomSidePool',
+  'WomMockAsset',
+  'WombatToken',
+  'Voter',
+]
