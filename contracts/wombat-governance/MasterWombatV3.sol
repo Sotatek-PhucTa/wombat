@@ -105,6 +105,7 @@ contract MasterWombatV3 is
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event UpdateEmissionPartition(address indexed user, uint256 basePartition, uint256 boostedPartition);
     event UpdateVeWOM(address indexed user, address oldVeWOM, address newVeWOM);
+    event UpdateVoter(address indexed user, address oldVoter, address newVoter);
     event EmergencyWomWithdraw(address owner, uint256 balance);
 
     /// @dev Modifier ensuring that certain function can only be called by VeWom
@@ -120,7 +121,6 @@ contract MasterWombatV3 is
         uint16 _basePartition
     ) external initializer {
         require(address(_wom) != address(0), 'wom address cannot be zero');
-        require(address(_voter) != address(0), 'voter address cannot be zero');
         require(_basePartition <= 1000, 'base partition must be in range 0, 1000');
 
         __Ownable_init();
@@ -503,6 +503,15 @@ contract MasterWombatV3 is
         IVeWom oldVeWom = veWom;
         veWom = _newVeWom;
         emit UpdateVeWOM(msg.sender, address(oldVeWom), address(_newVeWom));
+    }
+
+    /// @notice updates voter address
+    /// @param _newVoter the new Voter address
+    function setVoter(address _newVoter) external onlyOwner {
+        require(address(_newVoter) != address(0));
+        address oldVoter = voter;
+        voter = _newVoter;
+        emit UpdateVoter(msg.sender, oldVoter, _newVoter);
     }
 
     /// @notice updates factor after any veWom token operation (minting/burning)

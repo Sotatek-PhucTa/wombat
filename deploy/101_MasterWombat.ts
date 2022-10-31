@@ -16,12 +16,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
-  const veWom = await deployments.get('VeWom')
-  const voter = await deployments.get('Voter')
-
-  const block = await ethers.provider.getBlock('latest')
-  const latest = BigNumber.from(block.timestamp)
-
   const deployResult = await deploy(contractName, {
     from: deployer,
     contract: contractName,
@@ -34,7 +28,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, veWom.address, voter.address, 375],
+          // call setVewom and setVoter later
+          args: [wombatToken.address, ethers.constants.AddressZero, ethers.constants.AddressZero, 375],
         },
       },
     },
@@ -112,5 +107,4 @@ deployFunc.dependencies = [
   'WomSidePool',
   'WomMockAsset',
   'WombatToken',
-  'Voter',
 ]
