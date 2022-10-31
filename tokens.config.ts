@@ -302,3 +302,16 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
     },
   },
 }
+
+// IBribe reuses the interface of IRewarder
+export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
+  bsc_testnet: {
+    BUSD: {
+      lpToken: '0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567',
+      // RT1
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0.1'),
+    },
+  }
+}
