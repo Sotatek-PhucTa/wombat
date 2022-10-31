@@ -51,41 +51,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       ethers.constants.Zero
     } ${latest} ${latest} ${375}`
   )
-
-  // Deploy all Bribe
-  const masterWombat = await deployments.get('MasterWombatV3')
-  for await (const [token, bribe] of Object.entries(BRIBE_MAPS[hre.network.name])) {
-    const deadline = getDeadlineFromNow(bribe.secondsToStart)
-    const deployResult = await deploy(`Bribe_${token}`, {
-      from: deployer,
-      contract: 'Bribe',
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: [masterWombat.address, bribe.lpToken, deadline, bribe.rewardToken, bribe.tokenPerSec],
-    })
-
-    // Add new Bribe to Voter
-    if (deployResult.newlyDeployed) {
-      console.log(`Bribe_${token} Deployment complete.`)
-
-      const txn = await voter.add(masterWombat.address, bribe.lpToken, deployResult.address)
-      await txn.wait()
-      console.log(`Voter added Bribe_${token}.`)
-    }
-
-    const address = deployResult.address
-    console.log(
-      `To verify, run: hardhat verify --network ${hre.network.name} ${address} ${masterWombat.address} ${
-        bribe.lpToken
-      } ${BigNumber.from(deadline)._hex} ${bribe.rewardToken} ${bribe.tokenPerSec._hex}`
-    )
-  }
-}
-
-function getDeadlineFromNow(secondSince: string | number): number {
-  return Math.round(Date.now() / 1000) + Number(secondSince)
 }
 
 export default deployFunc
-deployFunc.dependencies = ['WombatToken', 'VeWom', 'MasterWombatV3']
+deployFunc.dependencies = ['WombatToken', 'VeWom']
 deployFunc.tags = ['Voter']
