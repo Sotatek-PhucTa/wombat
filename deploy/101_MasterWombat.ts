@@ -4,7 +4,7 @@ import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BNB_DYNAMICPOOL_TOKENS_MAP, USD_TOKENS_MAP } from '../tokens.config'
 
-const contractName = 'MasterWombatV2'
+const contractName = 'MasterWombatV3'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -21,9 +21,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const block = await ethers.provider.getBlock('latest')
   const latest = BigNumber.from(block.timestamp)
 
-  const deployResult = await deploy('MasterWombatV2', {
+  const deployResult = await deploy(contractName, {
     from: deployer,
-    contract: 'MasterWombatV2',
+    contract: contractName,
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {

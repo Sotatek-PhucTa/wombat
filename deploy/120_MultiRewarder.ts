@@ -10,7 +10,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  const masterWombat = await deployments.get('MasterWombatV2')
+  const masterWombat = await deployments.get('MasterWombatV3')
 
   console.log(`Step 120. Deploying on: ${hre.network.name}...`)
 
@@ -44,4 +44,5 @@ function getDeadlineFromNow(secondSince: string | number): number {
 }
 
 export default deployFunc
+deployFunc.dependencies = ['MasterWombatV3']
 deployFunc.tags = [contractName]
