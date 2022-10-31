@@ -5,7 +5,7 @@ import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BNB_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
 
-const contractName = 'MockAsset'
+const contractName = 'DynamicMockAsset'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre

@@ -313,5 +313,5 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 60,
       tokenPerSec: parseEther('0.1'),
     },
-  }
+  },
 }

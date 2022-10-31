@@ -100,4 +100,4 @@ async function addAsset(contract: any, owner: any, allocPoint: number, assetAddr
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['Pool', 'WombatToken']
+deployFunc.dependencies = ['Pool', 'Asset', 'SidePool_01', 'SideMockAsset', 'DynamicPool_01', 'DynamicMockAsset', 'WomSidePool', 'WomMockAsset', 'WombatToken']
