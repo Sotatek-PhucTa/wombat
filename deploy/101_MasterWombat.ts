@@ -44,7 +44,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
   for (const index in USD_TOKENS) {
     const tokenSymbol = USD_TOKENS[index][1] as string
-    const tokenAllocPoint = USD_TOKENS[index][3] as number
     const assetContractName = `Asset_P01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
 
@@ -55,7 +54,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
   for (const index in BNB_DYNAMICPOOL_TOKENS) {
     const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
-    const tokenAllocPoint = BNB_DYNAMICPOOL_TOKENS[index][5] as number
     const assetContractName = `Asset_DP01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
 
