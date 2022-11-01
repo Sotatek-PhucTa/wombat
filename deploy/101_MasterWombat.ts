@@ -49,7 +49,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
 
     console.log('Adding asset', assetContractAddress)
-    await addAsset(contract, owner, tokenAllocPoint, assetContractAddress, ethers.constants.AddressZero)
+    await addAsset(contract, owner, assetContractAddress, ethers.constants.AddressZero)
   }
 
   const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
@@ -60,7 +60,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
 
     console.log('Adding asset', assetContractAddress)
-    await addAsset(contract, owner, tokenAllocPoint, assetContractAddress, ethers.constants.AddressZero)
+    await addAsset(contract, owner, assetContractAddress, ethers.constants.AddressZero)
   }
 
   const dynamicPool = await deployments.get('DynamicPool_01')
@@ -85,13 +85,14 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 }
 
-async function addAsset(contract: any, owner: any, allocPoint: number, assetAddress: string, rewarderAddress: string) {
+async function addAsset(contract: any, owner: any, assetAddress: string, rewarderAddress: string) {
   try {
-    const addAssetTxn = await contract.connect(owner).add(allocPoint, assetAddress, rewarderAddress)
+    const addAssetTxn = await contract.connect(owner).add(assetAddress, rewarderAddress)
     // wait until the transaction is mined
     await addAssetTxn.wait()
   } catch (err) {
     // do nothing as asset already exists in pool
+    console.log('Contract', contract.address, 'fails to add asset', assetAddress, 'due to', err)
   }
 }
 
