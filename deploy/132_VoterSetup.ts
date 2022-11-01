@@ -48,7 +48,6 @@ async function setAllocPoint(voter: any, owner: any, assetAddress: string, token
   }
 }
 
-
 export default deployFunc
 deployFunc.dependencies = ['MasterWombatV3', 'Voter']
 deployFunc.tags = ['VoterSetup']
