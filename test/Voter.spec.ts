@@ -235,7 +235,7 @@ describe('Voter', async function () {
 
     describe('Base Allocation', async function () {
       beforeEach(async function () {
-        await voter.setBasePartition(1000)
+        await voter.setBaseAllocation(1000)
       })
 
       it('Single User', async function () {
@@ -657,7 +657,7 @@ describe('Voter', async function () {
       })
 
       it('Base Allocation + Vote Allocation', async function () {
-        await voter.setBasePartition(600)
+        await voter.setBaseAllocation(600)
 
         await voter.setAllocPoint(lpToken1.address, parseEther('1'))
         await voter.setAllocPoint(lpToken2.address, parseEther('2'))

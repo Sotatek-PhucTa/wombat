@@ -17,16 +17,20 @@ interface IVe {
     function vote(address user, int256 voteDelta) external;
 }
 
-/// Voter can handle gauge voting. WOM rewards are distributed to different gauge (MasterWombat->LpToken pair)
-/// according the allocation & voting weight.
+/// Voter can handle gauge voting. WOM rewards are distributed to different gauges (MasterWombat->LpToken pair)
+/// according to the base allocation & voting weights.
 ///
-/// Real-time WOM accumulation and epoch-based WOM distribution
+/// veWOM holders can participate in gauge voting to determine `voteAllocation()` of the WOM emission. They can
+///  allocate their vote (1 veWOM = 1 vote) to one or more gauges. WOM emission to a gauge is proportional
+/// to the amount of vote it receives.
+///
+/// Real-time WOM accumulation and epoch-based WOM distribution:
 /// Voting gauges accumulates WOM seconds by seconds according to the voting weight. When a user applies new
 /// allocation for their votes, accumulation rate of WOM of the gauge updates immediately.
 /// However, accumulated WOM is distributed to LP in the next epoch at an even rate. 1 epoch last for 7 days.
 ///
-/// Base Emission
-/// (basePartition / 1000) of WOM emissions is distributed to gauges according to allocation by `owner`.
+/// Base Allocation:
+/// `baseAllocation` of WOM emissions is distributed to gauges according to the allocation by `owner`.
 /// Other WOM emissions are deteremined by `votes` of veWOM holders.
 ///
 /// Flow to distribute reward:
@@ -37,7 +41,7 @@ interface IVe {
 ///    via MasterWombat.notifyRewardAmount(IERC20 _lpToken, uint256 _amount)
 /// 4. MasterWombat will update the corresponding `pool.rewardRate` and `pool.periodFinish`
 ///
-/// Bribe
+/// Bribe:
 /// Bribe is natively supported by `Voter`. But Only whitelisted gauge can receive bribe rewards.
 ///
 /// Flow of bribe:
@@ -78,7 +82,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
 
     uint40 public firstEpochStartTime;
     uint88 public womPerSec; // 8.18 fixed point
-    uint16 public basePartition; // (e.g. 300 for 30%)
+    uint16 public baseAllocation; // (e.g. 300 for 30%)
 
     mapping(IERC20 => GaugeWeight) public weights; // lpToken => gauge weight
     mapping(address => mapping(IERC20 => uint256)) public votes; // user address => lpToken => votes
@@ -87,7 +91,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     // bribe related storage
     mapping(IERC20 => address) public bribes; // lpToken => bribe rewarder
 
-    event UpdateEmissionPartition(uint256 basePartition, uint256 votePartition);
+    event UpdateEmissionPartition(uint256 baseAllocation, uint256 votePartition);
     event UpdateVote(address user, IERC20 lpToken, uint256 amount);
     event DistributeReward(IERC20 lpToken, uint256 amount);
 
@@ -97,12 +101,12 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         uint88 _womPerSec,
         uint40 _startTimestamp,
         uint40 _firstEpochStartTime,
-        uint16 _basePartition
+        uint16 _baseAllocation
     ) external initializer {
         require(_firstEpochStartTime >= block.timestamp, 'invalid _firstEpochStartTime');
         require(address(_wom) != address(0), 'wom address cannot be zero');
         require(address(_veWom) != address(0), 'veWom address cannot be zero');
-        require(_basePartition <= 1000);
+        require(_baseAllocation <= 1000);
 
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
@@ -112,7 +116,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         womPerSec = _womPerSec;
         lastRewardTimestamp = _startTimestamp;
         firstEpochStartTime = _firstEpochStartTime;
-        basePartition = _basePartition;
+        baseAllocation = _baseAllocation;
     }
 
     /// @dev this check save more gas than a modifier
@@ -259,12 +263,12 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
      */
 
     /// @notice update the base and vote partition
-    function setBasePartition(uint16 _basePartition) external onlyOwner {
-        require(_basePartition <= 1000);
+    function setBaseAllocation(uint16 _baseAllocation) external onlyOwner {
+        require(_baseAllocation <= 1000);
         _distributeWom();
 
-        emit UpdateEmissionPartition(_basePartition, 1000 - _basePartition);
-        basePartition = _basePartition;
+        emit UpdateEmissionPartition(_baseAllocation, 1000 - _baseAllocation);
+        baseAllocation = _baseAllocation;
     }
 
     function setAllocPoint(IERC20 _lpToken, uint128 _allocPoint) external onlyOwner {
@@ -356,8 +360,8 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
      * Read-only functions
      */
 
-    function getVotePartition() external view returns (uint256) {
-        return 1000 - basePartition;
+    function voteAllocation() external view returns (uint256) {
+        return 1000 - baseAllocation;
     }
 
     /// @notice Get pending bribes for LP tokens
@@ -389,7 +393,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         // use `max(totalAllocPoint, 1e18)` in case the value overflows uint104
         return
             baseIndex +
-            (secondsElapsed * womPerSec * basePartition * ACC_TOKEN_PRECISION) /
+            (secondsElapsed * womPerSec * baseAllocation * ACC_TOKEN_PRECISION) /
             max(totalAllocPoint, 1e18) /
             1000;
     }
@@ -404,7 +408,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         // use `max(totalWeight, 1e18)` in case the value overflows uint104
         return
             voteIndex +
-            (secondsElapsed * womPerSec * (1000 - basePartition) * ACC_TOKEN_PRECISION) /
+            (secondsElapsed * womPerSec * (1000 - baseAllocation) * ACC_TOKEN_PRECISION) /
             max(totalWeight, 1e18) /
             1000;
     }
