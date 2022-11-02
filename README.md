@@ -101,6 +101,12 @@ Hardhat Verify:
   - Asset_wmxWOMPool_wmxWom (LP-wmxWom) => `0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688`
   - Asset_wmxWOMPool_WOM (LP-WOM) => `0xF9BdC872D75f76B946E0770f96851b1f2F653caC`
 
+  - mWOM Side Pool (WOM-mWom)
+
+  - Pool Proxy (Main entry) => `0x083640c5dBD5a8dDc30100FB09B45901e12f9f55`
+  - Asset_mWOMPool_mWOM (LP-mWOM) => `0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E`
+  - Asset_mWOMPool_WOM (LP-WOM) => `0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2`
+
 - Wombat Rewarders
 
   - MultiRewarderPerSec_WBNB => `0x414D1a760320f948147FB71113851BB11CB53976`
@@ -109,6 +115,8 @@ Hardhat Verify:
   - MultiRewarderPerSec_SD => `0x053cd96D5BeB742189E21D9B9112a9195E19435f`
   - MultiRewarderPerSec_BUSD => `0xBD28Fb07c755408ecB81EB8Fcd3e380E4b315f0F`
   - MultiRewarderPerSec_HAY => `0xf812166D8Ff0C90f125b3ad7A59ff9ad6e2BC77D`
+  - MultiRewarderPerSec_mWOM => `0xd29b3e305cF76e2076c7aACf018fa5D85510Ca01`
+  - MultiRewarderPerSec_mWOMPool_WOM => `0x7A8faab51ca17C181F1516Ce46a716e47cc6e38e`
 
 ### BSC testnet deployed contracts:
 

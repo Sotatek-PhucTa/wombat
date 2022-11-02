@@ -67,6 +67,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         const setFeeTxn = await contract.connect(owner).setFee(0, parseEther('1'))
         await setFeeTxn.wait()
 
+        console.log(`setFeeTo to ${multisig}.`)
+        const setFeeToTxn = await contract.connect(owner).setFeeTo(multisig)
+        await setFeeToTxn.wait()
+
         console.log(`setMintFeeThreshold to ${10000 ** 18}...`)
         const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
         await setMintFeeThresholdTxn.wait()
