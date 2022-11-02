@@ -41,7 +41,7 @@ async function setAllocPoint(voter: any, owner: any, assetAddress: string, token
   try {
     const txn = await voter.connect(owner).setAllocPoint(assetAddress, tokenAllocPoint)
     // wait until the transaction is mined
-    await txn.wait()
+    await txn.wait(2)
   } catch (err) {
     // do nothing as asset already exists in pool
     console.log('Contract', voter.address, 'fails to set alloc point on asset', assetAddress, 'due to', err)
