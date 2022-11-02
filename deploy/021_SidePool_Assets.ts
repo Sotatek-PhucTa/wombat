@@ -3,7 +3,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
 import { USD_SIDEPOOL_TOKENS_MAP } from '../tokens.config'
 
-const contractName = 'MockAsset'
+const contractName = 'SideMockAsset'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre

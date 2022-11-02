@@ -4,7 +4,7 @@ import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BNB_DYNAMICPOOL_TOKENS_MAP, USD_TOKENS_MAP } from '../tokens.config'
 
-const contractName = 'MasterWombatV2'
+const contractName = 'MasterWombatV3'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -16,14 +16,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
-  const dynamicPool = await deployments.get('DynamicPool_01')
-
-  const block = await ethers.provider.getBlock('latest')
-  const latest = BigNumber.from(block.timestamp)
-
-  const deployResult = await deploy('MasterWombatV2', {
+  const deployResult = await deploy(contractName, {
     from: deployer,
-    contract: 'MasterWombatV2',
+    contract: contractName,
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
@@ -33,7 +28,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, ethers.constants.AddressZero, parseEther('1.522070'), 375, latest], // ~4M WOM emissions per month
+          // call setVewom and setVoter later
+          args: [wombatToken.address, ethers.constants.AddressZero, ethers.constants.AddressZero, 375],
         },
       },
     },
@@ -48,25 +44,24 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
   for (const index in USD_TOKENS) {
     const tokenSymbol = USD_TOKENS[index][1] as string
-    const tokenAllocPoint = USD_TOKENS[index][3] as number
     const assetContractName = `Asset_P01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
 
     console.log('Adding asset', assetContractAddress)
-    await addAsset(contract, owner, tokenAllocPoint, assetContractAddress, ethers.constants.AddressZero)
+    await addAsset(contract, owner, assetContractAddress, ethers.constants.AddressZero)
   }
 
   const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
   for (const index in BNB_DYNAMICPOOL_TOKENS) {
     const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
-    const tokenAllocPoint = BNB_DYNAMICPOOL_TOKENS[index][5] as number
     const assetContractName = `Asset_DP01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
 
     console.log('Adding asset', assetContractAddress)
-    await addAsset(contract, owner, tokenAllocPoint, assetContractAddress, ethers.constants.AddressZero)
+    await addAsset(contract, owner, assetContractAddress, ethers.constants.AddressZero)
   }
 
+  const dynamicPool = await deployments.get('DynamicPool_01')
   const poolContract = await ethers.getContractAt('DynamicPool', dynamicPool.address)
   // NOTE: mainnet masterwombat would be added back to main pool via multisig proposal
 
@@ -88,16 +83,27 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 }
 
-async function addAsset(contract: any, owner: any, allocPoint: number, assetAddress: string, rewarderAddress: string) {
+async function addAsset(contract: any, owner: any, assetAddress: string, rewarderAddress: string) {
   try {
-    const addAssetTxn = await contract.connect(owner).add(allocPoint, assetAddress, rewarderAddress)
+    const addAssetTxn = await contract.connect(owner).add(assetAddress, rewarderAddress)
     // wait until the transaction is mined
     await addAssetTxn.wait()
   } catch (err) {
     // do nothing as asset already exists in pool
+    console.log('Contract', contract.address, 'fails to add asset', assetAddress, 'due to', err)
   }
 }
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['Pool', 'WombatToken']
+deployFunc.dependencies = [
+  'Pool',
+  'Asset',
+  'SidePool_01',
+  'SideMockAsset',
+  'DynamicPool_01',
+  'DynamicMockAsset',
+  'WomSidePool',
+  'WomMockAsset',
+  'WombatToken',
+]
