@@ -51,6 +51,11 @@ Hardhat Verify:
 - Follow steps at [Binance Chain Docs](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html) on verifying contracts on bscscan.com such that you can `read/write` directly with your web3 metamask wallet.
 - E.g. `npx hardhat verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
 
+To verify proxy contracts:
+
+- Verify the implementation contract. E.g. `npx hh verify --network bsc_testnet $(jq -r '.address' deployments/bsc_testnet/VeWom_Implementation.json)`.
+- Go to bsc explorer in the proxy contract. Click 'More Options' and select 'Is this a proxy?' to enable read and write methods.
+
 ### BSC mainnet deployed contracts:
 
 - Wombat Proxy Admin
