@@ -88,9 +88,6 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     mapping(address => mapping(IERC20 => uint256)) public votes; // user address => lpToken => votes
     mapping(IERC20 => GaugeInfo) public infos; // lpToken => GaugeInfo
 
-    // bribe related storage
-    mapping(IERC20 => address) public bribes; // lpToken => bribe rewarder
-
     event UpdateEmissionPartition(uint256 baseAllocation, uint256 votePartition);
     event UpdateVote(address user, IERC20 lpToken, uint256 amount);
     event DistributeReward(IERC20 lpToken, uint256 amount);
