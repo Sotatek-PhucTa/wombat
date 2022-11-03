@@ -68,13 +68,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       }
 
       const womSidePoolTokens = []
-      const womSidePoolAssets = []
       const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
       for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
         for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
           womSidePoolTokens.push(args[2] as string)
-          const asset = await deployments.get(`Asset_${poolName}_${args[1]}`)
-          womSidePoolAssets.push(asset.address)
         }
         const contractName = getPoolContractName(poolName)
         const womSidePoolDeployment = await deployments.get(contractName)
@@ -86,15 +83,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
           .approveSpendingByPool(womSidePoolTokens, womSidePoolDeployment.address)
         await approveSpendingTxnByPool1.wait()
 
-        console.log(`Approving pool assets for Pool: ${contractName}...`)
-        const approveSpendingTxnByPool2 = await router
-          .connect(owner)
-          .approveSpendingByPool(womSidePoolAssets, womSidePoolDeployment.address)
-        await approveSpendingTxnByPool2.wait()
-
         // reset array
         womSidePoolTokens.length = 0
-        womSidePoolAssets.length = 0
       }
 
       const mainPoolDeployment = await deployments.get('Pool')

@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers'
+import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { REWARDERS_MAP } from '../tokens.config'
@@ -8,9 +9,10 @@ const contractName = 'MultiRewarderPerSec'
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, multisig } = await getNamedAccounts()
+  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  const masterWombat = await deployments.get('MasterWombatV3')
+  const masterWombat = await deployments.get('MasterWombatV2') // interchange to V2 for current mainnet
 
   console.log(`Step 120. Deploying on: ${hre.network.name}...`)
 
@@ -26,7 +28,19 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       args: [masterWombat.address, rewarder.lpToken, deadline, rewarder.rewardToken, rewarder.tokenPerSec],
     })
 
+    const contract = await ethers.getContractAt(contractName, deployResult.address)
+
     if (deployResult.newlyDeployed) {
+      console.log(`Transferring operator of ${deployResult.address} to ${owner}...`)
+      // The operator of the rewarder contract can set and update reward rates
+      const setOperatorTxn = await contract.connect(owner).setOperator(owner)
+      await setOperatorTxn.wait()
+
+      console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
+      // The owner of the rewarder contract can add new reward tokens and withdraw them
+      const transferOwnershipTxn = await contract.connect(owner).transferOwnership(multisig)
+      await transferOwnershipTxn.wait()
+
       console.log(`MultiRewarderPerSec_${token} Deployment complete.`)
     }
 

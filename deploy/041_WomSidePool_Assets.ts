@@ -47,13 +47,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         `Asset_${poolName}_${tokenSymbol}`
       )
     }
-
-    // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
-    console.log(`Transferring ownership of ${poolAddress} to ${multisig}...`)
-    // The owner of the pool contract is very powerful!
-    const transferOwnershipTxn = await pool.connect(owner).transferOwnership(multisig)
-    await transferOwnershipTxn.wait()
-    console.log(`Transferred ownership of ${poolAddress} to:`, multisig)
   }
 }
 

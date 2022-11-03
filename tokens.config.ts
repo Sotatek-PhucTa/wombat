@@ -91,6 +91,10 @@ export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = 
       WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
       wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
     },
+    mWOMPool: {
+      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+      mWOM: ['mWOM', 'mWOM', '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c', 0],
+    },
   },
   bsc_testnet: {
     wmxWOMPool: {
@@ -257,16 +261,28 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       tokenPerSec: parseEther('0.005708'),
     },
     WMX: {
-      lpToken: '0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688', // wmxWOM-LP TBD
+      lpToken: '0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688', // wmxWOM-LP
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
       secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
       tokenPerSec: parseEther('0.009513'),
     },
     WOM: {
-      lpToken: '0xF9BdC872D75f76B946E0770f96851b1f2F653caC', // wmxWOM-LP TBD
+      lpToken: '0xF9BdC872D75f76B946E0770f96851b1f2F653caC', // WOM-LP
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
       secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
       tokenPerSec: parseEther('0.019026'),
+    },
+    mWOM: {
+      lpToken: '0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E', // mWOM-LP TBD
+      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      secondsToStart: 180000, // 50 hours later, i.e. deploy on 11/2/2022 12pm HKT
+      tokenPerSec: parseEther('0.25'),
+    },
+    mWOMPool_WOM: {
+      lpToken: '0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2', // mWOMPool_WOM-LP TBD
+      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      secondsToStart: 180000, // 50 hours later, i.e. deploy on 11/2/2022 12pm HKT
+      tokenPerSec: parseEther('0.075'),
     },
   },
   bsc_testnet: {
