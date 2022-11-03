@@ -366,7 +366,8 @@ contract MasterWombatV2 is
             if (user.amount > 0) {
                 PoolInfo storage pool = poolInfo[pid];
                 pool.lpToken.approve(address(newMasterWombat), user.amount);
-                newMasterWombat.depositFor(pid, user.amount, msg.sender);
+                uint256 newPid = newMasterWombat.getAssetPid(address(pool.lpToken));
+                newMasterWombat.depositFor(newPid, user.amount, msg.sender);
 
                 pool.sumOfFactors -= user.factor;
                 delete userInfo[pid][msg.sender];
