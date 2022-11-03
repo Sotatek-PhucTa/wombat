@@ -3,17 +3,15 @@ import { BigNumber } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BNB_DYNAMICPOOL_TOKENS_MAP, USD_TOKENS_MAP } from '../tokens.config'
+import { getDeployedContract, confirmTxn } from '../utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
-  const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 132. Deploying on: ${hre.network.name}...`)
 
-  const voterDeployment = await deployments.get('Voter')
-  const voter = await ethers.getContractAt('Voter', voterDeployment.address)
+  const voter = await getDeployedContract('Voter')
 
   console.log('Setting up main pool')
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
@@ -39,9 +37,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 async function setAllocPoint(voter: any, owner: any, assetAddress: string, tokenAllocPoint: number) {
   console.log('setAllocPoint', assetAddress, tokenAllocPoint)
   try {
-    const txn = await voter.connect(owner).setAllocPoint(assetAddress, tokenAllocPoint)
-    // wait until the transaction is mined
-    await txn.wait(2)
+    await confirmTxn(voter.connect(owner).setAllocPoint(assetAddress, tokenAllocPoint), 2)
   } catch (err) {
     // do nothing as asset already exists in pool
     console.log('Contract', voter.address, 'fails to set alloc point on asset', assetAddress, 'due to', err)
