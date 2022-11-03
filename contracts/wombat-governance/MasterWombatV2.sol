@@ -648,7 +648,7 @@ contract MasterWombatV2 is
 
         // perform additional check in case there are no more wom tokens to distribute.
         // emergency withdraw would be necessary
-        require(womBal > 0, 'No tokens to distribute');
+        // require(womBal > 0, 'No tokens to distribute');
 
         if (_amount > womBal) {
             wom.transfer(_to, womBal);
