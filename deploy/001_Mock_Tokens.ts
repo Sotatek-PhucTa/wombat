@@ -61,8 +61,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
     for (const tokens of Object.values(WOM_SIDEPOOL_TOKENS)) {
       for (const deployArgs of Object.values(tokens)) {
-        deployArgs.pop()
-        const tokenSymbol = deployArgs[1] as string
+        const args = deployArgs.slice(0, -1)
+        const tokenSymbol = args[1] as string
         await deploy(tokenSymbol, {
           from: deployer,
           log: true,
