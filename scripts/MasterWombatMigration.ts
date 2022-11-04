@@ -1,10 +1,9 @@
 import * as hre from 'hardhat'
 import { ethers } from 'hardhat'
 import { BigNumber, Contract } from 'ethers'
-import { DeployFunction } from 'hardhat-deploy/types'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getDeployedContract, confirmTxn } from '../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import _ from 'lodash'
 
 /**
  * This is a script aids migration of MasterWombatV2 to MasterWombatV3 (and Voter).
@@ -22,18 +21,30 @@ async function main() {
 
   // Step 1. read all Info from MasterWombatV2
   const v2Infos = await readV2Info(masterWombatV2)
-  console.log('Read', v2Infos.length, 'poolInfos from MasterWombatV2')
-  console.debug('v2Infos', v2Infos)
+  const v2InfosMap = _.keyBy(v2Infos, 'lpToken')
 
   // Step 2. read all Info from MasterWombatV3
   const v3Infos = await readV3Info(masterWombatV3)
-  console.log('Read', v3Infos.length, 'poolInfos from MasterWombatV3')
-  console.debug('v3Infos', v3Infos)
+  console.log('Comparing LPs between MasterWombatV2 and MasterWombatV3')
+  checkMissingLPs(v2InfosMap, _.keyBy(v3Infos, 'lpToken'))
 
   // Step 3. read all lpTokens from Voter
   const voterInfos = await readVoterInfo(voter)
-  console.log('Read', voterInfos.length, 'voterInfos from Voter')
-  console.debug('voterInfos', voterInfos)
+  console.log('Comparing LPs between MasterWombatV2 and Voter')
+  checkMissingLPs(v2InfosMap, _.keyBy(voterInfos, 'lpToken'))
+}
+
+function checkMissingLPs(expected: any, actual: any) {
+  for (const lp in expected) {
+    if (!actual[lp]) {
+      console.warn('-', lp)
+    }
+  }
+  for (const lp in actual) {
+    if (!expected[lp]) {
+      console.warn('+', lp)
+    }
+  }
 }
 
 async function readV2Info(masterWombatV2: Contract): Promise<MasterWombatV2Info[]> {
