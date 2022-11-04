@@ -19,22 +19,21 @@ async function main() {
   const masterWombatV3 = await getDeployedContract('MasterWombatV3')
   const voter = await getDeployedContract('Voter')
 
-  // Step 1. read all Info from MasterWombatV2
   const v2Infos = await readV2Info(masterWombatV2)
   const v2InfosMap = _.keyBy(v2Infos, 'lpToken')
 
-  // Step 2. read all Info from MasterWombatV3
   const v3Infos = await readV3Info(masterWombatV3)
   console.log('Comparing LPs between MasterWombatV2 and MasterWombatV3')
-  checkMissingLPs(v2InfosMap, _.keyBy(v3Infos, 'lpToken'))
+  diffLPs(v2InfosMap, _.keyBy(v3Infos, 'lpToken'))
+  console.log('Comparing rewarders between MasterWombatV2 and MasterWombatV3')
+  diffRewarders(v2InfosMap, _.keyBy(v3Infos, 'lpToken'))
 
-  // Step 3. read all lpTokens from Voter
   const voterInfos = await readVoterInfo(voter)
   console.log('Comparing LPs between MasterWombatV2 and Voter')
-  checkMissingLPs(v2InfosMap, _.keyBy(voterInfos, 'lpToken'))
+  diffLPs(v2InfosMap, _.keyBy(voterInfos, 'lpToken'))
 }
 
-function checkMissingLPs(expected: any, actual: any) {
+function diffLPs(expected: any, actual: any) {
   for (const lp in expected) {
     if (!actual[lp]) {
       console.warn('-', lp)
@@ -43,6 +42,20 @@ function checkMissingLPs(expected: any, actual: any) {
   for (const lp in actual) {
     if (!expected[lp]) {
       console.warn('+', lp)
+    }
+  }
+}
+
+function diffRewarders(expected: any, actual: any) {
+  for (const lp in expected) {
+    if (!actual[lp]) {
+      continue
+    }
+
+    const expectedRewarder = expected[lp].rewarder != ethers.constants.AddressZero
+    const actualRewarder = actual[lp].rewarder != ethers.constants.AddressZero
+    if (expectedRewarder != actualRewarder) {
+      console.warn(lp, 'expected', expectedRewarder, 'rewarder but found', actualRewarder, 'rewarder')
     }
   }
 }
