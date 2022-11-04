@@ -13,7 +13,7 @@ import _ from 'lodash'
  * 4. Voter's gaugeManager all point to MWv3
  */
 async function main() {
-  console.log('Migrating MasterWombat on', hre.network.name)
+  console.log('Running checks on MasterWombat on', hre.network.name)
   const masterWombatV2 = await getDeployedContract('MasterWombatV2')
   const masterWombatV3 = await getDeployedContract('MasterWombatV3')
   const voter = await getDeployedContract('Voter')
@@ -30,6 +30,8 @@ async function main() {
   diffLPs(v2Infos, voterInfos)
   console.log('Comparing allocPoints between MasterWombatV2 and Voter')
   diffAllocPoints(v2Infos, voterInfos)
+  console.log('Checking GaugeManager in Voter')
+  checkGaugeManager(masterWombatV3.address, voterInfos)
 }
 
 function diffLPs(expected: any, actual: any) {
@@ -68,6 +70,15 @@ function diffAllocPoints(expected: any, actual: any) {
     const actualAllocPoint = actual[lp].allocPoint.toNumber()
     if (expectedAllocPoint != actualAllocPoint) {
       console.warn(lp, 'expected', expectedAllocPoint, 'alloc point but found', actualAllocPoint)
+    }
+  }
+}
+
+function checkGaugeManager(expected: string, voterInfo: any) {
+  for (const lp in voterInfo) {
+    const actual = voterInfo[lp].gaugeManager
+    if (actual != expected) {
+      console.warn(lp, 'expected gauge manager to be', expected, 'but found', actual)
     }
   }
 }
