@@ -1,8 +1,7 @@
 import * as hre from 'hardhat'
 import { ethers } from 'hardhat'
 import { BigNumber, Contract } from 'ethers'
-import { getDeployedContract, confirmTxn } from '../utils'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { getDeployedContract } from '../utils'
 import _ from 'lodash'
 
 /**
@@ -18,19 +17,19 @@ async function main() {
   const masterWombatV2 = await getDeployedContract('MasterWombatV2')
   const masterWombatV3 = await getDeployedContract('MasterWombatV3')
   const voter = await getDeployedContract('Voter')
+  const v2Infos = _.keyBy(await readV2Info(masterWombatV2), 'lpToken')
+  const v3Infos = _.keyBy(await readV3Info(masterWombatV3), 'lpToken')
 
-  const v2Infos = await readV2Info(masterWombatV2)
-  const v2InfosMap = _.keyBy(v2Infos, 'lpToken')
-
-  const v3Infos = await readV3Info(masterWombatV3)
   console.log('Comparing LPs between MasterWombatV2 and MasterWombatV3')
-  diffLPs(v2InfosMap, _.keyBy(v3Infos, 'lpToken'))
+  diffLPs(v2Infos, v3Infos)
   console.log('Comparing rewarders between MasterWombatV2 and MasterWombatV3')
-  diffRewarders(v2InfosMap, _.keyBy(v3Infos, 'lpToken'))
+  diffRewarders(v2Infos, v3Infos)
 
-  const voterInfos = await readVoterInfo(voter)
+  const voterInfos = _.keyBy(await readVoterInfo(voter), 'lpToken')
   console.log('Comparing LPs between MasterWombatV2 and Voter')
-  diffLPs(v2InfosMap, _.keyBy(voterInfos, 'lpToken'))
+  diffLPs(v2Infos, voterInfos)
+  console.log('Comparing allocPoints between MasterWombatV2 and Voter')
+  diffAllocPoints(v2Infos, voterInfos)
 }
 
 function diffLPs(expected: any, actual: any) {
@@ -56,6 +55,19 @@ function diffRewarders(expected: any, actual: any) {
     const actualRewarder = actual[lp].rewarder != ethers.constants.AddressZero
     if (expectedRewarder != actualRewarder) {
       console.warn(lp, 'expected', expectedRewarder, 'rewarder but found', actualRewarder, 'rewarder')
+    }
+  }
+}
+
+function diffAllocPoints(expected: any, actual: any) {
+  for (const lp in expected) {
+    if (!actual[lp]) {
+      continue
+    }
+    const expectedAllocPoint = expected[lp].allocPoint.toNumber()
+    const actualAllocPoint = actual[lp].allocPoint.toNumber()
+    if (expectedAllocPoint != actualAllocPoint) {
+      console.warn(lp, 'expected', expectedAllocPoint, 'alloc point but found', actualAllocPoint)
     }
   }
 }
