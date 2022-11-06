@@ -917,6 +917,86 @@ describe('Voter', async function () {
       await mw.connect(users[0]).multiClaim([0])
       expect(await wom.balanceOf(users[0].address)).near(parseEther('926.08'))
     })
+
+    it('non-whitelisted gauge should receive base reward', async function () {
+      // prepare
+      await mw.add(lpToken1.address, AddressZero)
+      await mw.add(lpToken2.address, AddressZero)
+      await mw.add(lpToken3.address, AddressZero)
+
+      await voter.add(mw.address, lpToken1.address, AddressZero)
+      await voter.add(mw.address, lpToken2.address, AddressZero)
+      await voter.add(mw.address, lpToken3.address, AddressZero)
+
+      // approvals
+      await lpToken1.transfer(users[0].address, parseUnits('100000'))
+      await lpToken2.transfer(users[0].address, parseUnits('100000'))
+      await lpToken3.transfer(users[0].address, parseEther('100000'))
+
+      await lpToken1.transfer(users[1].address, parseUnits('100000'))
+      await lpToken2.transfer(users[1].address, parseUnits('100000'))
+      await lpToken3.transfer(users[1].address, parseEther('100000'))
+
+      await lpToken1.connect(users[0]).approve(mw.address, parseEther('1000000000'))
+      await lpToken2.connect(users[0]).approve(mw.address, parseEther('1000000000'))
+      await lpToken3.connect(users[0]).approve(mw.address, parseEther('1000000000'))
+
+      await lpToken1.connect(users[1]).approve(mw.address, parseEther('1000000000'))
+      await lpToken2.connect(users[1]).approve(mw.address, parseEther('1000000000'))
+      await lpToken3.connect(users[1]).approve(mw.address, parseEther('1000000000'))
+
+      // test
+      await voter.setBasePartition(600)
+
+      await voter.setAllocPoint(lpToken1.address, parseEther('1'))
+      await voter.setAllocPoint(lpToken2.address, parseEther('2'))
+      await voter.setAllocPoint(lpToken3.address, parseEther('3'))
+      await voter.pause(lpToken1.address)
+
+      await advanceTimeAndBlock(86400 * 4)
+
+      expect(await voter.pendingWom(lpToken1.address)).roughlyNear(parseEther('32000'))
+      expect(await voter.pendingWom(lpToken2.address)).roughlyNear(parseEther('64000'))
+      expect(await voter.pendingWom(lpToken3.address)).roughlyNear(parseEther('96000'))
+
+      await voter.connect(users[0]).vote([lpToken1.address, lpToken2.address], [parseEther('200'), parseEther('100')])
+
+      await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
+      await mw.connect(users[0]).deposit(1, parseUnits('1'))
+      await mw.connect(users[0]).deposit(2, parseEther('10000'))
+
+      // wait for the next epoch start
+      await advanceTimeAndBlock(86400 * 3)
+
+      // should have been accumulated for 1 week
+      // 120k, 92k
+      expect(await voter.pendingWom(lpToken1.address)).near(parseEther('56000')) // 560000 * (0.6 * 1/6 + 0.4 * 3/7 * 200/300 * 0)
+      expect(await voter.pendingWom(lpToken2.address)).near(parseEther('144000')) // 560000 * (0.6 * 2/6 + 0.4 * 3/7 * 100/300)
+      expect(await voter.pendingWom(lpToken3.address)).near(parseEther('168000')) // 560000 * 0.6 * 3/6
+
+      // trigger Voter.distribute
+      const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+      await expect(receipt1).to.emit(voter, 'DistributeReward')
+
+      // claim reward
+      await advanceTimeAndBlock(600)
+
+      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('55.5'))
+      const balance1: BigNumber = await wom.balanceOf(users[0].address)
+      await mw.connect(users[0]).multiClaim([0])
+      const balance2: BigNumber = await wom.balanceOf(users[0].address)
+      expect(balance2.sub(balance1)).roughlyNear(parseEther('55.5'))
+
+      expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('143'))
+      await mw.connect(users[0]).multiClaim([1])
+      const balance3 = await wom.balanceOf(users[0].address)
+      expect(balance3.sub(balance2)).roughlyNear(parseEther('143'))
+
+      expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('167'))
+      await mw.connect(users[0]).multiClaim([2])
+      const balance4 = await wom.balanceOf(users[0].address)
+      expect(balance4.sub(balance3)).roughlyNear(parseEther('167'))
+    })
   })
 
   describe('Bribe', async function () {
