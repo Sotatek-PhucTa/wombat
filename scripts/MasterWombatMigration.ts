@@ -11,6 +11,7 @@ import _ from 'lodash'
  * 2. rewarder in MWv2 has a counterpart in MWv3
  * 3. allocPoint are same for MWv2 and Voter
  * 4. Voter's gaugeManager all point to MWv3
+ * 5. Voter is set on VeWom and MWv3
  */
 async function main() {
   console.log('Running checks on MasterWombat on', hre.network.name)
@@ -32,6 +33,9 @@ async function main() {
   diffAllocPoints(v2Infos, voterInfos)
   console.log('Checking GaugeManager in Voter')
   checkGaugeManager(masterWombatV3.address, voterInfos)
+  console.log('Checking if voter is set correctly')
+  checkVoter(voter.address, masterWombatV3)
+  checkVoter(voter.address, await getDeployedContract('VeWom'))
 }
 
 function diffLPs(expected: any, actual: any) {
@@ -80,6 +84,13 @@ function checkGaugeManager(expected: string, voterInfo: any) {
     if (actual != expected) {
       console.warn(lp, 'expected gauge manager to be', expected, 'but found', actual)
     }
+  }
+}
+
+async function checkVoter(expected: string, contract: Contract) {
+  const actual = await contract.voter()
+  if (expected != actual) {
+    console.log('Expected Voter to be', expected, 'but found', actual)
   }
 }
 
