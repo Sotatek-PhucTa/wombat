@@ -36,11 +36,11 @@ describe('MasterWombatMigration', function () {
   })
 
   it('Check LPs are the same between MasterWombatV2 and MasterWombatV3', async function () {
-    expect(Object.keys(v2Infos)).to.have.members(Object.keys(v3Infos))
+    expect(v2Infos).to.have.all.keys(v3Infos)
   })
 
   it('Check LPs are the same between MasterWombatV2 and Voter', async function () {
-    expect(Object.keys(v2Infos)).to.have.members(Object.keys(voterInfos))
+    expect(v2Infos).to.have.all.keys(voterInfos)
   })
 
   it('Check GaugeManager in Voter is the same as MasterWombatV3', async function () {
