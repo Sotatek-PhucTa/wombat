@@ -81,6 +81,12 @@ describe('MasterWombatMigration', function () {
       expect(hasV2Rewarder).to.eql(hasV3Rewarder)
     }
   })
+
+  // TODO: old rewarders in MWv2 has reward rate 0
+  // TODO: new rewarders in MWv3 has reward rate > 0
+  // TODO: MWv2 has setNewMasterWombat to MWv3
+  // TODO: MWv2 has emission rate 0
+  // TODO: all Pool has setMasterWombat to MWv3
 })
 
 async function readV2Info(masterWombatV2: Contract): Promise<MasterWombatV2Info[]> {
