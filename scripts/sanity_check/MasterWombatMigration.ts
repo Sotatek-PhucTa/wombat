@@ -1,98 +1,87 @@
-import * as hre from 'hardhat'
-import { ethers } from 'hardhat'
+import { deployments, ethers, network } from 'hardhat'
 import { BigNumber, Contract } from 'ethers'
-import { getDeployedContract } from '../utils'
+import { getDeployedContract } from '../../utils'
 import _ from 'lodash'
+import { expect } from 'chai'
 
 /**
- * This is a script aids migration of MasterWombatV2 to MasterWombatV3 (and Voter).
- * Here are the invariants we check:
- * 1. any LP in MWv2 is also in MWv3 and Voter
- * 2. rewarder in MWv2 has a counterpart in MWv3
- * 3. allocPoint are same for MWv2 and Voter
- * 4. Voter's gaugeManager all point to MWv3
- * 5. Voter is set on VeWom and MWv3
+ * This script performs sanity check on MasterWombatV3 and Voter against
+ * MasterWombatV2. Example command:
+ *   npx hh test --network bsc_testnet scripts/sanity_check/MasterWombatMigration.ts
  */
-async function main() {
-  console.log('Running checks on MasterWombat on', hre.network.name)
-  const masterWombatV2 = await getDeployedContract('MasterWombatV2')
-  const masterWombatV3 = await getDeployedContract('MasterWombatV3')
-  const voter = await getDeployedContract('Voter')
-  const v2Infos = _.keyBy(await readV2Info(masterWombatV2), 'lpToken')
-  const v3Infos = _.keyBy(await readV3Info(masterWombatV3), 'lpToken')
+describe('MasterWombatMigration', function () {
+  let masterWombatV2: Contract
+  let masterWombatV3: Contract
+  let voter: Contract
+  let vewom: Contract
+  let v2Infos: _.Dictionary<MasterWombatV2Info>
+  let v3Infos: _.Dictionary<MasterWombatV3Info>
+  let voterInfos: _.Dictionary<VoterInfo>
 
-  console.log('Comparing LPs between MasterWombatV2 and MasterWombatV3')
-  diffLPs(v2Infos, v3Infos)
-  console.log('Comparing rewarders between MasterWombatV2 and MasterWombatV3')
-  diffRewarders(v2Infos, v3Infos)
+  before(function () {
+    console.log('Running sanity checks on MasterWombat on', network.name)
+  })
 
-  const voterInfos = _.keyBy(await readVoterInfo(voter), 'lpToken')
-  console.log('Comparing LPs between MasterWombatV2 and Voter')
-  diffLPs(v2Infos, voterInfos)
-  console.log('Comparing allocPoints between MasterWombatV2 and Voter')
-  diffAllocPoints(v2Infos, voterInfos)
-  console.log('Checking GaugeManager in Voter')
-  checkGaugeManager(masterWombatV3.address, voterInfos)
-  console.log('Checking if voter is set correctly')
-  checkVoter(voter.address, masterWombatV3)
-  checkVoter(voter.address, await getDeployedContract('VeWom'))
-}
+  beforeEach(async function () {
+    await deployments.all()
 
-function diffLPs(expected: any, actual: any) {
-  for (const lp in expected) {
-    if (!actual[lp]) {
-      console.warn('-', lp)
+    masterWombatV2 = await getDeployedContract('MasterWombatV2')
+    masterWombatV3 = await getDeployedContract('MasterWombatV3')
+    voter = await getDeployedContract('Voter')
+    vewom = await getDeployedContract('VeWom')
+
+    v2Infos = _.keyBy(await readV2Info(masterWombatV2), 'lpToken')
+    v3Infos = _.keyBy(await readV3Info(masterWombatV3), 'lpToken')
+    voterInfos = _.keyBy(await readVoterInfo(voter), 'lpToken')
+  })
+
+  it('Check LPs are the same between MasterWombatV2 and MasterWombatV3', async function () {
+    expect(Object.keys(v2Infos)).to.have.members(Object.keys(v3Infos))
+  })
+
+  it('Check LPs are the same between MasterWombatV2 and Voter', async function () {
+    expect(Object.keys(v2Infos)).to.have.members(Object.keys(voterInfos))
+  })
+
+  it('Check GaugeManager in Voter is the same as MasterWombatV3', async function () {
+    for (const lp in voterInfos) {
+      expect(voterInfos[lp].gaugeManager).to.eql(masterWombatV3.address)
     }
-  }
-  for (const lp in actual) {
-    if (!expected[lp]) {
-      console.warn('+', lp)
-    }
-  }
-}
+  })
 
-function diffRewarders(expected: any, actual: any) {
-  for (const lp in expected) {
-    if (!actual[lp]) {
-      continue
+  // Note: this fails at the first difference.
+  it('Check allocPoints are the same between Voter and MasterWombatV2', async function () {
+    for (const lp in v2Infos) {
+      // Skip if LP does not exist in Voter
+      if (!voterInfos[lp]) {
+        continue
+      }
+      const asset = await ethers.getContractAt('Asset', lp)
+      const v2AllocPoint = v2Infos[lp].allocPoint.toNumber()
+      const voterAllocPoint = voterInfos[lp].allocPoint.toNumber()
+      expect(v2AllocPoint).to.eql(voterAllocPoint, `${await asset.name()}`)
     }
+  })
 
-    const expectedRewarder = expected[lp].rewarder != ethers.constants.AddressZero
-    const actualRewarder = actual[lp].rewarder != ethers.constants.AddressZero
-    if (expectedRewarder != actualRewarder) {
-      console.warn(lp, 'expected', expectedRewarder, 'rewarder but found', actualRewarder, 'rewarder')
-    }
-  }
-}
+  it('Check voter is set correctly', async function () {
+    expect(await masterWombatV3.voter()).to.eql(voter.address)
+    expect(await vewom.voter()).to.eql(voter.address)
+  })
 
-function diffAllocPoints(expected: any, actual: any) {
-  for (const lp in expected) {
-    if (!actual[lp]) {
-      continue
-    }
-    const expectedAllocPoint = expected[lp].allocPoint.toNumber()
-    const actualAllocPoint = actual[lp].allocPoint.toNumber()
-    if (expectedAllocPoint != actualAllocPoint) {
-      console.warn(lp, 'expected', expectedAllocPoint, 'alloc point but found', actualAllocPoint)
-    }
-  }
-}
+  // Note: this fails at the first difference.
+  it('Check rewarders are present in both MasterWombatV2 and MasterWombatV3', async function () {
+    for (const lp in v2Infos) {
+      // Skip if LP does not exist in MWv3
+      if (!v3Infos[lp]) {
+        continue
+      }
 
-function checkGaugeManager(expected: string, voterInfo: any) {
-  for (const lp in voterInfo) {
-    const actual = voterInfo[lp].gaugeManager
-    if (actual != expected) {
-      console.warn(lp, 'expected gauge manager to be', expected, 'but found', actual)
+      const hasV2Rewarder = v2Infos[lp].rewarder != ethers.constants.AddressZero
+      const hasV3Rewarder = v3Infos[lp].rewarder != ethers.constants.AddressZero
+      expect(hasV2Rewarder).to.eql(hasV3Rewarder)
     }
-  }
-}
-
-async function checkVoter(expected: string, contract: Contract) {
-  const actual = await contract.voter()
-  if (expected != actual) {
-    console.log('Expected Voter to be', expected, 'but found', actual)
-  }
-}
+  })
+})
 
 async function readV2Info(masterWombatV2: Contract): Promise<MasterWombatV2Info[]> {
   const poolLength = await masterWombatV2.poolLength()
@@ -151,10 +140,3 @@ interface VoterInfo {
   gaugeManager: string // should be MasterWombatV3
   bribe: string // AddressZero if no bribe
 }
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error)
-  process.exitCode = 1
-})
