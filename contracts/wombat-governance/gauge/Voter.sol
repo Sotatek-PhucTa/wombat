@@ -26,7 +26,8 @@ interface IVe {
 ///
 /// Real-time WOM accumulation and epoch-based WOM distribution:
 /// Voting gauges accumulates WOM seconds by seconds according to the voting weight. When a user applies new
-/// allocation for their votes, accumulation rate of WOM of the gauge updates immediately.
+/// allocation for their votes, accumulation rate of WOM of the gauge updates immediately. Only whitelisted
+/// gauges are able to accumulage WOM.
 /// However, accumulated WOM is distributed to LP in the next epoch at an even rate. 1 epoch last for 7 days.
 ///
 /// Base Allocation:
@@ -41,8 +42,9 @@ interface IVe {
 ///    via MasterWombat.notifyRewardAmount(IERC20 _lpToken, uint256 _amount)
 /// 4. MasterWombat will update the corresponding `pool.rewardRate` and `pool.periodFinish`
 ///
-/// Bribe:
-/// Bribe is natively supported by `Voter`. But Only whitelisted gauge can receive bribe rewards.
+/// Bribe
+/// Bribe is natively supported by `Voter`. Third Party protocols can bribe to attract more votes from veWOM holders
+/// to increase WOM emissions to their tokens.
 ///
 /// Flow of bribe:
 /// 1. When users vote/unvote, `bribe.onVote` is called. The bribe contract works similar to `MultiRewarderPerSec`.
@@ -299,17 +301,17 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         womPerSec = _womPerSec;
     }
 
-    /// @notice Pause emission of WOM tokens. Un-distributed rewards are forfeited
+    /// @notice Pause vote emission of WOM tokens for the gauge. Un-distributed rewards are forfeited
     /// Users can still vote/unvote and receive bribes.
-    function pause(IERC20 _lpToken) external onlyOwner {
+    function pauseVoteEmission(IERC20 _lpToken) external onlyOwner {
         require(infos[_lpToken].whitelist, 'voter: not whitelisted');
         _checkGaugeExist(_lpToken);
 
         infos[_lpToken].whitelist = false;
     }
 
-    /// @notice Resume emission of WOM tokens
-    function resume(IERC20 _lpToken) external onlyOwner {
+    /// @notice Resume vote emission of WOM tokens for the gauge.
+    function resumeVoteEmission(IERC20 _lpToken) external onlyOwner {
         require(infos[_lpToken].whitelist == false, 'voter: not paused');
         _checkGaugeExist(_lpToken);
 
@@ -416,7 +418,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         uint256 _baseIndex,
         uint256 _voteIndex
     ) internal view returns (uint256) {
-        if (!infos[_lpToken].whitelist || paused()) {
+        if (paused()) {
             // WOM emission for un-whitelisted lpTokens are blackholed.
             // Also, don't distribute WOM if the contract is paused
             return infos[_lpToken].claimable;
@@ -424,6 +426,10 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
 
         uint256 baseIndexDelta = _baseIndex - infos[_lpToken].supplyBaseIndex;
         uint256 _baseShare = (weights[_lpToken].allocPoint * baseIndexDelta) / ACC_TOKEN_PRECISION;
+
+        if (!infos[_lpToken].whitelist) {
+            return infos[_lpToken].claimable + _baseShare;
+        }
 
         uint256 voteIndexDelta = _voteIndex - infos[_lpToken].supplyVoteIndex;
         uint256 _voteShare = (weights[_lpToken].voteWeight * voteIndexDelta) / ACC_TOKEN_PRECISION;
