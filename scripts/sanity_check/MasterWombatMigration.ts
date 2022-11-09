@@ -116,7 +116,8 @@ describe('MasterWombatMigration', function () {
     )
   })
 
-  it('MasterWombatv2 has setNewMasterWombat to MWv3', async function () {
+  it('MasterWombatv2 has setNewMasterWombat to MasterWombatV3', async function () {
+    // Note: this also fails when MasterWombatV2 is not yet upgraded.
     expect(await masterWombatV2.newMasterWombat()).to.eql(masterWombatV3.address)
   })
 
