@@ -82,7 +82,22 @@ describe('MasterWombatMigration', function () {
     }
   })
 
-  // TODO: old rewarders in MWv2 has reward rate 0
+  it('Check MasterWombatV2 rewarders has 0 reward rate', async function () {
+    await Promise.all(
+      Object.keys(v2Infos)
+        .filter((lp) => v2Infos[lp].rewarder != ethers.constants.AddressZero)
+        .map(async (lp) => {
+          const rewarder = await ethers.getContractAt('MultiRewarderPerSec', v2Infos[lp].rewarder)
+          return Promise.all(
+            _.range(0, await rewarder.rewardLength()).map(async (i) => {
+              const rewardInfo = await rewarder.rewardInfo(i)
+              expect(rewardInfo.tokenPerSec.isZero(), `lp ${lp}'s ${i}-th rewarder should have no reward rate`).to.be
+                .true
+            })
+          )
+        })
+    )
+  })
   // TODO: new rewarders in MWv3 has reward rate > 0
   // TODO: MWv2 has setNewMasterWombat to MWv3
   // TODO: MWv2 has emission rate 0
