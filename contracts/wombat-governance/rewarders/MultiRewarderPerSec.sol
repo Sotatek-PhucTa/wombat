@@ -38,6 +38,9 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         IERC20 rewardToken; // if rewardToken is 0, native token is used as reward token
         uint96 tokenPerSec; // 10.18 fixed point
         uint128 accTokenPerShare; // 26.12 fixed point. Amount of reward token each LP token is worth.
+        uint128 distributedAmount; // 20.18 fixed point, depending on the decimals of the reward token. This value is used to
+        // track the amount of distributed tokens. If `distributedAmount` is closed to the amount of total received
+        // tokens, we should refill reward or prepare to stop distributing reward.
     }
 
     /// @notice address of the operator
@@ -92,7 +95,8 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         RewardInfo memory reward = RewardInfo({
             rewardToken: _rewardToken,
             tokenPerSec: _tokenPerSec,
-            accTokenPerShare: 1e18
+            accTokenPerShare: 1e18,
+            distributedAmount: 0
         });
         rewardInfo.push(reward);
         emit RewardRateUpdated(address(_rewardToken), 0, _tokenPerSec);
@@ -110,7 +114,8 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         RewardInfo memory reward = RewardInfo({
             rewardToken: _rewardToken,
             tokenPerSec: _tokenPerSec,
-            accTokenPerShare: 1e18
+            accTokenPerShare: 1e18,
+            distributedAmount: 0
         });
         rewardInfo.push(reward);
         emit RewardRateUpdated(address(_rewardToken), 0, _tokenPerSec);
@@ -133,6 +138,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
                 uint256 timeElapsed = block.timestamp - lastRewardTimestamp;
                 uint256 tokenReward = timeElapsed * reward.tokenPerSec;
                 reward.accTokenPerShare += toUint128((tokenReward * ACC_TOKEN_PRECISION) / totalShare);
+                reward.distributedAmount += toUint128(tokenReward);
             }
             lastRewardTimestamp = block.timestamp;
         }
