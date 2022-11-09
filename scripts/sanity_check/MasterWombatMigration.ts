@@ -71,7 +71,7 @@ describe('MasterWombatMigration', function () {
   // Note: this fails at the first difference.
   it('Check rewarders are present in both MasterWombatV2 and MasterWombatV3', async function () {
     for (const lp in v2Infos) {
-      // Skip if LP does not exist in MWv3
+      // Skip if LP does not exist in MasterWombatv3
       if (!v3Infos[lp]) {
         continue
       }
@@ -116,10 +116,16 @@ describe('MasterWombatMigration', function () {
     )
   })
 
+  it('MasterWombatv2 has setNewMasterWombat to MWv3', async function () {
+    expect(await masterWombatV2.newMasterWombat()).to.eql(masterWombatV3.address)
+  })
 
-  // TODO: MWv2 has setNewMasterWombat to MWv3
-  // TODO: MWv2 has emission rate 0
-  // TODO: all Pool has setMasterWombat to MWv3
+  it('MasterWombatv2 has emission rate 0', async function () {
+    const rate = await masterWombatV2.womPerSec()
+    expect(rate.isZero()).to.be.true
+  })
+
+  // TODO: all Pool has setMasterWombat to MasterWombatV3
 })
 
 async function readV2Info(masterWombatV2: Contract): Promise<MasterWombatV2Info[]> {
