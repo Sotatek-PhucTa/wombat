@@ -125,7 +125,24 @@ describe('MasterWombatMigration', function () {
     expect(rate.isZero()).to.be.true
   })
 
-  // TODO: all Pool has setMasterWombat to MasterWombatV3
+  it('Check all Pools have masterWombat to MasterWombatV3', async function () {
+    const allPools = Object.keys(await deployments.all()).filter(
+      (name) =>
+        name.includes('Pool') &&
+        !name.startsWith('Asset') &&
+        !name.includes('Proxy') &&
+        !name.includes('Implementation')
+    )
+    Promise.all(
+      allPools.map(async (name) => {
+        const pool = await getDeployedContract('Pool', name)
+        expect(
+          await pool.masterWombat(),
+          `${name} (${pool.address}) does not have the address of MasterWombatV3`
+        ).to.eql(masterWombatV3.address)
+      })
+    )
+  })
 })
 
 async function readV2Info(masterWombatV2: Contract): Promise<MasterWombatV2Info[]> {
