@@ -200,7 +200,7 @@ contract MasterWombatV3 is
 
     /// @notice Update reward variables for all pools.
     /// @dev Be careful of gas spending!
-    function massUpdatePools() external override {
+    function massUpdatePools() public override {
         uint256 length = poolInfo.length;
         for (uint256 pid; pid < length; ++pid) {
             _updatePool(pid);
@@ -493,6 +493,7 @@ contract MasterWombatV3 is
     /// @param _basePartition the future base partition
     function updateEmissionPartition(uint16 _basePartition) external onlyOwner {
         require(_basePartition <= 1000);
+        massUpdatePools();
         basePartition = _basePartition;
         emit UpdateEmissionPartition(msg.sender, _basePartition, 1000 - _basePartition);
     }
