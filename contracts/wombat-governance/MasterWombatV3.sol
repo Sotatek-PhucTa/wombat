@@ -216,15 +216,15 @@ contract MasterWombatV3 is
     function _updatePool(uint256 _pid) private {
         PoolInfo storage pool = poolInfo[_pid];
 
-        // Shall we skip to minimize gas?
-        IVoter(voter).distribute(address(pool.lpToken));
-
         if (block.timestamp > pool.lastRewardTimestamp) {
             (uint256 accWomPerShare, uint256 accWomPerFactorShare) = calRewardPerUnit(_pid);
             pool.accWomPerShare = to104(accWomPerShare);
             pool.accWomPerFactorShare = to104(accWomPerFactorShare);
             pool.lastRewardTimestamp = uint40(lastTimeRewardApplicable(pool.periodFinish));
         }
+
+        // Skip to minimize gas
+        // IVoter(voter).distribute(address(pool.lpToken));
     }
 
     /// @notice Distribute WOM over a period of 7 days
