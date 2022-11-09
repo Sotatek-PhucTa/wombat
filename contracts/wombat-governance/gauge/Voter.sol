@@ -21,25 +21,25 @@ interface IVe {
 /// according to the base allocation & voting weights.
 ///
 /// veWOM holders can participate in gauge voting to determine `voteAllocation()` of the WOM emission. They can
-///  allocate their vote (1 veWOM = 1 vote) to one or more gauges. WOM emission to a gauge is proportional
+///  allocate their vote (1 veWOM = 1 vote) to one or more gauges. WOM accumultation to a gauge is proportional
 /// to the amount of vote it receives.
 ///
 /// Real-time WOM accumulation and epoch-based WOM distribution:
 /// Voting gauges accumulates WOM seconds by seconds according to the voting weight. When a user applies new
-/// allocation for their votes, accumulation rate of WOM of the gauge updates immediately. Only whitelisted
-/// gauges are able to accumulage WOM.
-/// However, accumulated WOM is distributed to LP in the next epoch at an even rate. 1 epoch last for 7 days.
+/// allocation for their votes, accumulation rate of WOM of the gauge updates immediately. Note that only whitelisted
+/// gauges are able to accumulate WOM from users' votes.
+/// Accumulated WOM is distributed to LP in the next epoch at an even rate. 1 epoch last for 7 days.
 ///
 /// Base Allocation:
 /// `baseAllocation` of WOM emissions is distributed to gauges according to the allocation by `owner`.
 /// Other WOM emissions are deteremined by `votes` of veWOM holders.
 ///
 /// Flow to distribute reward:
-/// 1. At the beginning of MasterWombat.updateFactor/deposit/withdraw, Voter.distribute(lpToken) is called
+/// 1. `Voter.distribute(lpToken)` is called
 /// 2. WOM index (`baseIndex` and `voteIndex`) is updated and corresponding WOM accumulated over this period (`GaugeInfo.claimable`)
 ///    is updated.
-/// 3. At the beginning of each epoch, `GaugeInfo.claimable` amount of WOM is sent to respective gauge
-///    via MasterWombat.notifyRewardAmount(IERC20 _lpToken, uint256 _amount)
+/// 3. At the beginning of each epoch, `GaugeInfo.claimable` amount of WOM is sent to the respective gauge
+///    via `MasterWombat.notifyRewardAmount(IERC20 _lpToken, uint256 _amount)`
 /// 4. MasterWombat will update the corresponding `pool.rewardRate` and `pool.periodFinish`
 ///
 /// Bribe
@@ -301,35 +301,50 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         womPerSec = _womPerSec;
     }
 
-    /// @notice Pause vote emission of WOM tokens for the gauge. Un-distributed rewards are forfeited
+    /// @notice Pause vote emission of WOM tokens for the gauge.
     /// Users can still vote/unvote and receive bribes.
     function pauseVoteEmission(IERC20 _lpToken) external onlyOwner {
         require(infos[_lpToken].whitelist, 'voter: not whitelisted');
         _checkGaugeExist(_lpToken);
 
+        _distributeWom();
+        _updateFor(_lpToken);
+
         infos[_lpToken].whitelist = false;
     }
 
-    /// @notice Resume vote emission of WOM tokens for the gauge.
+    /// @notice Resume vote accumultation of WOM tokens for the gauge.
     function resumeVoteEmission(IERC20 _lpToken) external onlyOwner {
         require(infos[_lpToken].whitelist == false, 'voter: not paused');
         _checkGaugeExist(_lpToken);
 
         // catch up supplyVoteIndex
         _distributeWom();
-        infos[_lpToken].supplyBaseIndex = baseIndex;
-        infos[_lpToken].supplyVoteIndex = voteIndex;
+        _updateFor(_lpToken);
+
         infos[_lpToken].whitelist = true;
     }
 
-    /// @notice Pause emission of WOM tokens for all assets. Un-distributed rewards are forfeited
+    /// @notice Pause vote accumultation of WOM tokens for all assets
     /// Users can still vote/unvote and receive bribes.
     function pauseAll() external onlyOwner {
+        _distributeWom();
+        uint256 len = lpTokens.length;
+        for (uint256 i; i < len; i++) {
+            _updateFor(lpTokens[i]);
+        }
+
         _pause();
     }
 
-    /// @notice Resume emission of WOM tokens for all assets
+    /// @notice Resume vote accumultation of WOM tokens for all assets
     function resumeAll() external onlyOwner {
+        _distributeWom();
+        uint256 len = lpTokens.length;
+        for (uint256 i; i < len; i++) {
+            _updateFor(lpTokens[i]);
+        }
+
         _unpause();
     }
 
@@ -384,7 +399,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     }
 
     function _getBaseIndex() internal view returns (uint256) {
-        if (block.timestamp <= lastRewardTimestamp || totalAllocPoint == 0) {
+        if (block.timestamp <= lastRewardTimestamp || totalAllocPoint == 0 || paused()) {
             return baseIndex;
         }
 
@@ -399,7 +414,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
 
     /// @notice Calculate the new `voteIndex`
     function _getVoteIndex() internal view returns (uint256) {
-        if (block.timestamp <= lastRewardTimestamp || totalWeight == 0) {
+        if (block.timestamp <= lastRewardTimestamp || totalWeight == 0 || paused()) {
             return voteIndex;
         }
 
@@ -418,12 +433,6 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         uint256 _baseIndex,
         uint256 _voteIndex
     ) internal view returns (uint256) {
-        if (paused()) {
-            // WOM emission for un-whitelisted lpTokens are blackholed.
-            // Also, don't distribute WOM if the contract is paused
-            return infos[_lpToken].claimable;
-        }
-
         uint256 baseIndexDelta = _baseIndex - infos[_lpToken].supplyBaseIndex;
         uint256 _baseShare = (weights[_lpToken].allocPoint * baseIndexDelta) / ACC_TOKEN_PRECISION;
 
