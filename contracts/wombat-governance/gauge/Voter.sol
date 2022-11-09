@@ -106,9 +106,11 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         require(address(_wom) != address(0), 'wom address cannot be zero');
         require(address(_veWom) != address(0), 'veWom address cannot be zero');
         require(_baseAllocation <= 1000);
+        require(_womPerSec <= 10000e18);
 
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
+        __Pausable_init_unchained();
 
         wom = _wom;
         veWom = _veWom;

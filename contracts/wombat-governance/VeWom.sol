@@ -67,6 +67,7 @@ contract VeWom is
     event SetMaxBreedingLength(uint256 len);
     event UpdateLockTime(
         address addr,
+        uint256 slot,
         uint256 unlockTime,
         uint256 womAmount,
         uint256 originalVeWomAmount,
@@ -269,7 +270,7 @@ contract VeWom is
         _mint(msg.sender, newVeWomAmount - originalVeWomAmount);
 
         // emit event
-        emit UpdateLockTime(msg.sender, newUnlockTime, originalWomAmount, originalVeWomAmount, newVeWomAmount);
+        emit UpdateLockTime(msg.sender, slot, newUnlockTime, originalWomAmount, originalVeWomAmount, newVeWomAmount);
     }
 
     /// @notice asserts addres in param is not a smart contract.
