@@ -730,13 +730,13 @@ describe('Voter', async function () {
     })
 
     it('only owner can pause mw', async function () {
-      await expect(voter.connect(users[0]).pause(lpToken3.address)).to.be.revertedWith(
+      await expect(voter.connect(users[0]).pauseVoteEmission(lpToken3.address)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
     })
 
     it('only owner can resume mw', async function () {
-      await expect(voter.connect(users[0]).resume(lpToken3.address)).to.be.revertedWith(
+      await expect(voter.connect(users[0]).resumeVoteEmission(lpToken3.address)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
     })
@@ -790,10 +790,10 @@ describe('Voter', async function () {
 
     it('can pause WOM emission', async function () {
       await voter.add(mw.address, lpToken1.address, AddressZero)
-      await voter.pause(lpToken1.address)
+      await voter.pauseVoteEmission(lpToken1.address)
 
       // already paused
-      await expect(voter.pause(lpToken1.address)).to.be.revertedWith('voter: not whitelisted')
+      await expect(voter.pauseVoteEmission(lpToken1.address)).to.be.revertedWith('voter: not whitelisted')
     })
 
     it('pause should stop emit WOM rewards (bribe is not stopped)', async function () {
@@ -831,7 +831,7 @@ describe('Voter', async function () {
       await advanceTimeAndBlock(6000)
 
       // pause
-      await voter.pause(lpToken1.address)
+      await voter.pauseVoteEmission(lpToken1.address)
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
@@ -848,7 +848,7 @@ describe('Voter', async function () {
       await voter.connect(users[0]).vote([lpToken1.address], [1])
 
       // resume
-      await voter.resume(lpToken1.address)
+      await voter.resumeVoteEmission(lpToken1.address)
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
@@ -863,14 +863,14 @@ describe('Voter', async function () {
       await voter.add(mw.address, lpToken1.address, AddressZero)
 
       // not paused
-      await expect(voter.resume(lpToken1.address)).to.be.revertedWith('voter: not paused')
+      await expect(voter.resumeVoteEmission(lpToken1.address)).to.be.revertedWith('voter: not paused')
 
       // try to resume
-      await voter.pause(lpToken1.address)
-      await voter.resume(lpToken1.address)
+      await voter.pauseVoteEmission(lpToken1.address)
+      await voter.resumeVoteEmission(lpToken1.address)
 
       // cannot resume a non-exsiting pool
-      await expect(voter.resume(lpToken2.address)).to.be.revertedWith('Voter: gaugeManager not exist')
+      await expect(voter.resumeVoteEmission(lpToken2.address)).to.be.revertedWith('Voter: gaugeManager not exist')
     })
 
     it('resume rewards should be distributed', async function () {
@@ -898,7 +898,7 @@ describe('Voter', async function () {
       // pause
       // un-distributed rewards should be forfeited
       await advanceTimeAndBlock(6000)
-      await voter.pause(lpToken1.address)
+      await voter.pauseVoteEmission(lpToken1.address)
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
@@ -906,7 +906,7 @@ describe('Voter', async function () {
 
       // resume
       await advanceTimeAndBlock(6000)
-      await voter.resume(lpToken1.address)
+      await voter.resumeVoteEmission(lpToken1.address)
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
@@ -946,12 +946,12 @@ describe('Voter', async function () {
       await lpToken3.connect(users[1]).approve(mw.address, parseEther('1000000000'))
 
       // test
-      await voter.setBasePartition(600)
+      await voter.setBaseAllocation(600)
 
       await voter.setAllocPoint(lpToken1.address, parseEther('1'))
       await voter.setAllocPoint(lpToken2.address, parseEther('2'))
       await voter.setAllocPoint(lpToken3.address, parseEther('3'))
-      await voter.pause(lpToken1.address)
+      await voter.pauseVoteEmission(lpToken1.address)
 
       await advanceTimeAndBlock(86400 * 4)
 

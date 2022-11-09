@@ -301,17 +301,17 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         womPerSec = _womPerSec;
     }
 
-    /// @notice Pause emission of WOM tokens. Un-distributed rewards are forfeited
+    /// @notice Pause vote emission of WOM tokens for the gauge. Un-distributed rewards are forfeited
     /// Users can still vote/unvote and receive bribes.
-    function pause(IERC20 _lpToken) external onlyOwner {
+    function pauseVoteEmission(IERC20 _lpToken) external onlyOwner {
         require(infos[_lpToken].whitelist, 'voter: not whitelisted');
         _checkGaugeExist(_lpToken);
 
         infos[_lpToken].whitelist = false;
     }
 
-    /// @notice Resume emission of WOM tokens
-    function resume(IERC20 _lpToken) external onlyOwner {
+    /// @notice Resume vote emission of WOM tokens for the gauge.
+    function resumeVoteEmission(IERC20 _lpToken) external onlyOwner {
         require(infos[_lpToken].whitelist == false, 'voter: not paused');
         _checkGaugeExist(_lpToken);
 
