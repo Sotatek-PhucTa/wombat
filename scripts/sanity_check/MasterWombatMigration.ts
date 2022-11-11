@@ -18,11 +18,8 @@ describe('MasterWombatMigration', function () {
   let v3Infos: _.Dictionary<MasterWombatV3Info>
   let voterInfos: _.Dictionary<VoterInfo>
 
-  before(function () {
+  before(async function () {
     console.log('Running sanity checks on MasterWombat on', network.name)
-  })
-
-  beforeEach(async function () {
     await deployments.all()
 
     masterWombatV2 = await getDeployedContract('MasterWombatV2')
