@@ -87,6 +87,7 @@ describe('MasterWombatMigration', function () {
           const rewarder = await ethers.getContractAt('MultiRewarderPerSec', v2Infos[lp].rewarder)
           return Promise.all(
             _.range(0, await rewarder.rewardLength()).map(async (i) => {
+              console.log(`Looking at rewarder (${rewarder.address}) ${i}-th rewardInfo`)
               const rewardInfo = await rewarder.rewardInfo(i)
               expect(rewardInfo.tokenPerSec.isZero(), `lp ${lp}'s ${i}-th rewarder should have no reward rate`).to.be
                 .true
