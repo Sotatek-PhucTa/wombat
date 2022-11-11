@@ -223,8 +223,8 @@ contract MasterWombatV3 is
             pool.lastRewardTimestamp = uint40(lastTimeRewardApplicable(pool.periodFinish));
         }
 
-        // Skip to minimize gas
-        // IVoter(voter).distribute(address(pool.lpToken));
+        // We can consider to skip this function to minimize gas
+        IVoter(voter).distribute(address(pool.lpToken));
     }
 
     /// @notice Distribute WOM over a period of 7 days

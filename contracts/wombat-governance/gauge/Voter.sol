@@ -21,7 +21,7 @@ interface IVe {
 /// according to the base allocation & voting weights.
 ///
 /// veWOM holders can participate in gauge voting to determine `voteAllocation()` of the WOM emission. They can
-///  allocate their vote (1 veWOM = 1 vote) to one or more gauges. WOM accumultation to a gauge is proportional
+///  allocate their vote (1 veWOM = 1 vote) to one or more gauges. WOM accumulation to a gauge is proportional
 /// to the amount of vote it receives.
 ///
 /// Real-time WOM accumulation and epoch-based WOM distribution:
@@ -315,7 +315,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         infos[_lpToken].whitelist = false;
     }
 
-    /// @notice Resume vote accumultation of WOM tokens for the gauge.
+    /// @notice Resume vote accumulation of WOM tokens for the gauge.
     function resumeVoteEmission(IERC20 _lpToken) external onlyOwner {
         require(infos[_lpToken].whitelist == false, 'voter: not paused');
         _checkGaugeExist(_lpToken);
@@ -327,7 +327,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         infos[_lpToken].whitelist = true;
     }
 
-    /// @notice Pause vote accumultation of WOM tokens for all assets
+    /// @notice Pause vote accumulation of WOM tokens for all assets
     /// Users can still vote/unvote and receive bribes.
     function pauseAll() external onlyOwner {
         _distributeWom();
@@ -339,7 +339,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         _pause();
     }
 
-    /// @notice Resume vote accumultation of WOM tokens for all assets
+    /// @notice Resume vote accumulation of WOM tokens for all assets
     function resumeAll() external onlyOwner {
         _distributeWom();
         uint256 len = lpTokens.length;
