@@ -56,7 +56,7 @@ describe('MasterWombatMigration', function () {
       const asset = await ethers.getContractAt('Asset', lp)
       const v2AllocPoint = v2Infos[lp].allocPoint.toNumber()
       const voterAllocPoint = voterInfos[lp].allocPoint.toNumber()
-      expect(v2AllocPoint).to.eql(voterAllocPoint, `${await asset.name()}`)
+      expect(v2AllocPoint).to.eql(voterAllocPoint, `${await asset.name()} (${asset.address})`)
     }
   })
 
