@@ -4,7 +4,7 @@ import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BNB_DYNAMICPOOL_TOKENS_MAP, USD_TOKENS_MAP } from '../tokens.config'
 
-const contractName = 'MasterWombatV3'
+const contractName = 'MasterWombatV2'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
