@@ -76,7 +76,7 @@ contract MasterWombatV2 is
     // Venom does not seem to hurt the Wombat, it only makes it stronger.
     IVeWom public veWom;
     // New Master Wombat address for future migrations
-    IMasterWombatV2 newMasterWombat;
+    IMasterWombatV2 public newMasterWombat;
     /// @notice WOM tokens created per second. 13.18 fixed point
     uint104 public womPerSec;
     // Emissions: both must add to 1000 => 100%
