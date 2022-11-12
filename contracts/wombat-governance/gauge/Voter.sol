@@ -414,7 +414,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
             1000;
     }
 
-    /// @notice Calculate the new `voteIndex`
+    /// @notice Calculate the latest value of `voteIndex`
     function _getVoteIndex() internal view returns (uint256) {
         if (block.timestamp <= lastRewardTimestamp || totalWeight == 0 || paused()) {
             return voteIndex;
@@ -429,7 +429,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
             1000;
     }
 
-    /// @notice Calculate the new `claimable` for an gauge
+    /// @notice Calculate the latest amount of `claimable` for a gauge
     function _getClaimable(
         IERC20 _lpToken,
         uint256 _baseIndex,

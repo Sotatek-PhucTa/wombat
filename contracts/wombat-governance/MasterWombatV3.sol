@@ -221,10 +221,10 @@ contract MasterWombatV3 is
             pool.accWomPerShare = to104(accWomPerShare);
             pool.accWomPerFactorShare = to104(accWomPerFactorShare);
             pool.lastRewardTimestamp = uint40(lastTimeRewardApplicable(pool.periodFinish));
-        }
 
-        // We can consider to skip this function to minimize gas
-        IVoter(voter).distribute(address(pool.lpToken));
+            // We can consider to skip this function to minimize gas
+            IVoter(voter).distribute(address(pool.lpToken));
+        }
     }
 
     /// @notice Distribute WOM over a period of 7 days
@@ -236,20 +236,16 @@ contract MasterWombatV3 is
         // this line reverts if asset is not in the list
         uint256 pid = assetPid[_lpToken] - 1;
         PoolInfo storage pool = poolInfo[pid];
-        if (block.timestamp >= pool.periodFinish) {
+        if (pool.lastRewardTimestamp >= pool.periodFinish) {
             pool.rewardRate = to128(_amount / REWARD_DURATION);
         } else {
-            uint256 remainingTime = pool.periodFinish - block.timestamp;
+            uint256 remainingTime = pool.periodFinish - pool.lastRewardTimestamp;
             uint256 leftoverReward = remainingTime * pool.rewardRate;
             pool.rewardRate = to128((_amount + leftoverReward) / REWARD_DURATION);
         }
 
         pool.lastRewardTimestamp = uint40(block.timestamp);
         pool.periodFinish = uint40(block.timestamp + REWARD_DURATION);
-
-        // sanity check
-        uint256 balance = IERC20(wom).balanceOf(address(this));
-        require(pool.rewardRate <= balance / REWARD_DURATION, 'notifyRewardAmount: Provided reward too high');
 
         // Event is not emitted as Voter should have already emitted it
     }
