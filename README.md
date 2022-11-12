@@ -179,7 +179,7 @@ To verify proxy contracts:
   - MasterWombatV3 Proxy => `0x8C0e9334DBFAC1b9184bC01Ef638BA705cc13EaF`
   - VeWom Proxy => `0x3868B84D4cea3110694d07A2d222418F7B401fE8`
   - Voter Proxy => `0x23c8D0437b74CE912850B89a42F28e4037cA7849`
-  - Bribe_BUSD Contract => `0xF38CD9795fE0E6575839C350f318886759Da836c`
+  - Bribe_BUSD Contract => `0x9A9773f070d36EE0d0c84D158D1a01dd27d96FE8`
 
 - Wombat Token
 
