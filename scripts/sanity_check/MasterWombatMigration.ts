@@ -144,6 +144,10 @@ describe('MasterWombatMigration', function () {
       })
     )
   })
+
+  it.skip('Can vote BUSD (Has Bribe)', async function () {
+    await voter.vote(['0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'], [100])
+  })
 })
 
 async function readV2Info(masterWombatV2: Contract): Promise<MasterWombatV2Info[]> {
