@@ -114,6 +114,12 @@ contract MasterWombatV3 is
         _;
     }
 
+    /// @dev Modifier ensuring that certain function can only be called by Voter
+    modifier onlyVoter() {
+        require(address(voter) == msg.sender, 'MasterWombat: caller is not Voter');
+        _;
+    }
+
     function initialize(
         IERC20 _wom,
         IVeWom _veWom,
@@ -230,7 +236,7 @@ contract MasterWombatV3 is
     /// @notice Distribute WOM over a period of 7 days
     /// @dev Refer to synthetix/StakingRewards.sol notifyRewardAmount
     /// Note: This looks safe from reentrancy.
-    function notifyRewardAmount(address _lpToken, uint256 _amount) external override {
+    function notifyRewardAmount(address _lpToken, uint256 _amount) external override onlyVoter {
         require(_amount > 0, 'notifyRewardAmount: zero amount');
 
         // this line reverts if asset is not in the list
