@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
 import { BigNumber } from 'ethers'
-import { parseEther, parseUnits } from 'ethers/lib/utils'
+import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import {
   Asset,
@@ -255,7 +255,10 @@ describe('Voter', async function () {
         expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
 
         // trigger Voter.distribute
-        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        // const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        const receipt1 = await voter.distribute(lpToken1.address)
+        await voter.distribute(lpToken2.address)
+        await voter.distribute(lpToken3.address)
         await expect(receipt1).to.emit(voter, 'DistributeReward')
 
         // claim reward
@@ -279,9 +282,6 @@ describe('Voter', async function () {
         await mw.connect(users[0]).multiClaim([2])
         const balance4 = await wom.balanceOf(users[0].address)
         expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
-
-        // expect events to emit
-        await expect(receipt1).to.emit(mw, 'Harvest')
 
         // claim again
         await advanceTimeAndBlock(600)
@@ -328,7 +328,10 @@ describe('Voter', async function () {
         expect(await voter.pendingWom(lpToken3.address)).near(parseEther('279990'))
 
         // trigger Voter.distribute
-        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        // const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        const receipt1 = await voter.distribute(lpToken1.address)
+        await voter.distribute(lpToken2.address)
+        await voter.distribute(lpToken3.address)
         await expect(receipt1).to.emit(voter, 'DistributeReward')
 
         // claim reward
@@ -401,7 +404,9 @@ describe('Voter', async function () {
         await advanceTimeAndBlock(86400 * 7)
 
         // trigger Voter.distribute
-        await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await voter.distribute(lpToken1.address)
+        await voter.distribute(lpToken2.address)
+        await voter.distribute(lpToken3.address)
 
         await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
         await mw.connect(users[0]).deposit(1, parseUnits('1'))
@@ -462,7 +467,10 @@ describe('Voter', async function () {
         expect(await voter.pendingWom(lpToken2.address)).near(parseEther('186700'))
 
         // trigger Voter.distribute
-        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        // const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        const receipt1 = await voter.distribute(lpToken1.address)
+        await voter.distribute(lpToken2.address)
+        await voter.distribute(lpToken3.address)
         await expect(receipt1).to.emit(voter, 'DistributeReward')
 
         // claim reward
@@ -486,9 +494,6 @@ describe('Voter', async function () {
         await mw.connect(users[0]).multiClaim([2])
         const balance4 = await wom.balanceOf(users[0].address)
         expect(balance4.sub(balance3)).roughlyNear(parseEther('279.02'))
-
-        // expect events to emit
-        await expect(receipt1).to.emit(mw, 'Harvest')
 
         // claim again
         await advanceTimeAndBlock(600)
@@ -538,7 +543,10 @@ describe('Voter', async function () {
         expect(await voter.pendingWom(lpToken3.address)).near(parseEther('279990'))
 
         // trigger Voter.distribute
-        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        // const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        const receipt1 = await voter.distribute(lpToken1.address)
+        await voter.distribute(lpToken2.address)
+        await voter.distribute(lpToken3.address)
         await expect(receipt1).to.emit(voter, 'DistributeReward')
 
         // claim reward
@@ -617,7 +625,9 @@ describe('Voter', async function () {
         await advanceTimeAndBlock(86400 * 7)
 
         // trigger Voter.distribute
-        await mw.connect(users[0]).multiClaim([0, 1, 2])
+        await voter.distribute(lpToken1.address)
+        await voter.distribute(lpToken2.address)
+        await voter.distribute(lpToken3.address)
 
         await mw.connect(users[0]).deposit(0, parseUnits('0.0001'))
         await mw.connect(users[0]).deposit(1, parseUnits('1'))
@@ -685,7 +695,10 @@ describe('Voter', async function () {
         expect(await voter.pendingWom(lpToken3.address)).near(parseEther('168000')) // 560000 * 0.6 * 3/6
 
         // trigger Voter.distribute
-        const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        // const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+        const receipt1 = await voter.distribute(lpToken1.address)
+        await voter.distribute(lpToken2.address)
+        await voter.distribute(lpToken3.address)
         await expect(receipt1).to.emit(voter, 'DistributeReward')
 
         // claim reward
@@ -820,43 +833,56 @@ describe('Voter', async function () {
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
+      await voter.distribute(lpToken1.address)
+      await voter.distribute(lpToken2.address)
+      await voter.distribute(lpToken3.address)
       await mw.connect(users[0]).multiClaim([0, 1, 2])
 
-      // claim
-      await advanceTimeAndBlock(6000)
+      // accumulate 1 day and claim, notify 93k
+      await advanceTimeAndBlock(86400)
       await mw.connect(users[0]).multiClaim([0])
-      expect(await wom.balanceOf(users[0].address)).roughlyNear(parseEther('935'))
+      expect(await wom.balanceOf(users[0].address)).roughlyNear(parseEther('13300')) // + 93k / 7
 
-      // un-distributed rewards should be forfeited
-      await advanceTimeAndBlock(6000)
+      await advanceTimeAndBlock(86400)
 
       // pause
       await voter.pauseVoteEmission(lpToken1.address)
 
-      // wait for the next epoch start
-      await advanceTimeAndBlock(86400 * 7)
+      // pass 5 day; wait for the next epoch start; notify 93k * 2/7 = 26.6k
+      // update reward rate before claiming
+      await advanceTimeAndBlock(86400 * 5)
+      let receipt = await voter.distribute(lpToken1.address)
+      expect(receipt).to.emit(voter, 'DistributeReward')
       await mw.connect(users[0]).multiClaim([0, 1, 2])
 
-      // claim
-      await advanceTimeAndBlock(6000)
+      // claim; only 2/7 of rewards should be received
+      await advanceTimeAndBlock(86400)
       await mw.connect(users[0]).multiClaim([0])
-      expect(await wom.balanceOf(users[0].address)).near(parseEther('935'))
+      expect(await wom.balanceOf(users[0].address)).roughlyNear(parseEther('28500')) // + 15k ((93k * 6/7 + 26.6) / 7)
 
       // vote to update `supplyIndex`
-      await advanceTimeAndBlock(6000)
-      await voter.connect(users[0]).vote([lpToken1.address], [-1])
-      await voter.connect(users[0]).vote([lpToken1.address], [1])
+      await advanceTimeAndBlock(86400)
+      await mw.connect(users[0]).multiClaim([0, 1, 2])
+      expect(await wom.balanceOf(users[0].address)).roughlyNear(parseEther('43800'))
 
       // resume
       await voter.resumeVoteEmission(lpToken1.address)
 
-      // wait for the next epoch start
-      await advanceTimeAndBlock(86400 * 7)
-      await mw.connect(users[0]).multiClaim([0, 1, 2])
+      // wait for the next epoch start; notify 93k * 5/7 = 66.4k
+      await advanceTimeAndBlock(86400 * 5)
+      receipt = await mw.connect(users[0]).multiClaim([0, 1, 2])
+      expect(receipt).to.emit(voter, 'DistributeReward')
+      expect(await wom.balanceOf(users[0].address)).near(parseEther('120000'))
 
-      await advanceTimeAndBlock(6000)
+      await voter.distribute(lpToken1.address)
+
+      await advanceTimeAndBlock(86400)
       await mw.connect(users[0]).multiClaim([0])
-      expect(await wom.balanceOf(users[0].address)).roughlyNear(parseEther('1852'))
+      expect(await wom.balanceOf(users[0].address)).near(parseEther('129500'))
+
+      await advanceTimeAndBlock(86400 * 6)
+      await mw.connect(users[0]).multiClaim([0])
+      expect(await wom.balanceOf(users[0].address)).near(parseEther('186600'))
     })
 
     it('can resume an paused & existing pool', async function () {
@@ -902,7 +928,9 @@ describe('Voter', async function () {
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
-      await mw.connect(users[0]).multiClaim([0, 1, 2])
+      await voter.distribute(lpToken1.address)
+      await voter.distribute(lpToken2.address)
+      await voter.distribute(lpToken3.address)
 
       // resume
       await advanceTimeAndBlock(6000)
@@ -910,12 +938,14 @@ describe('Voter', async function () {
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
-      await mw.connect(users[0]).multiClaim([0, 1, 2])
+      await voter.distribute(lpToken1.address)
+      await voter.distribute(lpToken2.address)
+      await voter.distribute(lpToken3.address)
 
       // claim
       await advanceTimeAndBlock(6000)
       await mw.connect(users[0]).multiClaim([0])
-      expect(await wom.balanceOf(users[0].address)).near(parseEther('926.08'))
+      expect(await wom.balanceOf(users[0].address)).near(parseEther('935.08'))
     })
 
     it('non-whitelisted gauge should receive base reward', async function () {
@@ -975,8 +1005,12 @@ describe('Voter', async function () {
       expect(await voter.pendingWom(lpToken3.address)).near(parseEther('168000')) // 560000 * 0.6 * 3/6
 
       // trigger Voter.distribute
-      const receipt1 = await mw.connect(users[0]).multiClaim([0, 1, 2])
+      const receipt1 = await voter.distribute(lpToken1.address)
+      await voter.distribute(lpToken2.address)
+      await voter.distribute(lpToken3.address)
       await expect(receipt1).to.emit(voter, 'DistributeReward')
+
+      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('0.18'))
 
       // claim reward
       await advanceTimeAndBlock(600)

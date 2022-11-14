@@ -200,7 +200,7 @@ contract MasterWombatV3 is
 
     /// @notice Update reward variables for all pools.
     /// @dev Be careful of gas spending!
-    function massUpdatePools() external override {
+    function massUpdatePools() public override {
         uint256 length = poolInfo.length;
         for (uint256 pid; pid < length; ++pid) {
             _updatePool(pid);
@@ -216,14 +216,14 @@ contract MasterWombatV3 is
     function _updatePool(uint256 _pid) private {
         PoolInfo storage pool = poolInfo[_pid];
 
-        // Shall we skip to minimize gas?
-        IVoter(voter).distribute(address(pool.lpToken));
-
         if (block.timestamp > pool.lastRewardTimestamp) {
             (uint256 accWomPerShare, uint256 accWomPerFactorShare) = calRewardPerUnit(_pid);
             pool.accWomPerShare = to104(accWomPerShare);
             pool.accWomPerFactorShare = to104(accWomPerFactorShare);
             pool.lastRewardTimestamp = uint40(lastTimeRewardApplicable(pool.periodFinish));
+
+            // We can consider to skip this function to minimize gas
+            IVoter(voter).distribute(address(pool.lpToken));
         }
     }
 
@@ -236,20 +236,16 @@ contract MasterWombatV3 is
         // this line reverts if asset is not in the list
         uint256 pid = assetPid[_lpToken] - 1;
         PoolInfo storage pool = poolInfo[pid];
-        if (block.timestamp >= pool.periodFinish) {
+        if (pool.lastRewardTimestamp >= pool.periodFinish) {
             pool.rewardRate = to128(_amount / REWARD_DURATION);
         } else {
-            uint256 remainingTime = pool.periodFinish - block.timestamp;
+            uint256 remainingTime = pool.periodFinish - pool.lastRewardTimestamp;
             uint256 leftoverReward = remainingTime * pool.rewardRate;
             pool.rewardRate = to128((_amount + leftoverReward) / REWARD_DURATION);
         }
 
         pool.lastRewardTimestamp = uint40(block.timestamp);
         pool.periodFinish = uint40(block.timestamp + REWARD_DURATION);
-
-        // sanity check
-        uint256 balance = IERC20(wom).balanceOf(address(this));
-        require(pool.rewardRate <= balance / REWARD_DURATION, 'notifyRewardAmount: Provided reward too high');
 
         // Event is not emitted as Voter should have already emitted it
     }
@@ -493,6 +489,7 @@ contract MasterWombatV3 is
     /// @param _basePartition the future base partition
     function updateEmissionPartition(uint16 _basePartition) external onlyOwner {
         require(_basePartition <= 1000);
+        massUpdatePools();
         basePartition = _basePartition;
         emit UpdateEmissionPartition(msg.sender, _basePartition, 1000 - _basePartition);
     }
