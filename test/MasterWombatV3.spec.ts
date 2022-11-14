@@ -1430,4 +1430,25 @@ describe('MasterWombatV3', async function () {
       expect((await newMW.userInfo(0, users[2].address)).amount).to.equal(0)
     })
   })
+
+  describe('notifyRewardAmount', function () {
+    it('can be called from voter', async function () {
+      await mw.connect(owner).setVoter(users[0].address)
+      await expect(mw.connect(users[0]).notifyRewardAmount(AddressZero, 0)).to.be.revertedWith(
+        'notifyRewardAmount: zero amount'
+      )
+    })
+
+    it('cannot be called by owner', async function () {
+      await expect(mw.connect(owner).notifyRewardAmount(AddressZero, 0)).to.be.revertedWith(
+        'MasterWombat: caller is not Voter'
+      )
+    })
+
+    it('cannot be called by user', async function () {
+      await expect(mw.connect(users[0]).notifyRewardAmount(AddressZero, 0)).to.be.revertedWith(
+        'MasterWombat: caller is not Voter'
+      )
+    })
+  })
 })
