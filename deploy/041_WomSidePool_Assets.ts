@@ -1,7 +1,9 @@
+import { utils } from 'ethers'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { WOM_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import { getDeployedContract } from '../utils'
 import { deployAsset } from './031_DynamicPool_Assets'
 import { getPoolContractName } from './040_WomSidePool'
 
@@ -21,10 +23,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
     // Get Pool Instance
     const poolContractName = getPoolContractName(poolName)
-    const poolDeployment = await deployments.get(poolContractName)
-    const poolAddress = poolDeployment.address
-
-    const pool = await ethers.getContractAt('DynamicPool', poolAddress)
+    const pool = await getDeployedContract('DynamicPool', poolContractName)
 
     for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
       const tokenName = args[0] as string
@@ -42,7 +41,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         owner,
         deployments,
         [tokenName, tokenSymbol, tokenAddress],
-        poolAddress,
+        pool.address,
         pool,
         `Asset_${poolName}_${tokenSymbol}`
       )
