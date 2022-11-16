@@ -15,7 +15,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   console.log(`Step 203. Deploying on : ${hre.network.name} with account : ${deployer}`)
   /// NOTE: This script is used only for initial 2.5% TGE WOM distribution to investors
-  return
 
   // Get deployed WOM token instance
   const womToken = await deployments.get('WombatToken')

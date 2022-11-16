@@ -87,13 +87,17 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
 
 export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
   bsc_mainnet: {
-    wmxWOMPool: {
+    // wmxWOMPool: {
+    //   WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+    //   wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
+    // },
+    // mWOMPool: {
+    //   WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+    //   mWOM: ['mWOM', 'mWOM', '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c', 0],
+    // },
+    qWOMPool: {
       WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
-      wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
-    },
-    mWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
-      mWOM: ['mWOM', 'mWOM', '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c', 0],
+      qWOM: ['Quoll WOM', 'qWOM', '0x0fE34B8aaAf3f522A6088E278936D10F934c0b19', 0],
     },
   },
   bsc_testnet: {
@@ -104,6 +108,10 @@ export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = 
     mWOMPool: {
       WOM: ['Wombat Token', 'WOM', '18', 0],
       mWOM: ['M WOM', 'mWOM', '18', 0],
+    },
+    qWOMPool: {
+      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+      qWOM: ['Quoll WOM', 'qWOM', '18', 0], // pending
     },
   },
 }
@@ -284,6 +292,18 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 180000, // 50 hours later, i.e. deploy on 11/2/2022 12pm HKT
       tokenPerSec: parseEther('0.075'),
     },
+    qWOM: {
+      lpToken: '0x87073ba87517E7ca981AaE3636754bCA95C120E4',
+      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
+      secondsToStart: 172800, // 48 hours later, i.e. deploy on 11/16/2022 2pm HKT
+      tokenPerSec: parseUnits('0.09', 18),
+    },
+    qWOMPool_WOM: {
+      lpToken: '0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8',
+      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
+      secondsToStart: 172800, // 48 hours later, i.e. deploy on 11/16/2022 2pm HKT
+      tokenPerSec: parseUnits('0.14', 18),
+    },
   },
   bsc_testnet: {
     BUSD: {
@@ -315,6 +335,18 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       rewardToken: '0x9bbc325eb7a7367be610bce614c91ef7f29c69dc',
       secondsToStart: 60,
       tokenPerSec: parseUnits('0.00035', 18),
+    },
+    qWOM: {
+      lpToken: '0x22056C9F7e8033BBea9F32b903a0ECF8a7Ea0bC7',
+      rewardToken: '0x458c742849d041723efadd9a31153233de442b9b',
+      secondsToStart: 60,
+      tokenPerSec: parseUnits('0.09', 18),
+    },
+    qWOMPool_WOM: {
+      lpToken: '0x82e5314DfdA9aD1a7F594B7D0b5D6b13459f4826',
+      rewardToken: '0x458c742849d041723efadd9a31153233de442b9b',
+      secondsToStart: 60,
+      tokenPerSec: parseUnits('0.14', 18),
     },
   },
 }
