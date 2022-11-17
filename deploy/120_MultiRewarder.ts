@@ -33,7 +33,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     if (deployResult.newlyDeployed) {
       console.log(`Transferring operator of ${deployResult.address} to ${owner}...`)
       // The operator of the rewarder contract can set and update reward rates
-      const setOperatorTxn = await contract.connect(owner).setOperator(owner)
+      const setOperatorTxn = await contract.connect(owner).setOperator(owner.address)
       await setOperatorTxn.wait()
 
       console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)

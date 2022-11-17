@@ -21,7 +21,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 110. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
-  const deployResult = await deploy(contractName, {
+  const deployResult = await deploy('WombatRouter', {
+    // 'WombatRouter' is for mainnet, 'Router' is for testnet
     from: deployer,
     contract: 'WombatRouter',
     log: true,
@@ -71,7 +72,11 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
       for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
         for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
-          womSidePoolTokens.push(args[2] as string)
+          let asset = ''
+          hre.network.name == 'bsc_mainnet'
+            ? (asset = args[2] as string)
+            : (asset = (await deployments.get(`${args[1]}`)).address as string)
+          womSidePoolTokens.push(asset)
         }
         const contractName = getPoolContractName(poolName)
         const womSidePoolDeployment = await deployments.get(contractName)
