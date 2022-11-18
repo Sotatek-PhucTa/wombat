@@ -23,7 +23,7 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: false,
     },
     bsc_testnet: {
-      url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+      url: 'https://data-seed-prebsc-1-s3.binance.org:8545',
       chainId: 97,
       gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
