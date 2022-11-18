@@ -361,5 +361,12 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 60,
       tokenPerSec: parseEther('0.1'),
     },
+    FRAX_BUSD: {
+      lpToken: '0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44',
+      // RT1
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0.1'),
+    },
   },
 }
