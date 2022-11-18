@@ -110,7 +110,7 @@ export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = 
       mWOM: ['M WOM', 'mWOM', '18', 0],
     },
     qWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+      WOM: ['Wombat Token', 'WOM', '18', 0], // last item is pool alloc point
       qWOM: ['Quoll WOM', 'qWOM', '18', 0], // pending
     },
   },
