@@ -10,6 +10,8 @@ import { expect } from 'chai'
  */
 describe('MasterWombatMigration', function () {
   let pools: Contract[]
+  let masterWombatV3: Contract
+  let voter: Contract
 
   before(async function () {
     console.log('Running sanity checks on Pools on', network.name)
@@ -26,6 +28,8 @@ describe('MasterWombatMigration', function () {
     console.log('Looking at pools:', names)
 
     pools = await Promise.all(names.map((name) => getDeployedContract('Pool', name)))
+    masterWombatV3 = await getDeployedContract('MasterWombatV3')
+    voter = await getDeployedContract('Voter')
   })
 
   it('getTokens and underlyingToken are consistent', async function () {
@@ -46,4 +50,17 @@ describe('MasterWombatMigration', function () {
       })
     )
   })
+
+  it('all Pools have masterWombat to MasterWombatV3', async function () {
+    Promise.all(
+      pools.map(async (pool) => {
+        expect(
+          await pool.masterWombat(),
+          `Pool (${pool.address}) does not have the address of MasterWombatV3`
+        ).to.eql(masterWombatV3.address)
+      })
+    )
+  })
+
+
 })

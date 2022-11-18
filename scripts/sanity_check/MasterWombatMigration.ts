@@ -124,25 +124,6 @@ describe('MasterWombatMigration', function () {
     expect(rate.isZero()).to.be.true
   })
 
-  it('Check all Pools have masterWombat to MasterWombatV3', async function () {
-    const allPools = Object.keys(await deployments.all()).filter(
-      (name) =>
-        name.includes('Pool') &&
-        !name.startsWith('Asset') &&
-        !name.includes('Proxy') &&
-        !name.includes('Implementation')
-    )
-    Promise.all(
-      allPools.map(async (name) => {
-        const pool = await getDeployedContract('Pool', name)
-        expect(
-          await pool.masterWombat(),
-          `${name} (${pool.address}) does not have the address of MasterWombatV3`
-        ).to.eql(masterWombatV3.address)
-      })
-    )
-  })
-
   it.skip('Can vote BUSD (Has Bribe)', async function () {
     await voter.vote(['0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'], [100])
   })
