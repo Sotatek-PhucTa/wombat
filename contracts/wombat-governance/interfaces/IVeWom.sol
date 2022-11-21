@@ -23,6 +23,8 @@ interface IVeWom {
 
     function isUser(address _addr) external view returns (bool);
 
+    function getUserOverview(address _addr) external view returns (uint256 womLocked, uint256 veWomBalance);
+
     function getUserInfo(address addr) external view returns (UserInfo memory);
 
     function mint(uint256 amount, uint256 lockDays) external returns (uint256 veWomAmount);

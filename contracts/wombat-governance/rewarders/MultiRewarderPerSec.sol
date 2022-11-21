@@ -137,7 +137,8 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
                 RewardInfo storage reward = rewardInfo[i];
                 uint256 timeElapsed = block.timestamp - lastRewardTimestamp;
                 uint256 tokenReward = timeElapsed * reward.tokenPerSec;
-                reward.accTokenPerShare += toUint128((tokenReward * ACC_TOKEN_PRECISION) / totalShare);
+                // use `max(totalShare, 1e18)` in case of overflow
+                reward.accTokenPerShare += toUint128((tokenReward * ACC_TOKEN_PRECISION) / max(totalShare, 1e18));
                 reward.distributedAmount += toUint128(tokenReward);
             }
             lastRewardTimestamp = block.timestamp;
@@ -224,7 +225,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     }
 
     /// @notice returns reward length
-    function rewardLength() external view virtual returns (uint256) {
+    function rewardLength() external view virtual override returns (uint256) {
         return _rewardLength();
     }
 
@@ -235,7 +236,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     /// @notice View function to see pending tokens
     /// @param _user Address of user.
     /// @return rewards reward for a given user.
-    function pendingTokens(address _user) external view virtual returns (uint256[] memory rewards) {
+    function pendingTokens(address _user) external view virtual override returns (uint256[] memory rewards) {
         return _pendingTokens(_user);
     }
 
@@ -253,7 +254,8 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
             if (block.timestamp > lastRewardTimestamp && totalShare > 0) {
                 uint256 timeElapsed = block.timestamp - lastRewardTimestamp;
                 uint256 tokenReward = timeElapsed * pool.tokenPerSec;
-                accTokenPerShare += (tokenReward * ACC_TOKEN_PRECISION) / totalShare;
+                // use `max(totalShare, 1e18)` in case of overflow
+                accTokenPerShare += (tokenReward * ACC_TOKEN_PRECISION) / max(totalShare, 1e18);
             }
 
             rewards[i] =
@@ -277,7 +279,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
         }
     }
 
-    function rewardTokens() external view virtual returns (IERC20[] memory tokens) {
+    function rewardTokens() external view virtual override returns (IERC20[] memory tokens) {
         return _rewardTokens();
     }
 
@@ -324,5 +326,9 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     function toUint128(uint256 val) internal pure returns (uint128) {
         if (val > type(uint128).max) revert('uint128 overflow');
         return uint128(val);
+    }
+
+    function max(uint256 x, uint256 y) internal pure returns (uint256) {
+        return x >= y ? x : y;
     }
 }

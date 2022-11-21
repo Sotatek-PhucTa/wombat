@@ -155,6 +155,17 @@ contract VeWom is
         return balanceOf(_addr) > 0;
     }
 
+    /// @notice return the amount of Wom locked and veWOM acquired by a user
+    function getUserOverview(address _addr) external view override returns (uint256 womLocked, uint256 veWomBalance) {
+        UserInfo storage user = users[_addr];
+        uint256 len = user.breedings.length;
+        for (uint256 i = 0; i < len; i++) {
+            womLocked += user.breedings[i].womAmount;
+        }
+        veWomBalance = balanceOf(_addr);
+    }
+
+    /// @notice return the user info
     function getUserInfo(address addr) external view override returns (UserInfo memory) {
         return users[addr];
     }

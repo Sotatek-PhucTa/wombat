@@ -267,6 +267,17 @@ describe('VeWOM', function () {
     await this.veWom.connect(users[0]).burn(0)
   })
 
+  it('getUserOverview', async function () {
+    await this.wom.connect(owner).transfer(users[0].address, parseEther('100'))
+    await this.wom.connect(users[0]).approve(this.veWom.address, parseEther('100'))
+
+    await this.veWom.connect(users[0]).mint(parseEther('10'), 10)
+    await this.veWom.connect(users[0]).mint(parseEther('10'), 10)
+    const overview = await this.veWom.getUserOverview(users[0].address)
+    expect(overview.womLocked).to.eq(parseEther('20'))
+    expect(overview.veWomBalance).to.near(parseEther('1.654'))
+  })
+
   context('update', function () {
     beforeEach(async function () {
       expect(await this.wom.balanceOf(users[0].address)).to.be.equal(0)
