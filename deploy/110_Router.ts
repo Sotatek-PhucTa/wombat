@@ -21,7 +21,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 110. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
-  const deployResult = await deploy('WombatRouter', {
+  const deployResult = await deploy(`${hre.network.name == 'bsc_mainnet' ? 'WombatRouter' : 'Router'}`, {
     // 'WombatRouter' is for mainnet, 'Router' is for testnet
     from: deployer,
     contract: 'WombatRouter',

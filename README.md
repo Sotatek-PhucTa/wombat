@@ -31,6 +31,7 @@ _Requires `node@>=14` and `node@<=16`, visit [node.js](https://nodejs.org/en/) f
 
 - Run `yarn deploy_bsc_testnet` and that's it.
 - Run `yarn bsc_testnet_demo` to run a demo of core smart contracts interactions via scripts.
+- Note: You may also execute only specific parts of the deployments by running e.g. `hh deploy --network bsc_testnet --tags Bribe` given that you have named the deployment script with `deployFunc.tags = ['Bribe']`
 
 ### For BSC mainnet network
 
@@ -112,6 +113,12 @@ To verify proxy contracts:
   - Asset_mWOMPool_mWOM (LP-mWOM) => `0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E`
   - Asset_mWOMPool_WOM (LP-WOM) => `0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2`
 
+  - qWOM Side Pool (WOM-qWom)
+
+  - Pool Proxy (Main entry) => `0x2c5464b9052319e3d76f8279031f04e4B7fd7955`
+  - Asset_qWOMPool_qWOM (LP-qWOM) => `0x87073ba87517E7ca981AaE3636754bCA95C120E4`
+  - Asset_qWOMPool_WOM (LP-WOM) => `0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8`
+
 - Wombat Rewarders
 
   - MultiRewarderPerSec_WBNB => `0x414D1a760320f948147FB71113851BB11CB53976`
@@ -122,6 +129,8 @@ To verify proxy contracts:
   - MultiRewarderPerSec_HAY => `0xf812166D8Ff0C90f125b3ad7A59ff9ad6e2BC77D`
   - MultiRewarderPerSec_mWOM => `0xd29b3e305cF76e2076c7aACf018fa5D85510Ca01`
   - MultiRewarderPerSec_mWOMPool_WOM => `0x7A8faab51ca17C181F1516Ce46a716e47cc6e38e`
+  - MultiRewarderPerSec_qWOM => `0xc7Fbef047e25257043Afc1bB9bC3894a47cFCd6c`
+  - MultiRewarderPerSec_qWOMPool_WOM => `0x5D0f17F6385B3C0d1d8Ac4a6CcCacA2A558408e6`
 
 ### BSC testnet deployed contracts:
 
@@ -165,6 +174,12 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0x46da9508026B45AD44bE42bF5A3ff60f0Ed3CbCB`
   - Asset_wmxWOMPool_WOM (LP-WOM) => `0xF738a9E44be4a595529b61Af180e2027E71c9AE9`
   - Asset_wmxWOMPool_wmxWOM (LP-wmxWOM) => `0x0c53D31de26FB198278db8213D5238f6316c6338`
+
+- qWOM Side Pool
+
+  - Pool Proxy (Main entry) => `0xcCEA75F57044df96a5CBC1dC9BcedA48efa22E1e`
+  - Asset_qWOMPool_WOM (LP-WOM) => `0x82e5314DfdA9aD1a7F594B7D0b5D6b13459f4826`
+  - Asset_qWOMPool_qWOM (LP-qWOM) => `0x22056C9F7e8033BBea9F32b903a0ECF8a7Ea0bC7`
 
 - Wombat Dynamic Pool
 
