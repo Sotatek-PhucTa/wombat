@@ -37,7 +37,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       },
     })
 
-    // Get freshly deployed SidePool contract
+    // Get freshly deployed FactoryPool contract
     const contract = await ethers.getContractAt('HighCovRatioFeePool', deployResult.address)
     const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
     console.log('Contract address:', deployResult.address)

@@ -93,6 +93,13 @@ To verify proxy contracts:
   - Asset_SP01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
   - Asset_SP01_HAY (LP-HAY) => `0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b`
 
+- Factory Pool Stables 01
+
+  - Pool Proxy (Main entry) => `0x48f6A8a0158031BaF8ce3e45344518f1e69f2A14`
+  - Asset_stables_01_BUSD (LP-BUSD) => `0xcF434949c242C2D32514BA971947bD3700EFB015`
+  - Asset_stables_01_FRAX (LP-FRAX) => `0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB`
+  - Asset_stables_01_TUSD (LP-TUSD) => `0x3C8e744f6c4Ed2c9D82e33D69DDcC5961Aa05367`
+
 - Wombat Dynamic Pool
 
   - Pool Proxy (Main entry) => `0x0029b7e8e9eD8001c868AA09c74A1ac6269D4183`
@@ -162,6 +169,13 @@ To verify proxy contracts:
   - Asset_SP01_HAY (LP-HAY) => `0xF52289Fd9eAFC94e35868F0D5e23140EBCa03ef4`
   - Asset_SP01_MIM (LP-MIM) => `0x0aF70A8aA5707Fd6407F9a583b69Ce071Ab58FE0`
   - Asset_SP01_TUSD (LP-TUSD) => `0x3F8e976aef5719F18e03aC9A2407Df1d0c601242`
+
+- Factory Pool Stables 01
+
+  - Pool Proxy (Main entry) => `0x9817A92bd6B79B64974275730adBEc7462D42E2F`
+  - Asset_stables_01_BUSD (LP-BUSD) => `0x3cBcC2a75d54f9746EC18302a1367Bb9eE0C3575`
+  - Asset_stables_01_FRAX (LP-FRAX) => `0xAf605D0De1b4654b31b8918587aBc45572e22CEd`
+  - Asset_stables_01_TUSD (LP-TUSD) => `0x80050Ff8E1C7284025A3669C30f2CD46b735a7Eb`
 
 - mWOM Side Pool
 
