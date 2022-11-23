@@ -102,7 +102,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
           hre.network.name == 'bsc_mainnet'
             ? (asset = args[2] as string)
             : (asset = (await deployments.get(`${args[1]}`)).address as string)
-            factoryPoolTokens.push(asset)
+          factoryPoolTokens.push(asset)
         }
         const contractName = getFactoryPoolContractName(poolName)
         const factoryPoolDeployment = await deployments.get(contractName)

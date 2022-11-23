@@ -5,7 +5,7 @@ import {
   USD_SIDEPOOL_TOKENS_MAP,
   BNB_DYNAMICPOOL_TOKENS_MAP,
   WOM_DYNAMICPOOL_TOKENS_MAP,
-  FACTORYPOOL_TOKENS_MAP
+  FACTORYPOOL_TOKENS_MAP,
 } from '../tokens.config'
 
 const contractName = 'MockTokens'
