@@ -57,9 +57,6 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = {
 export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0], // last item is pool alloc point
-    // TUSD: ['TrueUSD', 'TUSD', '0x14016E85a25aeb13065688cAFB43044C2ef86784', 0], // to be added at later stages
-    // FRAX: ['Frax', 'FRAX', '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40', 0],
-    // MIM: ['Magic Internet Money', 'MIM', '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba', 0],
     HAY: ['Hay Stablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
   },
   bsc_testnet: {
@@ -82,6 +79,38 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
     FRAX: ['Frax', 'FRAX', '18', 0],
     MIM: ['Magic Internet Money', 'MIM', '18', 0],
     HAY: ['Hay Stablecoin', 'HAY', '18', 0],
+  },
+}
+
+export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
+  bsc_mainnet: {
+    stables_01: {
+      BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0], // last item is pool alloc point
+      TUSD: ['TrueUSD', 'TUSD', '0x14016e85a25aeb13065688cafb43044c2ef86784', 0],
+      FRAX: ['Frax', 'FRAX', '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40', 0],
+      // MIM: ['Magic Internet Money', 'MIM', '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba', 0], // added at later stage
+    },
+  },
+  bsc_testnet: {
+    stables_01: {
+      BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
+      TUSD: ['TrueUSD', 'TUSD', '18', 0],
+      FRAX: ['Frax', 'FRAX', '18', 0],
+    },
+  },
+  localhost: {
+    stables_01: {
+      BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
+      TUSD: ['TrueUSD', 'TUSD', '18', 0],
+      FRAX: ['Frax', 'FRAX', '18', 0],
+    },
+  },
+  hardhat: {
+    stables_01: {
+      BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
+      TUSD: ['TrueUSD', 'TUSD', '18', 0],
+      FRAX: ['Frax', 'FRAX', '18', 0],
+    },
   },
 }
 
