@@ -3,7 +3,7 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { REWARDERS_MAP } from '../tokens.config'
-import { confirmTxn } from '../utils'
+import { confirmTxn, getDeployedContract, isOwner, setRewarder } from '../utils'
 
 const contractName = 'MultiRewarderPerSec'
 
@@ -13,7 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer, multisig } = await getNamedAccounts()
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  const masterWombat = await deployments.get('MasterWombatV3')
+  const masterWombat = await getDeployedContract('MasterWombatV3')
 
   console.log(`Step 120. Deploying on: ${hre.network.name}...`)
 
@@ -21,27 +21,35 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const deadline = getDeadlineFromNow(rewarder.secondsToStart)
 
     /// Deploy pool
-    const deployResult = await deploy(`MultiRewarderPerSec_V3_${token}`, {
+    const name = `MultiRewarderPerSec_V3_${token}`
+    const deployResult = await deploy(name, {
       from: deployer,
       contract: 'MultiRewarderPerSec',
       log: true,
       skipIfAlreadyDeployed: true,
       args: [masterWombat.address, rewarder.lpToken, deadline, rewarder.rewardToken, rewarder.tokenPerSec],
     })
-
-    const contract = await ethers.getContractAt(contractName, deployResult.address)
+    const address = deployResult.address
+    const contract = await ethers.getContractAt(contractName, address)
 
     if (deployResult.newlyDeployed) {
+      if (await isOwner(masterWombat, owner.address)) {
+        await setRewarder(masterWombat, owner, rewarder.lpToken, address)
+        console.log(`setRewarder for ${name} (${address}) complete.`)
+      } else {
+        console.log(
+          `User ${owner.address} does not own MasterWombat. Please call setRewarder in multi-sig. Rewarder: ${address}. LP: ${rewarder.lpToken}.`
+        )
+      }
       console.log(`Transferring operator of ${deployResult.address} to ${owner.address}...`)
       // The operator of the rewarder contract can set and update reward rates
       await confirmTxn(contract.connect(owner).setOperator(owner.address))
       console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the rewarder contract can add new reward tokens and withdraw them
       await confirmTxn(contract.connect(owner).transferOwnership(multisig))
-      console.log(`MultiRewarderPerSec_V3_${token} Deployment complete.`)
+      console.log(`${name} Deployment complete.`)
     }
 
-    const address = deployResult.address
     console.log(
       `To verify, run: hardhat verify --network ${hre.network.name} ${address} ${masterWombat.address} ${
         rewarder.lpToken

@@ -1,4 +1,6 @@
-import { BigNumber } from 'ethers'
+import { ethers } from 'hardhat'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { BigNumber, Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BRIBE_MAPS } from '../tokens.config'
@@ -8,6 +10,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
+  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   console.log(`Step 131. Deploying on: ${hre.network.name}...`)
 
@@ -27,8 +30,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     // Add new Bribe to Voter
     if (deployResult.newlyDeployed) {
       console.log(`Bribe_${token} Deployment complete.`)
-
-      await confirmTxn(voter.add(masterWombat.address, bribe.lpToken, deployResult.address))
+      await addBribe(voter, owner, masterWombat.address, bribe.lpToken, deployResult.address)
       console.log(`Voter added Bribe_${token}.`)
     }
 
@@ -38,6 +40,28 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         bribe.lpToken
       } ${BigNumber.from(deadline)._hex} ${bribe.rewardToken} ${bribe.tokenPerSec._hex}`
     )
+  }
+}
+
+// Add a bribe to an LP or set if it already exists.
+async function addBribe(
+  voter: Contract,
+  owner: SignerWithAddress,
+  masterWombat: string,
+  lpToken: string,
+  bribe: string
+) {
+  console.log('addBribe', bribe)
+  try {
+    await confirmTxn(voter.connect(owner).add(masterWombat, lpToken, bribe))
+  } catch (err: any) {
+    if (err.error.stack.includes('voter: already added')) {
+      console.log(`Set bribe ${bribe} since it is already added`)
+      await confirmTxn(voter.connect(owner).setBribe(lpToken, bribe))
+    } else {
+      console.log('Failed to add bribe', bribe, 'due to', err)
+      throw err
+    }
   }
 }
 
