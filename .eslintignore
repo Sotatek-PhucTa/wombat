@@ -2,3 +2,8 @@ coverage
 !.solcover.js
 docs/*
 test/helpers/*
+artifacts/
+build/
+cache/
+contracts/
+deployments/
