@@ -20,6 +20,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const voter = await getDeployedContract('Voter')
   const masterWombat = await getDeployedContract('MasterWombatV3')
+  // In mainnet, we wait for 2 blocks for stabilization
+  const blocksToConfirm = hre.network.name != 'bsc_mainnet' ? 1 : 2
 
   console.log('Setting up main pool')
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
@@ -29,7 +31,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const assetContractName = `Asset_P01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
     await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint)
+    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   }
 
   console.log('Setting up side pool')
@@ -40,7 +42,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const assetContractName = `Asset_SP01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
     await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint)
+    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   }
 
   console.log('Setting up BNB pool')
@@ -51,7 +53,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const assetContractName = `Asset_DP01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
     await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint)
+    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   }
 
   console.log('Setting up wom pool')
@@ -64,7 +66,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const assetContractName = `Asset_${pool}_${tokenSymbol}`
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
       await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-      await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint)
+    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
     }
   }
 
@@ -78,7 +80,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const assetContractName = `Asset_${pool}_${tokenSymbol}`
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
       await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-      await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint)
+      await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
     }
   }
 }
@@ -100,10 +102,10 @@ async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat:
   }
 }
 
-async function setAllocPoint(voter: Contract, owner: SignerWithAddress, assetAddress: string, tokenAllocPoint: number) {
+async function setAllocPoint(voter: Contract, owner: SignerWithAddress, assetAddress: string, tokenAllocPoint: number, blocksToConfirm: number) {
   console.log('setAllocPoint', assetAddress, tokenAllocPoint)
   try {
-    await confirmTxn(voter.connect(owner).setAllocPoint(assetAddress, tokenAllocPoint), 2)
+    await confirmTxn(voter.connect(owner).setAllocPoint(assetAddress, tokenAllocPoint), blocksToConfirm)
   } catch (err) {
     // do nothing as asset already exists in pool
     console.log('Contract', voter.address, 'fails to set alloc point on asset', assetAddress, 'due to', err)
