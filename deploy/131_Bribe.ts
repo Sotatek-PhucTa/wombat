@@ -27,10 +27,17 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       args: [voter.address, bribe.lpToken, deadline, bribe.rewardToken, bribe.tokenPerSec],
     })
 
-    // Add new Bribe to Voter
+    // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
       console.log(`Bribe_${token} Deployment complete.`)
-      await addBribe(voter, owner, masterWombat.address, bribe.lpToken, deployResult.address)
+      if (await isOwner(voter, owner.address)) {
+        await addBribe(voter, owner, masterWombat.address, bribe.lpToken, deployResult.address)
+        console.log(`addBribe for ${bribe.lpToken} complete.`)
+      } else {
+        console.log(
+          `User ${owner.address} does not own Voter. Please call addBribe in multi-sig. Bribe: ${deployResult.address}. LP: ${bribe.lpToken}.`
+        )
+      }
       console.log(`Voter added Bribe_${token}.`)
     }
 
