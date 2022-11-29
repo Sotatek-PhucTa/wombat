@@ -96,7 +96,8 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: {
     deployer: {
-      default: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      default: 0, // use default for hardhat and localhost
+      bsc_testnet: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       bsc_mainnet: '0x8c6644415b3F3CD7FC0A453c5bE3d3306Fe0b2F9',
     },
     user1: {
