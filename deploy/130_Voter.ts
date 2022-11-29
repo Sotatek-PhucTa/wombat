@@ -31,7 +31,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, vewom.address, ethers.constants.Zero, latest, epochStart, 375],
+          args: [wombatToken.address, vewom.address, ethers.utils.parseEther('1'), latest, epochStart, 375],
         },
       },
     },
