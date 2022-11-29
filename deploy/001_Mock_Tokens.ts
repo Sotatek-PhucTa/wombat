@@ -5,6 +5,7 @@ import {
   USD_SIDEPOOL_TOKENS_MAP,
   BNB_DYNAMICPOOL_TOKENS_MAP,
   WOM_DYNAMICPOOL_TOKENS_MAP,
+  FACTORYPOOL_TOKENS_MAP,
 } from '../tokens.config'
 
 const contractName = 'MockTokens'
@@ -60,6 +61,22 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     /// Mock WOM DynamicPool Tokens ///
     const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
     for (const tokens of Object.values(WOM_SIDEPOOL_TOKENS)) {
+      for (const deployArgs of Object.values(tokens)) {
+        const args = deployArgs.slice(0, -1)
+        const tokenSymbol = args[1] as string
+        await deploy(tokenSymbol, {
+          from: deployer,
+          log: true,
+          contract: 'TestERC20',
+          args: deployArgs,
+          skipIfAlreadyDeployed: true,
+        })
+      }
+    }
+
+    /// Mock FactoryPool Tokens ///
+    const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
+    for (const tokens of Object.values(FACTORYPOOL_TOKENS)) {
       for (const deployArgs of Object.values(tokens)) {
         const args = deployArgs.slice(0, -1)
         const tokenSymbol = args[1] as string

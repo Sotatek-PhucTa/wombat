@@ -6,8 +6,10 @@ import {
   BNB_DYNAMICPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   WOM_DYNAMICPOOL_TOKENS_MAP,
+  FACTORYPOOL_TOKENS_MAP,
 } from '../tokens.config'
 import { getPoolContractName } from './040_WomSidePool'
+import { getFactoryPoolContractName } from './050_FactoryPool'
 
 const contractName = 'WombatRouter'
 
@@ -90,6 +92,30 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
         // reset array
         womSidePoolTokens.length = 0
+      }
+
+      const factoryPoolTokens = []
+      const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
+      for (const poolName of Object.keys(FACTORYPOOL_TOKENS)) {
+        for (const args of Object.values(FACTORYPOOL_TOKENS[poolName])) {
+          let asset = ''
+          hre.network.name == 'bsc_mainnet'
+            ? (asset = args[2] as string)
+            : (asset = (await deployments.get(`${args[1]}`)).address as string)
+          factoryPoolTokens.push(asset)
+        }
+        const contractName = getFactoryPoolContractName(poolName)
+        const factoryPoolDeployment = await deployments.get(contractName)
+
+        // approve by poolName
+        console.log(`Approving pool tokens for Pool: ${contractName}...`)
+        const approveSpendingTxnByPool1 = await router
+          .connect(owner)
+          .approveSpendingByPool(factoryPoolTokens, factoryPoolDeployment.address)
+        await approveSpendingTxnByPool1.wait()
+
+        // reset array
+        factoryPoolTokens.length = 0
       }
 
       const mainPoolDeployment = await deployments.get('Pool')

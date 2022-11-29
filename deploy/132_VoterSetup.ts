@@ -7,6 +7,7 @@ import {
   BNB_DYNAMICPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   USD_TOKENS_MAP,
+  FACTORYPOOL_TOKENS_MAP,
 } from '../tokens.config'
 import { getDeployedContract, confirmTxn } from '../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -60,6 +61,20 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     for (const index in WOM_POOL_TOKENS) {
       const tokenSymbol = WOM_POOL_TOKENS[index][1] as string
       const tokenAllocPoint = WOM_POOL_TOKENS[index][3] as number
+      const assetContractName = `Asset_${pool}_${tokenSymbol}`
+      const assetContractAddress = (await deployments.get(assetContractName)).address as string
+      await addAsset(voter, owner, masterWombat.address, assetContractAddress)
+      await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint)
+    }
+  }
+
+  console.log('Setting up factory pool')
+  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
+  for (const pool in FACTORYPOOL_TOKENS) {
+    const POOL_TOKENS = FACTORYPOOL_TOKENS[pool]
+    for (const index in POOL_TOKENS) {
+      const tokenSymbol = POOL_TOKENS[index][1] as string
+      const tokenAllocPoint = POOL_TOKENS[index][3] as number
       const assetContractName = `Asset_${pool}_${tokenSymbol}`
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
       await addAsset(voter, owner, masterWombat.address, assetContractAddress)
