@@ -4,6 +4,7 @@ import { ethers } from 'hardhat'
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BNB_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import { logVerifyCommand } from '../utils'
 
 const contractName = 'DynamicMockAsset'
 
@@ -104,7 +105,7 @@ export async function deployAsset(
       console.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
     }
 
-    console.log(`To verify, run: hh verify --network ${network} ${address} ${tokenAddress} '${name}' '${symbol}'`)
+    logVerifyCommand(network, assetDeployResult)
   } else {
     // mainnet assets would be added back to existing pool via multisig proposal
     if (network !== 'bsc_mainnet') {

@@ -2,6 +2,7 @@ import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { logVerifyCommand } from '../utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -44,11 +45,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     console.log(`Voter Deployment complete.`)
   }
 
-  console.log(
-    `To verify, run: hardhat verify --network ${hre.network.name} ${wombatToken.address} ${vewom.address} ${
-      ethers.constants.Zero
-    } ${latest} ${latest} ${375}`
-  )
+  logVerifyCommand(hre.network.name, deployResult)
 }
 
 export default deployFunc

@@ -1,5 +1,6 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { logVerifyCommand } from '../utils'
 
 const contractName = 'Whitelist'
 
@@ -36,8 +37,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // Check setup config values
     const whitelistAddress = await veWomContract.whitelist()
     console.log(`VeWomAddress is : ${whitelistAddress}`)
-    console.log(`To verify, run: hh verify --network ${hre.network.name} ${whitelistAddress}`)
-
+    logVerifyCommand(hre.network.name, deployResult)
     return deployResult
   } else {
     console.log(`${contractName} Contract already deployed.`)

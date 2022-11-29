@@ -3,7 +3,7 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { REWARDERS_MAP } from '../tokens.config'
-import { confirmTxn, getDeployedContract, isOwner, setRewarder } from '../utils'
+import { confirmTxn, getDeployedContract, isOwner, logVerifyCommand, setRewarder } from '../utils'
 
 const contractName = 'MultiRewarderPerSec'
 
@@ -50,11 +50,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       console.log(`${name} Deployment complete.`)
     }
 
-    console.log(
-      `To verify, run: hardhat verify --network ${hre.network.name} ${address} ${masterWombat.address} ${
-        rewarder.lpToken
-      } ${BigNumber.from(deadline)._hex} ${rewarder.rewardToken} ${rewarder.tokenPerSec._hex}`
-    )
+    logVerifyCommand(hre.network.name, deployResult)
   }
 }
 

@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
 import { USD_TOKENS_MAP } from '../tokens.config'
+import { logVerifyCommand } from '../utils'
 
 const contractName = 'Asset'
 
@@ -65,9 +66,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         console.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
       }
 
-      console.log(
-        `To verify, run: hh verify --network ${hre.network.name} ${address} ${tokenAddress} '${name}' '${symbol}'`
-      )
+      logVerifyCommand(hre.network.name, usdAssetDeployResult)
     } else {
       // mainnet assets would be added back to existing pool via multisig proposal
       if (hre.network.name != 'bsc_mainnet') {

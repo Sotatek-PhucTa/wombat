@@ -8,6 +8,7 @@ import {
   WOM_DYNAMICPOOL_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
 } from '../tokens.config'
+import { logVerifyCommand } from '../utils'
 import { getPoolContractName } from './040_WomSidePool'
 import { getFactoryPoolContractName } from './050_FactoryPool'
 
@@ -152,11 +153,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     }
 
     console.log(`Deployment complete.`)
-    console.log(
-      `To verify, run: hh verify --network ${hre.network.name} ${address} '${
-        WRAPPED_NATIVE_TOKENS_MAP[hre.network.name]
-      }'`
-    )
+    logVerifyCommand(hre.network.name, deployResult)
   }
 
   return deployResult

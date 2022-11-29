@@ -27,5 +27,6 @@ export async function setRewarder(masterWombat: Contract, owner: SignerWithAddre
 }
 
 export function logVerifyCommand(network: string, deployment: Deployment) {
-  console.log(`To verify, run: hh verify --network ${network} ${deployment.address} ${deployment.args?.join(' ')}`)
+  const verifyArgs = deployment.args?.map((arg) => (typeof arg == 'string' ? `'${arg}'` : arg)).join(' ')
+  console.log(`To verify, run: hh verify --network ${network} ${deployment.address} ${verifyArgs}`)
 }
