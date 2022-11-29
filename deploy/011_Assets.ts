@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
 import { USD_TOKENS_MAP } from '../tokens.config'
-import { logVerifyCommand } from '../utils'
+import { confirmTxn } from '../utils'
 
 const contractName = 'Asset'
 
@@ -88,8 +88,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
   console.log(`Transferring ownership of ${poolAddress} to ${multisig}...`)
   // The owner of the pool contract is very powerful!
-  const transferOwnershipTxn = await pool.connect(owner).transferOwnership(multisig)
-  await transferOwnershipTxn.wait()
+  await confirmTxn(pool.connect(owner).transferOwnership(multisig))
   console.log(`Transferred ownership of ${poolAddress} to:`, multisig)
 }
 
