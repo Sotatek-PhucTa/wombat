@@ -2,7 +2,6 @@ import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { BRIBE_MAPS } from '../tokens.config'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -37,7 +36,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     },
   })
 
-  const voter = await ethers.getContractAt('Voter', deployResult.address)
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)
@@ -46,7 +44,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     console.log(`Voter Deployment complete.`)
   }
 
-  const address = deployResult.address
   console.log(
     `To verify, run: hardhat verify --network ${hre.network.name} ${wombatToken.address} ${vewom.address} ${
       ethers.constants.Zero

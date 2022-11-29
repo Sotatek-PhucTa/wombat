@@ -4,7 +4,7 @@ import { BigNumber, Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BRIBE_MAPS } from '../tokens.config'
-import { confirmTxn, getDeployedContract } from '../utils'
+import { confirmTxn, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -34,12 +34,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       console.log(`Voter added Bribe_${token}.`)
     }
 
-    const address = deployResult.address
-    console.log(
-      `To verify, run: hardhat verify --network ${hre.network.name} ${address} ${masterWombat.address} ${
-        bribe.lpToken
-      } ${BigNumber.from(deadline)._hex} ${bribe.rewardToken} ${bribe.tokenPerSec._hex}`
-    )
+    logVerifyCommand(hre.network.name, deployResult)
   }
 }
 
