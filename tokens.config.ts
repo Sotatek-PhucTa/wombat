@@ -66,20 +66,6 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
     MIM: ['Magic Internet Money', 'MIM', '18', 0],
     HAY: ['Hay Stablecoin', 'HAY', '18', 0],
   },
-  localhost: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0], // 0 tokens minted to msg.sender initially
-    TUSD: ['TrueUSD', 'TUSD', '18', 0],
-    FRAX: ['Frax', 'FRAX', '18', 0],
-    MIM: ['Magic Internet Money', 'MIM', '18', 0],
-    HAY: ['Hay Stablecoin', 'HAY', '18', 0],
-  },
-  hardhat: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0], // 0 tokens minted to msg.sender initially
-    TUSD: ['TrueUSD', 'TUSD', '18', 0],
-    FRAX: ['Frax', 'FRAX', '18', 0],
-    MIM: ['Magic Internet Money', 'MIM', '18', 0],
-    HAY: ['Hay Stablecoin', 'HAY', '18', 0],
-  },
 }
 
 export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
@@ -92,20 +78,6 @@ export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
     },
   },
   bsc_testnet: {
-    stables_01: {
-      BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
-      TUSD: ['TrueUSD', 'TUSD', '18', 0],
-      FRAX: ['Frax', 'FRAX', '18', 0],
-    },
-  },
-  localhost: {
-    stables_01: {
-      BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
-      TUSD: ['TrueUSD', 'TUSD', '18', 0],
-      FRAX: ['Frax', 'FRAX', '18', 0],
-    },
-  },
-  hardhat: {
     stables_01: {
       BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
       TUSD: ['TrueUSD', 'TUSD', '18', 0],
@@ -174,62 +146,6 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
     ],
   },
   bsc_testnet: {
-    WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic', 10],
-    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic', 10],
-    STKBNB: [
-      'Staked BNB',
-      'stkBNB',
-      '0xF7CE8444b3b1c62e785a25343a8B4764198A81B8',
-      '0x7CdFba1Ee6A8D1e688B4B34A56b62287ce400802',
-      'Stkbnb',
-      10,
-    ],
-    BNBX: [
-      'Liquid Staking BNB',
-      'BNBx',
-      '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
-      '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
-      'Bnbx',
-      10,
-    ],
-    ABNBC: [
-      'Ankr BNB Reward Bearing Certificate',
-      'aBNBc',
-      '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      'ABnbc',
-      10,
-    ],
-  },
-  localhost: {
-    WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic', 10],
-    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic', 10],
-    STKBNB: [
-      'Staked BNB',
-      'stkBNB',
-      '0xF7CE8444b3b1c62e785a25343a8B4764198A81B8',
-      '0x7CdFba1Ee6A8D1e688B4B34A56b62287ce400802',
-      'Stkbnb',
-      10,
-    ],
-    BNBX: [
-      'Liquid Staking BNB',
-      'BNBx',
-      '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
-      '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
-      'Bnbx',
-      10,
-    ],
-    ABNBC: [
-      'Ankr BNB Reward Bearing Certificate',
-      'aBNBc',
-      '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      'ABnbc',
-      10,
-    ],
-  },
-  hardhat: {
     WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic', 10],
     TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic', 10],
     STKBNB: [

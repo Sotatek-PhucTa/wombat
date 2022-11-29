@@ -10,7 +10,7 @@ describe('MasterWombatV3Migration', function () {
   let busdAsset: Contract
 
   beforeEach(async function () {
-    await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter'])
+    await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter', 'VoterSetup'])
     ;[masterWombatV3, voter, pool, busd, busdAsset] = await Promise.all([
       getDeployedContract('MasterWombatV3'),
       getDeployedContract('Voter'),
