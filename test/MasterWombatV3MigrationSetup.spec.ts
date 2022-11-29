@@ -9,8 +9,7 @@ describe('MasterWombatV3Migration', function () {
     // await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter'])
     // await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter'])
     // await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter'])
-    // await deployments.fixture(['MockTokens', 'MasterWombatV3', 'Voter'])
-    await deployments.fixture(['MasterWombatV3', 'Voter'])
+    await deployments.fixture(['MockTokens', 'MasterWombatV3', 'Voter'])
     // ;[pool] = await Promise.all([getDeployedContract('Pool')])
   })
 

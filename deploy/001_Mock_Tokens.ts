@@ -20,27 +20,27 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // Mock tokens only on localhost and bsc testnet
   if (hre.network.name == 'localhost' || hre.network.name == 'hardhat' || hre.network.name == 'bsc_testnet') {
     /// Mock USD TOKENS ///
-    const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
+    const USD_TOKENS = USD_TOKENS_MAP[hre.network.name] || {}
     for (const index in USD_TOKENS) {
       const tokenSymbol = USD_TOKENS[index][1] as string
       await deploy(tokenSymbol, {
         from: deployer,
         log: true,
         contract: 'TestERC20',
-        args: USD_TOKENS[index],
+        args: USD_TOKENS[index].slice(0, 4),
         skipIfAlreadyDeployed: true,
       })
     }
 
     /// Mock USD SIDEPOOL TOKENS ///
-    const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
+    const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name] || {}
     for (const index in USD_SIDEPOOL_TOKENS) {
       const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
       await deploy(tokenSymbol, {
         from: deployer,
         log: true,
         contract: 'TestERC20',
-        args: USD_SIDEPOOL_TOKENS[index],
+        args: USD_SIDEPOOL_TOKENS[index].slice(0, 4),
         skipIfAlreadyDeployed: true,
       })
     }
@@ -48,43 +48,40 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     /// Mock BNB DYNAMICPOOL TOKENS ///
     const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
     const tokenSymbol = BNB_DYNAMICPOOL_TOKENS['WBNB'][1] as string
-    const args = [...BNB_DYNAMICPOOL_TOKENS['WBNB']]
-    args.pop()
+    const args = BNB_DYNAMICPOOL_TOKENS['WBNB']
     await deploy(tokenSymbol, {
       from: deployer,
       log: true,
       contract: 'TestERC20',
-      args: args,
+      args: args.slice(0, 4),
       skipIfAlreadyDeployed: true,
     })
 
     /// Mock WOM DynamicPool Tokens ///
-    const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
+    const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name] || {}
     for (const tokens of Object.values(WOM_SIDEPOOL_TOKENS)) {
       for (const deployArgs of Object.values(tokens)) {
-        const args = deployArgs.slice(0, -1)
-        const tokenSymbol = args[1] as string
+        const tokenSymbol = deployArgs[1] as string
         await deploy(tokenSymbol, {
           from: deployer,
           log: true,
           contract: 'TestERC20',
-          args: deployArgs,
+          args: deployArgs.slice(0, 4),
           skipIfAlreadyDeployed: true,
         })
       }
     }
 
     /// Mock FactoryPool Tokens ///
-    const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
+    const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name] || {}
     for (const tokens of Object.values(FACTORYPOOL_TOKENS)) {
       for (const deployArgs of Object.values(tokens)) {
-        const args = deployArgs.slice(0, -1)
-        const tokenSymbol = args[1] as string
+        const tokenSymbol = deployArgs[1] as string
         await deploy(tokenSymbol, {
           from: deployer,
           log: true,
           contract: 'TestERC20',
-          args: deployArgs,
+          args: deployArgs.slice(0, 4),
           skipIfAlreadyDeployed: true,
         })
       }
