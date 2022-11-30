@@ -6,6 +6,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol';
 
 import '../interfaces/IBribe.sol';
 
@@ -384,13 +385,31 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     function pendingBribes(IERC20[] calldata _lpTokens, address _user)
         external
         view
-        returns (uint256[][] memory bribeRewards)
+        returns (
+            IERC20[][] memory bribeTokenAddresses,
+            string[][] memory bribeTokenSymbols,
+            uint256[][] memory bribeRewards
+        )
     {
+        bribeTokenAddresses = new IERC20[][](_lpTokens.length);
+        bribeTokenSymbols = new string[][](_lpTokens.length);
         bribeRewards = new uint256[][](_lpTokens.length);
         for (uint256 i; i < _lpTokens.length; ++i) {
             IERC20 lpToken = _lpTokens[i];
             if (address(infos[lpToken].bribe) != address(0)) {
                 bribeRewards[i] = infos[lpToken].bribe.pendingTokens(_user);
+                bribeTokenAddresses[i] = infos[lpToken].bribe.rewardTokens();
+
+                uint256 len = bribeTokenAddresses[i].length;
+                bribeTokenSymbols[i] = new string[](len);
+
+                for (uint256 j; j < len; ++j) {
+                    if (address(bribeTokenAddresses[i][j]) == address(0)) {
+                        bribeTokenSymbols[i][j] = 'BNB';
+                    } else {
+                        bribeTokenSymbols[i][j] = IERC20Metadata(address(bribeTokenAddresses[i][j])).symbol();
+                    }
+                }
             }
         }
     }

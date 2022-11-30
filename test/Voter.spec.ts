@@ -1058,8 +1058,12 @@ describe('Voter', async function () {
 
       // claim rewards
       await advanceTimeAndBlock(6000)
-      expect((await voter.pendingBribes([lpToken1.address], users[0].address))[0][0]).roughlyNear(parseEther('380.7'))
-      expect((await voter.pendingBribes([lpToken1.address], users[1].address))[0][0]).roughlyNear(parseEther('1903'))
+      expect((await voter.pendingBribes([lpToken1.address], users[0].address)).bribeRewards[0][0]).roughlyNear(
+        parseEther('380.7')
+      )
+      expect((await voter.pendingBribes([lpToken1.address], users[1].address)).bribeRewards[0][0]).roughlyNear(
+        parseEther('1903')
+      )
       await voter.connect(users[0]).claimBribes([lpToken1.address])
       await voter.connect(users[1]).claimBribes([lpToken1.address])
 
@@ -1069,8 +1073,12 @@ describe('Voter', async function () {
       // unvote half and claim rewards again
       await voter.connect(users[0]).vote([lpToken1.address], [parseEther('-5')])
       await advanceTimeAndBlock(6000)
-      expect((await voter.pendingBribes([lpToken1.address], users[0].address))[0][0]).near(parseEther('207.5'))
-      expect((await voter.pendingBribes([lpToken1.address], users[1].address))[0][0]).near(parseEther('2075.9'))
+      expect((await voter.pendingBribes([lpToken1.address], users[0].address)).bribeRewards[0][0]).near(
+        parseEther('207.5')
+      )
+      expect((await voter.pendingBribes([lpToken1.address], users[1].address)).bribeRewards[0][0]).near(
+        parseEther('2075.9')
+      )
       await voter.connect(users[0]).claimBribes([lpToken1.address])
       await voter.connect(users[1]).claimBribes([lpToken1.address])
 
@@ -1091,11 +1099,33 @@ describe('Voter', async function () {
       expect(await bribe.rewardTokens()).to.eql([bribeToken.address, bribeToken2.address])
 
       const pendingBribes = await voter.pendingBribes([lpToken1.address], users[0].address)
-      expect(pendingBribes.length).to.eql(1)
-      expect(pendingBribes[0]).to.eql(pendingTokens)
+      expect(pendingBribes.bribeRewards.length).to.eql(1)
+      expect(pendingBribes.bribeRewards[0]).to.eql(pendingTokens)
       await voter.connect(users[0]).claimBribes([lpToken1.address])
       expect(await bribeToken.balanceOf(users[0].address)).to.near(pendingTokens[0])
       expect(await bribeToken2.balanceOf(users[0].address)).to.near(pendingTokens[1])
+    })
+
+    it('pendingBribes', async function () {
+      const bribeToken2 = await MockERC20.deploy('Partner Token 2', 'PARTNER', 18, parseEther('1000000'))
+      await bribeToken2.transfer(bribe.address, parseEther('1000000'))
+      await owner.sendTransaction({ value: parseEther('10'), to: bribe.address })
+      await bribe.addRewardToken(bribeToken2.address, parseEther('1.23'))
+      await bribe.addRewardToken(AddressZero, parseEther('2'))
+      await voter.connect(users[0]).vote([lpToken1.address], [parseEther('10')])
+      await advanceTimeAndBlock(6000)
+
+      const pendingTokens = await bribe.pendingTokens(users[0].address)
+      expect(pendingTokens[0]).roughlyNear(parseEther('2283'))
+      expect(pendingTokens[1]).roughlyNear(parseEther('7381'))
+      expect(pendingTokens[2]).roughlyNear(parseEther('12008'))
+      expect(await bribe.rewardTokens()).to.eql([bribeToken.address, bribeToken2.address, AddressZero])
+
+      const pendingBribes = await voter.pendingBribes([lpToken1.address], users[0].address)
+      expect(pendingBribes.bribeRewards.length).to.eql(1)
+      expect(pendingBribes.bribeRewards[0]).to.eql(pendingTokens)
+      expect(pendingBribes.bribeTokenAddresses[0]).to.eql([bribeToken.address, bribeToken2.address, AddressZero])
+      expect(pendingBribes.bribeTokenSymbols[0]).to.eql(['PARTNER', 'PARTNER', 'BNB'])
     })
 
     it('vote/unvote should claim bribe tokens and change emission rate', async function () {
@@ -1112,8 +1142,12 @@ describe('Voter', async function () {
 
       // claim rewards
       await advanceTimeAndBlock(6000)
-      expect((await voter.pendingBribes([lpToken1.address], users[0].address))[0][0]).roughlyNear(parseEther('22.62'))
-      expect((await voter.pendingBribes([lpToken1.address], users[1].address))[0][0]).roughlyNear(parseEther('2261'))
+      expect((await voter.pendingBribes([lpToken1.address], users[0].address)).bribeRewards[0][0]).roughlyNear(
+        parseEther('22.62')
+      )
+      expect((await voter.pendingBribes([lpToken1.address], users[1].address)).bribeRewards[0][0]).roughlyNear(
+        parseEther('2261')
+      )
       const balance1 = await bribeToken.balanceOf(users[0].address)
       const balance2 = await bribeToken.balanceOf(users[1].address)
       await voter.connect(users[0]).claimBribes([lpToken1.address])
