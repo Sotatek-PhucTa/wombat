@@ -27,6 +27,12 @@ export async function setRewarder(masterWombat: Contract, owner: SignerWithAddre
 }
 
 export function logVerifyCommand(network: string, deployment: Deployment) {
-  const verifyArgs = deployment.args?.map((arg) => (typeof arg == 'string' ? `'${arg}'` : arg)).join(' ')
-  console.log(`To verify, run: hh verify --network ${network} ${deployment.address} ${verifyArgs}`)
+  if (deployment.implementation) {
+    console.log(
+      `This is a proxy. To verify its implementation, run: hh verify --network ${network} ${deployment.implementation}`
+    )
+  } else {
+    const verifyArgs = deployment.args?.map((arg) => (typeof arg == 'string' ? `'${arg}'` : arg)).join(' ')
+    console.log(`To verify, run: hh verify --network ${network} ${deployment.address} ${verifyArgs}`)
+  }
 }
