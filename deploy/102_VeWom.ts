@@ -1,5 +1,6 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { confirmTxn, getDeployedContract, isOwner } from '../utils'
 
 const contractName = 'VeWom'
 
@@ -13,7 +14,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
-  const masterWombat = await deployments.get('MasterWombatV3')
+  const masterWombat = await getDeployedContract('MasterWombatV3')
 
   // deterministicDeployment is used only for implementation but not the proxy contract
   // it is not useful in this case
@@ -40,17 +41,20 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   console.log('Contract address:', deployResult.address)
   console.log('Implementation address:', implAddr)
 
-  const masterWombatContract = await ethers.getContractAt('MasterWombatV3', masterWombat.address)
-  // mainnet veWOM would be added back to existing masterwombat via multisig proposal
-  console.log('Setting veWOM contract for MasterWombatV3...')
-  const setVeWomTxn = await masterWombatContract.connect(owner).setVeWom(deployResult.address)
-  await setVeWomTxn.wait()
-
   if (deployResult.newlyDeployed) {
+    if (await isOwner(masterWombat, owner.address)) {
+      console.log('Setting veWOM contract for MasterWombatV3...')
+      await confirmTxn(masterWombat.connect(owner).setVeWom(deployResult.address))
+    } else {
+      console.log(
+        `User ${owner.address} does not own MasterWombat. Please call setVeWom in multi-sig. VeWom: ${deployResult.address}`
+      )
+    }
+
     // Check setup config values
     const womTokenAddress = await contract.wom()
     const masterWombatAddress = await contract.masterWombat()
-    const veWomAddress = await masterWombatContract.veWom()
+    const veWomAddress = await masterWombat.veWom()
     console.log(`WomTokenAddress is : ${womTokenAddress}`)
     console.log(`MasterWombatV3Address is : ${masterWombatAddress}`)
     console.log(`VeWomAddress is : ${veWomAddress}`)
