@@ -66,7 +66,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const assetContractName = `Asset_${pool}_${tokenSymbol}`
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
       await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
+      await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
     }
   }
 
@@ -102,7 +102,13 @@ async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat:
   }
 }
 
-async function setAllocPoint(voter: Contract, owner: SignerWithAddress, assetAddress: string, tokenAllocPoint: number, blocksToConfirm: number) {
+async function setAllocPoint(
+  voter: Contract,
+  owner: SignerWithAddress,
+  assetAddress: string,
+  tokenAllocPoint: number,
+  blocksToConfirm: number
+) {
   console.log('setAllocPoint', assetAddress, tokenAllocPoint)
   try {
     await confirmTxn(voter.connect(owner).setAllocPoint(assetAddress, tokenAllocPoint), blocksToConfirm)

@@ -17,13 +17,13 @@ describe('MasterWombatV3Migration', function () {
   beforeEach(async function () {
     ;[owner] = await ethers.getSigners()
     await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter', 'VoterSetup'])
-      ;[masterWombatV3, voter, pool, busd, busdAsset] = await Promise.all([
-        getDeployedContract('MasterWombatV3'),
-        getDeployedContract('Voter'),
-        getDeployedContract('Pool'),
-        getDeployedContract('TestERC20', 'BUSD'),
-        getDeployedContract('Asset', 'Asset_P01_BUSD'),
-      ])
+    ;[masterWombatV3, voter, pool, busd, busdAsset] = await Promise.all([
+      getDeployedContract('MasterWombatV3'),
+      getDeployedContract('Voter'),
+      getDeployedContract('Pool'),
+      getDeployedContract('TestERC20', 'BUSD'),
+      getDeployedContract('Asset', 'Asset_P01_BUSD'),
+    ])
 
     await voter.setAllocPoint(busdAsset.address, parseEther('1'))
     expect(await voter.totalAllocPoint()).to.eq(parseEther('1'))
@@ -41,7 +41,7 @@ describe('MasterWombatV3Migration', function () {
   })
 
   describe('Emission', function () {
-    it('emits womPerSec*womPerSec in the first epoch', async function () {
+    it('emits womPerSec*baseAllocation in the first epoch', async function () {
       const womPerSec = await voter.womPerSec()
       expect(womPerSec).to.eq(parseEther('1'))
       const baseAllocation = await voter.baseAllocation()
