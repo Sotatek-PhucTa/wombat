@@ -84,14 +84,14 @@ describe('MasterWombatV3Migration', function () {
       await advanceTimeAndBlock(epochInSec) // T + epoch
       await voter.distribute(busdAsset.address)
       expect(await masterWombatV3.multiClaim([0]))
-      const dust = parseEther('0.140626627')
-      expect(await wom.balanceOf(owner.address)).to.eq(dust)
+      const dust = await wom.balanceOf(owner.address)
+      expect(dust).to.be.gt(0).and.lt(parseEther('0.2'))
 
       await advanceTimeAndBlock(3600) // T + epoch + 1hour
       // FIXME: call this will make reward to be 2 * dust.
       // await voter.distribute(busdAsset.address)
       expect(await masterWombatV3.multiClaim([0]))
-      const reward = parseEther('506.396486002')
+      const reward = parseEther('506.396486002') // 506.25 = 1 * 3600 * 0.375 * 0.375
       expect(reward).to.near(baseWomPerSec.mul(3600).mul(basePartition).div(1000))
       expect(await wom.balanceOf(owner.address)).to.eq(reward.add(dust))
     })
