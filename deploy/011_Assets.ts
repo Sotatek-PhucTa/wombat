@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
 import { USD_TOKENS_MAP } from '../tokens.config'
-import { confirmTxn } from '../utils'
+import { confirmTxn, logVerifyCommand } from '../utils'
 
 const contractName = 'Asset'
 
