@@ -10,6 +10,8 @@ contract HighCovRatioFeePool is Pool {
     uint128 public startCovRatio; // 1.5
     uint128 public endCovRatio; // 1.8
 
+    uint256[50] private gap;
+
     error WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
     error WOMBAT_DIRECT_REVERSE_QUOTE_NOT_SUPPORTED();
 
@@ -27,7 +29,7 @@ contract HighCovRatioFeePool is Pool {
     }
 
     /**
-     * @notice Calculate the high cov ratio fee of the from-asset in a swap.
+     * @notice Calculate the high cov ratio fee in the to-asset in a swap.
      * @dev When cov ratio is in the range [startCovRatio, endCovRatio], the marginal cov ratio is
      * (r - startCovRatio) / (endCovRatio - startCovRatio). Here we approximate the high cov ratio cut
      * by calculating the "average" fee.
@@ -52,7 +54,7 @@ contract HighCovRatioFeePool is Pool {
     }
 
     /**
-     * @dev Exact output swap should only used as off-chain view function as it is a gas monster
+     * @dev Exact output swap (fromAmount < 0) should be only used by off-chain quoting function as it is a gas monster
      */
     function _quoteFrom(
         IAsset fromAsset,

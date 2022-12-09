@@ -3,7 +3,7 @@ pragma solidity ^0.8.14;
 
 import '../libraries/DSMath.sol';
 import '../interfaces/IRelativePriceProvider.sol';
-import './Pool.sol';
+import './HighCovRatioFeePool.sol';
 
 /**
  * @title Dynamic Pool
@@ -11,9 +11,11 @@ import './Pool.sol';
  * @dev Supports dynamic assets. Assume r* to be close to 1.
  * Be aware that r* changes when the relative price of the asset updates
  */
-contract DynamicPool is Pool {
+contract DynamicPool is HighCovRatioFeePool {
     using DSMath for uint256;
     using SignedSafeMath for int256;
+
+    uint256[50] private gap;
 
     /**
      * @notice multiply / divide the cash, liability and amount of a swap by relative price
