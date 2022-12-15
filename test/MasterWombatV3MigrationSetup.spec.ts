@@ -91,9 +91,9 @@ describe('MasterWombatV3Migration', function () {
       // FIXME: call this will make reward to be 2 * dust.
       // await voter.distribute(busdAsset.address)
       expect(await masterWombatV3.multiClaim([0]))
-      const reward = parseEther('506.396486002') // 506.25 = 1 * 3600 * 0.375 * 0.375
-      expect(reward).to.near(baseWomPerSec.mul(3600).mul(basePartition).div(1000))
-      expect(await wom.balanceOf(owner.address)).to.eq(reward.add(dust))
+      const reward = parseEther('506.25') // 506.25 = 1 * 3600 * 0.375 * 0.375
+      expect(reward).to.eq(baseWomPerSec.mul(3600).mul(basePartition).div(1000))
+      expect(await wom.balanceOf(owner.address)).to.near(reward.add(dust))
     })
   })
 })
