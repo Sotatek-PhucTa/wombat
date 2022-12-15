@@ -20,7 +20,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const deadline = getDeadlineFromNow(rewarder.secondsToStart)
 
     /// Deploy pool
-    const name = `MultiRewarderPerSec_V2_${token}`
+    const name = `MultiRewarderPerSec_V3_${token}`
     const deployResult = await deploy(name, {
       from: deployer,
       contract: 'MultiRewarderPerSec',
