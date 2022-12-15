@@ -48,7 +48,7 @@ describe('MasterWombatV3Migration', function () {
     expect(weights.allocPoint).to.eq(parseEther('1'))
   })
 
-  describe.only('Emission', function () {
+  describe('Emission', function () {
     const epochInSec = 7 * 24 * 3600
     const baseWomPerSec = parseEther('0.375')
     const basePartition = 375
