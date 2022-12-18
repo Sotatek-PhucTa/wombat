@@ -204,13 +204,13 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
     BUSD: {
       lpToken: '0xA649Be04619a8F3B3475498E1ac15C90C9661C1A', // BUSD-LP (Sidepool)
       rewardToken: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
-      secondsToStart: 97200, // 27 hours later, i.e. kickstart on 12/16/2022 2:00pm HKT
+      secondsToStart: 20 * 3600, // i.e. 2022/12/19 12PM HKT
       tokenPerSec: parseEther('0.005708'),
     },
     HAY: {
       lpToken: '0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b', // HAY-LP
       rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
-      secondsToStart: 97200, // 27 hours later, i.e. kickstart on 12/16/2022 2:00pm HKT
+      secondsToStart: 20 * 3600, // i.e. 2022/12/19 12PM HKT
       tokenPerSec: parseEther('0.005708'),
     },
     WMX: {
