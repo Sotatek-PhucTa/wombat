@@ -3,7 +3,7 @@ pragma solidity ^0.8.14;
 
 import '../libraries/DSMath.sol';
 import '../interfaces/IRelativePriceProvider.sol';
-import './Pool.sol';
+import './HighCovRatioFeePool.sol';
 
 /**
  * @title Dynamic Pool
@@ -11,9 +11,11 @@ import './Pool.sol';
  * @dev Supports dynamic assets. Assume r* to be close to 1.
  * Be aware that r* changes when the relative price of the asset updates
  */
-contract DynamicPool is Pool {
+contract DynamicPool is HighCovRatioFeePool {
     using DSMath for uint256;
     using SignedSafeMath for int256;
+
+    uint256[50] private gap;
 
     /**
      * @notice multiply / divide the cash, liability and amount of a swap by relative price
@@ -34,13 +36,13 @@ contract DynamicPool is Pool {
     function _globalInvariantFunc() internal view override returns (int256 D, int256 SL) {
         int256 A = int256(ampFactor);
 
-        for (uint256 i = 0; i < _sizeOfAssetList(); i++) {
+        for (uint256 i; i < _sizeOfAssetList(); ++i) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));
 
             // overflow is unrealistic
             int256 A_i = int256(uint256(asset.cash()));
             int256 L_i = int256(uint256(asset.liability()));
-            int256 P_i = int256(uint256(IRelativePriceProvider(address(asset)).getRelativePrice()));
+            int256 P_i = int256(IRelativePriceProvider(address(asset)).getRelativePrice());
 
             // Assume when L_i == 0, A_i always == 0
             if (L_i == 0) {
