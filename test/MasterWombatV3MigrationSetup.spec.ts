@@ -12,6 +12,7 @@ chai.use(near)
 
 describe('MasterWombatV3Migration', function () {
   let owner: SignerWithAddress
+  let user1: SignerWithAddress
   let masterWombatV3: Contract
   let voter: Contract
   let pool: Contract
@@ -20,7 +21,7 @@ describe('MasterWombatV3Migration', function () {
   let wom: Contract
 
   beforeEach(async function () {
-    ;[owner] = await ethers.getSigners()
+    ;[owner, user1] = await ethers.getSigners()
     await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter', 'VoterSetup', 'WombatToken'])
     ;[masterWombatV3, voter, pool, busd, busdAsset, wom] = await Promise.all([
       getDeployedContract('MasterWombatV3'),
@@ -62,6 +63,8 @@ describe('MasterWombatV3Migration', function () {
 
       await pool.setMasterWombat(masterWombatV3.address)
       await pool.deposit(busd.address, parseEther('1000'), 0, owner.address, MaxUint256, true)
+
+      expect(await masterWombatV3.basePartition()).to.eq(basePartition)
     })
 
     it('baseWomPerSec = womPerSec * baseAllocation', async function () {
@@ -79,21 +82,31 @@ describe('MasterWombatV3Migration', function () {
     })
 
     it('MasterWombat emits baseWomPerSec after the first epoch', async function () {
-      expect(await masterWombatV3.basePartition()).to.eq(basePartition)
-
+      await masterWombatV3.multiClaim([0])
       await advanceTimeAndBlock(epochInSec) // T + epoch
-      await voter.distribute(busdAsset.address)
-      expect(await masterWombatV3.multiClaim([0]))
-      const dust = await wom.balanceOf(owner.address)
-      expect(dust).to.be.gt(0).and.lt(parseEther('0.2'))
+      await masterWombatV3.multiClaim([0])
 
       await advanceTimeAndBlock(3600) // T + epoch + 1hour
-      // FIXME: call this will make reward to be 2 * dust.
-      // await voter.distribute(busdAsset.address)
-      expect(await masterWombatV3.multiClaim([0]))
+      await masterWombatV3.multiClaim([0])
       const reward = parseEther('506.25') // 506.25 = 1 * 3600 * 0.375 * 0.375
       expect(reward).to.eq(baseWomPerSec.mul(3600).mul(basePartition).div(1000))
-      expect(await wom.balanceOf(owner.address)).to.near(reward.add(dust))
+      expect(await wom.balanceOf(owner.address)).to.near(reward)
+    })
+
+    it('User can claim reward after three epochs', async function () {
+      await masterWombatV3.connect(user1).multiClaim([0])
+      await advanceTimeAndBlock(epochInSec) // T + 1epoch
+      await masterWombatV3.connect(user1).multiClaim([0])
+      await advanceTimeAndBlock(epochInSec) // T + 2epoch
+      await masterWombatV3.connect(user1).multiClaim([0])
+      await advanceTimeAndBlock(epochInSec) // T + 3epoch
+      // first claim in three epoch
+      await masterWombatV3.multiClaim([0])
+
+      // expected reward for two epochs: 170100 = 2 * (7 * 24 * 3600) * .375 * .375
+      const reward = parseEther('170100')
+      expect(reward).to.eq(baseWomPerSec.mul(2).mul(epochInSec).mul(basePartition).div(1000))
+      expect(await wom.balanceOf(owner.address)).to.near(reward)
     })
   })
 })

@@ -4,7 +4,7 @@ import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { ethers } from 'hardhat'
 import {
   Asset,
@@ -45,6 +45,11 @@ describe('MasterWombatV3', async function () {
   let voter: Voter
   let dummyAsset: Asset
   let veWom: MockVeWom
+
+  let usdc: Contract
+  let usdt: Contract
+  let mim: Contract
+  let dai: Contract
 
   before(async function () {
     ;[owner, ...users] = await ethers.getSigners()
@@ -229,25 +234,25 @@ describe('MasterWombatV3', async function () {
       await voter.setWomPerSec(emissionsPerSec)
 
       // deploy usdc and the other tokens
-      this.usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
-      await this.usdc.deployed()
+      usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      await usdc.deployed()
 
-      this.usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
-      await this.usdt.deployed()
+      usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      await usdt.deployed()
 
-      this.mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
-      await this.mim.deployed()
+      mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      await mim.deployed()
 
-      this.dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
-      await this.dai.deployed()
+      dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      await dai.deployed()
 
       // credit users with usdc
-      await this.usdc.transfer(users[1].address, parseUnits('60000', 6))
-      await this.usdc.transfer(users[2].address, parseUnits('90000', 6))
-      await this.usdc.transfer(users[3].address, parseUnits('350000', 6))
-      await this.usdc.transfer(users[4].address, parseUnits('1500000', 6))
-      await this.usdc.transfer(users[5].address, parseUnits('18000000', 6))
-      await this.usdc.transfer(users[6].address, parseUnits('30000000', 6))
+      await usdc.transfer(users[1].address, parseUnits('60000', 6))
+      await usdc.transfer(users[2].address, parseUnits('90000', 6))
+      await usdc.transfer(users[3].address, parseUnits('350000', 6))
+      await usdc.transfer(users[4].address, parseUnits('1500000', 6))
+      await usdc.transfer(users[5].address, parseUnits('18000000', 6))
+      await usdc.transfer(users[6].address, parseUnits('30000000', 6))
 
       // credit users with veWom
       await veWom.connect(users[1]).faucet(parseEther('22000'))
@@ -258,37 +263,37 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[6]).faucet(parseEther('16584200'))
 
       // approve spending by pool
-      await this.usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
-      await this.usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
-      await this.usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
-      await this.usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
-      await this.usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
-      await this.usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
+      await usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
+      await usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
+      await usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
+      await usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
+      await usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
+      await usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
 
       /// other tokens
-      await this.usdt.transfer(users[7].address, parseUnits('50000000', 6))
-      await this.usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
+      await usdt.transfer(users[7].address, parseUnits('50000000', 6))
+      await usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
 
-      await this.dai.transfer(users[8].address, parseEther('40000000'))
-      await this.dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
+      await dai.transfer(users[8].address, parseEther('40000000'))
+      await dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
 
-      await this.mim.transfer(users[9].address, parseEther('20000000'))
-      await this.mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
+      await mim.transfer(users[9].address, parseEther('20000000'))
+      await mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
 
       // add lp-tokens to the wombat master with correct weighing
-      await mw.add(this.usdt.address, ethers.constants.AddressZero)
-      await mw.add(this.usdc.address, ethers.constants.AddressZero)
-      await mw.add(this.dai.address, ethers.constants.AddressZero)
-      await mw.add(this.mim.address, ethers.constants.AddressZero)
-      await voter.add(mw.address, this.usdt.address, AddressZero)
-      await voter.add(mw.address, this.usdc.address, AddressZero)
-      await voter.add(mw.address, this.dai.address, AddressZero)
-      await voter.add(mw.address, this.mim.address, AddressZero)
+      await mw.add(usdt.address, AddressZero)
+      await mw.add(usdc.address, AddressZero)
+      await mw.add(dai.address, AddressZero)
+      await mw.add(mim.address, AddressZero)
+      await voter.add(mw.address, usdt.address, AddressZero)
+      await voter.add(mw.address, usdc.address, AddressZero)
+      await voter.add(mw.address, dai.address, AddressZero)
+      await voter.add(mw.address, mim.address, AddressZero)
 
       await voter
         .connect(users[0])
         .vote(
-          [this.usdt.address, this.usdc.address, this.dai.address, this.mim.address],
+          [usdt.address, usdc.address, dai.address, mim.address],
           [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
         )
 
@@ -314,32 +319,32 @@ describe('MasterWombatV3', async function () {
 
       // withdraw usdc users[1]
       await mw.connect(users[1]).withdraw(1, parseUnits('60000', 6))
-      expect(await this.usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('60000', 6))
+      expect(await usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('60000', 6))
       expect(await wom.balanceOf(users[1].address)).to.be.roughlyNear(parseEther('10.65'))
 
       // withdraw usdc user[2] forgot to stake his wom
       await mw.connect(users[2]).withdraw(1, parseUnits('90000', 6))
-      expect(await this.usdc.balanceOf(users[2].address)).to.be.equal(parseUnits('90000', 6))
+      expect(await usdc.balanceOf(users[2].address)).to.be.equal(parseUnits('90000', 6))
       expect(await wom.balanceOf(users[2].address)).to.roughlyNear(parseEther('15.97'))
 
       // withdraw usdc users[3]
       await mw.connect(users[3]).withdraw(1, parseUnits('350000', 6))
-      expect(await this.usdc.balanceOf(users[3].address)).to.be.equal(parseUnits('350000', 6))
+      expect(await usdc.balanceOf(users[3].address)).to.be.equal(parseUnits('350000', 6))
       expect(await wom.balanceOf(users[3].address)).to.roughlyNear(parseEther('62.13'))
 
       // withdraw usdc users[4]
       await mw.connect(users[4]).withdraw(1, parseUnits('1500000', 6))
-      expect(await this.usdc.balanceOf(users[4].address)).to.be.equal(parseUnits('1500000', 6))
+      expect(await usdc.balanceOf(users[4].address)).to.be.equal(parseUnits('1500000', 6))
       expect(await wom.balanceOf(users[4].address)).to.roughlyNear(parseEther('266'))
 
       // withdraw usdc users[5]
       await mw.connect(users[5]).withdraw(1, parseUnits('18000000', 6))
-      expect(await this.usdc.balanceOf(users[5].address)).to.be.equal(parseUnits('18000000', 6))
+      expect(await usdc.balanceOf(users[5].address)).to.be.equal(parseUnits('18000000', 6))
       expect(await wom.balanceOf(users[5].address)).to.roughlyNear(parseEther('3200'))
 
       // withdraw usdc users[6]
       await mw.connect(users[6]).withdraw(1, parseUnits('30000000', 6))
-      expect(await this.usdc.balanceOf(users[6].address)).to.be.equal(parseUnits('30000000', 6))
+      expect(await usdc.balanceOf(users[6].address)).to.be.equal(parseUnits('30000000', 6))
       expect(await wom.balanceOf(users[6].address)).to.roughlyNear(parseEther('5326'))
     })
   })
@@ -353,25 +358,25 @@ describe('MasterWombatV3', async function () {
       await voter.setWomPerSec(boostedWomPerSec)
 
       // deploy usdc and the other tokens
-      this.usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
-      await this.usdc.deployed()
+      usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      await usdc.deployed()
 
-      this.usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
-      await this.usdt.deployed()
+      usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      await usdt.deployed()
 
-      this.mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
-      await this.mim.deployed()
+      mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      await mim.deployed()
 
-      this.dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
-      await this.dai.deployed()
+      dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      await dai.deployed()
 
       // credit users with usdc
-      await this.usdc.transfer(users[1].address, parseUnits('60000', 6))
-      await this.usdc.transfer(users[2].address, parseUnits('90000', 6))
-      await this.usdc.transfer(users[3].address, parseUnits('350000', 6))
-      await this.usdc.transfer(users[4].address, parseUnits('1500000', 6))
-      await this.usdc.transfer(users[5].address, parseUnits('18000000', 6))
-      await this.usdc.transfer(users[6].address, parseUnits('30000000', 6))
+      await usdc.transfer(users[1].address, parseUnits('60000', 6))
+      await usdc.transfer(users[2].address, parseUnits('90000', 6))
+      await usdc.transfer(users[3].address, parseUnits('350000', 6))
+      await usdc.transfer(users[4].address, parseUnits('1500000', 6))
+      await usdc.transfer(users[5].address, parseUnits('18000000', 6))
+      await usdc.transfer(users[6].address, parseUnits('30000000', 6))
 
       // credit users with mockveWOM
       await veWom.connect(users[1]).faucet(parseEther('22000'))
@@ -382,27 +387,27 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[6]).faucet(parseEther('16584200'))
 
       // approve spending by pool
-      await this.usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
-      await this.usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
-      await this.usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
-      await this.usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
-      await this.usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
-      await this.usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
+      await usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
+      await usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
+      await usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
+      await usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
+      await usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
+      await usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
 
       // add lp-tokens to the wombat master with correct weighing
-      await mw.add(this.usdt.address, ethers.constants.AddressZero)
-      await mw.add(this.usdc.address, ethers.constants.AddressZero)
-      await mw.add(this.dai.address, ethers.constants.AddressZero)
-      await mw.add(this.mim.address, ethers.constants.AddressZero)
-      await voter.add(mw.address, this.usdt.address, AddressZero)
-      await voter.add(mw.address, this.usdc.address, AddressZero)
-      await voter.add(mw.address, this.dai.address, AddressZero)
-      await voter.add(mw.address, this.mim.address, AddressZero)
+      await mw.add(usdt.address, AddressZero)
+      await mw.add(usdc.address, AddressZero)
+      await mw.add(dai.address, AddressZero)
+      await mw.add(mim.address, AddressZero)
+      await voter.add(mw.address, usdt.address, AddressZero)
+      await voter.add(mw.address, usdc.address, AddressZero)
+      await voter.add(mw.address, dai.address, AddressZero)
+      await voter.add(mw.address, mim.address, AddressZero)
 
       await voter
         .connect(users[0])
         .vote(
-          [this.usdt.address, this.usdc.address, this.dai.address, this.mim.address],
+          [usdt.address, usdc.address, dai.address, mim.address],
           [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
         )
 
@@ -424,32 +429,32 @@ describe('MasterWombatV3', async function () {
 
       // withdraw usdc users[1]
       await mw.connect(users[1]).withdraw(1, parseUnits('60000', 6))
-      expect(await this.usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('60000', 6))
+      expect(await usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('60000', 6))
       expect(await wom.balanceOf(users[1].address)).to.be.roughlyNear(parseEther('17'))
 
       // withdraw usdc user[2] forgot to stake his wom so no boosted for him!
       await mw.connect(users[2]).withdraw(1, parseUnits('90000', 6))
-      expect(await this.usdc.balanceOf(users[2].address)).to.be.equal(parseUnits('90000', 6))
+      expect(await usdc.balanceOf(users[2].address)).to.be.equal(parseUnits('90000', 6))
       expect(await wom.balanceOf(users[2].address)).to.equal(parseEther('0'))
 
       // withdraw usdc users[3]
       await mw.connect(users[3]).withdraw(1, parseUnits('350000', 6))
-      expect(await this.usdc.balanceOf(users[3].address)).to.be.equal(parseUnits('350000', 6))
+      expect(await usdc.balanceOf(users[3].address)).to.be.equal(parseUnits('350000', 6))
       expect(await wom.balanceOf(users[3].address)).to.roughlyNear(parseEther('14.9'))
 
       // withdraw usdc users[4]
       await mw.connect(users[4]).withdraw(1, parseUnits('1500000', 6))
-      expect(await this.usdc.balanceOf(users[4].address)).to.be.equal(parseUnits('1500000', 6))
+      expect(await usdc.balanceOf(users[4].address)).to.be.equal(parseUnits('1500000', 6))
       expect(await wom.balanceOf(users[4].address)).to.roughlyNear(parseEther('199'))
 
       // withdraw usdc users[5]
       await mw.connect(users[5]).withdraw(1, parseUnits('18000000', 6))
-      expect(await this.usdc.balanceOf(users[5].address)).to.be.equal(parseUnits('18000000', 6))
+      expect(await usdc.balanceOf(users[5].address)).to.be.equal(parseUnits('18000000', 6))
       expect(await wom.balanceOf(users[5].address)).to.roughlyNear(parseEther('4384'))
 
       // withdraw usdc users[6]
       await mw.connect(users[6]).withdraw(1, parseUnits('30000000', 6))
-      expect(await this.usdc.balanceOf(users[6].address)).to.be.equal(parseUnits('30000000', 6))
+      expect(await usdc.balanceOf(users[6].address)).to.be.equal(parseUnits('30000000', 6))
       expect(await wom.balanceOf(users[6].address)).to.roughlyNear(parseEther('10178'))
 
       // Withdraw using emergency withdraw from owner
@@ -471,52 +476,52 @@ describe('MasterWombatV3', async function () {
       const baseWomPerSec = parseEther('0.3424657534')
       await voter.setWomPerSec(baseWomPerSec)
 
-      this.usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
-      await this.usdt.deployed()
-      await this.usdt.transfer(users[1].address, parseUnits('50000000', 6))
-      await this.usdt.transfer(users[2].address, parseUnits('50000000', 6))
+      usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      await usdt.deployed()
+      await usdt.transfer(users[1].address, parseUnits('50000000', 6))
+      await usdt.transfer(users[2].address, parseUnits('50000000', 6))
 
-      await this.usdt.connect(users[1]).approve(mw.address, parseUnits('50000000', 6))
-      await this.usdt.connect(users[2]).approve(mw.address, parseUnits('50000000', 6))
+      await usdt.connect(users[1]).approve(mw.address, parseUnits('50000000', 6))
+      await usdt.connect(users[2]).approve(mw.address, parseUnits('50000000', 6))
 
-      this.usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
-      await this.usdc.deployed()
-      await this.usdc.transfer(users[1].address, parseUnits('50000000', 6))
-      await this.usdc.transfer(users[2].address, parseUnits('50000000', 6))
+      usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      await usdc.deployed()
+      await usdc.transfer(users[1].address, parseUnits('50000000', 6))
+      await usdc.transfer(users[2].address, parseUnits('50000000', 6))
 
-      await this.usdc.connect(users[1]).approve(mw.address, parseUnits('50000000', 6))
-      await this.usdc.connect(users[2]).approve(mw.address, parseUnits('50000000', 6))
+      await usdc.connect(users[1]).approve(mw.address, parseUnits('50000000', 6))
+      await usdc.connect(users[2]).approve(mw.address, parseUnits('50000000', 6))
 
-      this.dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
-      await this.dai.deployed()
-      await this.dai.transfer(users[1].address, parseEther('40000000'))
-      await this.dai.transfer(users[2].address, parseEther('40000000'))
+      dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      await dai.deployed()
+      await dai.transfer(users[1].address, parseEther('40000000'))
+      await dai.transfer(users[2].address, parseEther('40000000'))
 
-      await this.dai.connect(users[1]).approve(mw.address, parseUnits('40000000', 18))
-      await this.dai.connect(users[2]).approve(mw.address, parseUnits('40000000', 18))
+      await dai.connect(users[1]).approve(mw.address, parseUnits('40000000', 18))
+      await dai.connect(users[2]).approve(mw.address, parseUnits('40000000', 18))
 
-      this.mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
-      await this.mim.deployed()
-      await this.mim.transfer(users[1].address, parseEther('20000000'))
-      await this.mim.transfer(users[2].address, parseEther('20000000'))
+      mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      await mim.deployed()
+      await mim.transfer(users[1].address, parseEther('20000000'))
+      await mim.transfer(users[2].address, parseEther('20000000'))
 
-      await this.mim.connect(users[1]).approve(mw.address, parseUnits('20000000', 18))
-      await this.mim.connect(users[2]).approve(mw.address, parseUnits('20000000', 18))
+      await mim.connect(users[1]).approve(mw.address, parseUnits('20000000', 18))
+      await mim.connect(users[2]).approve(mw.address, parseUnits('20000000', 18))
 
       // add lp-tokens to the wombat master
-      await mw.add(this.usdt.address, ethers.constants.AddressZero)
-      await mw.add(this.usdc.address, ethers.constants.AddressZero)
-      await mw.add(this.dai.address, ethers.constants.AddressZero)
-      await mw.add(this.mim.address, ethers.constants.AddressZero)
-      await voter.add(mw.address, this.usdt.address, AddressZero)
-      await voter.add(mw.address, this.usdc.address, AddressZero)
-      await voter.add(mw.address, this.dai.address, AddressZero)
-      await voter.add(mw.address, this.mim.address, AddressZero)
+      await mw.add(usdt.address, AddressZero)
+      await mw.add(usdc.address, AddressZero)
+      await mw.add(dai.address, AddressZero)
+      await mw.add(mim.address, AddressZero)
+      await voter.add(mw.address, usdt.address, AddressZero)
+      await voter.add(mw.address, usdc.address, AddressZero)
+      await voter.add(mw.address, dai.address, AddressZero)
+      await voter.add(mw.address, mim.address, AddressZero)
 
       await voter
         .connect(users[0])
         .vote(
-          [this.usdt.address, this.usdc.address, this.dai.address, this.mim.address],
+          [usdt.address, usdc.address, dai.address, mim.address],
           [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
         )
 
@@ -542,7 +547,7 @@ describe('MasterWombatV3', async function () {
 
       // withdraw usdt
       await mw.connect(users[1]).withdraw(0, parseUnits('50000000', 6))
-      expect(await this.usdt.balanceOf(users[1].address)).to.be.equal(parseUnits('50000000', 6))
+      expect(await usdt.balanceOf(users[1].address)).to.be.equal(parseUnits('50000000', 6))
       let womBalance = await wom.balanceOf(users[1].address)
       expect(womBalance).to.near(parseEther('3239997.02031466542000000'))
       await wom.connect(users[1]).transfer(randomAddress, womBalance) // burn the wom
@@ -551,7 +556,7 @@ describe('MasterWombatV3', async function () {
 
       // withdraw usdc
       await mw.connect(users[1]).withdraw(1, parseUnits('50000000', 6))
-      expect(await this.usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('50000000', 6))
+      expect(await usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('50000000', 6))
       womBalance = await wom.balanceOf(users[1].address)
       expect(await wom.balanceOf(users[1].address)).to.near(parseEther('3239997.225794117460000000'))
       await wom.connect(users[1]).transfer(randomAddress, womBalance) // burn the wom
@@ -560,7 +565,7 @@ describe('MasterWombatV3', async function () {
 
       // withdraw dai
       await mw.connect(users[1]).withdraw(2, parseEther('40000000'))
-      expect(await this.dai.balanceOf(users[1].address)).to.be.equal(parseUnits('40000000', 18))
+      expect(await dai.balanceOf(users[1].address)).to.be.equal(parseUnits('40000000', 18))
       womBalance = await wom.balanceOf(users[1].address)
       expect(await wom.balanceOf(users[1].address)).to.near(parseEther('2699997.859360000000000000'))
       await wom.connect(users[1]).transfer(randomAddress, womBalance) // burn the wom
@@ -570,7 +575,7 @@ describe('MasterWombatV3', async function () {
       // withdraw mim
       await mw.connect(users[1]).withdraw(3, parseEther('20000000'))
       womBalance = await wom.balanceOf(users[1].address)
-      expect(await this.mim.balanceOf(users[1].address)).to.be.equal(parseUnits('20000000', 18))
+      expect(await mim.balanceOf(users[1].address)).to.be.equal(parseUnits('20000000', 18))
       expect(await wom.balanceOf(users[1].address)).to.near(parseEther('1619998.818360000000000000'))
       await wom.connect(users[1]).transfer(randomAddress, womBalance) // burn the wom
       expect(await wom.balanceOf(users[1].address)).to.be.equal(0)
@@ -698,25 +703,25 @@ describe('MasterWombatV3', async function () {
       await voter.setWomPerSec(emissionsPerSec)
 
       // deploy usdc and the other tokens
-      this.usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
-      await this.usdc.deployed()
+      usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      await usdc.deployed()
 
-      this.usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
-      await this.usdt.deployed()
+      usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      await usdt.deployed()
 
-      this.mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
-      await this.mim.deployed()
+      mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      await mim.deployed()
 
-      this.dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
-      await this.dai.deployed()
+      dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      await dai.deployed()
 
       // credit users with usdc
-      await this.usdc.transfer(users[1].address, parseUnits('60000', 6))
-      await this.usdc.transfer(users[2].address, parseUnits('90000', 6))
-      await this.usdc.transfer(users[3].address, parseUnits('350000', 6))
-      await this.usdc.transfer(users[4].address, parseUnits('1500000', 6))
-      await this.usdc.transfer(users[5].address, parseUnits('18000000', 6))
-      await this.usdc.transfer(users[6].address, parseUnits('30000000', 6))
+      await usdc.transfer(users[1].address, parseUnits('60000', 6))
+      await usdc.transfer(users[2].address, parseUnits('90000', 6))
+      await usdc.transfer(users[3].address, parseUnits('350000', 6))
+      await usdc.transfer(users[4].address, parseUnits('1500000', 6))
+      await usdc.transfer(users[5].address, parseUnits('18000000', 6))
+      await usdc.transfer(users[6].address, parseUnits('30000000', 6))
 
       // credit users with mockveWOM
       await veWom.connect(users[1]).faucet(parseEther('22000'))
@@ -727,37 +732,37 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[6]).faucet(parseEther('16584200'))
 
       // approve spending by pool
-      await this.usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
-      await this.usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
-      await this.usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
-      await this.usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
-      await this.usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
-      await this.usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
+      await usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
+      await usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
+      await usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
+      await usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
+      await usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
+      await usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
 
       /// other tokens
-      await this.usdt.transfer(users[7].address, parseUnits('50000000', 6))
-      await this.usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
+      await usdt.transfer(users[7].address, parseUnits('50000000', 6))
+      await usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
 
-      await this.dai.transfer(users[8].address, parseEther('40000000'))
-      await this.dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
+      await dai.transfer(users[8].address, parseEther('40000000'))
+      await dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
 
-      await this.mim.transfer(users[9].address, parseEther('20000000'))
-      await this.mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
+      await mim.transfer(users[9].address, parseEther('20000000'))
+      await mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
 
       // add lp-tokens to the wombat master with correct weighing
-      await mw.add(this.usdt.address, ethers.constants.AddressZero)
-      await mw.add(this.usdc.address, ethers.constants.AddressZero)
-      await mw.add(this.dai.address, ethers.constants.AddressZero)
-      await mw.add(this.mim.address, ethers.constants.AddressZero)
-      await voter.add(mw.address, this.usdt.address, AddressZero)
-      await voter.add(mw.address, this.usdc.address, AddressZero)
-      await voter.add(mw.address, this.dai.address, AddressZero)
-      await voter.add(mw.address, this.mim.address, AddressZero)
+      await mw.add(usdt.address, AddressZero)
+      await mw.add(usdc.address, AddressZero)
+      await mw.add(dai.address, AddressZero)
+      await mw.add(mim.address, AddressZero)
+      await voter.add(mw.address, usdt.address, AddressZero)
+      await voter.add(mw.address, usdc.address, AddressZero)
+      await voter.add(mw.address, dai.address, AddressZero)
+      await voter.add(mw.address, mim.address, AddressZero)
 
       await voter
         .connect(users[0])
         .vote(
-          [this.usdt.address, this.usdc.address, this.dai.address, this.mim.address],
+          [usdt.address, usdc.address, dai.address, mim.address],
           [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
         )
 
@@ -786,42 +791,42 @@ describe('MasterWombatV3', async function () {
       // withdraw usdc users[1]
       let [pendingTokens] = await mw.connect(users[1]).pendingTokens(1, users[1].address)
       await mw.connect(users[1]).withdraw(1, parseUnits('60000', 6))
-      expect(await this.usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('60000', 6))
+      expect(await usdc.balanceOf(users[1].address)).to.be.equal(parseUnits('60000', 6))
       expect(await wom.balanceOf(users[1].address)).to.roughlyNear(parseEther('27.2'))
       expect(await wom.balanceOf(users[1].address)).to.near(pendingTokens)
 
       // withdraw usdc user[2] forgot to stake his wom
       ;[pendingTokens] = await mw.connect(users[2]).pendingTokens(1, users[2].address)
       await mw.connect(users[2]).withdraw(1, parseUnits('90000', 6))
-      expect(await this.usdc.balanceOf(users[2].address)).to.be.equal(parseUnits('90000', 6))
+      expect(await usdc.balanceOf(users[2].address)).to.be.equal(parseUnits('90000', 6))
       expect(await wom.balanceOf(users[2].address)).to.roughlyNear(parseEther('15.97'))
       expect(await wom.balanceOf(users[2].address)).to.near(pendingTokens)
 
       // withdraw usdc users[3]
       ;[pendingTokens] = await mw.connect(users[3]).pendingTokens(1, users[3].address)
       await mw.connect(users[3]).withdraw(1, parseUnits('350000', 6))
-      expect(await this.usdc.balanceOf(users[3].address)).to.be.equal(parseUnits('350000', 6))
+      expect(await usdc.balanceOf(users[3].address)).to.be.equal(parseUnits('350000', 6))
       expect(await wom.balanceOf(users[3].address)).to.roughlyNear(parseEther('76.9'))
       expect(await wom.balanceOf(users[3].address)).to.near(pendingTokens)
 
       // withdraw usdc users[4]
       ;[pendingTokens] = await mw.connect(users[4]).pendingTokens(1, users[4].address)
       await mw.connect(users[4]).withdraw(1, parseUnits('1500000', 6))
-      expect(await this.usdc.balanceOf(users[4].address)).to.be.equal(parseUnits('1500000', 6))
+      expect(await usdc.balanceOf(users[4].address)).to.be.equal(parseUnits('1500000', 6))
       expect(await wom.balanceOf(users[4].address)).to.roughlyNear(parseEther('466'))
       expect(await wom.balanceOf(users[4].address)).to.near(pendingTokens)
 
       // withdraw usdc users[5]
       ;[pendingTokens] = await mw.connect(users[5]).pendingTokens(1, users[5].address)
       await mw.connect(users[5]).withdraw(1, parseUnits('18000000', 6))
-      expect(await this.usdc.balanceOf(users[5].address)).to.be.equal(parseUnits('18000000', 6))
+      expect(await usdc.balanceOf(users[5].address)).to.be.equal(parseUnits('18000000', 6))
       expect(await wom.balanceOf(users[5].address)).to.roughlyNear(parseEther('7580'))
       expect(await wom.balanceOf(users[5].address)).to.near(pendingTokens)
 
       // withdraw usdc users[6]
       ;[pendingTokens] = await mw.connect(users[6]).pendingTokens(1, users[6].address)
       await mw.connect(users[6]).withdraw(1, parseUnits('30000000', 6))
-      expect(await this.usdc.balanceOf(users[6].address)).to.be.equal(parseUnits('30000000', 6))
+      expect(await usdc.balanceOf(users[6].address)).to.be.equal(parseUnits('30000000', 6))
       expect(await wom.balanceOf(users[6].address)).to.roughlyNear(parseEther('15504'))
       expect(await wom.balanceOf(users[6].address)).to.near(pendingTokens)
 
@@ -830,7 +835,7 @@ describe('MasterWombatV3', async function () {
       // withdraw usdt
       ;[pendingTokens] = await mw.connect(users[7]).pendingTokens(0, users[7].address)
       await mw.connect(users[7]).withdraw(0, parseUnits('50000000', 6))
-      expect(await this.usdt.balanceOf(users[7].address)).to.be.equal(parseUnits('50000000', 6))
+      expect(await usdt.balanceOf(users[7].address)).to.be.equal(parseUnits('50000000', 6))
       let womBalance = await wom.balanceOf(users[7].address)
       expect(womBalance).to.be.roughlyNear(parseEther('8876.075342465429424750'))
       expect(await wom.balanceOf(users[7].address)).to.near(pendingTokens)
@@ -840,7 +845,7 @@ describe('MasterWombatV3', async function () {
       // withdraw dai
       ;[pendingTokens] = await mw.connect(users[8]).pendingTokens(2, users[8].address)
       await mw.connect(users[8]).withdraw(2, parseEther('40000000'))
-      expect(await this.dai.balanceOf(users[8].address)).to.be.equal(parseUnits('40000000', 18))
+      expect(await dai.balanceOf(users[8].address)).to.be.equal(parseUnits('40000000', 18))
       womBalance = await wom.balanceOf(users[8].address)
       expect(womBalance).to.be.roughlyNear(parseEther('7397'))
       expect(await wom.balanceOf(users[8].address)).to.near(pendingTokens)
@@ -851,7 +856,7 @@ describe('MasterWombatV3', async function () {
       ;[pendingTokens] = await mw.connect(users[9]).pendingTokens(3, users[9].address)
       await mw.connect(users[9]).withdraw(3, parseEther('20000000'))
       womBalance = await wom.balanceOf(users[9].address)
-      expect(await this.mim.balanceOf(users[9].address)).to.be.equal(parseUnits('20000000', 18))
+      expect(await mim.balanceOf(users[9].address)).to.be.equal(parseUnits('20000000', 18))
       expect(womBalance).to.be.roughlyNear(parseEther('4438'))
       expect(await wom.balanceOf(users[9].address)).to.near(pendingTokens)
       await wom.connect(users[9]).transfer(randomAddress, womBalance) // burn the wom
@@ -918,25 +923,25 @@ describe('MasterWombatV3', async function () {
       await voter.setWomPerSec(emissionsPerSec)
 
       // deploy usdc and the other tokens
-      this.usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
-      await this.usdc.deployed()
+      usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      await usdc.deployed()
 
-      this.usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
-      await this.usdt.deployed()
+      usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      await usdt.deployed()
 
-      this.mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
-      await this.mim.deployed()
+      mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      await mim.deployed()
 
-      this.dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
-      await this.dai.deployed()
+      dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      await dai.deployed()
 
       // credit users with usdc
-      await this.usdc.transfer(users[1].address, parseUnits('60000', 6))
-      await this.usdc.transfer(users[2].address, parseUnits('90000', 6))
-      await this.usdc.transfer(users[3].address, parseUnits('350000', 6))
-      await this.usdc.transfer(users[4].address, parseUnits('1500000', 6))
-      await this.usdc.transfer(users[5].address, parseUnits('18000000', 6))
-      await this.usdc.transfer(users[6].address, parseUnits('30000000', 6))
+      await usdc.transfer(users[1].address, parseUnits('60000', 6))
+      await usdc.transfer(users[2].address, parseUnits('90000', 6))
+      await usdc.transfer(users[3].address, parseUnits('350000', 6))
+      await usdc.transfer(users[4].address, parseUnits('1500000', 6))
+      await usdc.transfer(users[5].address, parseUnits('18000000', 6))
+      await usdc.transfer(users[6].address, parseUnits('30000000', 6))
 
       // credit users with mockveWOM
       await veWom.connect(users[1]).faucet(parseEther('22000'))
@@ -947,37 +952,37 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[6]).faucet(parseEther('16584200'))
 
       // approve spending by pool
-      await this.usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
-      await this.usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
-      await this.usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
-      await this.usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
-      await this.usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
-      await this.usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
+      await usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
+      await usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
+      await usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
+      await usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
+      await usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
+      await usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
 
       /// other tokens
-      await this.usdt.transfer(users[7].address, parseUnits('50000000', 6))
-      await this.usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
+      await usdt.transfer(users[7].address, parseUnits('50000000', 6))
+      await usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
 
-      await this.dai.transfer(users[8].address, parseEther('40000000'))
-      await this.dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
+      await dai.transfer(users[8].address, parseEther('40000000'))
+      await dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
 
-      await this.mim.transfer(users[9].address, parseEther('20000000'))
-      await this.mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
+      await mim.transfer(users[9].address, parseEther('20000000'))
+      await mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
 
       // add lp-tokens to the wombat master with correct weighing
-      await mw.add(this.usdt.address, ethers.constants.AddressZero)
-      await mw.add(this.usdc.address, ethers.constants.AddressZero)
-      await mw.add(this.dai.address, ethers.constants.AddressZero)
-      await mw.add(this.mim.address, ethers.constants.AddressZero)
-      await voter.add(mw.address, this.usdt.address, AddressZero)
-      await voter.add(mw.address, this.usdc.address, AddressZero)
-      await voter.add(mw.address, this.dai.address, AddressZero)
-      await voter.add(mw.address, this.mim.address, AddressZero)
+      await mw.add(usdt.address, AddressZero)
+      await mw.add(usdc.address, AddressZero)
+      await mw.add(dai.address, AddressZero)
+      await mw.add(mim.address, AddressZero)
+      await voter.add(mw.address, usdt.address, AddressZero)
+      await voter.add(mw.address, usdc.address, AddressZero)
+      await voter.add(mw.address, dai.address, AddressZero)
+      await voter.add(mw.address, mim.address, AddressZero)
 
       await voter
         .connect(users[0])
         .vote(
-          [this.usdt.address, this.usdc.address, this.dai.address, this.mim.address],
+          [usdt.address, usdc.address, dai.address, mim.address],
           [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
         )
 
@@ -988,15 +993,15 @@ describe('MasterWombatV3', async function () {
       // NEW USER with 10k veWOM and 10k everything
       await veWom.connect(users[10]).faucet(parseEther('10000'))
 
-      await this.usdt.transfer(users[10].address, parseUnits('10000', 6))
-      await this.usdc.transfer(users[10].address, parseUnits('10000', 6))
-      await this.dai.transfer(users[10].address, parseUnits('10000', 18))
-      await this.mim.transfer(users[10].address, parseUnits('10000', 18))
+      await usdt.transfer(users[10].address, parseUnits('10000', 6))
+      await usdc.transfer(users[10].address, parseUnits('10000', 6))
+      await dai.transfer(users[10].address, parseUnits('10000', 18))
+      await mim.transfer(users[10].address, parseUnits('10000', 18))
 
-      await this.usdt.connect(users[10]).approve(mw.address, parseUnits('10000', 6))
-      await this.usdc.connect(users[10]).approve(mw.address, parseUnits('10000', 6))
-      await this.dai.connect(users[10]).approve(mw.address, parseUnits('10000', 18))
-      await this.mim.connect(users[10]).approve(mw.address, parseUnits('10000', 18))
+      await usdt.connect(users[10]).approve(mw.address, parseUnits('10000', 6))
+      await usdc.connect(users[10]).approve(mw.address, parseUnits('10000', 6))
+      await dai.connect(users[10]).approve(mw.address, parseUnits('10000', 18))
+      await mim.connect(users[10]).approve(mw.address, parseUnits('10000', 18))
 
       /// deposits
       // deposit full balance of each user into usdc pool
@@ -1190,25 +1195,25 @@ describe('MasterWombatV3', async function () {
       await voter.setWomPerSec(emissionsPerSec)
 
       // deploy usdc and the other tokens
-      this.usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
-      await this.usdc.deployed()
+      usdc = await deployAsset('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      await usdc.deployed()
 
-      this.usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
-      await this.usdt.deployed()
+      usdt = await deployAsset('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      await usdt.deployed()
 
-      this.mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
-      await this.mim.deployed()
+      mim = await deployAsset('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      await mim.deployed()
 
-      this.dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
-      await this.dai.deployed()
+      dai = await deployAsset('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      await dai.deployed()
 
       // credit users with usdc
-      await this.usdc.transfer(users[1].address, parseUnits('60000', 6))
-      await this.usdc.transfer(users[2].address, parseUnits('90000', 6))
-      await this.usdc.transfer(users[3].address, parseUnits('350000', 6))
-      await this.usdc.transfer(users[4].address, parseUnits('1500000', 6))
-      await this.usdc.transfer(users[5].address, parseUnits('18000000', 6))
-      await this.usdc.transfer(users[6].address, parseUnits('30000000', 6))
+      await usdc.transfer(users[1].address, parseUnits('60000', 6))
+      await usdc.transfer(users[2].address, parseUnits('90000', 6))
+      await usdc.transfer(users[3].address, parseUnits('350000', 6))
+      await usdc.transfer(users[4].address, parseUnits('1500000', 6))
+      await usdc.transfer(users[5].address, parseUnits('18000000', 6))
+      await usdc.transfer(users[6].address, parseUnits('30000000', 6))
 
       // credit users with mockveWOM
       await veWom.connect(users[1]).faucet(parseEther('22000'))
@@ -1219,37 +1224,37 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[6]).faucet(parseEther('16584200'))
 
       // approve spending by pool
-      await this.usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
-      await this.usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
-      await this.usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
-      await this.usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
-      await this.usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
-      await this.usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
+      await usdc.connect(users[1]).approve(mw.address, parseUnits('60000', 6))
+      await usdc.connect(users[2]).approve(mw.address, parseUnits('90000', 6))
+      await usdc.connect(users[3]).approve(mw.address, parseUnits('350000', 6))
+      await usdc.connect(users[4]).approve(mw.address, parseUnits('1500000', 6))
+      await usdc.connect(users[5]).approve(mw.address, parseUnits('18000000', 6))
+      await usdc.connect(users[6]).approve(mw.address, parseUnits('30000000', 6))
 
       /// other tokens
-      await this.usdt.transfer(users[7].address, parseUnits('50000000', 6))
-      await this.usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
+      await usdt.transfer(users[7].address, parseUnits('50000000', 6))
+      await usdt.connect(users[7]).approve(mw.address, parseUnits('50000000', 6))
 
-      await this.dai.transfer(users[8].address, parseEther('40000000'))
-      await this.dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
+      await dai.transfer(users[8].address, parseEther('40000000'))
+      await dai.connect(users[8]).approve(mw.address, parseUnits('40000000', 18))
 
-      await this.mim.transfer(users[9].address, parseEther('20000000'))
-      await this.mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
+      await mim.transfer(users[9].address, parseEther('20000000'))
+      await mim.connect(users[9]).approve(mw.address, parseUnits('20000000', 18))
 
       // add lp-tokens to the wombat master with correct weighing
-      await mw.add(this.usdt.address, ethers.constants.AddressZero)
-      await mw.add(this.usdc.address, ethers.constants.AddressZero)
-      await mw.add(this.dai.address, ethers.constants.AddressZero)
-      await mw.add(this.mim.address, ethers.constants.AddressZero)
-      await voter.add(mw.address, this.usdt.address, AddressZero)
-      await voter.add(mw.address, this.usdc.address, AddressZero)
-      await voter.add(mw.address, this.dai.address, AddressZero)
-      await voter.add(mw.address, this.mim.address, AddressZero)
+      await mw.add(usdt.address, AddressZero)
+      await mw.add(usdc.address, AddressZero)
+      await mw.add(dai.address, AddressZero)
+      await mw.add(mim.address, AddressZero)
+      await voter.add(mw.address, usdt.address, AddressZero)
+      await voter.add(mw.address, usdc.address, AddressZero)
+      await voter.add(mw.address, dai.address, AddressZero)
+      await voter.add(mw.address, mim.address, AddressZero)
 
       await voter
         .connect(users[0])
         .vote(
-          [this.usdt.address, this.usdc.address, this.dai.address, this.mim.address],
+          [usdt.address, usdc.address, dai.address, mim.address],
           [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
         )
 
@@ -1276,6 +1281,19 @@ describe('MasterWombatV3', async function () {
       await expect(mw.connect(users[1]).migrate([1, 0])).to.be.revertedWith('to where?')
     })
 
+    async function setUpNewMasterWombat(oldMW: Contract, newMW: Contract, voter: Contract) {
+      await newMW.add(usdt.address, AddressZero)
+      await newMW.add(usdc.address, AddressZero)
+      await newMW.add(dai.address, AddressZero)
+      await newMW.add(mim.address, AddressZero)
+      await voter.setGauge(usdt.address, newMW.address)
+      await voter.setGauge(usdc.address, newMW.address)
+      await voter.setGauge(dai.address, newMW.address)
+      await voter.setGauge(mim.address, newMW.address)
+      await oldMW.setVoter(AddressZero)
+      await oldMW.setNewMasterWombat(newMW.address)
+    }
+
     it('user should be able to migrate once only ', async function () {
       await advanceTimeAndBlock(60 * 60 * 24) // advance one day
       const newMW = await MasterWombat.deploy()
@@ -1287,16 +1305,10 @@ describe('MasterWombatV3', async function () {
         voter.address,
         500 // 50% base => corresponds to 40% / 40%
       )
+      await setUpNewMasterWombat(mw, newMW, voter)
 
       const emissionsPerSec = parseEther('0.3424657534')
       voter.setWomPerSec(emissionsPerSec)
-
-      await newMW.add(this.usdt.address, ethers.constants.AddressZero)
-      await newMW.add(this.usdc.address, ethers.constants.AddressZero)
-      await newMW.add(this.dai.address, ethers.constants.AddressZero)
-      await newMW.add(this.mim.address, ethers.constants.AddressZero)
-
-      mw.setNewMasterWombat(newMW.address)
 
       // migrate usdc users[1]
       const [pendingTokens] = await mw.connect(users[1]).pendingTokens(1, users[1].address)
@@ -1314,11 +1326,6 @@ describe('MasterWombatV3', async function () {
       expect(await wom.balanceOf(users[1].address)).to.near(pendingTokens)
       expect((await newMW.userInfo(1, users[1].address)).amount).to.equal(amountPool1)
       expect((await newMW.userInfo(0, users[1].address)).amount).to.equal(amountPool0)
-
-      await voter.setGauge(this.usdt.address, newMW.address)
-      await voter.setGauge(this.usdc.address, newMW.address)
-      await voter.setGauge(this.dai.address, newMW.address)
-      await voter.setGauge(this.mim.address, newMW.address)
     })
 
     it('should claim WOM before migrate()', async function () {
@@ -1333,16 +1340,10 @@ describe('MasterWombatV3', async function () {
         voter.address,
         500 // 50% base => corresponds to 40% / 40%
       )
+      await setUpNewMasterWombat(mw, newMW, voter)
 
       const emissionsPerSec = parseEther('0.3424657534')
       voter.setWomPerSec(emissionsPerSec)
-
-      await newMW.add(this.usdt.address, ethers.constants.AddressZero)
-      await newMW.add(this.usdc.address, ethers.constants.AddressZero)
-      await newMW.add(this.dai.address, ethers.constants.AddressZero)
-      await newMW.add(this.mim.address, ethers.constants.AddressZero)
-
-      mw.setNewMasterWombat(newMW.address)
 
       // migrate usdc users[1]
       let [pendingTokens] = await mw.connect(users[1]).pendingTokens(1, users[1].address)
@@ -1363,11 +1364,6 @@ describe('MasterWombatV3', async function () {
       expect(await wom.balanceOf(users[2].address)).to.near(pendingTokens)
       expect((await newMW.userInfo(1, users[2].address)).amount).to.equal(amountPool1)
       expect((await newMW.userInfo(0, users[2].address)).amount).to.equal(amountPool0)
-
-      await voter.setGauge(this.usdt.address, newMW.address)
-      await voter.setGauge(this.usdc.address, newMW.address)
-      await voter.setGauge(this.dai.address, newMW.address)
-      await voter.setGauge(this.mim.address, newMW.address)
     })
 
     it('should claim WOM in new MasterWombat pool during migration', async function () {
@@ -1383,33 +1379,24 @@ describe('MasterWombatV3', async function () {
         500 // 50% base => corresponds to 40% / 40%
       )
 
+      await setUpNewMasterWombat(mw, newMW, voter)
+
       const emissionsPerSec = parseEther('0.3424657534')
       voter.setWomPerSec(emissionsPerSec)
-
-      await newMW.add(this.usdt.address, ethers.constants.AddressZero)
-      await newMW.add(this.usdc.address, ethers.constants.AddressZero)
-      await newMW.add(this.dai.address, ethers.constants.AddressZero)
-      await newMW.add(this.mim.address, ethers.constants.AddressZero)
-
-      mw.setNewMasterWombat(newMW.address)
-
-      await voter.setGauge(this.usdt.address, newMW.address)
-      await voter.setGauge(this.usdc.address, newMW.address)
-      await voter.setGauge(this.dai.address, newMW.address)
-      await voter.setGauge(this.mim.address, newMW.address)
+      await mw.multiClaim([0, 1, 2, 3])
 
       // wait for the next epoch start
       await advanceTimeAndBlock(86400 * 7)
       await mw.connect(users[0]).multiClaim([0, 1, 2, 3])
 
       // deposit into new mw
-      await this.usdc.transfer(users[1].address, parseUnits('60000', 6))
-      await this.usdc.transfer(users[2].address, parseUnits('90000', 6))
-      await this.usdt.transfer(users[7].address, parseUnits('50000000', 6))
+      await usdc.transfer(users[1].address, parseUnits('60000', 6))
+      await usdc.transfer(users[2].address, parseUnits('90000', 6))
+      await usdt.transfer(users[7].address, parseUnits('50000000', 6))
 
-      await this.usdc.connect(users[1]).approve(newMW.address, parseUnits('60000', 6))
-      await this.usdc.connect(users[2]).approve(newMW.address, parseUnits('90000', 6))
-      await this.usdt.connect(users[7]).approve(newMW.address, parseUnits('50000000', 6))
+      await usdc.connect(users[1]).approve(newMW.address, parseUnits('60000', 6))
+      await usdc.connect(users[2]).approve(newMW.address, parseUnits('90000', 6))
+      await usdt.connect(users[7]).approve(newMW.address, parseUnits('50000000', 6))
 
       await newMW.connect(users[1]).deposit(1, parseUnits('60000', 6)) // usdc
       await newMW.connect(users[2]).deposit(1, parseUnits('90000', 6)) // usdc
@@ -1418,14 +1405,15 @@ describe('MasterWombatV3', async function () {
       await advanceTimeAndBlock(60 * 60 * 24) // advance one year
 
       // migrate usdc users[1]
+      expect(await wom.balanceOf(users[1].address)).to.eq(0)
       await mw.connect(users[1]).migrate([1, 0])
-      expect(await wom.balanceOf(users[1].address)).to.roughlyNear(parseEther('8772'))
+      expect(await wom.balanceOf(users[1].address)).to.near(parseEther('8772'))
       expect((await newMW.userInfo(1, users[1].address)).amount).to.equal(parseUnits('120000', 6))
       expect((await newMW.userInfo(0, users[1].address)).amount).to.equal(0)
 
       // migrate usdc users[2]
       await mw.connect(users[2]).migrate([1, 0])
-      expect(await wom.balanceOf(users[2].address)).to.roughlyNear(parseEther('3789'))
+      expect(await wom.balanceOf(users[2].address)).to.near(parseEther('3789'))
       expect((await newMW.userInfo(1, users[2].address)).amount).to.equal(parseUnits('180000', 6))
       expect((await newMW.userInfo(0, users[2].address)).amount).to.equal(0)
     })

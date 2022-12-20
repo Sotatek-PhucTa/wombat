@@ -218,6 +218,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
 
     /// @dev This function looks safe from re-entrancy attack
     function distribute(IERC20 _lpToken) external {
+        require(msg.sender == address(infos[_lpToken].gaugeManager), 'Caller is not gauge manager');
         _checkGaugeExist(_lpToken);
         _distributeWom();
         _updateFor(_lpToken);

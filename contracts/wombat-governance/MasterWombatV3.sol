@@ -229,7 +229,10 @@ contract MasterWombatV3 is
             pool.lastRewardTimestamp = uint40(lastTimeRewardApplicable(pool.periodFinish));
 
             // We can consider to skip this function to minimize gas
-            IVoter(voter).distribute(address(pool.lpToken));
+            // voter address can be zero during a migration. See comment in setVoter.
+            if (voter != address(0)) {
+                IVoter(voter).distribute(address(pool.lpToken));
+            }
         }
     }
 
@@ -512,7 +515,10 @@ contract MasterWombatV3 is
     /// @notice updates voter address
     /// @param _newVoter the new Voter address
     function setVoter(address _newVoter) external onlyOwner {
-        require(address(_newVoter) != address(0));
+        // voter address can be zero during a migration. This is done to avoid
+        // the scenario where both old and new MasterWombat claims in migrate,
+        // which calls voter.distribute. But only one can succeed as voter.distribute
+        // is only callable from gauge manager.
         address oldVoter = voter;
         voter = _newVoter;
         emit UpdateVoter(msg.sender, oldVoter, _newVoter);
