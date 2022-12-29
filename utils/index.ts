@@ -3,6 +3,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { deployments, ethers } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
+import _ from 'lodash'
 
 export async function getDeployedContract(contract: string, contractName = contract): Promise<Contract> {
   const deployment = await deployments.get(contractName)
@@ -35,4 +36,28 @@ export function logVerifyCommand(network: string, deployment: Deployment) {
     const verifyArgs = deployment.args?.map((arg) => (typeof arg == 'string' ? `'${arg}'` : arg)).join(' ')
     console.log(`To verify, run: hh verify --network ${network} ${deployment.address} ${verifyArgs}`)
   }
+}
+
+// Print all assets with some alloc points in MasterWombatV2
+// Typical usage in hardhat console.
+// TODO: create a hardhat task
+export async function printMasterWombatV2AllocPoints() {
+  const masterWombatV2 = await getDeployedContract('MasterWombatV2')
+  const poolLength = await masterWombatV2.poolLength()
+  const poolInfos = await Promise.all(_.range(0, poolLength).map((i) => masterWombatV2.poolInfo(i)))
+  return Promise.all(
+    poolInfos
+      .filter((poolInfo) => !poolInfo.allocPoint.isZero())
+      .map(async (poolInfo) => {
+        const asset = await ethers.getContractAt('Asset', poolInfo.lpToken)
+        const name = await asset.name()
+        const pool = await asset.pool()
+        return {
+          pool,
+          name,
+          lpToken: poolInfo.lpToken,
+          allocPoint: poolInfo.allocPoint.toNumber(),
+        }
+      })
+  )
 }
