@@ -1,8 +1,9 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
-import { deployments, ethers } from 'hardhat'
+import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
+import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
 
 export async function getDeployedContract(contract: string, contractName = contract): Promise<Contract> {
@@ -60,4 +61,16 @@ export async function printMasterWombatV2AllocPoints() {
         }
       })
   )
+}
+
+export async function validateUpgrade(oldContract: string, newContract: string, opts?: ValidationOptions) {
+  const oldFactory = await ethers.getContractFactory(oldContract)
+  const newFactory = await ethers.getContractFactory(newContract)
+  await upgrades.validateUpgrade(oldFactory, newFactory, {
+    // used by OZ dependency below:
+    // @openzeppelin/contracts/utils/Address.sol:185: Use of delegatecall is not allowed
+    unsafeAllow: ['delegatecall'],
+    ...opts,
+  })
+  console.log('validate succeeeds')
 }
