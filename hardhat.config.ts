@@ -39,6 +39,8 @@ const config: HardhatUserConfig = {
     // Your API key for BSCscan
     // Obtain one at https://bscscan.io/
     apiKey: secrets.bscscan_api_key,
+    // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
+    customChains: [],
   },
   gasReporter: {
     enabled: secrets.gas_breakdown_enabled,
