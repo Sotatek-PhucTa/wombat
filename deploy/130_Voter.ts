@@ -3,6 +3,7 @@ import { BigNumber } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { logVerifyCommand } from '../utils'
+import { parseEther } from 'ethers/lib/utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -19,6 +20,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const epochStart = latest.add(300) // T+5min
 
   // Deploy Voter
+  const womPerSec = parseEther('2000000').div(30 * 24 * 3600) // 2M WOM/month
+  const baseAllocation = 750 // 25% left for vote allocation
   const deployResult = await deploy('Voter', {
     from: deployer,
     contract: 'Voter',
@@ -31,7 +34,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, vewom.address, ethers.utils.parseEther('1'), latest, epochStart, 375],
+          args: [wombatToken.address, vewom.address, womPerSec, latest, epochStart, baseAllocation],
         },
       },
     },
