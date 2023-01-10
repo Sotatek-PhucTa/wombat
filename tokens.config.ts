@@ -179,54 +179,38 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
 
 export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
   bsc_mainnet: {
-    WBNB: {
-      lpToken: '0x74f019A5C4eD2C2950Ce16FaD7Af838549092c5b',
-      rewardToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-      tokenPerSec: parseEther('0.000015'), // total 38-40 WBNB from 3 liquid staking providers
-    },
-    PSTAKE: {
-      lpToken: '0xc496f42eA6Fc72aF434F48469b847A469fe0D17f', // stkBNB-LP
-      rewardToken: '0x4C882ec256823eE773B25b414d36F92ef58a7c0C', // PSTAKE
-      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-      tokenPerSec: parseEther('0.031659'),
-    },
-    ANKR: {
-      lpToken: '0x9d2deaD9547EB65Aa78E239647a0c783f296406B', // aBNBc-LP
-      rewardToken: '0xf307910a4c7bbc79691fd374889b36d8531b08e3', // ANKR
-      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-      tokenPerSec: parseEther('0.160218'),
-    },
-    SD: {
-      lpToken: '0x10F7C62f47F19e3cE08fef38f74E3C0bB31FC24f', // BNBx-LP
-      rewardToken: '0x3bc5ac0dfdc871b365d159f728dd1b9a0b5481e8', // SD-Wormhole
-      secondsToStart: 39600, // 11 hours later, i.e. deploy on 9/13/2022 11:00pm HKT
-      tokenPerSec: parseEther('0.014773'),
-    },
+    /*
+    TODO: deploy rewarders for MWv3 for helio
     BUSD: {
       lpToken: '0xA649Be04619a8F3B3475498E1ac15C90C9661C1A', // BUSD-LP (Sidepool)
       rewardToken: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
-      secondsToStart: 20 * 3600, // i.e. 2022/12/19 12PM HKT
-      tokenPerSec: parseEther('0.005708'),
+      >> secondsToStart: 20 * 3600, // i.e. 2022/12/19 12PM HKT
+      >> tokenPerSec: parseEther('0.005708'),
     },
     HAY: {
       lpToken: '0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b', // HAY-LP
       rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
-      secondsToStart: 20 * 3600, // i.e. 2022/12/19 12PM HKT
-      tokenPerSec: parseEther('0.005708'),
+      >> secondsToStart: 20 * 3600, // i.e. 2022/12/19 12PM HKT
+      >> tokenPerSec: parseEther('0.005708'),
     },
-    WMX: {
+    */
+    /*
+    TODO: deploy rewarders for MWv3 for wombex
+    wmxWom: {
       lpToken: '0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688', // wmxWOM-LP
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
-      secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
-      tokenPerSec: parseEther('0.009513'),
+      >> secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
+      >> tokenPerSec: parseEther('0.009513'),
     },
-    WOM: {
+    wmxWOMPool_WOM: {
       lpToken: '0xF9BdC872D75f76B946E0770f96851b1f2F653caC', // WOM-LP
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
-      secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
-      tokenPerSec: parseEther('0.019026'),
+      >> secondsToStart: 37800, // 10.5 hours later, i.e. deploy on 10/25/2022 11:30pm HKT
+      >> tokenPerSec: parseEther('0.019026'),
     },
+    */
+    /*
+    TODO: deploy rewarders for MWv3 for magpie
     mWOM: {
       lpToken: '0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E', // mWOM-LP TBD
       rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
@@ -239,18 +223,22 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 180000, // 50 hours later, i.e. deploy on 11/2/2022 12pm HKT
       tokenPerSec: parseEther('0.075'),
     },
+    */
+    /*
+    TODO: deploy rewarders for MWv3 for quoll
     qWOM: {
       lpToken: '0x87073ba87517E7ca981AaE3636754bCA95C120E4',
       rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
-      secondsToStart: 172800, // 48 hours later, i.e. deploy on 11/16/2022 2pm HKT
-      tokenPerSec: parseUnits('0.09', 18),
+      >> secondsToStart: 172800, // 48 hours later, i.e. deploy on 11/16/2022 2pm HKT
+      >> tokenPerSec: parseUnits('0.09', 18),
     },
     qWOMPool_WOM: {
       lpToken: '0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8',
       rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
-      secondsToStart: 172800, // 48 hours later, i.e. deploy on 11/16/2022 2pm HKT
-      tokenPerSec: parseUnits('0.14', 18),
+      >> secondsToStart: 172800, // 48 hours later, i.e. deploy on 11/16/2022 2pm HKT
+      >> tokenPerSec: parseUnits('0.14', 18),
     },
+    */
   },
   bsc_testnet: {
     BUSD: {
