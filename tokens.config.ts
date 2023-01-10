@@ -88,14 +88,14 @@ export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
 
 export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
   bsc_mainnet: {
-    // wmxWOMPool: {
-    //   WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
-    //   wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
-    // },
-    // mWOMPool: {
-    //   WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
-    //   mWOM: ['mWOM', 'mWOM', '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c', 0],
-    // },
+    wmxWOMPool: {
+      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+      wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
+    },
+    mWOMPool: {
+      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
+      mWOM: ['mWOM', 'mWOM', '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c', 0],
+    },
     qWOMPool: {
       WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
       qWOM: ['Quoll WOM', 'qWOM', '0x0fE34B8aaAf3f522A6088E278936D10F934c0b19', 0],
