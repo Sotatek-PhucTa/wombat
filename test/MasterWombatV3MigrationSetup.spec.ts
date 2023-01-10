@@ -34,6 +34,7 @@ describe('MasterWombatV3Migration', function () {
 
     await wom.transfer(voter.address, await wom.balanceOf(owner.address))
 
+    await voter.setWomPerSec(parseEther('1'))
     await voter.setAllocPoint(busdAsset.address, parseEther('1'))
     expect(await voter.totalAllocPoint()).to.eq(parseEther('1'))
   })
@@ -51,7 +52,7 @@ describe('MasterWombatV3Migration', function () {
 
   describe('Emission', function () {
     const epochInSec = 7 * 24 * 3600
-    const baseWomPerSec = parseEther('0.375')
+    const baseWomPerSec = parseEther('0.75')
     const basePartition = 375
 
     beforeEach(async function () {
@@ -71,7 +72,7 @@ describe('MasterWombatV3Migration', function () {
       const womPerSec = await voter.womPerSec()
       expect(womPerSec).to.eq(parseEther('1'))
       const baseAllocation = await voter.baseAllocation()
-      expect(baseAllocation).to.eq(375) // 37.5%
+      expect(baseAllocation).to.eq(750) // 75%
       expect(baseWomPerSec).to.eq(womPerSec.mul(baseAllocation).div(1000))
     })
 
@@ -88,7 +89,7 @@ describe('MasterWombatV3Migration', function () {
 
       await advanceTimeAndBlock(3600) // T + epoch + 1hour
       await masterWombatV3.multiClaim([0])
-      const reward = parseEther('506.25') // 506.25 = 1 * 3600 * 0.375 * 0.375
+      const reward = parseEther('1012.5') // 506.25 = 1 * 3600 * 0.75 * 0.375
       expect(reward).to.eq(baseWomPerSec.mul(3600).mul(basePartition).div(1000))
       expect(await wom.balanceOf(owner.address)).to.near(reward)
     })
@@ -103,8 +104,8 @@ describe('MasterWombatV3Migration', function () {
       // first claim in three epoch
       await masterWombatV3.multiClaim([0])
 
-      // expected reward for two epochs: 170100 = 2 * (7 * 24 * 3600) * .375 * .375
-      const reward = parseEther('170100')
+      // expected reward for two epochs: 340200 = 2 * (7 * 24 * 3600) * .75 * .375
+      const reward = parseEther('340200')
       expect(reward).to.eq(baseWomPerSec.mul(2).mul(epochInSec).mul(basePartition).div(1000))
       expect(await wom.balanceOf(owner.address)).to.near(reward)
     })
