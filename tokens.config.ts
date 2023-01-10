@@ -117,34 +117,36 @@ export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = 
   },
 }
 
+// TODO: refactor this to handle separate BNB pools
 export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
-  bsc_mainnet: {
-    WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic', 10], // last 3 items are exchange rate oracle, asset type, and pool alloc points
-    STKBNB: [
-      'Staked BNB',
-      'stkBNB',
-      '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
-      '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8', // exchange rate oracle
-      'Stkbnb', // asset type
-      10, // pool alloc point
-    ], // TBC on mainnet
-    BNBX: [
-      'Liquid Staking BNB',
-      'BNBx',
-      '0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275',
-      '0x7276241a669489E4BBB76f63d2A43Bfe63080F2F',
-      'Bnbx',
-      10,
-    ],
-    ABNBC: [
-      'Ankr BNB Reward Bearing Certificate',
-      'aBNBc',
-      '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
-      '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
-      'ABnbc',
-      10,
-    ],
-  },
+  // TODO: re-enable after new BNB pools deploy
+  // bsc_mainnet: {
+  //   WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic', 10], // last 3 items are exchange rate oracle, asset type, and pool alloc points
+  //   STKBNB: [
+  //     'Staked BNB',
+  //     'stkBNB',
+  //     '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
+  //     '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8', // exchange rate oracle
+  //     'Stkbnb', // asset type
+  //     10, // pool alloc point
+  //   ], // TBC on mainnet
+  //   BNBX: [
+  //     'Liquid Staking BNB',
+  //     'BNBx',
+  //     '0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275',
+  //     '0x7276241a669489E4BBB76f63d2A43Bfe63080F2F',
+  //     'Bnbx',
+  //     10,
+  //   ],
+  //   ABNBC: [
+  //     'Ankr BNB Reward Bearing Certificate',
+  //     'aBNBc',
+  //     '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
+  //     '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
+  //     'ABnbc',
+  //     10,
+  //   ],
+  // },
   bsc_testnet: {
     WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic', 10],
     TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic', 10],
