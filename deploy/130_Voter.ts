@@ -17,8 +17,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const block = await ethers.provider.getBlock('latest')
   const latest = BigNumber.from(block.timestamp)
-  // const epochStart = latest.add(300) // T+5min
-  const epochStart = 1673416500 // Wed, 11 Jan 2023 13:55:00 GMT+8
+  const epochStart = latest.add(300) // T+5min
+  // const epochStart = 1673416500 // Wed, 11 Jan 2023 13:55:00 GMT+8
 
   // Deploy Voter
   const womPerSec = parseEther('2000000').div(30 * 24 * 3600) // 2M WOM/month
