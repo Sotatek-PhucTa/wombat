@@ -63,6 +63,22 @@ export async function printMasterWombatV2AllocPoints() {
   )
 }
 
+export async function printMasterWombatV2Rewarders() {
+  const masterWombatV2 = await getDeployedContract('MasterWombatV2')
+  const poolLength = await masterWombatV2.poolLength()
+  const poolInfos = await Promise.all(_.range(0, poolLength).map((i) => masterWombatV2.poolInfo(i)))
+  return Promise.all(
+    poolInfos
+      .filter((poolInfo) => poolInfo.rewarder != ethers.constants.AddressZero)
+      .map(async (poolInfo) => {
+        return {
+          rewarder: poolInfo.rewarder,
+          lpToken: poolInfo.lpToken,
+        }
+      })
+  )
+}
+
 export async function validateUpgrade(oldContract: string, newContract: string, opts?: ValidationOptions) {
   const oldFactory = await ethers.getContractFactory(oldContract)
   const newFactory = await ethers.getContractFactory(newContract)
