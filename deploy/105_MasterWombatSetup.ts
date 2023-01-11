@@ -46,14 +46,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     await addAsset(masterWombat, owner, assetContractAddress)
   }
 
-  console.log('Setting up BNB pool')
-  const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-  for (const index in BNB_DYNAMICPOOL_TOKENS) {
-    const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
-    const assetContractName = `Asset_DP01_${tokenSymbol}`
-    const assetContractAddress = (await deployments.get(assetContractName)).address as string
-    await addAsset(masterWombat, owner, assetContractAddress)
-  }
+  // console.log('Setting up BNB pool')
+  // const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
+  // for (const index in BNB_DYNAMICPOOL_TOKENS) {
+  //   const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
+  //   const assetContractName = `Asset_DP01_${tokenSymbol}`
+  //   const assetContractAddress = (await deployments.get(assetContractName)).address as string
+  //   await addAsset(masterWombat, owner, assetContractAddress)
+  // }
 
   console.log('Setting up wom pool')
   const WOM_DYNAMICPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
