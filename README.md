@@ -65,8 +65,10 @@ To verify proxy contracts:
 
 - Wombat Governance
 
+  - MasterWombatV3 Proxy => `0x489833311676B566f888119c29bd997Dc6C95830`
   - MasterWombatV2 Proxy => `0xE2C07d20AF0Fb50CAE6cDD615CA44AbaAA31F9c8`
   - VeWom Proxy => `0x3DA62816dD31c56D9CdF22C6771ddb892cB5b0Cc`
+  - Voter Proxy => `0x04D4e1C1F3D6539071b6D3849fDaED04d48D563d`
   - Whitelist => `0xD61C53dcd6F3b4258E28c7Eb1C328789fa71B591`
 
 - Wombat Token
