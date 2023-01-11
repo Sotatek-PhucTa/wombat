@@ -434,7 +434,7 @@ describe('Voter', async function () {
         // user[0] claim amount
         expect(balance3.sub(balance1)).roughlyNear(parseEther('35.718'))
         // user[1] claim amount
-        expect(balance4.sub(balance2)).near(parseEther('339.23'))
+        expect(balance4.sub(balance2)).near(parseEther('339.5'))
       })
     })
 

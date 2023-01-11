@@ -25,7 +25,7 @@ describe('DynamicPool', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('MockStakedEth')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('DynamicPool')
+    PoolFactory = await ethers.getContractFactory('DynamicPoolV2')
   })
 
   beforeEach(async function () {

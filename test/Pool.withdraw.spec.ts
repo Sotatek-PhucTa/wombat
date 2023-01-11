@@ -41,7 +41,7 @@ describe('Pool - Withdraw', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('Pool')
+    PoolFactory = await ethers.getContractFactory('PoolV2')
 
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD

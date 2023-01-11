@@ -2,13 +2,21 @@
 pragma solidity ^0.8.5;
 
 import '../libraries/DSMath.sol';
-import './Pool.sol';
+import './PoolV2.sol';
 
-contract HighCovRatioFeePool is Pool {
+/**
+ * @title HighCovRatioFeePoolV2
+ * @dev Pool with high cov ratio fee protection
+ * Change log:
+ * - add `gap` to prevent storage collision for future upgrades
+ */
+contract HighCovRatioFeePoolV2 is PoolV2 {
     using DSMath for uint256;
 
     uint128 public startCovRatio; // 1.5
     uint128 public endCovRatio; // 1.8
+
+    uint256[50] private gap;
 
     error WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
 
@@ -26,7 +34,7 @@ contract HighCovRatioFeePool is Pool {
     }
 
     /**
-     * @notice Calculate the high cov ratio fee of the from-asset in a swap.
+     * @notice Calculate the high cov ratio fee in the to-asset in a swap.
      * @dev When cov ratio is in the range [startCovRatio, endCovRatio], the marginal cov ratio is
      * (r - startCovRatio) / (endCovRatio - startCovRatio). Here we approximate the high cov ratio cut
      * by calculating the "average" fee.
@@ -36,22 +44,25 @@ contract HighCovRatioFeePool is Pool {
         if (finalCovRatio > endCovRatio) {
             // invalid swap
             revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
-        } else if (finalCovRatio <= startCovRatio) {
+        } else if (finalCovRatio <= startCovRatio || finalCovRatio <= initCovRatio) {
             return 0;
         }
 
-        // 1. Calculate the area of fee(r) = (r - startCovRatio) / (endCovRatio - startCovRatio)
-        // when r increase from initCovRatio to finalCovRatio
-        // 2. Then multiply it by (endCovRatio - startCovRatio) / (finalCovRatio - initCovRatio)
-        // to get the average fee over the range
-        uint256 a = initCovRatio <= startCovRatio ? 0 : (initCovRatio - startCovRatio) * (initCovRatio - startCovRatio);
-        uint256 b = (finalCovRatio - startCovRatio) * (finalCovRatio - startCovRatio);
-
-        fee = ((b - a) / (finalCovRatio - initCovRatio) / 2).wdiv(endCovRatio - startCovRatio);
+        unchecked {
+            // 1. Calculate the area of fee(r) = (r - startCovRatio) / (endCovRatio - startCovRatio)
+            // when r increase from initCovRatio to finalCovRatio
+            // 2. Then multiply it by (endCovRatio - startCovRatio) / (finalCovRatio - initCovRatio)
+            // to get the average fee over the range
+            uint256 a = initCovRatio <= startCovRatio
+                ? 0
+                : (initCovRatio - startCovRatio) * (initCovRatio - startCovRatio);
+            uint256 b = (finalCovRatio - startCovRatio) * (finalCovRatio - startCovRatio);
+            fee = ((b - a) / (finalCovRatio - initCovRatio) / 2).wdiv(endCovRatio - startCovRatio);
+        }
     }
 
     /**
-     * @dev Exact output swap should only used as off-chain view function as it is a gas monster
+     * @dev Exact output swap (fromAmount < 0) should be only used by off-chain quoting function as it is a gas monster
      */
     function _quoteFrom(
         IAsset fromAsset,
@@ -74,7 +85,9 @@ contract HighCovRatioFeePool is Pool {
                 ).wmul(actualToAmount);
 
                 actualToAmount -= highCovRatioFee;
-                haircut += highCovRatioFee;
+                unchecked {
+                    haircut += highCovRatioFee;
+                }
             }
         } else {
             // reverse quote
@@ -108,7 +121,7 @@ contract HighCovRatioFeePool is Pool {
         uint8 decimals = fromAsset.underlyingTokenDecimals();
         uint256 toWadFactor = DSMath.toWad(1, decimals);
         // the search value uses the same number of digits as the token
-        uint256 high = ((fromAsset.liability() * uint256(endCovRatio)) / WAD - fromAsset.cash()).fromWad(decimals);
+        uint256 high = (uint256(fromAsset.liability()).wmul(endCovRatio) - fromAsset.cash()).fromWad(decimals);
         uint256 low = 1;
 
         // verify `high` is a valid upper bound
@@ -118,12 +131,14 @@ contract HighCovRatioFeePool is Pool {
 
         // Note: we might limit the maximum number of rounds if the request is always rejected by the RPC server
         while (low < high) {
-            uint256 mid = (low + high) / 2;
-            (quote, ) = _quoteFrom(fromAsset, toAsset, int256(mid * toWadFactor));
-            if (quote >= toAmount) {
-                high = mid;
-            } else {
-                low = mid + 1;
+            unchecked {
+                uint256 mid = (low + high) / 2;
+                (quote, ) = _quoteFrom(fromAsset, toAsset, int256(mid * toWadFactor));
+                if (quote >= toAmount) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
             }
         }
         return high * toWadFactor;

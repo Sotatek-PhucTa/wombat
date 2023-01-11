@@ -27,7 +27,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('HighCovRatioFeePool')
+    PoolFactory = await ethers.getContractFactory('HighCovRatioFeePoolV2')
   })
 
   beforeEach(async function () {
