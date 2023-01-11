@@ -128,6 +128,14 @@ To verify proxy contracts:
 
 - Wombat Rewarders
 
+  - MultiRewarderPerSec_V3_BUSD => `0x1290219e4999575c96e4bd9a491dd5ac95f26abb`
+  - MultiRewarderPerSec_V3_HAY => `0x7903289B0122f3F4E0fF532D1D8A300D19bFd46f`
+  - MultiRewarderPerSec_V3_mWOM => `0x04299f69b567c6C8dC49162138E0ba32cD15ffA4`
+  - MultiRewarderPerSec_V3_mWOMPool_WOM => `0x624BE60CC68Dd7Fc2e3f9f28cC7ef58c5bEB1e26`
+  - MultiRewarderPerSec_V3_qWOM => `0x06228b709Ed3c8344ae61e64b48204174d2e48B5`
+  - MultiRewarderPerSec_V3_qWOMPool_WOM => `0x75Eaa804518a66196946598317Aed57Ef86235Fe`
+  - MultiRewarderPerSec_V3_wmxWom => `0x71E41ca23115545682B12900AfC8c5130e03E623`
+  - MultiRewarderPerSec_V3_wmxWOMPool_WOM => `0xa12BA2d89a16f57C4b714b03C7951c41c7695502`
   - MultiRewarderPerSec_WBNB => `0x414D1a760320f948147FB71113851BB11CB53976`
   - MultiRewarderPerSec_PSTAKE => `0x946207061de96bfc2a5CD544EA4eC2F7fBE84A98`
   - MultiRewarderPerSec_ANKR => `0x2DC5C0A6b83Dc3B7eC92c4A868a87b464Aa27501`
