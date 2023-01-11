@@ -9,7 +9,10 @@ interface IMasterWombat {
 
     function poolLength() external view returns (uint256);
 
-    function pendingTokens(uint256 _pid, address _user)
+    function pendingTokens(
+        uint256 _pid,
+        address _user
+    )
         external
         view
         returns (
@@ -19,10 +22,9 @@ interface IMasterWombat {
             uint256 pendingBonusToken
         );
 
-    function rewarderBonusTokenInfo(uint256 _pid)
-        external
-        view
-        returns (address bonusTokenAddress, string memory bonusTokenSymbol);
+    function rewarderBonusTokenInfo(
+        uint256 _pid
+    ) external view returns (address bonusTokenAddress, string memory bonusTokenSymbol);
 
     function massUpdatePools() external;
 
@@ -30,13 +32,9 @@ interface IMasterWombat {
 
     function deposit(uint256 _pid, uint256 _amount) external returns (uint256, uint256);
 
-    function multiClaim(uint256[] memory _pids)
-        external
-        returns (
-            uint256 transfered,
-            uint256[] memory rewards,
-            uint256[] memory additionalRewards
-        );
+    function multiClaim(
+        uint256[] memory _pids
+    ) external returns (uint256 transfered, uint256[] memory rewards, uint256[] memory additionalRewards);
 
     function withdraw(uint256 _pid, uint256 _amount) external returns (uint256, uint256);
 
@@ -44,11 +42,7 @@ interface IMasterWombat {
 
     function migrate(uint256[] calldata _pids) external;
 
-    function depositFor(
-        uint256 _pid,
-        uint256 _amount,
-        address _user
-    ) external;
+    function depositFor(uint256 _pid, uint256 _amount, address _user) external;
 
     function updateFactor(address _user, uint256 _newVeWomBalance) external;
 }

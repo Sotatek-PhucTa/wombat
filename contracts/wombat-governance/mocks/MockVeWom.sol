@@ -20,11 +20,7 @@ contract MockVeWom is Initializable, VeWom {
     }
 
     // update is already declared in VeWom.sol
-    function update2(
-        uint256 originalAmount,
-        uint256 amount,
-        uint256 lockDays
-    ) external returns (uint256 veWomAmount) {
+    function update2(uint256 originalAmount, uint256 amount, uint256 lockDays) external returns (uint256 veWomAmount) {
         _mint(msg.sender, amount - originalAmount);
     }
 }

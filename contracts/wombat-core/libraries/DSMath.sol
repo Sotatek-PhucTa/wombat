@@ -18,7 +18,7 @@
 pragma solidity ^0.8.5;
 
 library DSMath {
-    uint256 public constant WAD = 10**18;
+    uint256 public constant WAD = 10 ** 18;
 
     // Babylonian Method
     function sqrt(uint256 y) internal pure returns (uint256 z) {
@@ -46,9 +46,9 @@ library DSMath {
     // Convert x to WAD (18 decimals) from d decimals.
     function toWad(uint256 x, uint8 d) internal pure returns (uint256) {
         if (d < 18) {
-            return x * 10**(18 - d);
+            return x * 10 ** (18 - d);
         } else if (d > 18) {
-            return (x / (10**(d - 18)));
+            return (x / (10 ** (d - 18)));
         }
         return x;
     }
@@ -56,9 +56,9 @@ library DSMath {
     // Convert x from WAD (18 decimals) to d decimals.
     function fromWad(uint256 x, uint8 d) internal pure returns (uint256) {
         if (d < 18) {
-            return (x / (10**(18 - d)));
+            return (x / (10 ** (18 - d)));
         } else if (d > 18) {
-            return x * 10**(d - 18);
+            return x * 10 ** (d - 18);
         }
         return x;
     }

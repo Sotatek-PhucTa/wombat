@@ -174,11 +174,7 @@ contract MasterWombatV2 is
     /// @param _allocPoint allocation points for this LP
     /// @param _lpToken the corresponding lp token
     /// @param _rewarder the rewarder
-    function add(
-        uint96 _allocPoint,
-        IERC20 _lpToken,
-        IMultiRewarder _rewarder
-    ) external onlyOwner {
+    function add(uint96 _allocPoint, IERC20 _lpToken, IMultiRewarder _rewarder) external onlyOwner {
         require(Address.isContract(address(_lpToken)), 'add: LP token must be a valid contract');
         require(
             Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
@@ -219,12 +215,7 @@ contract MasterWombatV2 is
     /// @param _allocPoint allocation points
     /// @param _rewarder the rewarder
     /// @param overwrite overwrite rewarder?
-    function set(
-        uint256 _pid,
-        uint96 _allocPoint,
-        IMultiRewarder _rewarder,
-        bool overwrite
-    ) external onlyOwner {
+    function set(uint256 _pid, uint96 _allocPoint, IMultiRewarder _rewarder, bool overwrite) external onlyOwner {
         require(
             Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
             'set: rewarder must be contract or zero'
@@ -241,7 +232,10 @@ contract MasterWombatV2 is
     /// @notice View function to see pending WOMs on frontend.
     /// @param _pid the pool id
     /// @param _user the user address
-    function pendingTokens(uint256 _pid, address _user)
+    function pendingTokens(
+        uint256 _pid,
+        address _user
+    )
         external
         view
         override
@@ -278,12 +272,9 @@ contract MasterWombatV2 is
 
     /// @notice Get bonus token info from the rewarder contract for a given pool, if it is a double reward farm
     /// @param _pid the pool id
-    function rewarderBonusTokenInfo(uint256 _pid)
-        public
-        view
-        override
-        returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols)
-    {
+    function rewarderBonusTokenInfo(
+        uint256 _pid
+    ) public view override returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols) {
         PoolInfo storage pool = poolInfo[_pid];
         if (address(pool.rewarder) == address(0)) {
             return (bonusTokenAddresses, bonusTokenSymbols);
@@ -380,11 +371,7 @@ contract MasterWombatV2 is
     /// @param _pid the pool id
     /// @param _amount amount to deposit
     /// @param _user the user being represented
-    function depositFor(
-        uint256 _pid,
-        uint256 _amount,
-        address _user
-    ) external override nonReentrant whenNotPaused {
+    function depositFor(uint256 _pid, uint256 _amount, address _user) external override nonReentrant whenNotPaused {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
 
@@ -431,13 +418,10 @@ contract MasterWombatV2 is
     /// @dev it is possible to call this function with _amount == 0 to claim current rewards
     /// @param _pid the pool id
     /// @param _amount amount to deposit
-    function deposit(uint256 _pid, uint256 _amount)
-        external
-        override
-        nonReentrant
-        whenNotPaused
-        returns (uint256, uint256[] memory)
-    {
+    function deposit(
+        uint256 _pid,
+        uint256 _amount
+    ) external override nonReentrant whenNotPaused returns (uint256, uint256[] memory) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         _updatePool(_pid);
@@ -482,30 +466,15 @@ contract MasterWombatV2 is
 
     /// @notice claims rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function multiClaim(uint256[] memory _pids)
-        external
-        override
-        nonReentrant
-        whenNotPaused
-        returns (
-            uint256,
-            uint256[] memory,
-            uint256[][] memory
-        )
-    {
+    function multiClaim(
+        uint256[] memory _pids
+    ) external override nonReentrant whenNotPaused returns (uint256, uint256[] memory, uint256[][] memory) {
         return _multiClaim(_pids);
     }
 
     /// @notice private function to claim rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function _multiClaim(uint256[] memory _pids)
-        private
-        returns (
-            uint256,
-            uint256[] memory,
-            uint256[][] memory
-        )
-    {
+    function _multiClaim(uint256[] memory _pids) private returns (uint256, uint256[] memory, uint256[][] memory) {
         // accumulate rewards for each one of the pids in pending
         uint256 pending;
         uint256[] memory amounts = new uint256[](_pids.length);
@@ -564,13 +533,10 @@ contract MasterWombatV2 is
     /// @notice Automatically harvest pending rewards and sends to user
     /// @param _pid the pool id
     /// @param _amount the amount to withdraw
-    function withdraw(uint256 _pid, uint256 _amount)
-        external
-        override
-        nonReentrant
-        whenNotPaused
-        returns (uint256, uint256[] memory)
-    {
+    function withdraw(
+        uint256 _pid,
+        uint256 _amount
+    ) external override nonReentrant whenNotPaused returns (uint256, uint256[] memory) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         require(user.amount >= _amount, 'withdraw: not good');

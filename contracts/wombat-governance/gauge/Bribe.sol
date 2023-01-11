@@ -47,13 +47,10 @@ contract Bribe is IBribe, MultiRewarderPerSec {
         return _onReward(user, newVote);
     }
 
-    function onReward(address _user, uint256 _lpAmount)
-        external
-        override
-        onlyMaster
-        nonReentrant
-        returns (uint256[] memory rewards)
-    {
+    function onReward(
+        address _user,
+        uint256 _lpAmount
+    ) external override onlyMaster nonReentrant returns (uint256[] memory rewards) {
         revert('Call onVote instead');
     }
 
@@ -69,12 +66,9 @@ contract Bribe is IBribe, MultiRewarderPerSec {
         return _rewardTokens();
     }
 
-    function pendingTokens(address _user)
-        external
-        view
-        override(IBribe, MultiRewarderPerSec)
-        returns (uint256[] memory tokens)
-    {
+    function pendingTokens(
+        address _user
+    ) external view override(IBribe, MultiRewarderPerSec) returns (uint256[] memory tokens) {
         return _pendingTokens(_user);
     }
 }

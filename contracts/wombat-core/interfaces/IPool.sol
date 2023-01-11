@@ -41,10 +41,10 @@ interface IPool {
         uint256 deadline
     ) external returns (uint256 actualToAmount, uint256 haircut);
 
-    function quotePotentialDeposit(address token, uint256 amount)
-        external
-        view
-        returns (uint256 liquidity, uint256 reward);
+    function quotePotentialDeposit(
+        address token,
+        uint256 amount
+    ) external view returns (uint256 liquidity, uint256 reward);
 
     function quotePotentialSwap(
         address fromToken,
@@ -52,10 +52,10 @@ interface IPool {
         int256 fromAmount
     ) external view returns (uint256 potentialOutcome, uint256 haircut);
 
-    function quotePotentialWithdraw(address token, uint256 liquidity)
-        external
-        view
-        returns (uint256 amount, uint256 fee);
+    function quotePotentialWithdraw(
+        address token,
+        uint256 liquidity
+    ) external view returns (uint256 amount, uint256 fee);
 
     function quoteAmountIn(
         address fromToken,

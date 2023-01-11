@@ -27,11 +27,7 @@ interface IWom {
 
     function transfer(address receipient, uint256 amount) external returns (bool);
 
-    function transferFrom(
-        address sender,
-        address receipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address sender, address receipient, uint256 amount) external returns (bool);
 
     /*///////////////////////////////////////////////////////////////
                             IERC20Permit

@@ -186,14 +186,10 @@ contract VeWom is
     }
 
     /// @notice lock WOM into contract and mint veWOM
-    function mint(uint256 amount, uint256 lockDays)
-        external
-        virtual
-        override
-        nonReentrant
-        whenNotPaused
-        returns (uint256 veWomAmount)
-    {
+    function mint(
+        uint256 amount,
+        uint256 lockDays
+    ) external virtual override nonReentrant whenNotPaused returns (uint256 veWomAmount) {
         require(amount > 0, 'amount to deposit cannot be zero');
         if (amount > uint256(type(uint104).max)) revert VEWOM_OVERFLOW();
 
@@ -245,13 +241,10 @@ contract VeWom is
     /// @notice update the WOM lock days such that the end date is `now` + `lockDays`
     /// @param slot the veWOM slot
     /// @param lockDays the new lock days (it should be larger than original lock days)
-    function update(uint256 slot, uint256 lockDays)
-        external
-        override
-        nonReentrant
-        whenNotPaused
-        returns (uint256 newVeWomAmount)
-    {
+    function update(
+        uint256 slot,
+        uint256 lockDays
+    ) external override nonReentrant whenNotPaused returns (uint256 newVeWomAmount) {
         _assertNotContract(msg.sender);
 
         require(lockDays >= uint256(minLockDays) && lockDays <= uint256(maxLockDays), 'lock days is invalid');

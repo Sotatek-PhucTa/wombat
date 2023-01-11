@@ -18,7 +18,7 @@
 pragma solidity ^0.8.5;
 
 library DSMath {
-    uint256 public constant WAD = 10**18;
+    uint256 public constant WAD = 10 ** 18;
 
     // Babylonian Method
     function sqrt(uint256 y) internal pure returns (uint256 z) {

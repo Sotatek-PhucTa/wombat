@@ -5,7 +5,7 @@ import '../libraries/SignedSafeMath.sol';
 
 contract TestSignedSafeMath {
     using SignedSafeMath for int256;
-    int256 public constant WAD = 10**18;
+    int256 public constant WAD = 10 ** 18;
 
     function add(int256 a, int256 b) external pure returns (int256) {
         return a + b;

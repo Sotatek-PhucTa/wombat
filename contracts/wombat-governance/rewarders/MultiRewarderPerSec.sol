@@ -70,13 +70,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     /// @notice payable function needed to receive BNB
     receive() external payable {}
 
-    constructor(
-        address _master,
-        IERC20 _lpToken,
-        uint256 _startTimestamp,
-        IERC20 _rewardToken,
-        uint96 _tokenPerSec
-    ) {
+    constructor(address _master, IERC20 _lpToken, uint256 _startTimestamp, IERC20 _rewardToken, uint96 _tokenPerSec) {
         require(
             Address.isContract(address(_rewardToken)) || address(_rewardToken) == address(0),
             'constructor: reward token must be a valid contract'
@@ -162,14 +156,10 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     /// @dev Assume `_getTotalShare` isn't updated yet when this function is called
     /// @param _user Address of user
     /// @param _lpAmount The new amount of LP
-    function onReward(address _user, uint256 _lpAmount)
-        external
-        virtual
-        override
-        onlyMaster
-        nonReentrant
-        returns (uint256[] memory rewards)
-    {
+    function onReward(
+        address _user,
+        uint256 _lpAmount
+    ) external virtual override onlyMaster nonReentrant returns (uint256[] memory rewards) {
         _updateReward();
         return _onReward(_user, _lpAmount);
     }
