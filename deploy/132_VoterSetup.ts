@@ -77,7 +77,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const POOL_TOKENS = FACTORYPOOL_TOKENS[pool]
     for (const index in POOL_TOKENS) {
       const tokenSymbol = POOL_TOKENS[index][1] as string
-      const tokenAllocPoint = POOL_TOKENS[index][3] as number
+      const tokenAllocPoint = parseEther((POOL_TOKENS[index][3] as number).toString())
       const assetContractName = `Asset_${pool}_${tokenSymbol}`
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
       await addAsset(voter, owner, masterWombat.address, assetContractAddress)
