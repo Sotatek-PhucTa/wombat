@@ -18,13 +18,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const voter = await getDeployedContract('Voter')
   const masterWombat = await deployments.get('MasterWombatV3')
   for await (const [token, bribe] of Object.entries(BRIBE_MAPS[hre.network.name])) {
-    const deadline = getDeadlineFromNow(bribe.secondsToStart)
+    const startTimestamp = bribe?.startTimestamp || getDeadlineFromNow(bribe.secondsToStart!)
     const deployResult = await deploy(`Bribe_${token}`, {
       from: deployer,
       contract: 'Bribe',
       log: true,
       skipIfAlreadyDeployed: true,
-      args: [voter.address, bribe.lpToken, deadline, bribe.rewardToken, bribe.tokenPerSec],
+      args: [voter.address, bribe.lpToken, startTimestamp, bribe.rewardToken, bribe.tokenPerSec],
     })
 
     // Add new Bribe to Voter. Skip if not owner.

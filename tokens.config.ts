@@ -17,7 +17,8 @@ export const WRAPPED_NATIVE_TOKENS_MAP: { [network: string]: string } = {
 export interface IRewarder {
   lpToken: string
   rewardToken: string
-  secondsToStart: number
+  startTimestamp?: number
+  secondsToStart?: number
   tokenPerSec: BigNumber
 }
 

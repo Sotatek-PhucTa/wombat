@@ -17,7 +17,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   console.log(`Step 120. Deploying on: ${hre.network.name}...`)
 
   for await (const [token, rewarder] of Object.entries(REWARDERS_MAP[hre.network.name])) {
-    const deadline = getDeadlineFromNow(rewarder.secondsToStart)
+    const startTimestamp = rewarder?.startTimestamp || getDeadlineFromNow(rewarder.secondsToStart!)
 
     /// Deploy pool
     const name = `MultiRewarderPerSec_V3_${token}`
@@ -26,7 +26,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       contract: 'MultiRewarderPerSec',
       log: true,
       skipIfAlreadyDeployed: true,
-      args: [masterWombat.address, rewarder.lpToken, deadline, rewarder.rewardToken, rewarder.tokenPerSec],
+      args: [masterWombat.address, rewarder.lpToken, startTimestamp, rewarder.rewardToken, rewarder.tokenPerSec],
     })
     const address = deployResult.address
     const contract = await ethers.getContractAt(contractName, address)
