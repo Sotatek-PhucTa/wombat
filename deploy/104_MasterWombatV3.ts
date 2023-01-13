@@ -1,5 +1,6 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { logVerifyCommand } from '../utils'
 
 const contractName = 'MasterWombatV3'
 
@@ -35,6 +36,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   } else {
     console.log(`${contractName} Contract already deployed.`)
   }
+  logVerifyCommand(hre.network.name, deployResult)
   return deployResult
 }
 
