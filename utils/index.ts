@@ -1,6 +1,7 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
+import { formatEther } from 'ethers/lib/utils'
 import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
@@ -76,6 +77,25 @@ export async function printMasterWombatV2Rewarders() {
           lpToken: poolInfo.lpToken,
         }
       })
+  )
+}
+
+export async function printMultiRewarderV3Balances() {
+  const names = Object.keys(await deployments.all()).filter((name) => name.includes('MultiRewarderPerSec_V3'))
+
+  return Promise.all(
+    names.map(async (name) => {
+      const contract = await getDeployedContract('MultiRewarderPerSec', name)
+      const balances = await contract.balances()
+      const tokens = await contract.rewardTokens()
+      return {
+        rewarder: name,
+        rewarderAddress: contract.address,
+        lpToken: await contract.lpToken(),
+        balances: balances.map((balance: BigNumber) => formatEther(balance)),
+        rewardTokens: tokens,
+      }
+    })
   )
 }
 
