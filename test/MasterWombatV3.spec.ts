@@ -1037,14 +1037,14 @@ describe('MasterWombatV3', async function () {
       ])
 
       // USDT
-      let usdtPoolInfo = await mw.poolInfo(0)
+      let usdtPoolInfo = await mw.poolInfoV3(0)
       let userInfoUsdt = await mw.userInfo(0, users[10].address)
       expect(userInfoUsdt.factor).to.be.equal(user10Factors.get(0))
       // users[7] has no veWOM so sumOfFactors is just users[10] factor
       expect(usdtPoolInfo.sumOfFactors).to.be.equal(user10Factors.get(0))
 
       // USDC
-      let usdcPoolInfo = await mw.poolInfo(1)
+      let usdcPoolInfo = await mw.poolInfoV3(1)
       let userInfoUsdc = await mw.userInfo(1, users[10].address)
       let usdcSumOfFactors = sqrt(parseUnits('60000', 6).mul(parseEther('22000')))
         .add(sqrt(parseUnits('350000', 6).mul(parseEther('3000'))))
@@ -1056,13 +1056,13 @@ describe('MasterWombatV3', async function () {
       expect(usdcPoolInfo.sumOfFactors).to.be.equal(usdcSumOfFactors)
 
       // DAI
-      let daiPoolInfo = await mw.poolInfo(2)
+      let daiPoolInfo = await mw.poolInfoV3(2)
       let userInfoDai = await mw.userInfo(2, users[10].address)
       expect(userInfoDai.factor).to.be.equal(user10Factors.get(2))
       expect(daiPoolInfo.sumOfFactors).to.be.equal(user10Factors.get(2))
 
       // MIM
-      let mimPoolInfo = await mw.poolInfo(3)
+      let mimPoolInfo = await mw.poolInfoV3(3)
       let userInfoMim = await mw.userInfo(3, users[10].address)
       expect(userInfoMim.factor).to.be.equal(user10Factors.get(3))
       expect(mimPoolInfo.sumOfFactors).to.be.equal(user10Factors.get(3))
@@ -1075,7 +1075,7 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[10]).faucet(parseEther('10000'))
 
       // USDT
-      usdtPoolInfo = await mw.poolInfo(0)
+      usdtPoolInfo = await mw.poolInfoV3(0)
       userInfoUsdt = await mw.userInfo(0, users[10].address)
       expect(userInfoUsdt.factor).to.be.equal(sqrt(parseUnits('10000', 6).mul(parseEther('20000'))))
       // users[7] now has veWOM so sumOfFactors is updated
@@ -1086,7 +1086,7 @@ describe('MasterWombatV3', async function () {
       )
 
       // USDC
-      usdcPoolInfo = await mw.poolInfo(1)
+      usdcPoolInfo = await mw.poolInfoV3(1)
       userInfoUsdc = await mw.userInfo(1, users[10].address)
       usdcSumOfFactors = sqrt(parseUnits('60000', 6).mul(parseEther('22000')))
         .add(sqrt(parseUnits('350000', 6).mul(parseEther('3000'))))
@@ -1098,13 +1098,13 @@ describe('MasterWombatV3', async function () {
       expect(usdcPoolInfo.sumOfFactors).to.be.equal(usdcSumOfFactors)
 
       // DAI
-      daiPoolInfo = await mw.poolInfo(2)
+      daiPoolInfo = await mw.poolInfoV3(2)
       userInfoDai = await mw.userInfo(2, users[10].address)
       expect(userInfoDai.factor).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('20000'))))
       expect(daiPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('20000'))))
 
       // MIM
-      mimPoolInfo = await mw.poolInfo(3)
+      mimPoolInfo = await mw.poolInfoV3(3)
       userInfoMim = await mw.userInfo(3, users[10].address)
       expect(userInfoMim.factor).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('20000'))))
       expect(mimPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('20000'))))
@@ -1114,7 +1114,7 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[10]).update2(parseEther('10000'), parseEther('100000'), 365)
 
       // USDT
-      usdtPoolInfo = await mw.poolInfo(0)
+      usdtPoolInfo = await mw.poolInfoV3(0)
       userInfoUsdt = await mw.userInfo(0, users[10].address)
       expect(userInfoUsdt.factor).to.be.equal(sqrt(parseUnits('10000', 6).mul(parseEther('110000'))))
       // users[7] now has vewom so sumOfFactors is updated
@@ -1125,7 +1125,7 @@ describe('MasterWombatV3', async function () {
       )
 
       // USDC
-      usdcPoolInfo = await mw.poolInfo(1)
+      usdcPoolInfo = await mw.poolInfoV3(1)
       userInfoUsdc = await mw.userInfo(1, users[10].address)
       usdcSumOfFactors = sqrt(parseUnits('60000', 6).mul(parseEther('22000')))
         .add(sqrt(parseUnits('350000', 6).mul(parseEther('3000'))))
@@ -1137,13 +1137,13 @@ describe('MasterWombatV3', async function () {
       expect(usdcPoolInfo.sumOfFactors).to.be.equal(usdcSumOfFactors)
 
       // DAI
-      daiPoolInfo = await mw.poolInfo(2)
+      daiPoolInfo = await mw.poolInfoV3(2)
       userInfoDai = await mw.userInfo(2, users[10].address)
       expect(userInfoDai.factor).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
       expect(daiPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
 
       // MIM
-      mimPoolInfo = await mw.poolInfo(3)
+      mimPoolInfo = await mw.poolInfoV3(3)
       userInfoMim = await mw.userInfo(3, users[10].address)
       expect(userInfoMim.factor).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
       expect(mimPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('10000', 18).mul(parseEther('110000'))))
@@ -1153,7 +1153,7 @@ describe('MasterWombatV3', async function () {
       await veWom.connect(users[10]).burn2(await veWom.balanceOf(users[10].address))
 
       // USDT
-      usdtPoolInfo = await mw.poolInfo(0)
+      usdtPoolInfo = await mw.poolInfoV3(0)
       userInfoUsdt = await mw.userInfo(0, users[10].address)
       expect(userInfoUsdt.factor).to.be.equal(0)
       expect((await mw.userInfo(0, users[7].address)).factor).to.be.equal(
@@ -1163,7 +1163,7 @@ describe('MasterWombatV3', async function () {
       expect(usdtPoolInfo.sumOfFactors).to.be.equal(sqrt(parseUnits('50000000', 6).mul(parseEther('10000'))))
 
       // USDC
-      usdcPoolInfo = await mw.poolInfo(1)
+      usdcPoolInfo = await mw.poolInfoV3(1)
       userInfoUsdc = await mw.userInfo(1, users[10].address)
       usdcSumOfFactors = sqrt(parseUnits('60000', 6).mul(parseEther('22000')))
         .add(sqrt(parseUnits('350000', 6).mul(parseEther('3000'))))
@@ -1174,13 +1174,13 @@ describe('MasterWombatV3', async function () {
       expect(usdcPoolInfo.sumOfFactors).to.be.equal(usdcSumOfFactors)
 
       // DAI
-      daiPoolInfo = await mw.poolInfo(2)
+      daiPoolInfo = await mw.poolInfoV3(2)
       userInfoDai = await mw.userInfo(2, users[10].address)
       expect(userInfoDai.factor).to.be.equal(0)
       expect(daiPoolInfo.sumOfFactors).to.be.equal(0)
 
       // MIM
-      mimPoolInfo = await mw.poolInfo(3)
+      mimPoolInfo = await mw.poolInfoV3(3)
       userInfoMim = await mw.userInfo(3, users[10].address)
       expect(userInfoMim.factor).to.be.equal(0)
       expect(mimPoolInfo.sumOfFactors).to.be.equal(0)

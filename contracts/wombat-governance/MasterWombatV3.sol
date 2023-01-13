@@ -59,7 +59,7 @@ contract MasterWombatV3 is
     }
 
     // Info of each pool.
-    struct PoolInfo {
+    struct PoolInfoV3 {
         IERC20 lpToken; // Address of LP token contract.
         ////
         IMultiRewarder rewarder;
@@ -90,7 +90,7 @@ contract MasterWombatV3 is
     // Set of all LP tokens that have been added as pools
     EnumerableSet.AddressSet private lpTokens;
     // Info of each pool.
-    PoolInfo[] public poolInfo;
+    PoolInfoV3[] public poolInfoV3;
     // userInfo[pid][user], Info of each user that stakes LP tokens
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // Mapping of asset to pid. Offset by +1 to distinguish with default value
@@ -120,7 +120,12 @@ contract MasterWombatV3 is
         _;
     }
 
-    function initialize(IERC20 _wom, IVeWom _veWom, address _voter, uint16 _basePartition) external initializer {
+    function initialize(
+        IERC20 _wom,
+        IVeWom _veWom,
+        address _voter,
+        uint16 _basePartition
+    ) external initializer {
         require(address(_wom) != address(0), 'wom address cannot be zero');
         require(_basePartition <= 1000, 'base partition must be in range 0, 1000');
 
@@ -164,9 +169,9 @@ contract MasterWombatV3 is
         );
         require(!lpTokens.contains(address(_lpToken)), 'add: LP already added');
 
-        // update PoolInfo with the new LP
-        poolInfo.push(
-            PoolInfo({
+        // update PoolInfoV3 with the new LP
+        poolInfoV3.push(
+            PoolInfoV3({
                 lpToken: _lpToken,
                 lastRewardTimestamp: uint40(block.timestamp),
                 accWomPerShare: 0,
@@ -177,11 +182,11 @@ contract MasterWombatV3 is
                 rewardRate: 0
             })
         );
-        assetPid[address(_lpToken)] = poolInfo.length;
+        assetPid[address(_lpToken)] = poolInfoV3.length;
 
         // add lpToken to the lpTokens enumerable set
         lpTokens.add(address(_lpToken));
-        emit Add(poolInfo.length - 1, _lpToken, _rewarder);
+        emit Add(poolInfoV3.length - 1, _lpToken, _rewarder);
     }
 
     /// @notice Update the given pool's rewarder
@@ -193,7 +198,7 @@ contract MasterWombatV3 is
             'set: rewarder must be contract or zero'
         );
 
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
 
         pool.rewarder = _rewarder;
         emit SetRewarder(_pid, _rewarder);
@@ -202,7 +207,7 @@ contract MasterWombatV3 is
     /// @notice Update reward variables for all pools.
     /// @dev Be careful of gas spending!
     function massUpdatePools() public override {
-        uint256 length = poolInfo.length;
+        uint256 length = poolInfoV3.length;
         for (uint256 pid; pid < length; ++pid) {
             _updatePool(pid);
         }
@@ -215,7 +220,7 @@ contract MasterWombatV3 is
     }
 
     function _updatePool(uint256 _pid) private {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
 
         if (block.timestamp > pool.lastRewardTimestamp) {
             (uint256 accWomPerShare, uint256 accWomPerFactorShare) = calRewardPerUnit(_pid);
@@ -239,7 +244,7 @@ contract MasterWombatV3 is
 
         // this line reverts if asset is not in the list
         uint256 pid = assetPid[_lpToken] - 1;
-        PoolInfo storage pool = poolInfo[pid];
+        PoolInfoV3 storage pool = poolInfoV3[pid];
         if (pool.lastRewardTimestamp >= pool.periodFinish) {
             pool.rewardRate = to128(_amount / REWARD_DURATION);
         } else {
@@ -267,7 +272,7 @@ contract MasterWombatV3 is
             UserInfo storage user = userInfo[pid][msg.sender];
 
             if (user.amount > 0) {
-                PoolInfo storage pool = poolInfo[pid];
+                PoolInfoV3 storage pool = poolInfoV3[pid];
                 pool.lpToken.approve(address(newMasterWombat), user.amount);
                 uint256 newPid = newMasterWombat.getAssetPid(address(pool.lpToken));
                 newMasterWombat.depositFor(newPid, user.amount, msg.sender);
@@ -284,8 +289,12 @@ contract MasterWombatV3 is
     /// @param _pid the pool id
     /// @param _amount amount to deposit
     /// @param _user the user being represented
-    function depositFor(uint256 _pid, uint256 _amount, address _user) external override nonReentrant whenNotPaused {
-        PoolInfo storage pool = poolInfo[_pid];
+    function depositFor(
+        uint256 _pid,
+        uint256 _amount,
+        address _user
+    ) external override nonReentrant whenNotPaused {
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
         UserInfo storage user = userInfo[_pid][_user];
 
         // update pool in case user has deposited
@@ -302,11 +311,14 @@ contract MasterWombatV3 is
     /// @dev it is possible to call this function with _amount == 0 to claim current rewards
     /// @param _pid the pool id
     /// @param _amount amount to deposit
-    function deposit(
-        uint256 _pid,
-        uint256 _amount
-    ) external override nonReentrant whenNotPaused returns (uint256 reward, uint256[] memory additionalRewards) {
-        PoolInfo storage pool = poolInfo[_pid];
+    function deposit(uint256 _pid, uint256 _amount)
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (uint256 reward, uint256[] memory additionalRewards)
+    {
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
 
         // update pool in case user has deposited
@@ -321,23 +333,30 @@ contract MasterWombatV3 is
 
     /// @notice claims rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function multiClaim(
-        uint256[] calldata _pids
-    )
+    function multiClaim(uint256[] calldata _pids)
         external
         override
         nonReentrant
         whenNotPaused
-        returns (uint256 reward, uint256[] memory amounts, uint256[][] memory additionalRewards)
+        returns (
+            uint256 reward,
+            uint256[] memory amounts,
+            uint256[][] memory additionalRewards
+        )
     {
         return _multiClaim(_pids);
     }
 
     /// @notice private function to claim rewards for multiple pids
     /// @param _pids array pids, pools to claim
-    function _multiClaim(
-        uint256[] memory _pids
-    ) private returns (uint256 reward, uint256[] memory amounts, uint256[][] memory additionalRewards) {
+    function _multiClaim(uint256[] memory _pids)
+        private
+        returns (
+            uint256 reward,
+            uint256[] memory amounts,
+            uint256[][] memory additionalRewards
+        )
+    {
         // accumulate rewards for each one of the pids in pending
         amounts = new uint256[](_pids.length);
         additionalRewards = new uint256[][](_pids.length);
@@ -346,7 +365,7 @@ contract MasterWombatV3 is
             _updatePool(_pids[i]);
 
             if (user.amount > 0) {
-                PoolInfo storage pool = poolInfo[_pids[i]];
+                PoolInfoV3 storage pool = poolInfoV3[_pids[i]];
                 // increase pending to send all rewards once
                 uint256 poolRewards = ((uint256(user.amount) *
                     pool.accWomPerShare +
@@ -386,11 +405,14 @@ contract MasterWombatV3 is
     /// @notice Automatically harvest pending rewards and sends to user
     /// @param _pid the pool id
     /// @param _amount the amount to withdraw
-    function withdraw(
-        uint256 _pid,
-        uint256 _amount
-    ) external override nonReentrant whenNotPaused returns (uint256 reward, uint256[] memory additionalRewards) {
-        PoolInfo storage pool = poolInfo[_pid];
+    function withdraw(uint256 _pid, uint256 _amount)
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (uint256 reward, uint256[] memory additionalRewards)
+    {
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         require(user.amount >= _amount, 'withdraw: not enough balance');
 
@@ -409,7 +431,7 @@ contract MasterWombatV3 is
         address _user,
         uint256 _amount
     ) internal returns (uint256 reward, uint256[] memory additionalRewards) {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
         UserInfo storage user = userInfo[_pid][_user];
 
         // Harvest WOM
@@ -451,14 +473,14 @@ contract MasterWombatV3 is
     /// @notice Withdraw without caring about rewards. EMERGENCY ONLY.
     /// @param _pid the pool id
     function emergencyWithdraw(uint256 _pid) external override nonReentrant {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
 
         // safe transfer is not needed for Asset
         pool.lpToken.transfer(address(msg.sender), user.amount);
 
         // reset rewarder
-        IMultiRewarder rewarder = poolInfo[_pid].rewarder;
+        IMultiRewarder rewarder = poolInfoV3[_pid].rewarder;
         if (address(rewarder) != address(0)) {
             rewarder.onReward(msg.sender, 0);
         }
@@ -508,7 +530,7 @@ contract MasterWombatV3 is
     /// @dev can only be called by veWom
     function updateFactor(address _user, uint256 _newVeWomBalance) external override onlyVeWom {
         // loop over each pool : beware gas cost!
-        uint256 length = poolInfo.length;
+        uint256 length = poolInfoV3.length;
 
         for (uint256 pid = 0; pid < length; ++pid) {
             UserInfo storage user = userInfo[pid][_user];
@@ -520,7 +542,7 @@ contract MasterWombatV3 is
 
             // first, update pool
             _updatePool(pid);
-            PoolInfo storage pool = poolInfo[pid];
+            PoolInfoV3 storage pool = poolInfoV3[pid];
 
             // calculate pending
             uint256 pending = ((uint256(user.amount) *
@@ -558,10 +580,13 @@ contract MasterWombatV3 is
 
     /// @notice Get bonus token info from the rewarder contract for a given pool, if it is a double reward farm
     /// @param _pid the pool id
-    function rewarderBonusTokenInfo(
-        uint256 _pid
-    ) public view override returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols) {
-        PoolInfo storage pool = poolInfo[_pid];
+    function rewarderBonusTokenInfo(uint256 _pid)
+        public
+        view
+        override
+        returns (IERC20[] memory bonusTokenAddresses, string[] memory bonusTokenSymbols)
+    {
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
         if (address(pool.rewarder) == address(0)) {
             return (bonusTokenAddresses, bonusTokenSymbols);
         }
@@ -585,7 +610,7 @@ contract MasterWombatV3 is
 
     /// @notice returns pool length
     function poolLength() external view override returns (uint256) {
-        return poolInfo.length;
+        return poolInfoV3.length;
     }
 
     function getAssetPid(address asset) external view override returns (uint256) {
@@ -598,7 +623,7 @@ contract MasterWombatV3 is
     }
 
     function calRewardPerUnit(uint256 _pid) public view returns (uint256 accWomPerShare, uint256 accWomPerFactorShare) {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
 
         accWomPerShare = pool.accWomPerShare;
@@ -623,10 +648,7 @@ contract MasterWombatV3 is
     /// @notice View function to see pending WOMs on frontend.
     /// @param _pid the pool id
     /// @param _user the user address
-    function pendingTokens(
-        uint256 _pid,
-        address _user
-    )
+    function pendingTokens(uint256 _pid, address _user)
         external
         view
         override
@@ -637,7 +659,7 @@ contract MasterWombatV3 is
             uint256[] memory pendingBonusRewards
         )
     {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
 
         // calculate accWomPerShare and accWomPerFactorShare
         (uint256 accWomPerShare, uint256 accWomPerFactorShare) = calRewardPerUnit(_pid);
@@ -653,6 +675,33 @@ contract MasterWombatV3 is
             (bonusTokenAddresses, bonusTokenSymbols) = rewarderBonusTokenInfo(_pid);
             pendingBonusRewards = pool.rewarder.pendingTokens(_user);
         }
+    }
+
+    /// @notice [Deprecated] A backward compatible function to return the PoolInfo struct in MasterWombatV2
+    function poolInfo(uint256 _pid)
+        external
+        view
+        returns (
+            IERC20 lpToken,
+            uint96 allocPoint,
+            IMultiRewarder rewarder,
+            uint256 sumOfFactors,
+            uint104 accWomPerShare,
+            uint104 accWomPerFactorShare,
+            uint40 lastRewardTimestamp
+        )
+    {
+        PoolInfoV3 memory pool = poolInfoV3[_pid];
+
+        return (
+            pool.lpToken,
+            0,
+            pool.rewarder,
+            pool.sumOfFactors,
+            pool.accWomPerShare,
+            pool.accWomPerFactorShare,
+            pool.lastRewardTimestamp
+        );
     }
 
     function to128(uint256 val) internal pure returns (uint128) {
