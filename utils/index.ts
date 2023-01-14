@@ -7,8 +7,8 @@ import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
 
-export async function getDeployedContract(contract: string, contractName = contract): Promise<Contract> {
-  const deployment = await deployments.get(contractName)
+export async function getDeployedContract(contract: string, deploymentName = contract): Promise<Contract> {
+  const deployment = await deployments.get(deploymentName)
   return ethers.getContractAt(contract, deployment.address)
 }
 

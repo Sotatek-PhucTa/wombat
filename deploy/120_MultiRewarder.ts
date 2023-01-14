@@ -32,14 +32,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const contract = await ethers.getContractAt(contractName, address)
 
     if (deployResult.newlyDeployed) {
-      if (await isOwner(masterWombat, owner.address)) {
-        await setRewarder(masterWombat, owner, rewarder.lpToken, address)
-        console.log(`setRewarder for ${name} (${address}) complete.`)
-      } else {
-        console.log(
-          `User ${owner.address} does not own MasterWombat. Please call setRewarder in multi-sig. Rewarder: ${address}. LP: ${rewarder.lpToken}.`
-        )
-      }
       console.log(`Transferring operator of ${deployResult.address} to ${owner.address}...`)
       // The operator of the rewarder contract can set and update reward rates
       await confirmTxn(contract.connect(owner).setOperator(owner.address))
