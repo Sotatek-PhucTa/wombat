@@ -130,7 +130,6 @@ To verify proxy contracts:
 
 - Wombat Rewarders
 
-  - MultiRewarderPerSec_V3_BUSD => `0x1290219e4999575c96e4bd9a491dd5ac95f26abb`
   - MultiRewarderPerSec_V3_HAY => `0x7903289B0122f3F4E0fF532D1D8A300D19bFd46f`
   - MultiRewarderPerSec_V3_mWOM => `0x04299f69b567c6C8dC49162138E0ba32cD15ffA4`
   - MultiRewarderPerSec_V3_mWOMPool_WOM => `0x624BE60CC68Dd7Fc2e3f9f28cC7ef58c5bEB1e26`
