@@ -154,4 +154,4 @@ async function addPool(asset: any, owner: any, poolAddress: string) {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['BnbxPool', 'MockTokens'] // this ensure the Token script above is executed first, so `deployments.get('DynamicPool')` succeeds
+deployFunc.dependencies = [poolContractName, 'MockTokens'] // this ensure the Token script above is executed first, so `deployments.get('DynamicPool')` succeeds

@@ -3,6 +3,7 @@ import { formatEther } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { logVerifyCommand } from '../utils'
 
 const contractName = 'BnbxPool'
 
@@ -75,6 +76,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
       await setMintFeeThresholdTxn.wait()
     }
+
+    logVerifyCommand(hre.network.name, deployResult)
   } else {
     console.log(`${contractName} Contract already deployed.`)
   }
