@@ -15,7 +15,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   console.log(`Step 032. Deploying on : ${hre.network.name}...`)
 
-  /// Deploy sidepool
+  /// Deploy DynamicPoolV2
   const deployResult = await deploy(contractName, {
     from: deployer,
     log: true,
