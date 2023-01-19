@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { REWARDERS_MAP } from '../tokens.config'
-import { confirmTxn, getDeployedContract, isOwner, logVerifyCommand, setRewarder } from '../utils'
+import { confirmTxn, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand, setRewarder } from '../utils'
 
 const contractName = 'MultiRewarderPerSec'
 
@@ -43,10 +43,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     logVerifyCommand(hre.network.name, deployResult)
   }
-}
-
-function getDeadlineFromNow(secondSince: string | number): number {
-  return Math.round(Date.now() / 1000) + Number(secondSince)
 }
 
 export default deployFunc

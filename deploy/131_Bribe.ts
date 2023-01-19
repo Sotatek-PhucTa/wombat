@@ -1,44 +1,53 @@
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { BigNumber, Contract } from 'ethers'
+import { Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BRIBE_MAPS } from '../tokens.config'
-import { confirmTxn, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { confirmTxn, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+  const { deployer, multisig } = await getNamedAccounts()
+  const deployerSigner = await ethers.getSigner(deployer)
 
   console.log(`Step 131. Deploying on: ${hre.network.name}...`)
 
   // Deploy all Bribe
   const voter = await getDeployedContract('Voter')
   const masterWombat = await deployments.get('MasterWombatV3')
-  for await (const [token, bribe] of Object.entries(BRIBE_MAPS[hre.network.name])) {
-    const startTimestamp = bribe?.startTimestamp || getDeadlineFromNow(bribe.secondsToStart!)
-    const deployResult = await deploy(`Bribe_${token}`, {
+  for await (const [token, bribeConfig] of Object.entries(BRIBE_MAPS[hre.network.name])) {
+    const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
+    const name = `Bribe_${token}`
+    const deployResult = await deploy(name, {
       from: deployer,
       contract: 'Bribe',
       log: true,
       skipIfAlreadyDeployed: true,
-      args: [voter.address, bribe.lpToken, startTimestamp, bribe.rewardToken, bribe.tokenPerSec],
+      args: [voter.address, bribeConfig.lpToken, startTimestamp, bribeConfig.rewardToken, bribeConfig.tokenPerSec],
     })
 
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
       console.log(`Bribe_${token} Deployment complete.`)
-      if (await isOwner(voter, owner.address)) {
-        await addBribe(voter, owner, masterWombat.address, bribe.lpToken, deployResult.address)
-        console.log(`addBribe for ${bribe.lpToken} complete.`)
+      if (await isOwner(voter, deployerSigner.address)) {
+        await addBribe(voter, deployerSigner, masterWombat.address, bribeConfig.lpToken, deployResult.address)
+        console.log(`addBribe for ${bribeConfig.lpToken} complete.`)
       } else {
         console.log(
-          `User ${owner.address} does not own Voter. Please call addBribe in multi-sig. Bribe: ${deployResult.address}. LP: ${bribe.lpToken}.`
+          `User ${deployerSigner.address} does not own Voter. Please call add/setBribe in multi-sig. Bribe: ${deployResult.address}. LP: ${bribeConfig.lpToken}.`
         )
       }
-      console.log(`Voter added Bribe_${token}.`)
+
+      const bribe = await getDeployedContract('Bribe', name)
+      console.log(`Transferring operator of ${deployResult.address} to ${deployer}...`)
+      // The operator of the rewarder contract can set and update reward rates
+      await confirmTxn(bribe.connect(deployerSigner).setOperator(deployer))
+      console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
+      // The owner of the rewarder contract can add new reward tokens and withdraw them
+      await confirmTxn(bribe.connect(deployerSigner).transferOwnership(multisig))
+      console.log('Bribe transferred to multisig')
     }
 
     logVerifyCommand(hre.network.name, deployResult)
@@ -67,10 +76,7 @@ async function addBribe(
   }
 }
 
-function getDeadlineFromNow(secondSince: string | number): number {
-  return Math.round(Date.now() / 1000) + Number(secondSince)
-}
-
 export default deployFunc
-deployFunc.dependencies = ['MasterWombatV3', 'Voter']
+// do not depend on MWv3 and Voter which are owned by multisig in mainnet
+deployFunc.dependencies = []
 deployFunc.tags = ['Bribe']

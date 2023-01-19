@@ -110,3 +110,7 @@ export async function validateUpgrade(oldContract: string, newContract: string, 
   })
   console.log('validate succeeeds')
 }
+
+export function getDeadlineFromNow(secondSince: string | number): number {
+  return Math.round(Date.now() / 1000) + Number(secondSince)
+}

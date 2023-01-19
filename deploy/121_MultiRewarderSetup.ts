@@ -1,4 +1,4 @@
-import { deployments, ethers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { REWARDERS_MAP } from '../tokens.config'
