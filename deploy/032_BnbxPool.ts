@@ -46,6 +46,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       console.log('set master wombat: ', masterWombatV3Deployment.address)
     }
 
+    await contract.setCovRatioFeeParam(parseEther('1.2'), parseEther('1.5'))
+
     // Check setup config values
     const ampFactor = await contract.ampFactor()
     const hairCutRate = await contract.haircutRate()
