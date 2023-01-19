@@ -65,7 +65,7 @@ export async function deployAsset(
   const tokenSymbol = deployArgs[1] as string
   const tokenAddress = deployArgs[2] as string
   const oracleAddress = deployArgs[3] as string
-  const assetContract = (deployArgs[4] ?? '') as string // default to use `Asset` contract
+  const assetContract = deployArgs[4] as string // DynamicAsset, BnbxAsset, etc.
   const name = `Wombat ${tokenName} Asset`
   const symbol = `LP-${tokenSymbol}`
 
