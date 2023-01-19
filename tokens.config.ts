@@ -178,6 +178,30 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   },
 }
 
+export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+  bsc_mainnet: {
+    WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'DynamicAsset'], // last 3 items are exchange rate oracle, asset type, and pool alloc points
+    BNBX: [
+      'Liquid Staking BNB',
+      'BNBx',
+      '0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275',
+      '0x7276241a669489E4BBB76f63d2A43Bfe63080F2F',
+      'BnbxAsset',
+    ],
+  },
+  bsc_testnet: {
+    WBNB: ['Wrapped BNB', 'WBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'DynamicAsset'],
+    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'DynamicAsset'],
+    BNBX: [
+      'Liquid Staking BNB',
+      'BNBx',
+      '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
+      '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
+      'BnbxAsset',
+    ],
+  },
+}
+
 export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
   bsc_mainnet: {
     HAY: {
