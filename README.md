@@ -102,7 +102,12 @@ To verify proxy contracts:
   - Asset_stables_01_FRAX (LP-FRAX) => `0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB`
   - Asset_stables_01_TUSD (LP-TUSD) => `0x3C8e744f6c4Ed2c9D82e33D69DDcC5961Aa05367`
 
-- Wombat Dynamic Pool
+- BNBx Pool
+  - Pool Proxy (Main entry) => `0x8df1126de13bcfef999556899F469d64021adBae`
+  - Asset_BnbxPool_BNBx => `0x16B37225889A038FAD42efdED462821224A509A7`
+  - Asset_BnbxPool_WBNB => `0x0321D1D769cc1e81Ba21a157992b635363740f86`
+
+- Wombat Dynamic Pool (Deprecated)
 
   - Pool Proxy (Main entry) => `0x0029b7e8e9eD8001c868AA09c74A1ac6269D4183`
   - Asset_DP01_WBNB (LP-WBNB) => `0x74f019A5C4eD2C2950Ce16FaD7Af838549092c5b`
@@ -110,19 +115,19 @@ To verify proxy contracts:
   - Asset_DP01_BNBx (LP-BNBx) => `0x10F7C62f47F19e3cE08fef38f74E3C0bB31FC24f`
   - Asset_DP01_aBNBc (LP-aBNBc) => `0x9d2deaD9547EB65Aa78E239647a0c783f296406B`
 
-  - Wombat Side Pool (WOM-wmxWom)
+- Wombat Side Pool (WOM-wmxWom)
 
   - Pool Proxy (Main entry) => `0xeEB5a751E0F5231Fc21c7415c4A4c6764f67ce2e`
   - Asset_wmxWOMPool_wmxWom (LP-wmxWom) => `0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688`
   - Asset_wmxWOMPool_WOM (LP-WOM) => `0xF9BdC872D75f76B946E0770f96851b1f2F653caC`
 
-  - mWOM Side Pool (WOM-mWom)
+- mWOM Side Pool (WOM-mWom)
 
   - Pool Proxy (Main entry) => `0x083640c5dBD5a8dDc30100FB09B45901e12f9f55`
   - Asset_mWOMPool_mWOM (LP-mWOM) => `0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E`
   - Asset_mWOMPool_WOM (LP-WOM) => `0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2`
 
-  - qWOM Side Pool (WOM-qWom)
+- qWOM Side Pool (WOM-qWom)
 
   - Pool Proxy (Main entry) => `0x2c5464b9052319e3d76f8279031f04e4B7fd7955`
   - Asset_qWOMPool_qWOM (LP-qWOM) => `0x87073ba87517E7ca981AaE3636754bCA95C120E4`
