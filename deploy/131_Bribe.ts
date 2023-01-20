@@ -16,7 +16,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   // Deploy all Bribe
   const voter = await getDeployedContract('Voter')
-  const masterWombat = await deployments.get('MasterWombatV3')
   for await (const [token, bribeConfig] of Object.entries(BRIBE_MAPS[hre.network.name])) {
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
     const name = `Bribe_${token}`
@@ -32,6 +31,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     if (deployResult.newlyDeployed) {
       console.log(`Bribe_${token} Deployment complete.`)
       if (await isOwner(voter, deployerSigner.address)) {
+        const masterWombat = await deployments.get('MasterWombatV3')
         await addBribe(voter, deployerSigner, masterWombat.address, bribeConfig.lpToken, deployResult.address)
         console.log(`addBribe for ${bribeConfig.lpToken} complete.`)
       } else {
