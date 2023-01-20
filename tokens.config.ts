@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers'
+import { BigNumberish } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 
 // starting 4 stables, all 18 decimals
@@ -19,7 +19,7 @@ export interface IRewarder {
   rewardToken: string
   startTimestamp?: number
   secondsToStart?: number
-  tokenPerSec: BigNumber
+  tokenPerSec: BigNumberish
 }
 
 export const USD_TOKENS_MAP: ITokens<ITokensInfo> = {
@@ -246,6 +246,18 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.1'),
     },
+    BNBx: {
+      lpToken: '0x16B37225889A038FAD42efdED462821224A509A7',
+      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      secondsToStart: 60,
+      tokenPerSec: 0,
+    },
+    BnbxPool_WBNB: {
+      lpToken: '0x0321D1D769cc1e81Ba21a157992b635363740f86',
+      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      secondsToStart: 60,
+      tokenPerSec: 0,
+    },
   },
   bsc_testnet: {
     BUSD: {
@@ -289,6 +301,18 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       rewardToken: '0x458c742849d041723efadd9a31153233de442b9b',
       secondsToStart: 60,
       tokenPerSec: parseUnits('0.14', 18),
+    },
+    BNBx: {
+      lpToken: '0xB9207cc7bEaFb74773Cd08C869d6F6f890105564',
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      secondsToStart: 60,
+      tokenPerSec: 0,
+    },
+    BnbxPool_WBNB: {
+      lpToken: '0xC0aFB4E0f2A11E2a74F168904F47178865b728ba',
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      secondsToStart: 60,
+      tokenPerSec: 0,
     },
   },
 }
