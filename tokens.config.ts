@@ -319,6 +319,14 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
 
 // IBribe reuses the interface of IRewarder
 export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
+  bsc_mainnet: {
+    BNBx: {
+      lpToken: '0x16B37225889A038FAD42efdED462821224A509A7',
+      rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
+  },
   bsc_testnet: {
     BUSD: {
       lpToken: '0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567',
@@ -333,6 +341,12 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
       secondsToStart: 60,
       tokenPerSec: parseEther('0.1'),
+    },
+    BNBx: {
+      lpToken: '0xB9207cc7bEaFb74773Cd08C869d6F6f890105564',
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
     },
   },
 }

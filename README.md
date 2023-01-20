@@ -70,6 +70,7 @@ To verify proxy contracts:
   - VeWom Proxy => `0x3DA62816dD31c56D9CdF22C6771ddb892cB5b0Cc`
   - Voter Proxy => `0x04D4e1C1F3D6539071b6D3849fDaED04d48D563d`
   - Whitelist => `0xD61C53dcd6F3b4258E28c7Eb1C328789fa71B591`
+  - Bribe_BNBx => `0x20d7B9Ed2c4E2DCC55F9B463975b21bBf2A6eCd1`
 
 - Wombat Token
 
@@ -226,6 +227,7 @@ To verify proxy contracts:
   - Voter Proxy => `0x23c8D0437b74CE912850B89a42F28e4037cA7849`
   - Bribe_BUSD => `0x3aEA5139441318A951e11aB38392c8C75F1a7522`
   - Bribe_FRAX_BUSD => `0xcF7640E12b4aB4F5a4Fe35b231541DF9a83351Ea`
+  - Bribe_BNBx => `0xf496a50aE1663942a0D0ee23b914DDDea1FC4A10`
 
 - Wombat Rewarders
 
