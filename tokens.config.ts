@@ -320,8 +320,14 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
 // IBribe reuses the interface of IRewarder
 export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
   bsc_mainnet: {
+    HAY: {
+      lpToken: '0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b', // LP-HAY
+      rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
     BNBx: {
-      lpToken: '0x16B37225889A038FAD42efdED462821224A509A7',
+      lpToken: '0x16B37225889A038FAD42efdED462821224A509A7', // LP-BNBx
       rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
       secondsToStart: 60,
       tokenPerSec: parseEther('0'),
