@@ -1,14 +1,16 @@
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {
   WRAPPED_NATIVE_TOKENS_MAP,
   USD_TOKENS_MAP,
-  BNB_DYNAMICPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   WOM_DYNAMICPOOL_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
+  BNBX_POOL_TOKENS_MAP,
 } from '../tokens.config'
-import { logVerifyCommand } from '../utils'
+import { confirmTxn, logVerifyCommand } from '../utils'
 import { getPoolContractName } from './040_WomSidePool'
 import { getFactoryPoolContractName } from './050_FactoryPool'
 
@@ -34,8 +36,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     deterministicDeployment: false, // will adopt bridging protocols/ wrapped addresses instead of CREATE2
   })
 
-  const address = deployResult.address
-
   if (!deployResult.newlyDeployed) {
     if (
       hre.network.name == 'localhost' ||
@@ -44,112 +44,11 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       hre.network.name == 'bsc_mainnet'
     ) {
       const router = await ethers.getContractAt(contractName, deployResult.address)
-      const usdTokens = []
-      const usdAssetsAddress = []
-      const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
-      for (const index in USD_TOKENS) {
-        usdTokens.push(USD_TOKENS[index][2]) // token address
-        const asset = await deployments.get(`Asset_P01_${USD_TOKENS[index][1]}`)
-        usdAssetsAddress.push(asset.address) // asset address
-      }
-
-      const bnbTokens = []
-      const bnbAssetsAddress = []
-      const BNB_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-      for (const index in BNB_TOKENS) {
-        bnbTokens.push(BNB_TOKENS[index][2])
-        const asset = await deployments.get(`Asset_DP01_${BNB_TOKENS[index][1]}`)
-        bnbAssetsAddress.push(asset.address)
-      }
-
-      const sidepoolTokens = []
-      const sidepoolAssetsAddress = []
-      const SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
-      for (const index in SIDEPOOL_TOKENS) {
-        sidepoolTokens.push(SIDEPOOL_TOKENS[index][2])
-        const asset = await deployments.get(`Asset_SP01_${SIDEPOOL_TOKENS[index][1]}`)
-        sidepoolAssetsAddress.push(asset.address)
-      }
-
-      const womSidePoolTokens = []
-      const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-      for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
-        for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
-          let asset = ''
-          hre.network.name == 'bsc_mainnet'
-            ? (asset = args[2] as string)
-            : (asset = (await deployments.get(`${args[1]}`)).address as string)
-          womSidePoolTokens.push(asset)
-        }
-        const contractName = getPoolContractName(poolName)
-        const womSidePoolDeployment = await deployments.get(contractName)
-
-        // approve by poolName
-        console.log(`Approving pool tokens for Pool: ${contractName}...`)
-        const approveSpendingTxnByPool1 = await router
-          .connect(owner)
-          .approveSpendingByPool(womSidePoolTokens, womSidePoolDeployment.address)
-        await approveSpendingTxnByPool1.wait()
-
-        // reset array
-        womSidePoolTokens.length = 0
-      }
-
-      const factoryPoolTokens = []
-      const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
-      for (const poolName of Object.keys(FACTORYPOOL_TOKENS)) {
-        for (const args of Object.values(FACTORYPOOL_TOKENS[poolName])) {
-          let asset = ''
-          hre.network.name == 'bsc_mainnet'
-            ? (asset = args[2] as string)
-            : (asset = (await deployments.get(`${args[1]}`)).address as string)
-          factoryPoolTokens.push(asset)
-        }
-        const contractName = getFactoryPoolContractName(poolName)
-        const factoryPoolDeployment = await deployments.get(contractName)
-
-        // approve by poolName
-        console.log(`Approving pool tokens for Pool: ${contractName}...`)
-        const approveSpendingTxnByPool1 = await router
-          .connect(owner)
-          .approveSpendingByPool(factoryPoolTokens, factoryPoolDeployment.address)
-        await approveSpendingTxnByPool1.wait()
-
-        // reset array
-        factoryPoolTokens.length = 0
-      }
-
-      const mainPoolDeployment = await deployments.get('Pool')
-      const dynamicPoolDeployment = await deployments.get('DynamicPool_01')
-      const sidePoolDeployment = await deployments.get('SidePool_01')
-
-      /**
-       * APPROVE POOL TOKENS
-       **/
-
-      // const approveSpendingTxn1 = await router
-      //   .connect(owner)
-      //   .approveSpendingByPool(usdTokens, mainPoolDeployment.address)
-      // await approveSpendingTxn1.wait()
-
-      // const approveSpendingTxn2 = await router
-      //   .connect(owner)
-      //   .approveSpendingByPool(bnbTokens, dynamicPoolDeployment.address)
-      // await approveSpendingTxn2.wait()
-
-      // const approveSpendingTxn3 = await router
-      //   .connect(owner)
-      //   .approveSpendingByPool(sidepoolTokens, sidePoolDeployment.address)
-      // await approveSpendingTxn3.wait()
-
-      /**
-       * APPROVE POOL ASSETS
-       **/
-
-      // const approveSpendingTxn5 = await router
-      //   .connect(owner)
-      //   .approveSpendingByPool(bnbAssetsAddress, dynamicPoolDeployment.address)
-      // await approveSpendingTxn5.wait()
+      await approveMainPool(router, owner)
+      await approveSidePool(router, owner)
+      await approveFactoryPools(router, owner)
+      await approveWomPools(router, owner)
+      await approveBnbxPool(router, owner)
     }
 
     console.log(`Deployment complete.`)
@@ -157,6 +56,97 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   return deployResult
+
+  // TODO: skip approval if already approved
+  async function approveSpending(
+    router: Contract,
+    owner: SignerWithAddress,
+    tokenAddresses: string[],
+    poolAddress: string
+  ) {
+    await confirmTxn(router.connect(owner).approveSpendingByPool(tokenAddresses, poolAddress))
+  }
+
+  async function approveMainPool(router: Contract, owner: SignerWithAddress) {
+    const tokens = []
+    const TOKENS = USD_TOKENS_MAP[hre.network.name]
+    for (const index in TOKENS) {
+      tokens.push(TOKENS[index][2] as string)
+    }
+    const mainPoolDeployment = await deployments.get('Pool')
+    await approveSpending(router, owner, tokens, mainPoolDeployment.address)
+  }
+
+  async function approveSidePool(router: Contract, owner: SignerWithAddress) {
+    const sidepoolTokens = []
+    const sidepoolAssetsAddress = []
+    const SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
+    for (const index in SIDEPOOL_TOKENS) {
+      sidepoolTokens.push(SIDEPOOL_TOKENS[index][2])
+      const asset = await deployments.get(`Asset_SP01_${SIDEPOOL_TOKENS[index][1]}`)
+      sidepoolAssetsAddress.push(asset.address)
+    }
+    const sidePoolDeployment = await deployments.get('SidePool_01')
+    const approveSpendingTxn3 = await router
+      .connect(owner)
+      .approveSpendingByPool(sidepoolTokens, sidePoolDeployment.address)
+    await approveSpendingTxn3.wait()
+  }
+
+  async function approveFactoryPools(router: Contract, owner: SignerWithAddress) {
+    const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
+    for (const poolName of Object.keys(FACTORYPOOL_TOKENS)) {
+      const factoryPoolTokens = []
+      for (const args of Object.values(FACTORYPOOL_TOKENS[poolName])) {
+        let asset = ''
+        hre.network.name == 'bsc_mainnet'
+          ? (asset = args[2] as string)
+          : (asset = (await deployments.get(`${args[1]}`)).address as string)
+        factoryPoolTokens.push(asset)
+      }
+      const contractName = getFactoryPoolContractName(poolName)
+      const factoryPoolDeployment = await deployments.get(contractName)
+
+      // approve by poolName
+      console.log(`Approving pool tokens for Pool: ${contractName}...`)
+      await approveSpending(router, owner, factoryPoolTokens, factoryPoolDeployment.address)
+    }
+  }
+
+  async function approveWomPools(router: Contract, owner: SignerWithAddress) {
+    const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
+    for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
+      const womSidePoolTokens = []
+      for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
+        let asset = ''
+        hre.network.name == 'bsc_mainnet'
+          ? (asset = args[2] as string)
+          : (asset = (await deployments.get(`${args[1]}`)).address as string)
+        womSidePoolTokens.push(asset)
+      }
+      const contractName = getPoolContractName(poolName)
+      const womSidePoolDeployment = await deployments.get(contractName)
+
+      // approve by poolName
+      console.log(`Approving pool tokens for Pool: ${contractName}...`)
+      await approveSpending(router, owner, womSidePoolTokens, womSidePoolDeployment.address)
+    }
+  }
+
+  async function approveBnbxPool(router: Contract, owner: SignerWithAddress) {
+    const bnbx = BNBX_POOL_TOKENS_MAP[hre.network.name]
+    const bnbxPool = await deployments.get('BnbxPool')
+    const tokens = []
+    for (const index in bnbx) {
+      const tokenAddress = bnbx[index][2] as string
+      const tokenSymbol = bnbx[index][1]
+      const asset = await deployments.get(`Asset_BnbxPool_${tokenSymbol}`)
+      tokens.push(tokenAddress)
+      tokens.push(asset.address)
+    }
+    await approveSpending(router, owner, tokens, bnbxPool.address)
+  }
 }
+
 export default deployFunc
 deployFunc.tags = [contractName]
