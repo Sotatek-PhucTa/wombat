@@ -41,9 +41,6 @@ describe('CoreV2', function () {
 
     CoreV2Factory = await ethers.getContractFactory('TestCoreV2')
     CoreV2 = await CoreV2Factory.connect(owner).deploy()
-
-    // Wait for transaction to be mined
-    await CoreV2.deployTransaction.wait()
   })
 
   describe('[swapQuoteFunc] - the swap quote function', async function () {
@@ -316,5 +313,121 @@ describe('CoreV2', function () {
         ).to.equal(parseEther('1.185771028990578210'))
       })
     })
+  })
+
+  // TODO: Make respective V3 testing contracts and point this to CoreV3
+  describe.skip('[_swapToCreditQuote(]', async function () {
+    it('test 1', async function () {
+      expect(
+        await CoreV2.test_swapToCreditQuote(
+          parseEther('10000'),
+          parseEther('10000'),
+          parseEther('100'),
+          parseEther('0.002')
+        )
+      ).to.equal(parseEther('100.198019801980200000'))
+    })
+
+    it('test 2', async function () {
+      expect(
+        await CoreV2.test_swapToCreditQuote(
+          parseEther('20000'),
+          parseEther('10000'),
+          parseEther('100'),
+          parseEther('0.002')
+        )
+      ).to.equal(parseEther('100.049751243781090000'))
+    })
+
+    it('test 3', async function () {
+      expect(
+        await CoreV2.test_swapToCreditQuote(
+          parseEther('5000'),
+          parseEther('10000'),
+          parseEther('100'),
+          parseEther('0.002')
+        )
+      ).to.equal(parseEther('100.784313725490200000'))
+    })
+
+    // it('test 4', async function () {
+    //   expect(
+    //     await CoreV2.test_swapToCreditQuote(
+    //       parseEther('5000'),
+    //       parseEther('10000'),
+    //       parseEther('100'),
+    //       parseEther('0.02')
+    //     )
+    //   ).to.equal(parseEther('10.0784313725490196079'))
+    // })
+
+    // it('test 5', async function () {
+    //   expect(
+    //     await CoreV2.test_swapToCreditQuote(
+    //       parseEther('5000'),
+    //       parseEther('10000'),
+    //       parseEther('100'),
+    //       parseEther('0.0005')
+    //     )
+    //   ).to.equal(parseEther('100.198019801980198020'))
+    // })
+  })
+
+  // TODO: Make respective V3 testing contracts and point this to CoreV3
+  describe.skip('[_swapFromCreditQuote(]', async function () {
+    it('test 1', async function () {
+      expect(
+        await CoreV2.test_swapFromCreditQuote(
+          parseEther('10100'),
+          parseEther('10000'),
+          parseEther('100.198019801980200000'),
+          parseEther('0.002')
+        )
+      ).to.equal(parseEther('100'))
+    })
+
+    it('test 2', async function () {
+      expect(
+        await CoreV2.test_swapFromCreditQuote(
+          parseEther('20100'),
+          parseEther('10000'),
+          parseEther('100.049751243781090000'),
+          parseEther('0.002')
+        )
+      ).to.equal(parseEther('100'))
+    })
+
+    it('test 3', async function () {
+      expect(
+        await CoreV2.test_swapFromCreditQuote(
+          parseEther('5100'),
+          parseEther('10000'),
+          parseEther('100.784313725490200000'),
+          parseEther('0.002')
+        )
+      ).to.equal(parseEther('100'))
+    })
+
+    // it('test 4', async function () {
+    //   expect(
+    //     await CoreV2.test_swapFromCreditQuote(
+    //       parseEther('5000'),
+    //       parseEther('10000'),
+    //       parseEther('100'),
+    //       parseEther('0.02')
+    //     )
+    //   ).to.equal(parseEther('10.0784313725490196079'))
+    // })
+
+    // it('test 5', async function () {
+    //   expect(
+    //     await CoreV2.test_swapFromCreditQuote(
+    //       parseEther('5000'),
+    //       parseEther('10000'),
+    //       parseEther('100'),
+    //       parseEther('0.0005')
+    //     )
+    //   ).to.equal(parseEther('100.198019801980198020'))
+    // })
   })
 })

@@ -4,6 +4,7 @@ import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
 chai.use(solidity)
@@ -34,7 +35,11 @@ describe('Pool - Fee', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('PoolV2')
+    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
+    const coreV3 = await CoreV3Factory.deploy()
+    PoolFactory = (await ethers.getContractFactory('PoolV2', {
+      libraries: { CoreV3: coreV3.address },
+    })) as MegaPool__factory
   })
 
   beforeEach(async function () {
@@ -51,15 +56,6 @@ describe('Pool - Fee', function () {
     asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
     asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
     poolContract = await PoolFactory.connect(owner).deploy()
-
-    // wait for transactions to be mined
-    await token0.deployTransaction.wait()
-    await token1.deployTransaction.wait()
-    await token2.deployTransaction.wait()
-    await asset0.deployTransaction.wait()
-    await asset1.deployTransaction.wait()
-    await asset2.deployTransaction.wait()
-    await poolContract.deployTransaction.wait()
 
     // set pool address
     await asset0.setPool(poolContract.address)

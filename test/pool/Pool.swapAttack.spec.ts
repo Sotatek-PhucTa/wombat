@@ -4,6 +4,7 @@ import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
 chai.use(solidity)
@@ -21,7 +22,6 @@ describe.skip('Pool - Swap', function () {
   let asset1: Contract // USDC LP
   let lastBlockTime: number
   let fiveSecondsSince: number
-  let fiveSecondsAgo: number
 
   beforeEach(async function () {
     const [first, ...rest] = await ethers.getSigners()
@@ -32,12 +32,15 @@ describe.skip('Pool - Swap', function () {
     const lastBlock = await ethers.provider.getBlock('latest')
     lastBlockTime = lastBlock.timestamp
     fiveSecondsSince = lastBlockTime + 5 * 1000
-    fiveSecondsAgo = lastBlockTime - 5 * 1000
 
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('PoolV2')
+    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
+    const coreV3 = await CoreV3Factory.deploy()
+    PoolFactory = (await ethers.getContractFactory('PoolV2', {
+      libraries: { CoreV3: coreV3.address },
+    })) as MegaPool__factory
 
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000000', 18)) // 1B BUSD
@@ -45,13 +48,6 @@ describe.skip('Pool - Swap', function () {
     asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
     asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
     poolContract = await PoolFactory.connect(owner).deploy()
-
-    // wait for transactions to be mined
-    await token0.deployTransaction.wait()
-    await token1.deployTransaction.wait()
-    await asset0.deployTransaction.wait()
-    await asset1.deployTransaction.wait()
-    await poolContract.deployTransaction.wait()
 
     // set pool address
     await asset0.setPool(poolContract.address)
@@ -86,7 +82,7 @@ describe.skip('Pool - Swap', function () {
         // set haircut rate to 0
         poolContract.connect(owner).setHaircutRate(0)
 
-        const receipt = await poolContract
+        await poolContract
           .connect(user1)
           .swap(token0.address, token1.address, parseEther('100000000'), 0, user1.address, fiveSecondsSince)
 

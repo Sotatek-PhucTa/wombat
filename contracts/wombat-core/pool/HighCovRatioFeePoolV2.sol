@@ -34,34 +34,6 @@ contract HighCovRatioFeePoolV2 is PoolV2 {
     }
 
     /**
-     * @notice Calculate the high cov ratio fee in the to-asset in a swap.
-     * @dev When cov ratio is in the range [startCovRatio, endCovRatio], the marginal cov ratio is
-     * (r - startCovRatio) / (endCovRatio - startCovRatio). Here we approximate the high cov ratio cut
-     * by calculating the "average" fee.
-     * Note: `finalCovRatio` should be greater than `initCovRatio`
-     */
-    function _highCovRatioFee(uint256 initCovRatio, uint256 finalCovRatio) internal view returns (uint256 fee) {
-        if (finalCovRatio > endCovRatio) {
-            // invalid swap
-            revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
-        } else if (finalCovRatio <= startCovRatio || finalCovRatio <= initCovRatio) {
-            return 0;
-        }
-
-        unchecked {
-            // 1. Calculate the area of fee(r) = (r - startCovRatio) / (endCovRatio - startCovRatio)
-            // when r increase from initCovRatio to finalCovRatio
-            // 2. Then multiply it by (endCovRatio - startCovRatio) / (finalCovRatio - initCovRatio)
-            // to get the average fee over the range
-            uint256 a = initCovRatio <= startCovRatio
-                ? 0
-                : (initCovRatio - startCovRatio) * (initCovRatio - startCovRatio);
-            uint256 b = (finalCovRatio - startCovRatio) * (finalCovRatio - startCovRatio);
-            fee = ((b - a) / (finalCovRatio - initCovRatio) / 2).wdiv(endCovRatio - startCovRatio);
-        }
-    }
-
-    /**
      * @dev Exact output swap (fromAmount < 0) should be only used by off-chain quoting function as it is a gas monster
      */
     function _quoteFrom(
@@ -72,22 +44,18 @@ contract HighCovRatioFeePoolV2 is PoolV2 {
         (actualToAmount, haircut) = super._quoteFrom(fromAsset, toAsset, fromAmount);
 
         if (fromAmount >= 0) {
-            // normal quote
-            uint256 fromAssetCash = fromAsset.cash();
-            uint256 fromAssetLiability = fromAsset.liability();
-            uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(fromAmount)).wdiv(fromAssetLiability);
+            uint256 highCovRatioFee = CoreV3.highCovRatioFee(
+                fromAsset.cash(),
+                fromAsset.liability(),
+                uint256(fromAmount),
+                actualToAmount,
+                startCovRatio,
+                endCovRatio
+            );
 
-            if (finalFromAssetCovRatio > startCovRatio) {
-                // charge high cov ratio fee
-                uint256 highCovRatioFee = _highCovRatioFee(
-                    fromAssetCash.wdiv(fromAssetLiability),
-                    finalFromAssetCovRatio
-                ).wmul(actualToAmount);
-
-                actualToAmount -= highCovRatioFee;
-                unchecked {
-                    haircut += highCovRatioFee;
-                }
+            actualToAmount -= highCovRatioFee;
+            unchecked {
+                haircut += highCovRatioFee;
             }
         } else {
             // reverse quote
@@ -151,24 +119,25 @@ contract HighCovRatioFeePoolV2 is PoolV2 {
         address fromToken,
         address toToken,
         uint256 liquidity
-    ) external view override returns (uint256 amount, uint256 withdrewAmount) {
+    ) external view override returns (uint256 finalAmount, uint256 withdrewAmount) {
         _checkLiquidity(liquidity);
         _checkSameAddress(fromToken, toToken);
-        (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
 
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
-        uint256 fromAssetCash = fromAsset.cash() - withdrewAmount;
-        uint256 fromAssetLiability = fromAsset.liability() - liquidity;
-        uint256 finalFromAssetCovRatio = (fromAssetCash + uint256(withdrewAmount)).wdiv(fromAssetLiability);
+        uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
+        (finalAmount, withdrewAmount) = CoreV3.quoteWithdrawAmountFromOtherAsset(
+            fromAsset,
+            toAsset,
+            liquidity,
+            ampFactor,
+            scaleFactor,
+            haircutRate,
+            startCovRatio,
+            endCovRatio
+        );
 
-        if (finalFromAssetCovRatio > startCovRatio) {
-            uint256 highCovRatioFee = _highCovRatioFee(fromAssetCash.wdiv(fromAssetLiability), finalFromAssetCovRatio)
-                .wmul(amount);
-
-            amount -= highCovRatioFee;
-        }
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
-        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
+        finalAmount = finalAmount.fromWad(toAsset.underlyingTokenDecimals());
     }
 }

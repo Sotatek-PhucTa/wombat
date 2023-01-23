@@ -4,7 +4,7 @@ import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 import { ethers } from 'hardhat'
-import { near } from './assertions/near'
+import { near } from '../assertions/near'
 
 const { expect } = chai
 chai.use(solidity)
@@ -27,7 +27,9 @@ describe('High Coverage Ratio Pool - Swap', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('HighCovRatioFeePoolV2')
+    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
+    const coreV3 = await CoreV3Factory.deploy()
+    PoolFactory = await ethers.getContractFactory('HighCovRatioFeePoolV2', { libraries: { CoreV3: coreV3.address } })
   })
 
   beforeEach(async function () {
@@ -347,7 +349,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         pool
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('200001', 6), 0, users[0].address, fiveSecondsSince)
-      ).to.revertedWith('WOMBAT_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
     })
 
     it('from asset: r = 1.4 -> r = 1.8+ (reject)', async function () {
@@ -378,7 +380,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         pool
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('400001', 6), 0, users[0].address, fiveSecondsSince)
-      ).to.revertedWith('WOMBAT_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
     })
 
     it('from asset: r = 1.8+ -> (reject)', async function () {
@@ -409,7 +411,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
         pool
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('1', 6), 0, users[0].address, fiveSecondsSince)
-      ).to.revertedWith('WOMBAT_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
     })
 
     it('from asset: r = 1.7 -> 1.4 (should not change high cov ratio fee)', async function () {
@@ -499,9 +501,6 @@ describe('High Coverage Ratio Pool - Swap', function () {
         parseEther('100000')
       )
 
-      const expectedAmount = parseUnits('24657.58039437', 8)
-      expect(quotedWithdrawl).to.equal(expectedAmount)
-
       const withdrawAmount = await pool
         .connect(users[0])
         .callStatic.withdrawFromOtherAsset(
@@ -515,6 +514,8 @@ describe('High Coverage Ratio Pool - Swap', function () {
 
       // 0.00000001 difference in value! It probably comes from some rounding error
       expect(withdrawAmount).to.equal(parseUnits('24657.58039437', 8))
+
+      expect(quotedWithdrawl).to.equal(parseUnits('24657.58039437', 8))
     })
 
     it('from asset: r = 0.8 -> r = 0.9', async function () {

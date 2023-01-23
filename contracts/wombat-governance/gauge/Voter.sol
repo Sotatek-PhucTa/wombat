@@ -143,10 +143,11 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     /// This can also used to distribute bribes when _deltas are set to 0
     /// @param _lpVote address to LP tokens to vote
     /// @param _deltas change of vote for each LP tokens
-    function vote(
-        IERC20[] calldata _lpVote,
-        int256[] calldata _deltas
-    ) external nonReentrant returns (uint256[][] memory bribeRewards) {
+    function vote(IERC20[] calldata _lpVote, int256[] calldata _deltas)
+        external
+        nonReentrant
+        returns (uint256[][] memory bribeRewards)
+    {
         // 1. call _updateFor() to update WOM emission
         // 2. update related lpToken weight and total lpToken weight
         // 3. update used voting power and ensure there's enough voting power
@@ -281,7 +282,11 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     }
 
     /// @notice Add LP token into the Voter
-    function add(IGauge _gaugeManager, IERC20 _lpToken, IBribe _bribe) external onlyOwner {
+    function add(
+        IGauge _gaugeManager,
+        IERC20 _lpToken,
+        IBribe _bribe
+    ) external onlyOwner {
         require(infos[_lpToken].whitelist == false, 'voter: already added');
         require(address(_gaugeManager) != address(0));
         require(address(_lpToken) != address(0));
@@ -369,6 +374,20 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         wom.transfer(address(msg.sender), wom.balanceOf(address(this)));
     }
 
+    // TODO: create PR to check in this
+    /// @notice avoids loosing funds in case there is any tokens sent to this contract
+    /// @dev only to be called by owner
+    // function emergencyTokenWithdraw(address token) public onlyOwner {
+    //     // send that balance back to owner
+    //     if (token == address(0)) {
+    //         // is native token
+    //         (bool success, ) = msg.sender.call{value: address(this).balance}('');
+    //         require(success, 'Transfer failed');
+    //     } else {
+    //         IERC20(token).transfer(msg.sender, IERC20(token).balanceOf(address(this)));
+    //     }
+    // }
+
     /**
      * Read-only functions
      */
@@ -378,10 +397,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     }
 
     /// @notice Get pending bribes for LP tokens
-    function pendingBribes(
-        IERC20[] calldata _lpTokens,
-        address _user
-    )
+    function pendingBribes(IERC20[] calldata _lpTokens, address _user)
         external
         view
         returns (
@@ -448,7 +464,11 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     }
 
     /// @notice Calculate the latest amount of `claimable` for a gauge
-    function _getClaimable(IERC20 _lpToken, uint256 _baseIndex, uint256 _voteIndex) internal view returns (uint256) {
+    function _getClaimable(
+        IERC20 _lpToken,
+        uint256 _baseIndex,
+        uint256 _voteIndex
+    ) internal view returns (uint256) {
         uint256 baseIndexDelta = _baseIndex - infos[_lpToken].supplyBaseIndex;
         uint256 _baseShare = (weights[_lpToken].allocPoint * baseIndexDelta) / ACC_TOKEN_PRECISION;
 

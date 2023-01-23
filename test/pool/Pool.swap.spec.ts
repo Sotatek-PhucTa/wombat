@@ -4,6 +4,7 @@ import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
 chai.use(solidity)
@@ -41,7 +42,11 @@ describe('Pool - Swap', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    PoolFactory = await ethers.getContractFactory('PoolV2')
+    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
+    const coreV3 = await CoreV3Factory.deploy()
+    PoolFactory = (await ethers.getContractFactory('PoolV2', {
+      libraries: { CoreV3: coreV3.address },
+    })) as MegaPool__factory
 
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
@@ -53,17 +58,6 @@ describe('Pool - Swap', function () {
     asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
     asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP')
     poolContract = await PoolFactory.connect(owner).deploy()
-
-    // wait for transactions to be mined
-    await token0.deployTransaction.wait()
-    await token1.deployTransaction.wait()
-    await token2.deployTransaction.wait()
-    await token3.deployTransaction.wait()
-    await asset0.deployTransaction.wait()
-    await asset1.deployTransaction.wait()
-    await asset2.deployTransaction.wait()
-    await asset3.deployTransaction.wait()
-    await poolContract.deployTransaction.wait()
 
     // set pool address
     await asset0.setPool(poolContract.address)
@@ -564,7 +558,6 @@ describe('Pool - Swap', function () {
 
       it('reverts if asset not exist', async function () {
         const pax = await TestERC20Factory.connect(owner).deploy('PAX', 'PAX', 18, '0')
-        await pax.deployTransaction.wait()
         await expect(
           poolContract
             .connect(user1)

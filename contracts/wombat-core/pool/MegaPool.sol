@@ -1,0 +1,397 @@
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity ^0.8.5;
+
+import './HighCovRatioFeePoolV2.sol';
+import '../interfaces/IAdaptor.sol';
+import '../interfaces/IMegaPool.sol';
+
+/**
+ * @title Mega Pool
+ * @notice Mega Pool is able to handle cross-chain swaps in addition to ordinary swap within its own chain
+ * @dev Refer to note of `swapTokensForTokensCrossChain` for procedure of a cross-chain swap
+ * @dev TODO: write documents for protection mechanism and implement it
+ * Note: All variables are 18 decimals, except from that of parameters of external functions and underlying tokens
+ */
+contract MegaPool is HighCovRatioFeePoolV2, IMegaPool {
+    using DSMath for uint256;
+    using SafeERC20 for IERC20;
+    using SignedSafeMath for int256;
+
+    /**
+     * Storage
+     */
+
+    IAdaptor public adaptor;
+    bool internal swapCreditForTokensEnabled;
+    bool internal swapTokensForCreditEnabled;
+
+    uint64 public crossChainHaircut;
+
+    uint128 public totalCreditMinted;
+    uint128 public totalCreditBurned;
+
+    /// @notice the maximum allowed amount of net mint credit. `totalCreditMinted - totalCreditBurned` should be smaller than this value
+    uint128 public maximumNetMintedCredit;
+    uint128 public maximumNetBurnedCredit;
+
+    mapping(address => uint256) public creditBalance;
+
+    uint256[50] private _gap;
+
+    /**
+     * Events
+     */
+
+    /**
+     * @notice Event that is emitted when token is swapped into credit
+     * @dev `trackingId` 0 means the swap is on the same chain. Otherwise a cross-chain swap with `trackingId` is followed
+     */
+    event SwapTokensForCredit(
+        address indexed sender,
+        address indexed fromToken,
+        uint256 fromAmount,
+        uint256 creditAmount,
+        uint256 indexed trackingId
+    );
+
+    /**
+     * @notice Event that is emitted when credit is swapped into token
+     * @dev `trackingId` 0 means the swap is on the same chain. Otherwise it is a cross-chain swap with `trackingId`
+     */
+    event SwapCreditForTokens(
+        uint256 creditAmount,
+        address indexed toToken,
+        uint256 toAmount,
+        address indexed receiver,
+        uint256 indexed trackingId
+    );
+
+    event MintCredit(address indexed receiver, uint256 creditAmount, uint256 indexed trackingId);
+
+    /**
+     * Errors
+     */
+
+    error POOL__CREDIT_NOT_ENOUGH();
+    error POOL__REACH_MAXIMUM_MINTED_CREDIT();
+    error POOL__REACH_MAXIMUM_BURNED_CREDIT();
+    error POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
+    error POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
+
+    /**
+     * External/public functions
+     */
+
+    /**
+     * @notice Initiate a cross chain swap
+     * @dev Steps:
+     * 1. Swap `fromToken` for credit;
+     * 2. Notify relayer to bridge credit to the `toChain`;
+     * 3. Relayer invoke `completeSwapCreditForTokens` to swap credit for `toToken` in the `toChain`
+     * Note: haircut returned here is just high cov ratio fee.
+     */
+    function swapTokensForTokensCrossChain(
+        address fromToken,
+        address toToken,
+        uint256 toChain,
+        uint256 fromAmount,
+        uint256 minimumCreditAmount,
+        uint256 minimumToAmount,
+        address receiver,
+        uint32 nonce
+    )
+        external
+        payable
+        override
+        nonReentrant
+        whenNotPaused
+        returns (
+            uint256 creditAmount,
+            uint256 haircut,
+            uint256 trackingId
+        )
+    {
+        // Assumption: the adaptor should check `toChain` and `toToken`
+        if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
+        requireAssetNotPaused(fromToken);
+        _checkAddress(receiver);
+
+        IAsset fromAsset = _assetOf(fromToken);
+        IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
+
+        (creditAmount, haircut) = _swapTokensForCredit(
+            fromAsset,
+            fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
+            minimumCreditAmount
+        );
+
+        trackingId = adaptor.bridgeCreditAndSwapForTokens{value: msg.value}(
+            toToken,
+            toChain,
+            creditAmount,
+            minimumToAmount,
+            receiver,
+            nonce
+        );
+
+        emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, creditAmount, trackingId);
+    }
+
+    /**
+     * @notice Swap credit for tokens (same chain)
+     */
+    function swapCreditForTokens(
+        address toToken,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address receiver
+    ) external override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
+        _beforeSwapCreditForTokens(fromAmount, receiver);
+        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver, 0);
+    }
+
+    /**
+     * @notice Bridge credit and swap it for `toToken` in the `toChain`
+     */
+    function swapCreditForTokensCrossChain(
+        address toToken,
+        uint256 toChain,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address receiver,
+        uint32 nonce
+    ) external override nonReentrant whenNotPaused returns (uint256 trackingId) {
+        _beforeSwapCreditForTokens(fromAmount, receiver);
+
+        trackingId = adaptor.bridgeCreditAndSwapForTokens(
+            toToken,
+            toChain,
+            fromAmount,
+            minimumToAmount,
+            receiver,
+            nonce
+        );
+    }
+
+    /**
+     * Internal functions
+     */
+
+    function _swapTokensForCredit(
+        IAsset fromAsset,
+        uint256 fromAmount,
+        uint256 minimumCreditAmount
+    ) internal returns (uint256 creditAmount, uint256 haircut) {
+        // Assume credit has 18 decimals
+        if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
+        // TODO: implement _quoteFactor for credit
+        // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
+        (creditAmount, haircut) = CoreV3.quoteSwapTokensForCredit(
+            fromAsset,
+            fromAmount,
+            ampFactor,
+            WAD,
+            startCovRatio,
+            endCovRatio
+        );
+
+        _checkAmount(minimumCreditAmount, creditAmount);
+
+        creditBalance[feeTo] += haircut;
+        fromAsset.addCash(fromAmount);
+        totalCreditMinted += _to128(creditAmount + haircut);
+
+        // Check it doesn't exceed maximum out-going credits
+        if (totalCreditMinted > maximumNetMintedCredit + totalCreditBurned) revert POOL__REACH_MAXIMUM_MINTED_CREDIT();
+    }
+
+    function _beforeSwapCreditForTokens(uint256 fromAmount, address receiver) internal {
+        _checkAddress(receiver);
+        if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
+
+        if (creditBalance[msg.sender] < fromAmount) revert POOL__CREDIT_NOT_ENOUGH();
+        unchecked {
+            creditBalance[msg.sender] -= fromAmount;
+        }
+    }
+
+    function _doSwapCreditForTokens(
+        address toToken,
+        uint256 fromCreditAmount,
+        uint256 minimumToAmount,
+        address receiver,
+        uint256 nonce
+    ) internal returns (uint256 actualToAmount, uint256 haircut) {
+        if (fromCreditAmount == 0) revert WOMBAT_ZERO_AMOUNT();
+
+        IAsset toAsset = _assetOf(toToken);
+        uint8 toDecimal = toAsset.underlyingTokenDecimals();
+        (actualToAmount, haircut) = _swapCreditForTokens(toAsset, fromCreditAmount, minimumToAmount.toWad(toDecimal));
+        actualToAmount = actualToAmount.fromWad(toDecimal);
+        haircut = haircut.fromWad(toDecimal);
+
+        toAsset.transferUnderlyingToken(receiver, actualToAmount);
+        totalCreditBurned += _to128(fromCreditAmount);
+
+        // Check it doesn't exceed maximum in-coming credits
+        if (totalCreditBurned > maximumNetBurnedCredit + totalCreditMinted) revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
+
+        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, receiver, nonce);
+    }
+
+    function _swapCreditForTokens(
+        IAsset toAsset,
+        uint256 fromCreditAmount,
+        uint256 minimumToAmount
+    ) internal returns (uint256 actualToAmount, uint256 haircut) {
+        if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
+        // TODO: implement _quoteFactor for credit
+        (actualToAmount, haircut) = CoreV3.quoteSwapCreditForTokens(
+            (fromCreditAmount),
+            toAsset,
+            ampFactor,
+            WAD,
+            crossChainHaircut
+        );
+
+        _checkAmount(minimumToAmount, actualToAmount);
+        _feeCollected[toAsset] += haircut;
+
+        // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
+        toAsset.removeCash(actualToAmount + haircut);
+
+        // revert if cov ratio < 1% to avoid precision error
+        if (DSMath.wdiv(toAsset.cash(), toAsset.liability()) < WAD / 100) revert WOMBAT_FORBIDDEN();
+    }
+
+    /**
+     * Read-only functions
+     */
+
+    function quoteSwapCreditForTokens(address toToken, uint256 fromCreditAmount)
+        external
+        view
+        returns (uint256 amount)
+    {
+        IAsset toAsset = _assetOf(toToken);
+        if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
+        // TODO: implement _quoteFactor for credit
+        (uint256 actualToAmount, ) = CoreV3.quoteSwapCreditForTokens(
+            fromCreditAmount,
+            toAsset,
+            ampFactor,
+            WAD,
+            crossChainHaircut
+        );
+
+        uint8 toDecimal = toAsset.underlyingTokenDecimals();
+        amount = actualToAmount.fromWad(toDecimal);
+
+        // Check it doesn't exceed maximum in-coming credits
+        if (totalCreditBurned + fromCreditAmount > maximumNetBurnedCredit + totalCreditMinted)
+            revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
+    }
+
+    function quoteSwapTokensForCredit(address fromToken, uint256 fromAmount)
+        external
+        view
+        returns (uint256 creditAmount, uint256 haircut)
+    {
+        IAsset fromAsset = _assetOf(fromToken);
+
+        // Assume credit has 18 decimals
+        if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
+        // TODO: implement _quoteFactor for credit
+        // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
+        (creditAmount, haircut) = CoreV3.quoteSwapTokensForCredit(
+            fromAsset,
+            fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
+            ampFactor,
+            WAD,
+            startCovRatio,
+            endCovRatio
+        );
+
+        // Check it doesn't exceed maximum out-going credits
+        if (totalCreditMinted + creditAmount + haircut > maximumNetMintedCredit + totalCreditBurned)
+            revert POOL__REACH_MAXIMUM_MINTED_CREDIT();
+    }
+
+    /**
+     * @notice Calculate the r* and invariant when all credits are settled
+     */
+    function globalEquilCovRatioWithCredit() external view returns (uint256 equilCovRatio, uint256 invariantInUint) {
+        int256 invariant;
+        int256 SL;
+        (invariant, SL) = _globalInvariantFunc();
+        int256 creditOffset = (int256(uint256(totalCreditBurned)) - int256(uint256(totalCreditMinted))).wmul(
+            int256(WAD + ampFactor)
+        );
+        // int256 creditOffset = (int256(uint256(totalCreditBurned)) - int256(uint256(totalCreditMinted)));
+        invariant += creditOffset;
+        equilCovRatio = uint256(CoreV3.equilCovRatio(invariant, SL, int256(ampFactor)));
+        invariantInUint = uint256(invariant);
+    }
+
+    function _to128(uint256 val) internal pure returns (uint128) {
+        require(val <= type(uint128).max, 'uint128 overflow');
+        return uint128(val);
+    }
+
+    /**
+     * Permisioneed functions
+     */
+
+    /**
+     * @notice Swap credit to tokens; should be called by the adaptor
+     */
+    function completeSwapCreditForTokens(
+        address toToken,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address receiver,
+        uint256 trackingId
+    ) external override whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
+        require(msg.sender == address(adaptor));
+        // Note: `_checkAddress(receiver)` could be skipped at it is called at the `fromChain`
+        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver, trackingId);
+    }
+
+    /**
+     * @notice In case `completeSwapCreditForTokens` fails, adaptor should mint credit to the respective user
+     */
+    function mintCredit(
+        uint256 creditAmount,
+        address receiver,
+        uint256 trackingId
+    ) external override whenNotPaused {
+        require(msg.sender == address(adaptor));
+        creditBalance[receiver] += creditAmount;
+        emit MintCredit(receiver, creditAmount, trackingId);
+    }
+
+    function setSwapTokensForCreditEnabled(bool enable) external onlyOwner {
+        swapTokensForCreditEnabled = enable;
+    }
+
+    function setSwapCreditForTokensEnabled(bool enable) external onlyOwner {
+        swapCreditForTokensEnabled = enable;
+    }
+
+    function setMaximumNetMintedCredit(uint128 _maximumNetMintedCredit) external onlyOwner {
+        maximumNetMintedCredit = _maximumNetMintedCredit;
+    }
+
+    function setMaximumNetBurnedCredit(uint128 _maximumNetBurnedCredit) external onlyOwner {
+        maximumNetBurnedCredit = _maximumNetBurnedCredit;
+    }
+
+    function setAdaptorAddr(IAdaptor _adaptor) external onlyOwner {
+        adaptor = _adaptor;
+    }
+
+    function setCrossChainHaircut(uint64 _crossChainHaircut) external onlyOwner {
+        require(_crossChainHaircut < 1e18);
+        crossChainHaircut = _crossChainHaircut;
+    }
+}

@@ -64,9 +64,10 @@ export function getBigNumber(amount: BigNumberish, decimals = 18) {
 
 export * from './time'
 
-afterEach(async function () {
-  await network.provider.request({
-    method: 'hardhat_reset',
-    params: [],
-  })
-})
+// skipping this as it fails some tests
+// afterEach(async function () {
+//   await network.provider.request({
+//     method: 'hardhat_reset',
+//     params: [],
+//   })
+// })

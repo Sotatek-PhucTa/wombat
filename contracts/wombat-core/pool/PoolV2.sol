@@ -8,7 +8,7 @@ import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
-import './CoreV2.sol';
+import './CoreV3.sol';
 import '../interfaces/IAsset.sol';
 import './PausableAssets.sol';
 import '../../wombat-governance/interfaces/IMasterWombat.sol';
@@ -28,8 +28,7 @@ contract PoolV2 is
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
-    PausableAssets,
-    CoreV2
+    PausableAssets
 {
     using DSMath for uint256;
     using SafeERC20 for IERC20;
@@ -41,6 +40,9 @@ contract PoolV2 is
         mapping(address => IAsset) values;
         mapping(address => uint256) indexOf;
     }
+
+    int256 internal constant WAD_I = 10 ** 18;
+    uint256 internal constant WAD = 10 ** 18;
 
     /* Storage */
 
@@ -416,34 +418,6 @@ contract PoolV2 is
     /* Deposit */
 
     /**
-     * This function calculate the exactly amount of liquidity of the deposit. Assumes r* = 1
-     */
-    function _exactDepositToInEquil(
-        IAsset asset,
-        uint256 amount
-    ) internal view returns (uint256 lpTokenToMint, uint256 liabilityToMint, uint256 reward) {
-        liabilityToMint = exactDepositLiquidityInEquilImpl(
-            int256(amount),
-            int256(uint256(asset.cash())),
-            int256(uint256(asset.liability())),
-            int256(ampFactor)
-        ).toUint256();
-
-        if (liabilityToMint >= amount) {
-            unchecked {
-                reward = liabilityToMint - amount;
-            }
-        } else {
-            // rounding error
-            liabilityToMint = amount;
-        }
-
-        // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
-        uint256 liability = asset.liability();
-        lpTokenToMint = (liability == 0 ? liabilityToMint : (liabilityToMint * asset.totalSupply()) / liability);
-    }
-
-    /**
      * @notice Deposits asset in Pool
      * @param asset The asset to be deposited
      * @param amount The amount to be deposited
@@ -460,7 +434,7 @@ contract PoolV2 is
         _mintFee(asset);
 
         uint256 liabilityToMint;
-        (liquidity, liabilityToMint, ) = _exactDepositToInEquil(asset, amount);
+        (liquidity, liabilityToMint, ) = CoreV3.quoteDepositLiquidityInEquil(asset, amount, ampFactor);
 
         _checkLiquidity(liquidity);
         _checkAmount(minimumLiquidity, liquidity);
@@ -524,40 +498,14 @@ contract PoolV2 is
         uint256 amount
     ) external view override returns (uint256 liquidity, uint256 reward) {
         IAsset asset = _assetOf(token);
-        (liquidity, , reward) = _exactDepositToInEquil(asset, amount.toWad(asset.underlyingTokenDecimals()));
+        (liquidity, , reward) = CoreV3.quoteDepositLiquidityInEquil(
+            asset,
+            amount.toWad(asset.underlyingTokenDecimals()),
+            ampFactor
+        );
     }
 
     /* Withdraw */
-
-    /**
-     * @notice Calculates fee and liability to burn in case of withdrawal
-     * @param asset The asset willing to be withdrawn
-     * @param liquidity The liquidity willing to be withdrawn
-     * @return amount Total amount to be withdrawn from Pool
-     * @return liabilityToBurn Total liability to be burned by Pool
-     * @return fee
-     */
-    function _withdrawFrom(
-        IAsset asset,
-        uint256 liquidity
-    ) internal view returns (uint256 amount, uint256 liabilityToBurn, uint256 fee) {
-        liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
-        _checkLiquidity(liabilityToBurn);
-
-        amount = withdrawalAmountInEquilImpl(
-            -int256(liabilityToBurn),
-            int256(uint256(asset.cash())),
-            int256(uint256(asset.liability())),
-            int256(ampFactor)
-        ).toUint256();
-
-        if (liabilityToBurn >= amount) {
-            fee = liabilityToBurn - amount;
-        } else {
-            // rounding error
-            amount = liabilityToBurn;
-        }
-    }
 
     /**
      * @notice Withdraws liquidity amount of asset to `to` address ensuring minimum amount required
@@ -572,7 +520,7 @@ contract PoolV2 is
 
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
-        (amount, liabilityToBurn, ) = _withdrawFrom(asset, liquidity);
+        (amount, liabilityToBurn, ) = CoreV3.quoteWithdrawAmount(asset, liquidity, ampFactor);
         _checkAmount(minimumAmount, amount);
 
         asset.burn(address(asset), liquidity);
@@ -671,43 +619,8 @@ contract PoolV2 is
     ) external view override returns (uint256 amount, uint256 fee) {
         _checkLiquidity(liquidity);
         IAsset asset = _assetOf(token);
-        (amount, , fee) = _withdrawFrom(asset, liquidity);
+        (amount, , fee) = CoreV3.quoteWithdrawAmount(asset, liquidity, ampFactor);
         amount = amount.fromWad(asset.underlyingTokenDecimals());
-    }
-
-    function _quotePotentialWithdrawFromOtherAsset(
-        address fromToken,
-        address toToken,
-        uint256 liquidity
-    ) internal view returns (uint256 amount, uint256 withdrewAmount) {
-        IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
-
-        // quote withdraw
-        (withdrewAmount, , ) = _withdrawFrom(fromAsset, liquidity);
-
-        // quote swap
-        uint256 fromCash = fromAsset.cash() - withdrewAmount;
-        uint256 fromLiability = fromAsset.liability() - liquidity;
-
-        uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
-        if (scaleFactor != WAD) {
-            // apply scale factor on from-amounts
-            fromCash = (fromCash * scaleFactor) / 1e18;
-            fromLiability = (fromLiability * scaleFactor) / 1e18;
-            withdrewAmount = (withdrewAmount * scaleFactor) / 1e18;
-        }
-
-        uint256 idealToAmount = _swapQuoteFunc(
-            int256(fromCash),
-            int256(uint256(toAsset.cash())),
-            int256(fromLiability),
-            int256(uint256(toAsset.liability())),
-            int256(withdrewAmount),
-            int256(ampFactor)
-        );
-        // remove haircut
-        amount = idealToAmount - idealToAmount.wmul(haircutRate);
     }
 
     /**
@@ -716,23 +629,33 @@ contract PoolV2 is
      * @param fromToken The corresponding token user holds the LP (Asset) from
      * @param toToken The token wanting to be withdrawn (needs to be well covered)
      * @param liquidity The liquidity (amount of the lp assets) to be withdrawn
-     * @return amount The potential amount user would receive
+     * @return finalAmount The potential amount user would receive
      * @return withdrewAmount The amount of the from-token that is withdrew
      */
     function quotePotentialWithdrawFromOtherAsset(
         address fromToken,
         address toToken,
         uint256 liquidity
-    ) external view virtual returns (uint256 amount, uint256 withdrewAmount) {
+    ) external view virtual returns (uint256 finalAmount, uint256 withdrewAmount) {
         _checkLiquidity(liquidity);
         _checkSameAddress(fromToken, toToken);
 
-        (amount, withdrewAmount) = _quotePotentialWithdrawFromOtherAsset(fromToken, toToken, liquidity);
-
         IAsset fromAsset = _assetOf(fromToken);
         IAsset toAsset = _assetOf(toToken);
+        uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
+        (finalAmount, withdrewAmount) = CoreV3.quoteWithdrawAmountFromOtherAsset(
+            fromAsset,
+            toAsset,
+            liquidity,
+            ampFactor,
+            scaleFactor,
+            haircutRate,
+            0,
+            0
+        );
+
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
-        amount = amount.fromWad(toAsset.underlyingTokenDecimals());
+        finalAmount = finalAmount.fromWad(toAsset.underlyingTokenDecimals());
     }
 
     /* Swap */
@@ -763,44 +686,8 @@ contract PoolV2 is
         IAsset toAsset,
         int256 fromAmount
     ) internal view virtual returns (uint256 actualToAmount, uint256 haircut) {
-        // exact output swap quote should count haircut before swap
-        if (fromAmount < 0) {
-            fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
-        }
-
-        uint256 fromCash = uint256(fromAsset.cash());
-        uint256 fromLiability = uint256(fromAsset.liability());
-        uint256 toCash = uint256(toAsset.cash());
-
         uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
-        if (scaleFactor != WAD) {
-            // apply scale factor on from-amounts
-            fromCash = (fromCash * scaleFactor) / 1e18;
-            fromLiability = (fromLiability * scaleFactor) / 1e18;
-            fromAmount = (fromAmount * int256(scaleFactor)) / 1e18;
-        }
-
-        uint256 idealToAmount = _swapQuoteFunc(
-            int256(fromCash),
-            int256(toCash),
-            int256(fromLiability),
-            int256(uint256(toAsset.liability())),
-            fromAmount,
-            int256(ampFactor)
-        );
-        if ((fromAmount > 0 && toCash < idealToAmount) || (fromAmount < 0 && fromAsset.cash() < uint256(-fromAmount))) {
-            revert WOMBAT_CASH_NOT_ENOUGH();
-        }
-
-        if (fromAmount > 0) {
-            // normal quote
-            haircut = idealToAmount.wmul(haircutRate);
-            actualToAmount = idealToAmount - haircut;
-        } else {
-            // exact output swap quote count haircut in the fromAmount
-            actualToAmount = idealToAmount;
-            haircut = (uint256(-fromAmount)).wmul(haircutRate);
-        }
+        return CoreV3.quoteSwap(fromAsset, toAsset, fromAmount, ampFactor, scaleFactor, haircutRate);
     }
 
     /**
@@ -941,7 +828,7 @@ contract PoolV2 is
         int256 invariant;
         int256 SL;
         (invariant, SL) = _globalInvariantFunc();
-        equilCovRatio = uint256(_equilCovRatio(invariant, SL, int256(ampFactor)));
+        equilCovRatio = uint256(CoreV3.equilCovRatio(invariant, SL, int256(ampFactor)));
         invariantInUint = uint256(invariant);
     }
 
@@ -1003,7 +890,7 @@ contract PoolV2 is
             if (lpDividend > 0) {
                 // exact deposit to maintain r* = 1
                 // increase the value of the LP token, i.e. assetsPerShare
-                (, uint256 liabilityToMint, ) = _exactDepositToInEquil(asset, lpDividend);
+                (, uint256 liabilityToMint, ) = CoreV3.quoteDepositLiquidityInEquil(asset, lpDividend, ampFactor);
                 asset.addLiability(liabilityToMint);
                 asset.addCash(lpDividend);
             }

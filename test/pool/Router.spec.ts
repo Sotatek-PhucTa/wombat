@@ -10,15 +10,16 @@ import {
   DynamicAsset__factory,
   DynamicPool,
   DynamicPool__factory,
+  MegaPool__factory,
   TestERC20,
   TestERC20__factory,
   WETH,
   WETH__factory,
   WombatRouter,
   WombatRouter__factory,
-} from '../build/typechain'
-import { near } from './assertions/near'
-import { expectAssetValues } from './helpers/helper'
+} from '../../build/typechain'
+import { near } from '../assertions/near'
+import { expectAssetValues } from '../helpers/helper'
 
 const { expect } = chai
 chai.use(solidity)
@@ -68,10 +69,16 @@ describe('WombatRouter', function () {
     AssetFactory = (await ethers.getContractFactory('Asset')) as Asset__factory
     DynamicAssetFactory = (await ethers.getContractFactory('DynamicAsset')) as DynamicAsset__factory
     TestERC20Factory = (await ethers.getContractFactory('TestERC20')) as TestERC20__factory
-    PoolFactory = await ethers.getContractFactory('PoolV2')
+    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
+    const coreV3 = await CoreV3Factory.deploy()
+    PoolFactory = (await ethers.getContractFactory('PoolV2', {
+      libraries: { CoreV3: coreV3.address },
+    })) as MegaPool__factory
     Router = (await ethers.getContractFactory('WombatRouter')) as WombatRouter__factory
     WBNBFactory = (await ethers.getContractFactory('WETH')) as WETH__factory
-    DynamicPoolFactory = (await ethers.getContractFactory('DynamicPoolV2')) as DynamicPool__factory
+    DynamicPoolFactory = (await ethers.getContractFactory('DynamicPoolV2', {
+      libraries: { CoreV3: coreV3.address },
+    })) as DynamicPool__factory
   })
 
   beforeEach(async function () {
