@@ -21,7 +21,7 @@
     "@types/node": "^18.11.18",
     "@types/utf8": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^5.47.1",
-    "@typescript-eslint/parser": "^5.47.1",
+    "@typescript-eslint/parser": "^5.48.2",
     "chai": "^4.3.7",
     "dotenv": "^10.0.0",
     "eslint": "^8.31.0",
