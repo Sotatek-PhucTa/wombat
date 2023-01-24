@@ -16,7 +16,7 @@
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "@typechain/ethers-v5": "^7.0.0",
     "@typechain/hardhat": "^2.3.1",
-    "@types/lodash": "^4.14.187",
+    "@types/lodash": "^4.14.191",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.18",
     "@types/utf8": "^3.0.0",
