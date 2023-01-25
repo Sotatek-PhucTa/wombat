@@ -155,7 +155,8 @@ To verify proxy contracts:
   - MultiRewarderPerSec_mWOMPool_WOM => `0x7A8faab51ca17C181F1516Ce46a716e47cc6e38e`
   - MultiRewarderPerSec_qWOM => `0xc7Fbef047e25257043Afc1bB9bC3894a47cFCd6c`
   - MultiRewarderPerSec_qWOMPool_WOM => `0x5D0f17F6385B3C0d1d8Ac4a6CcCacA2A558408e6`
-  - MultiRewarderPerSec_V3_BNBx `0xe4fD5D5C4D058c2323a35FbB720897EEeB6C76Bd`
+  - MultiRewarderPerSec_V3_BNBx => `0xe4fD5D5C4D058c2323a35FbB720897EEeB6C76Bd`
+  - MultiRewarderPerSec_V3_BnbxPool_WBNB => `0xFbc083ed7655F68baF0f2039431Ea09c3635176D`
 
 ### BSC testnet deployed contracts:
 
@@ -232,14 +233,15 @@ To verify proxy contracts:
 
 - Wombat Rewarders
 
-  - MultiRewarderPerSec_V3_BUSD `0x175A26Ee230744e3FDcde5a101519a0682410a7F`
-  - MultiRewarderPerSec_V3_FRAX `0x6002E1e8B2d532C68e3Fe5caF2eDF527dFd63683`
-  - MultiRewarderPerSec_V3_FRAX_BUSD `0xeCfe20544a7CD580CA12DA7390b111898C6f7d1c`
-  - MultiRewarderPerSec_V3_qWOM `0x4ad04CfB697604f02c282a9c187dEE05abB23E1c`
-  - MultiRewarderPerSec_V3_qWOMPool_WOM `0xdA385297E58A7e7db4D88e3B1e4581B103C6f232`
-  - MultiRewarderPerSec_V3_USDC `0xa2644c7EB99DE997516378B269f09C2fce067fd8`
-  - MultiRewarderPerSec_V3_wWOM `0x6Ad9E25a49319E316137E938cC74c31F4D0C0fca`
-  - MultiRewarderPerSec_V3_BNBx `0xfA3392662153eC17dc176158F38f7DA67aefa08b`
+  - MultiRewarderPerSec_V3_BUSD => `0x175A26Ee230744e3FDcde5a101519a0682410a7F`
+  - MultiRewarderPerSec_V3_FRAX => `0x6002E1e8B2d532C68e3Fe5caF2eDF527dFd63683`
+  - MultiRewarderPerSec_V3_FRAX_BUSD => `0xeCfe20544a7CD580CA12DA7390b111898C6f7d1c`
+  - MultiRewarderPerSec_V3_qWOM => `0x4ad04CfB697604f02c282a9c187dEE05abB23E1c`
+  - MultiRewarderPerSec_V3_qWOMPool_WOM => `0xdA385297E58A7e7db4D88e3B1e4581B103C6f232`
+  - MultiRewarderPerSec_V3_USDC => `0xa2644c7EB99DE997516378B269f09C2fce067fd8`
+  - MultiRewarderPerSec_V3_wWOM => `0x6Ad9E25a49319E316137E938cC74c31F4D0C0fca`
+  - MultiRewarderPerSec_V3_BNBx => `0xfA3392662153eC17dc176158F38f7DA67aefa08b`
+  - MultiRewarderPerSec_V3_BnbxPool_WBNB => `0xd9F39e6F2a958a35Eff368adC5C39362326C5B36`
 
 - Wombat Token
 
