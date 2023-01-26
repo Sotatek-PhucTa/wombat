@@ -71,12 +71,12 @@ describe('WombatRouter', function () {
     TestERC20Factory = (await ethers.getContractFactory('TestERC20')) as TestERC20__factory
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
     const coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = (await ethers.getContractFactory('PoolV2', {
+    PoolFactory = (await ethers.getContractFactory('PoolV3', {
       libraries: { CoreV3: coreV3.address },
     })) as MegaPool__factory
     Router = (await ethers.getContractFactory('WombatRouter')) as WombatRouter__factory
     WBNBFactory = (await ethers.getContractFactory('WETH')) as WETH__factory
-    DynamicPoolFactory = (await ethers.getContractFactory('DynamicPoolV2', {
+    DynamicPoolFactory = (await ethers.getContractFactory('DynamicPoolV3', {
       libraries: { CoreV3: coreV3.address },
     })) as DynamicPool__factory
   })

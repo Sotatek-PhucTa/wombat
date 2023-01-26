@@ -27,7 +27,7 @@ describe('DynamicPool', function () {
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
     const coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = await ethers.getContractFactory('DynamicPoolV2', { libraries: { CoreV3: coreV3.address } })
+    PoolFactory = await ethers.getContractFactory('DynamicPoolV3', { libraries: { CoreV3: coreV3.address } })
   })
 
   beforeEach(async function () {

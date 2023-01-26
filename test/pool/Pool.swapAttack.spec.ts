@@ -38,7 +38,7 @@ describe.skip('Pool - Swap', function () {
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
     const coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = (await ethers.getContractFactory('PoolV2', {
+    PoolFactory = (await ethers.getContractFactory('PoolV3', {
       libraries: { CoreV3: coreV3.address },
     })) as MegaPool__factory
 
