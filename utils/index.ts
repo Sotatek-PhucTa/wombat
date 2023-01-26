@@ -12,6 +12,10 @@ export async function getDeployedContract(contract: string, deploymentName = con
   return ethers.getContractAt(contract, deployment.address)
 }
 
+export async function getTestERC20(tokenSymbol: string): Promise<Contract> {
+  return getDeployedContract('TestERC20', tokenSymbol)
+}
+
 export async function confirmTxn(response: Promise<TransactionResponse>, confirms = 1): Promise<TransactionReceipt> {
   const txn = await response
   return txn.wait(confirms)

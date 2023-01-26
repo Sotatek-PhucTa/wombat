@@ -20,7 +20,8 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
-      allowUnlimitedContractSize: false,
+      // TODO: reduce contract size
+      allowUnlimitedContractSize: true,
     },
     bsc_testnet: {
       url: 'https://data-seed-prebsc-1-s3.binance.org:8545',
