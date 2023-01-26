@@ -98,6 +98,7 @@ abstract contract Adaptor is
         }
     }
 
+    // TODO: test encode & decode
     function _encode(
         address toToken,
         uint256 creditAmount,

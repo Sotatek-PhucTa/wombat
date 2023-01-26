@@ -352,6 +352,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         address receiver,
         uint256 trackingId
     ) external override whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
+        // TODO: ass test for the sender
         require(msg.sender == address(adaptor));
         // Note: `_checkAddress(receiver)` could be skipped at it is called at the `fromChain`
         (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver, trackingId);
