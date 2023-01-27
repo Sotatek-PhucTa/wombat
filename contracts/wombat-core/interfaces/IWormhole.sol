@@ -85,14 +85,9 @@ interface IWormhole {
 
     function initialize() external;
 
-    function parseAndVerifyVM(bytes calldata encodedVM)
-        external
-        view
-        returns (
-            VM memory vm,
-            bool valid,
-            string memory reason
-        );
+    function parseAndVerifyVM(
+        bytes calldata encodedVM
+    ) external view returns (VM memory vm, bool valid, string memory reason);
 
     function verifyVM(VM memory vm) external view returns (bool valid, string memory reason);
 

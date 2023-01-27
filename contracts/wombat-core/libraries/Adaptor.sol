@@ -108,16 +108,9 @@ abstract contract Adaptor is
         return abi.encodePacked(toToken, creditAmount, minimumToAmount, receiver);
     }
 
-    function _decode(bytes memory encoded)
-        internal
-        pure
-        returns (
-            address toToken,
-            uint256 creditAmount,
-            uint256 minimumToAmount,
-            address receiver
-        )
-    {
+    function _decode(
+        bytes memory encoded
+    ) internal pure returns (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) {
         return (encoded.toAddress(0), encoded.toUint256(20), encoded.toUint256(52), encoded.toAddress(84));
     }
 

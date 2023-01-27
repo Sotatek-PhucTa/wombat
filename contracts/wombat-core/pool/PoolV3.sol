@@ -42,8 +42,8 @@ contract PoolV3 is
         mapping(address => uint256) indexOf;
     }
 
-    int256 internal constant WAD_I = 10**18;
-    uint256 internal constant WAD = 10**18;
+    int256 internal constant WAD_I = 10 ** 18;
+    uint256 internal constant WAD = 10 ** 18;
 
     /* Storage */
 
@@ -270,11 +270,7 @@ contract PoolV3 is
     /**
      * @dev unit of amount should be in WAD
      */
-    function transferTipBucket(
-        address token,
-        uint256 amount,
-        address to
-    ) external onlyOwner {
+    function transferTipBucket(address token, uint256 amount, address to) external onlyOwner {
         IAsset asset = _assetOf(token);
         uint256 tipBucketBal = tipBucketBalance(token);
 
@@ -498,12 +494,10 @@ contract PoolV3 is
      * @return liquidity The potential liquidity user would receive
      * @return reward
      */
-    function quotePotentialDeposit(address token, uint256 amount)
-        external
-        view
-        override
-        returns (uint256 liquidity, uint256 reward)
-    {
+    function quotePotentialDeposit(
+        address token,
+        uint256 amount
+    ) external view override returns (uint256 liquidity, uint256 reward) {
         IAsset asset = _assetOf(token);
         (liquidity, , reward) = CoreV3.quoteDepositLiquidityInEquil(
             asset,
@@ -521,11 +515,7 @@ contract PoolV3 is
      * @param minimumAmount The minimum amount that will be accepted by user
      * @return amount The total amount withdrawn
      */
-    function _withdraw(
-        IAsset asset,
-        uint256 liquidity,
-        uint256 minimumAmount
-    ) internal returns (uint256 amount) {
+    function _withdraw(IAsset asset, uint256 liquidity, uint256 minimumAmount) internal returns (uint256 amount) {
         // collect fee before withdraw
         _mintFee(asset);
 
@@ -624,12 +614,10 @@ contract PoolV3 is
      * @return amount The potential amount user would receive
      * @return fee The fee that would be applied
      */
-    function quotePotentialWithdraw(address token, uint256 liquidity)
-        external
-        view
-        override
-        returns (uint256 amount, uint256 fee)
-    {
+    function quotePotentialWithdraw(
+        address token,
+        uint256 liquidity
+    ) external view override returns (uint256 amount, uint256 fee) {
         _checkLiquidity(liquidity);
         IAsset asset = _assetOf(token);
         (amount, , fee) = CoreV3.quoteWithdrawAmount(asset, liquidity, ampFactor);

@@ -105,11 +105,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         override
         nonReentrant
         whenNotPaused
-        returns (
-            uint256 creditAmount,
-            uint256 haircut,
-            uint256 trackingId
-        )
+        returns (uint256 creditAmount, uint256 haircut, uint256 trackingId)
     {
         // Assumption: the adaptor should check `toChain` and `toToken`
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
@@ -268,11 +264,10 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
      * Read-only functions
      */
 
-    function quoteSwapCreditForTokens(address toToken, uint256 fromCreditAmount)
-        external
-        view
-        returns (uint256 amount)
-    {
+    function quoteSwapCreditForTokens(
+        address toToken,
+        uint256 fromCreditAmount
+    ) external view returns (uint256 amount) {
         IAsset toAsset = _assetOf(toToken);
         if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
         // TODO: implement _quoteFactor for credit
@@ -292,11 +287,10 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
             revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
     }
 
-    function quoteSwapTokensForCredit(address fromToken, uint256 fromAmount)
-        external
-        view
-        returns (uint256 creditAmount, uint256 haircut)
-    {
+    function quoteSwapTokensForCredit(
+        address fromToken,
+        uint256 fromAmount
+    ) external view returns (uint256 creditAmount, uint256 haircut) {
         IAsset fromAsset = _assetOf(fromToken);
 
         // Assume credit has 18 decimals
@@ -361,11 +355,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
     /**
      * @notice In case `completeSwapCreditForTokens` fails, adaptor should mint credit to the respective user
      */
-    function mintCredit(
-        uint256 creditAmount,
-        address receiver,
-        uint256 trackingId
-    ) external override whenNotPaused {
+    function mintCredit(uint256 creditAmount, address receiver, uint256 trackingId) external override whenNotPaused {
         require(msg.sender == address(adaptor));
         creditBalance[receiver] += creditAmount;
         emit MintCredit(receiver, creditAmount, trackingId);

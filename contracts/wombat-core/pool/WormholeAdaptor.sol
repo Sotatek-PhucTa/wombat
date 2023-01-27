@@ -16,11 +16,7 @@ contract WomholeAdaptor is Adaptor {
     ICoreRelayer public relayer;
     IWormhole public wormhole;
 
-    function initialize(
-        ICoreRelayer _relayer,
-        IWormhole _wormhole,
-        IMegaPool _megaPool
-    ) public virtual initializer {
+    function initialize(ICoreRelayer _relayer, IWormhole _wormhole, IMegaPool _megaPool) public virtual initializer {
         relayer = _relayer;
         wormhole = _wormhole;
 

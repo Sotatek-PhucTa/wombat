@@ -28,10 +28,10 @@ interface ICoreRelayer {
         IRelayProvider provider
     ) external payable returns (uint64 sequence);
 
-    function requestMultidelivery(DeliveryRequestsContainer memory deliveryRequests, uint32 nonce)
-        external
-        payable
-        returns (uint64 sequence);
+    function requestMultidelivery(
+        DeliveryRequestsContainer memory deliveryRequests,
+        uint32 nonce
+    ) external payable returns (uint64 sequence);
 
     /**
      * @dev When requesting a multiforward, the rollover chain is the chain where any remaining funds should be sent once all
@@ -44,15 +44,13 @@ interface ICoreRelayer {
         IRelayProvider provider
     ) external payable;
 
-    function deliverSingle(TargetDeliveryParametersSingle memory targetParams)
-        external
-        payable
-        returns (uint64 sequence);
+    function deliverSingle(
+        TargetDeliveryParametersSingle memory targetParams
+    ) external payable returns (uint64 sequence);
 
-    function redeliverSingle(TargetRedeliveryByTxHashParamsSingle memory targetParams)
-        external
-        payable
-        returns (uint64 sequence);
+    function redeliverSingle(
+        TargetRedeliveryByTxHashParamsSingle memory targetParams
+    ) external payable returns (uint64 sequence);
 
     // function requestRewardPayout(uint16 rewardChain, bytes32 receiver, uint32 nonce) external payable returns (uint64 sequence);
 
@@ -84,15 +82,13 @@ interface ICoreRelayer {
         IRelayProvider provider
     ) external pure returns (uint256 nativeQuote);
 
-    function getDeliveryInstructionsContainer(bytes memory encoded)
-        external
-        view
-        returns (DeliveryInstructionsContainer memory container);
+    function getDeliveryInstructionsContainer(
+        bytes memory encoded
+    ) external view returns (DeliveryInstructionsContainer memory container);
 
-    function getRedeliveryByTxHashInstruction(bytes memory encoded)
-        external
-        view
-        returns (RedeliveryByTxHashInstruction memory instruction);
+    function getRedeliveryByTxHashInstruction(
+        bytes memory encoded
+    ) external view returns (RedeliveryByTxHashInstruction memory instruction);
 
     struct DeliveryRequestsContainer {
         uint8 payloadId; // payloadID = 1

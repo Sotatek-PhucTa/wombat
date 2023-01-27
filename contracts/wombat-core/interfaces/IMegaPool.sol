@@ -11,14 +11,7 @@ interface IMegaPool {
         uint256 minimumToAmount,
         address receiver,
         uint32 nonce
-    )
-        external
-        payable
-        returns (
-            uint256 creditAmount,
-            uint256 haircut,
-            uint256 id
-        );
+    ) external payable returns (uint256 creditAmount, uint256 haircut, uint256 id);
 
     function swapCreditForTokens(
         address toToken,
@@ -48,9 +41,5 @@ interface IMegaPool {
         uint256 trackingId
     ) external returns (uint256 actualToAmount, uint256 haircut);
 
-    function mintCredit(
-        uint256 creditAmount,
-        address receiver,
-        uint256 trackingId
-    ) external;
+    function mintCredit(uint256 creditAmount, address receiver, uint256 trackingId) external;
 }

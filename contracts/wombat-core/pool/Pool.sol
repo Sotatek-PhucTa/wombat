@@ -370,15 +370,10 @@ contract Pool is
     /**
      * This function calculate the exactly amount of liquidity of the deposit. Assumes r* = 1
      */
-    function _exactDepositToInEquil(IAsset asset, uint256 amount)
-        internal
-        view
-        returns (
-            uint256 lpTokenToMint,
-            uint256 liabilityToMint,
-            uint256 reward
-        )
-    {
+    function _exactDepositToInEquil(
+        IAsset asset,
+        uint256 amount
+    ) internal view returns (uint256 lpTokenToMint, uint256 liabilityToMint, uint256 reward) {
         liabilityToMint = exactDepositLiquidityInEquilImpl(
             int256(amount),
             int256(uint256(asset.cash())),
@@ -474,12 +469,10 @@ contract Pool is
      * @return liquidity The potential liquidity user would receive
      * @return reward
      */
-    function quotePotentialDeposit(address token, uint256 amount)
-        external
-        view
-        override
-        returns (uint256 liquidity, uint256 reward)
-    {
+    function quotePotentialDeposit(
+        address token,
+        uint256 amount
+    ) external view override returns (uint256 liquidity, uint256 reward) {
         IAsset asset = _assetOf(token);
         (liquidity, , reward) = _exactDepositToInEquil(asset, amount.toWad(asset.underlyingTokenDecimals()));
     }
@@ -494,15 +487,10 @@ contract Pool is
      * @return liabilityToBurn Total liability to be burned by Pool
      * @return fee
      */
-    function _withdrawFrom(IAsset asset, uint256 liquidity)
-        internal
-        view
-        returns (
-            uint256 amount,
-            uint256 liabilityToBurn,
-            uint256 fee
-        )
-    {
+    function _withdrawFrom(
+        IAsset asset,
+        uint256 liquidity
+    ) internal view returns (uint256 amount, uint256 liabilityToBurn, uint256 fee) {
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
         _checkLiquidity(liabilityToBurn);
 
@@ -528,11 +516,7 @@ contract Pool is
      * @param minimumAmount The minimum amount that will be accepted by user
      * @return amount The total amount withdrawn
      */
-    function _withdraw(
-        IAsset asset,
-        uint256 liquidity,
-        uint256 minimumAmount
-    ) internal returns (uint256 amount) {
+    function _withdraw(IAsset asset, uint256 liquidity, uint256 minimumAmount) internal returns (uint256 amount) {
         // collect fee before withdraw
         _mintFee(asset);
 
@@ -631,12 +615,10 @@ contract Pool is
      * @return amount The potential amount user would receive
      * @return fee The fee that would be applied
      */
-    function quotePotentialWithdraw(address token, uint256 liquidity)
-        external
-        view
-        override
-        returns (uint256 amount, uint256 fee)
-    {
+    function quotePotentialWithdraw(
+        address token,
+        uint256 liquidity
+    ) external view override returns (uint256 amount, uint256 fee) {
         _checkLiquidity(liquidity);
         IAsset asset = _assetOf(token);
         (amount, , fee) = _withdrawFrom(asset, liquidity);
@@ -936,11 +918,7 @@ contract Pool is
     }
 
     // unit of amount should be in WAD
-    function transferTipBucket(
-        address token,
-        uint256 amount,
-        address to
-    ) external onlyOwner {
+    function transferTipBucket(address token, uint256 amount, address to) external onlyOwner {
         IAsset asset = _assetOf(token);
         uint256 tipBucketBal = tipBucketBalance(token);
 

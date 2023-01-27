@@ -21,31 +21,15 @@ contract TestCoreV2 is CoreV2 {
         return _solveQuad(b, A);
     }
 
-    function test_coefficientFunc(
-        int256 Lx,
-        int256 Ly,
-        int256 Rx,
-        int256 D,
-        int256 A
-    ) external pure returns (int256) {
+    function test_coefficientFunc(int256 Lx, int256 Ly, int256 Rx, int256 D, int256 A) external pure returns (int256) {
         return _coefficientFunc(Lx, Ly, Rx, D, A);
     }
 
-    function test_invariantFunc(
-        int256 Ax,
-        int256 Ay,
-        int256 Lx,
-        int256 Ly,
-        int256 A
-    ) external pure returns (int256) {
+    function test_invariantFunc(int256 Ax, int256 Ay, int256 Lx, int256 Ly, int256 A) external pure returns (int256) {
         return _invariantFunc(Lx, SignedSafeMath.wdiv(Ax, Lx), Ly, SignedSafeMath.wdiv(Ay, Ly), A);
     }
 
-    function test_depositFee(
-        uint256 cash,
-        uint256 liability,
-        uint256 amount
-    ) external pure returns (uint256) {
+    function test_depositFee(uint256 cash, uint256 liability, uint256 amount) external pure returns (uint256) {
         return 0;
     }
 
