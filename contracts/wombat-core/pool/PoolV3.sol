@@ -747,7 +747,7 @@ contract PoolV3 is
         uint256 minimumToAmount,
         address to,
         uint256 deadline
-    ) external override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
+    ) external virtual override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
         _checkSameAddress(fromToken, toToken);
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
         _checkAddress(to);
