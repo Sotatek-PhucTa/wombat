@@ -332,6 +332,48 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       secondsToStart: 60,
       tokenPerSec: parseEther('0'),
     },
+    BnbxPool_WBNB: {
+      lpToken: '0x0321D1D769cc1e81Ba21a157992b635363740f86', // LP-BnbxPool_WBNB pid: 16
+      rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
+    wmxWom: {
+      lpToken: '0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688', // LP-wmxWOM pid:7
+      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
+    wmxWOMPool_WOM: {
+      lpToken: '0xF9BdC872D75f76B946E0770f96851b1f2F653caC', // LP-WOM pid:6
+      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
+    mWOM: {
+      lpToken: '0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E', // LP-mWOM pid:9
+      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
+    mWOMPool_WOM: {
+      lpToken: '0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2', // LP-mWOMPool_WOM pid:8
+      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
+    qWOM: {
+      lpToken: '0x87073ba87517E7ca981AaE3636754bCA95C120E4', // LP-qWOM pid:11
+      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF', // QUO
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
+    qWOMPool_WOM: {
+      lpToken: '0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8', // LP-qWOMPool_WOM pid:10
+      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF', // QUO
+      secondsToStart: 60,
+      tokenPerSec: parseEther('0'),
+    },
   },
   bsc_testnet: {
     BUSD: {
