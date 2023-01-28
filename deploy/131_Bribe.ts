@@ -17,6 +17,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // Deploy all Bribe
   const voter = await getDeployedContract('Voter')
   for await (const [token, bribeConfig] of Object.entries(BRIBE_MAPS[hre.network.name])) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
     const name = `Bribe_${token}`
     const deployResult = await deploy(name, {

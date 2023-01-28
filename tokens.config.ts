@@ -1,5 +1,6 @@
 import { BigNumberish } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
+import { ethers } from 'hardhat'
 
 // starting 4 stables, all 18 decimals
 interface ITokens<T> {
@@ -20,6 +21,15 @@ export interface IRewarder {
   startTimestamp?: number
   secondsToStart?: number
   tokenPerSec: BigNumberish
+}
+
+function defaultRewarder(): IRewarder {
+  return {
+    lpToken: ethers.constants.AddressZero,
+    rewardToken: ethers.constants.AddressZero,
+    secondsToStart: 60,
+    tokenPerSec: parseEther('0'),
+  }
 }
 
 export const USD_TOKENS_MAP: ITokens<ITokensInfo> = {
@@ -247,72 +257,68 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       tokenPerSec: parseEther('0.1'),
     },
     BNBx: {
+      ...defaultRewarder(),
       lpToken: '0x16B37225889A038FAD42efdED462821224A509A7',
       rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
-      secondsToStart: 60,
-      tokenPerSec: 0,
     },
     BnbxPool_WBNB: {
+      ...defaultRewarder(),
       lpToken: '0x0321D1D769cc1e81Ba21a157992b635363740f86',
       rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
-      secondsToStart: 60,
-      tokenPerSec: 0,
     },
   },
   bsc_testnet: {
     BUSD: {
+      ...defaultRewarder(),
       lpToken: '0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567',
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
-      secondsToStart: 60,
       tokenPerSec: parseEther('0.1'),
     },
     USDC: {
+      ...defaultRewarder(),
       lpToken: '0x61ABD791773a7E583aD439F558C6c0F157707e7b',
       rewardToken: '0x615f8656b763ff4a6a82b3cbbd54d392834df13f',
-      secondsToStart: 60,
       tokenPerSec: parseUnits('0.035', 8),
     },
     FRAX_BUSD: {
+      ...defaultRewarder(),
       lpToken: '0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44',
       rewardToken: '0xa5c67cD016df71f9CDCfd9e76A749a1DDca6209d',
-      secondsToStart: 60,
       tokenPerSec: parseUnits('0.035', 8),
     },
     FRAX: {
+      ...defaultRewarder(),
       lpToken: '0xc5f2B1df25B9Bfc61444b002121330bEa9460F3e',
       rewardToken: '0xa5c67cD016df71f9CDCfd9e76A749a1DDca6209d',
-      secondsToStart: 60,
       tokenPerSec: parseUnits('0.035', 8),
     },
     wWOM: {
+      ...defaultRewarder(),
       lpToken: '0x505b0159871F86Ae0F4512BB52dB5030E31E2459',
       rewardToken: '0x9bbc325eb7a7367be610bce614c91ef7f29c69dc',
-      secondsToStart: 60,
       tokenPerSec: parseUnits('0.00035', 18),
     },
     qWOM: {
+      ...defaultRewarder(),
       lpToken: '0x22056C9F7e8033BBea9F32b903a0ECF8a7Ea0bC7',
       rewardToken: '0x458c742849d041723efadd9a31153233de442b9b',
-      secondsToStart: 60,
       tokenPerSec: parseUnits('0.09', 18),
     },
     qWOMPool_WOM: {
+      ...defaultRewarder(),
       lpToken: '0x82e5314DfdA9aD1a7F594B7D0b5D6b13459f4826',
       rewardToken: '0x458c742849d041723efadd9a31153233de442b9b',
-      secondsToStart: 60,
       tokenPerSec: parseUnits('0.14', 18),
     },
     BNBx: {
+      ...defaultRewarder(),
       lpToken: '0xB9207cc7bEaFb74773Cd08C869d6F6f890105564',
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
-      secondsToStart: 60,
-      tokenPerSec: 0,
     },
     BnbxPool_WBNB: {
+      ...defaultRewarder(),
       lpToken: '0xC0aFB4E0f2A11E2a74F168904F47178865b728ba',
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
-      secondsToStart: 60,
-      tokenPerSec: 0,
     },
   },
 }
@@ -321,80 +327,68 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
 export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
   bsc_mainnet: {
     HAY: {
+      ...defaultRewarder(),
       lpToken: '0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b', // LP-HAY
       rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     BNBx: {
+      ...defaultRewarder(),
       lpToken: '0x16B37225889A038FAD42efdED462821224A509A7', // LP-BNBx
       rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     BnbxPool_WBNB: {
+      ...defaultRewarder(),
       lpToken: '0x0321D1D769cc1e81Ba21a157992b635363740f86', // LP-BnbxPool_WBNB pid: 16
       rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     wmxWom: {
+      ...defaultRewarder(),
       lpToken: '0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688', // LP-wmxWOM pid:7
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     wmxWOMPool_WOM: {
+      ...defaultRewarder(),
       lpToken: '0xF9BdC872D75f76B946E0770f96851b1f2F653caC', // LP-WOM pid:6
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     mWOM: {
+      ...defaultRewarder(),
       lpToken: '0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E', // LP-mWOM pid:9
       rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     mWOMPool_WOM: {
+      ...defaultRewarder(),
       lpToken: '0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2', // LP-mWOMPool_WOM pid:8
       rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     qWOM: {
+      ...defaultRewarder(),
       lpToken: '0x87073ba87517E7ca981AaE3636754bCA95C120E4', // LP-qWOM pid:11
       rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF', // QUO
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
     qWOMPool_WOM: {
+      ...defaultRewarder(),
       lpToken: '0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8', // LP-qWOMPool_WOM pid:10
       rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF', // QUO
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
   },
   bsc_testnet: {
     BUSD: {
+      ...defaultRewarder(),
       lpToken: '0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567',
-      // RT1
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
-      secondsToStart: 60,
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
       tokenPerSec: parseEther('0.1'),
     },
     FRAX_BUSD: {
+      ...defaultRewarder(),
       lpToken: '0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44',
-      // RT1
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
-      secondsToStart: 60,
+      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
       tokenPerSec: parseEther('0.1'),
     },
     BNBx: {
+      ...defaultRewarder(),
       lpToken: '0xB9207cc7bEaFb74773Cd08C869d6F6f890105564',
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
-      secondsToStart: 60,
-      tokenPerSec: parseEther('0'),
     },
   },
 }
