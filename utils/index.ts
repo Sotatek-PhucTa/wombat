@@ -103,6 +103,27 @@ export async function printMultiRewarderV3Balances() {
   )
 }
 
+function printBigNumber(num: BigNumber) {
+  return num.div(1e12).toNumber() / 1e6
+}
+
+// print pool's ampFactor and haircut
+export async function printDeployedPoolsArgs() {
+  const pools = Object.keys(await deployments.all()).filter((name) => name.includes('Pool') && name.includes('Proxy'))
+  const data = await Promise.all(
+    pools.map(async (name) => {
+      const pool = await getDeployedContract('Pool', name)
+      return {
+        name,
+        pool: pool.address,
+        ampFactor: printBigNumber(await pool.ampFactor()),
+        haircut: printBigNumber(await pool.haircutRate()),
+      }
+    })
+  )
+  console.table(data)
+}
+
 export async function validateUpgrade(oldContract: string, newContract: string, opts?: ValidationOptions) {
   const oldFactory = await ethers.getContractFactory(oldContract)
   const newFactory = await ethers.getContractFactory(newContract)
