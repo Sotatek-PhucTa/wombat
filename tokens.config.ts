@@ -392,3 +392,14 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
     },
   },
 }
+
+export const WORMHOLE_MAPS: ITokens<{ relayer: string; wormholeBridge: string }> = {
+  bsc_testnet: {
+    relayer: '0xaC9EF19ab4F9a3a265809df0C4eB1E821f43391A',
+    wormholeBridge: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
+  },
+  fuji: {
+    relayer: '0x9Dfd308e2450b26290d926Beea2Bb4F0B8553729',
+    wormholeBridge: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
+  },
+}

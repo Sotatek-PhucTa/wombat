@@ -111,6 +111,7 @@ To verify proxy contracts:
   - Asset_stables_01_TUSD (LP-TUSD) => `0x3C8e744f6c4Ed2c9D82e33D69DDcC5961Aa05367`
 
 - BNBx Pool
+
   - Pool Proxy (Main entry) => `0x8df1126de13bcfef999556899F469d64021adBae`
   - Asset_BnbxPool_BNBx => `0x16B37225889A038FAD42efdED462821224A509A7`
   - Asset_BnbxPool_WBNB => `0x0321D1D769cc1e81Ba21a157992b635363740f86`
@@ -186,6 +187,16 @@ To verify proxy contracts:
   - Asset V2 (LP-TUSD) => `0xe52E4510cBff4712e46499ce6e87Ead760542fD5`
   - Asset V2 (LP-DAI) => `0x9f6163070fBCa0a61F49F37e0123fCE3d28B8e21`
   - Asset V2 (LP-vUSDC) => `0x36c99D7D330F37Ac8f22C261242033957fcC6c24`
+
+- Wombat Mega Pool
+
+  - Mega Pool Proxy (Main entry) => `0x28215D4CD27E985b8C4a6b29888B3E61D0eE5A07`
+  - Wormhole Adaptor Proxy (Main entry) => `0xf8221A7fd1F1Dad577295ee4D9c3495B9D4e02dB`
+  - CoreV3 => `0xB807880f87C68A132B3F8AC6F09872df0E4731C7`
+  - BUSD (6 d.p.) => `0x39A800Dd250D11BC543829De82ad384fA62A089f`
+  - vUSDC (6 d.p.) => `0xB342efA326a7F3475FDcC35e4aF236ED46fc310a`
+  - Asset (LP-BUSD) => `0x14caa782145Ad3381040BEF3606a4c2900Cd2dcC`
+  - Asset (LP-vUSDC) => `0xbb225C3CB08Adc582cE52CAd4Ef7d4CB0D9D2a7E`
 
 - Wombat Side Pool
 
@@ -273,6 +284,22 @@ To verify proxy contracts:
   - WBNB => `0x75D3A5080f2904D3c8ECddE08b6F4c33B260055C`
   - mWOM => `0x19DBbA3C11f2f484c6BD0288834Edb0eFd5eD672`
   - wmxWOM => `0x39bbBc689E2Da5D777c57707f4577f7869C751aD`
+
+### Fuji testnet deployed contracts:
+
+- Wombat Proxy Admin
+
+  - Default Proxy Admin (Proxy Admin) => `0x6ad9C3C1670CEE303309bC82e7a5754dCb831205`
+
+- Wombat Mega Pool
+
+  - Mega Pool Proxy (Main entry) => `0x4dF91022B08C4bD9B2cE54D0799E7a9Db801df2c`
+  - Wormhole Adaptor Proxy (Main entry) => `0x2e6C1DcfCE442DCD7B55e36580519E1cf75d936D`
+  - CoreV3 => `0xDa01302C86ECcd5bc94c1086777acF3c3Af7EF63`
+  - BUSD (6 d.p.) => `0x39946D6d1107FcE169245Da07af292F1DBF90f8E`
+  - vUSDC (6 d.p.) => `0x2c5bdB54A5A2C899D7a8BAA091EEcd0bCB2Bdd31`
+  - Asset (LP-BUSD) => `0x326335BA4e70cb838Ee55dEB18027A6570E5144d`
+  - Asset (LP-vUSDC) => `0x2c5bdB54A5A2C899D7a8BAA091EEcd0bCB2Bdd31`
 
 ### For BSC mainnet network
 

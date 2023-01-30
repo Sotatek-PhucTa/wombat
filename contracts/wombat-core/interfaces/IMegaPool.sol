@@ -27,7 +27,7 @@ interface IMegaPool {
         uint256 minimumToAmount,
         address receiver,
         uint32 nonce
-    ) external returns (uint256 id);
+    ) external payable returns (uint256 id);
 
     /*
      * Permissioned Functions

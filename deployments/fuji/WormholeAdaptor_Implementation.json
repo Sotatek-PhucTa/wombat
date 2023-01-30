@@ -1,0 +1,733 @@
+{
+  "address": "0x31169d9D1D37C1EbCA0BFb3a7538D2106DD40Bb4",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "ADAPTOR__CONTRACT_NOT_TRUSTED",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ADAPTOR__INVALID_TOKEN",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "emitterChainId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "emitterAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "LogError",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "wormholeChainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "approveContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "wormholeChainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenAddr",
+          "type": "address"
+        }
+      ],
+      "name": "approveToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "toToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "toChain",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "fromAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minimumToAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "nonce",
+          "type": "uint32"
+        }
+      ],
+      "name": "bridgeCreditAndSwapForTokens",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "trackingId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint16",
+          "name": "toChain",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint32",
+          "name": "gasLimit",
+          "type": "uint32"
+        }
+      ],
+      "name": "estimateCost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "gasEstimate",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ICoreRelayer",
+          "name": "_relayer",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IWormhole",
+          "name": "_wormhole",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IMegaPool",
+          "name": "_megaPool",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "megaPool",
+      "outputs": [
+        {
+          "internalType": "contract IMegaPool",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paused",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes[]",
+          "name": "vaas",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "",
+          "type": "bytes[]"
+        }
+      ],
+      "name": "receiveWormholeMessages",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "relayer",
+      "outputs": [
+        {
+          "internalType": "contract ICoreRelayer",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint16",
+          "name": "sourceChain",
+          "type": "uint16"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "sourceTxHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "sourceNonce",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint16",
+          "name": "targetChain",
+          "type": "uint16"
+        }
+      ],
+      "name": "requestRedeliver",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "wormholeChainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenAddr",
+          "type": "address"
+        }
+      ],
+      "name": "revokeToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "wormholeChainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "revokeTrustedContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "wormholeChainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "setTargetAdaptor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "targetAdaptor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "trustedContract",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "validToken",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "wormhole",
+      "outputs": [
+        {
+          "internalType": "contract IWormhole",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xa984c6cc9c5c236f8ba8a97800da19c3a5e35ab0f8a773ffd29b26245569a107",
+  "receipt": {
+    "to": null,
+    "from": "0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452",
+    "contractAddress": "0x31169d9D1D37C1EbCA0BFb3a7538D2106DD40Bb4",
+    "transactionIndex": 0,
+    "gasUsed": "1696570",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xb6d3533800b6f7265db7eec64a1a26bc94a361a81075452a67e039bb3bd0e624",
+    "transactionHash": "0xa984c6cc9c5c236f8ba8a97800da19c3a5e35ab0f8a773ffd29b26245569a107",
+    "logs": [],
+    "blockNumber": 18462181,
+    "cumulativeGasUsed": "1696570",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "19313200000ccf0f849b145dcbc5c113",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"ADAPTOR__CONTRACT_NOT_TRUSTED\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ADAPTOR__INVALID_TOKEN\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"emitterChainId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"emitterAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"LogError\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wormholeChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"approveContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wormholeChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"tokenAddr\",\"type\":\"address\"}],\"name\":\"approveToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"toToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"toChain\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fromAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minimumToAmount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"nonce\",\"type\":\"uint32\"}],\"name\":\"bridgeCreditAndSwapForTokens\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"trackingId\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"toChain\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"gasLimit\",\"type\":\"uint32\"}],\"name\":\"estimateCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"gasEstimate\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ICoreRelayer\",\"name\":\"_relayer\",\"type\":\"address\"},{\"internalType\":\"contract IWormhole\",\"name\":\"_wormhole\",\"type\":\"address\"},{\"internalType\":\"contract IMegaPool\",\"name\":\"_megaPool\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"megaPool\",\"outputs\":[{\"internalType\":\"contract IMegaPool\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes[]\",\"name\":\"vaas\",\"type\":\"bytes[]\"},{\"internalType\":\"bytes[]\",\"name\":\"\",\"type\":\"bytes[]\"}],\"name\":\"receiveWormholeMessages\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"relayer\",\"outputs\":[{\"internalType\":\"contract ICoreRelayer\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"sourceChain\",\"type\":\"uint16\"},{\"internalType\":\"bytes32\",\"name\":\"sourceTxHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint32\",\"name\":\"sourceNonce\",\"type\":\"uint32\"},{\"internalType\":\"uint16\",\"name\":\"targetChain\",\"type\":\"uint16\"}],\"name\":\"requestRedeliver\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wormholeChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"tokenAddr\",\"type\":\"address\"}],\"name\":\"revokeToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wormholeChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"revokeTrustedContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wormholeChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"setTargetAdaptor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"targetAdaptor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"trustedContract\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"validToken\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"wormhole\",\"outputs\":[{\"internalType\":\"contract IWormhole\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"bridgeCreditAndSwapForTokens(address,uint256,uint256,uint256,address,uint32)\":{\"details\":\"Nonce must be non-zero, otherwise wormhole will revert the message\"},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"paused()\":{\"details\":\"Returns true if the contract is paused, and false otherwise.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"approveContract(uint256,address)\":{\"notice\":\"Permisioneed functions\"},\"estimateCost(uint16,uint32)\":{\"notice\":\"Read-only functions\"},\"receiveWormholeMessages(bytes[],bytes[])\":{\"notice\":\"Permisioneed functions\"},\"requestRedeliver(uint16,bytes32,uint32,uint16)\":{\"notice\":\"External/public functions\"},\"trustedContract(uint256,address)\":{\"notice\":\"whether the contract is a trusted adaptor\"},\"validToken(uint256,address)\":{\"notice\":\"whether the token is valid\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/wombat-core/pool/WormholeAdaptor.sol\":\"WormholeAdaptor\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[],\"viaIR\":true},\"sources\":{\"@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (access/Ownable.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/ContextUpgradeable.sol\\\";\\nimport \\\"../proxy/utils/Initializable.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {\\n    address private _owner;\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    function __Ownable_init() internal onlyInitializing {\\n        __Ownable_init_unchained();\\n    }\\n\\n    function __Ownable_init_unchained() internal onlyInitializing {\\n        _transferOwnership(_msgSender());\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        require(owner() == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions anymore. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby removing any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(newOwner != address(0), \\\"Ownable: new owner is the zero address\\\");\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n\\n    /**\\n     * This empty reserved space is put in place to allow future versions to add new\\n     * variables without shifting down storage in the inheritance chain.\\n     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps\\n     */\\n    uint256[49] private __gap;\\n}\\n\",\"keccak256\":\"0xa76b2220edefdc343f80cf91d31819f528acfbc3050b5f7c581fe5b313c4faf6\",\"license\":\"MIT\"},\"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.5.0) (proxy/utils/Initializable.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../../utils/AddressUpgradeable.sol\\\";\\n\\n/**\\n * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed\\n * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an\\n * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer\\n * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.\\n *\\n * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as\\n * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.\\n *\\n * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure\\n * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.\\n *\\n * [CAUTION]\\n * ====\\n * Avoid leaving a contract uninitialized.\\n *\\n * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation\\n * contract, which may impact the proxy. To initialize the implementation contract, you can either invoke the\\n * initializer manually, or you can include a constructor to automatically mark it as initialized when it is deployed:\\n *\\n * [.hljs-theme-light.nopadding]\\n * ```\\n * /// @custom:oz-upgrades-unsafe-allow constructor\\n * constructor() initializer {}\\n * ```\\n * ====\\n */\\nabstract contract Initializable {\\n    /**\\n     * @dev Indicates that the contract has been initialized.\\n     */\\n    bool private _initialized;\\n\\n    /**\\n     * @dev Indicates that the contract is in the process of being initialized.\\n     */\\n    bool private _initializing;\\n\\n    /**\\n     * @dev Modifier to protect an initializer function from being invoked twice.\\n     */\\n    modifier initializer() {\\n        // If the contract is initializing we ignore whether _initialized is set in order to support multiple\\n        // inheritance patterns, but we only do this in the context of a constructor, because in other contexts the\\n        // contract may have been reentered.\\n        require(_initializing ? _isConstructor() : !_initialized, \\\"Initializable: contract is already initialized\\\");\\n\\n        bool isTopLevelCall = !_initializing;\\n        if (isTopLevelCall) {\\n            _initializing = true;\\n            _initialized = true;\\n        }\\n\\n        _;\\n\\n        if (isTopLevelCall) {\\n            _initializing = false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the\\n     * {initializer} modifier, directly or indirectly.\\n     */\\n    modifier onlyInitializing() {\\n        require(_initializing, \\\"Initializable: contract is not initializing\\\");\\n        _;\\n    }\\n\\n    function _isConstructor() private view returns (bool) {\\n        return !AddressUpgradeable.isContract(address(this));\\n    }\\n}\\n\",\"keccak256\":\"0x372b0bc04e3b4c074559bbbfb1317afddb56de5504158ca25a7f9cd403980445\",\"license\":\"MIT\"},\"@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (security/Pausable.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/ContextUpgradeable.sol\\\";\\nimport \\\"../proxy/utils/Initializable.sol\\\";\\n\\n/**\\n * @dev Contract module which allows children to implement an emergency stop\\n * mechanism that can be triggered by an authorized account.\\n *\\n * This module is used through inheritance. It will make available the\\n * modifiers `whenNotPaused` and `whenPaused`, which can be applied to\\n * the functions of your contract. Note that they will not be pausable by\\n * simply including this module, only once the modifiers are put in place.\\n */\\nabstract contract PausableUpgradeable is Initializable, ContextUpgradeable {\\n    /**\\n     * @dev Emitted when the pause is triggered by `account`.\\n     */\\n    event Paused(address account);\\n\\n    /**\\n     * @dev Emitted when the pause is lifted by `account`.\\n     */\\n    event Unpaused(address account);\\n\\n    bool private _paused;\\n\\n    /**\\n     * @dev Initializes the contract in unpaused state.\\n     */\\n    function __Pausable_init() internal onlyInitializing {\\n        __Pausable_init_unchained();\\n    }\\n\\n    function __Pausable_init_unchained() internal onlyInitializing {\\n        _paused = false;\\n    }\\n\\n    /**\\n     * @dev Returns true if the contract is paused, and false otherwise.\\n     */\\n    function paused() public view virtual returns (bool) {\\n        return _paused;\\n    }\\n\\n    /**\\n     * @dev Modifier to make a function callable only when the contract is not paused.\\n     *\\n     * Requirements:\\n     *\\n     * - The contract must not be paused.\\n     */\\n    modifier whenNotPaused() {\\n        require(!paused(), \\\"Pausable: paused\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Modifier to make a function callable only when the contract is paused.\\n     *\\n     * Requirements:\\n     *\\n     * - The contract must be paused.\\n     */\\n    modifier whenPaused() {\\n        require(paused(), \\\"Pausable: not paused\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Triggers stopped state.\\n     *\\n     * Requirements:\\n     *\\n     * - The contract must not be paused.\\n     */\\n    function _pause() internal virtual whenNotPaused {\\n        _paused = true;\\n        emit Paused(_msgSender());\\n    }\\n\\n    /**\\n     * @dev Returns to normal state.\\n     *\\n     * Requirements:\\n     *\\n     * - The contract must be paused.\\n     */\\n    function _unpause() internal virtual whenPaused {\\n        _paused = false;\\n        emit Unpaused(_msgSender());\\n    }\\n\\n    /**\\n     * This empty reserved space is put in place to allow future versions to add new\\n     * variables without shifting down storage in the inheritance chain.\\n     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps\\n     */\\n    uint256[49] private __gap;\\n}\\n\",\"keccak256\":\"0xc4fad3a1df63344db686f3764208f5e62592346ec3bc5a7fcb161f9d1b1e59b3\",\"license\":\"MIT\"},\"@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (security/ReentrancyGuard.sol)\\n\\npragma solidity ^0.8.0;\\nimport \\\"../proxy/utils/Initializable.sol\\\";\\n\\n/**\\n * @dev Contract module that helps prevent reentrant calls to a function.\\n *\\n * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier\\n * available, which can be applied to functions to make sure there are no nested\\n * (reentrant) calls to them.\\n *\\n * Note that because there is a single `nonReentrant` guard, functions marked as\\n * `nonReentrant` may not call one another. This can be worked around by making\\n * those functions `private`, and then adding `external` `nonReentrant` entry\\n * points to them.\\n *\\n * TIP: If you would like to learn more about reentrancy and alternative ways\\n * to protect against it, check out our blog post\\n * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].\\n */\\nabstract contract ReentrancyGuardUpgradeable is Initializable {\\n    // Booleans are more expensive than uint256 or any type that takes up a full\\n    // word because each write operation emits an extra SLOAD to first read the\\n    // slot's contents, replace the bits taken up by the boolean, and then write\\n    // back. This is the compiler's defense against contract upgrades and\\n    // pointer aliasing, and it cannot be disabled.\\n\\n    // The values being non-zero value makes deployment a bit more expensive,\\n    // but in exchange the refund on every call to nonReentrant will be lower in\\n    // amount. Since refunds are capped to a percentage of the total\\n    // transaction's gas, it is best to keep them low in cases like this one, to\\n    // increase the likelihood of the full refund coming into effect.\\n    uint256 private constant _NOT_ENTERED = 1;\\n    uint256 private constant _ENTERED = 2;\\n\\n    uint256 private _status;\\n\\n    function __ReentrancyGuard_init() internal onlyInitializing {\\n        __ReentrancyGuard_init_unchained();\\n    }\\n\\n    function __ReentrancyGuard_init_unchained() internal onlyInitializing {\\n        _status = _NOT_ENTERED;\\n    }\\n\\n    /**\\n     * @dev Prevents a contract from calling itself, directly or indirectly.\\n     * Calling a `nonReentrant` function from another `nonReentrant`\\n     * function is not supported. It is possible to prevent this from happening\\n     * by making the `nonReentrant` function external, and making it call a\\n     * `private` function that does the actual work.\\n     */\\n    modifier nonReentrant() {\\n        // On the first call to nonReentrant, _notEntered will be true\\n        require(_status != _ENTERED, \\\"ReentrancyGuard: reentrant call\\\");\\n\\n        // Any calls to nonReentrant after this point will fail\\n        _status = _ENTERED;\\n\\n        _;\\n\\n        // By storing the original value once again, a refund is triggered (see\\n        // https://eips.ethereum.org/EIPS/eip-2200)\\n        _status = _NOT_ENTERED;\\n    }\\n\\n    /**\\n     * This empty reserved space is put in place to allow future versions to add new\\n     * variables without shifting down storage in the inheritance chain.\\n     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps\\n     */\\n    uint256[49] private __gap;\\n}\\n\",\"keccak256\":\"0x68ec83a4d77bb3d4d639191b1567db8c1929b6d913188e9ba4a06d48e6101d43\",\"license\":\"MIT\"},\"@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.5.0) (utils/Address.sol)\\n\\npragma solidity ^0.8.1;\\n\\n/**\\n * @dev Collection of functions related to the address type\\n */\\nlibrary AddressUpgradeable {\\n    /**\\n     * @dev Returns true if `account` is a contract.\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * It is unsafe to assume that an address for which this function returns\\n     * false is an externally-owned account (EOA) and not a contract.\\n     *\\n     * Among others, `isContract` will return false for the following\\n     * types of addresses:\\n     *\\n     *  - an externally-owned account\\n     *  - a contract in construction\\n     *  - an address where a contract will be created\\n     *  - an address where a contract lived, but was destroyed\\n     * ====\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * You shouldn't rely on `isContract` to protect against flash loan attacks!\\n     *\\n     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets\\n     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract\\n     * constructor.\\n     * ====\\n     */\\n    function isContract(address account) internal view returns (bool) {\\n        // This method relies on extcodesize/address.code.length, which returns 0\\n        // for contracts in construction, since the code is only stored at the end\\n        // of the constructor execution.\\n\\n        return account.code.length > 0;\\n    }\\n\\n    /**\\n     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to\\n     * `recipient`, forwarding all available gas and reverting on errors.\\n     *\\n     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost\\n     * of certain opcodes, possibly making contracts go over the 2300 gas limit\\n     * imposed by `transfer`, making them unable to receive funds via\\n     * `transfer`. {sendValue} removes this limitation.\\n     *\\n     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].\\n     *\\n     * IMPORTANT: because control is transferred to `recipient`, care must be\\n     * taken to not create reentrancy vulnerabilities. Consider using\\n     * {ReentrancyGuard} or the\\n     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].\\n     */\\n    function sendValue(address payable recipient, uint256 amount) internal {\\n        require(address(this).balance >= amount, \\\"Address: insufficient balance\\\");\\n\\n        (bool success, ) = recipient.call{value: amount}(\\\"\\\");\\n        require(success, \\\"Address: unable to send value, recipient may have reverted\\\");\\n    }\\n\\n    /**\\n     * @dev Performs a Solidity function call using a low level `call`. A\\n     * plain `call` is an unsafe replacement for a function call: use this\\n     * function instead.\\n     *\\n     * If `target` reverts with a revert reason, it is bubbled up by this\\n     * function (like regular Solidity function calls).\\n     *\\n     * Returns the raw returned data. To convert to the expected return value,\\n     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].\\n     *\\n     * Requirements:\\n     *\\n     * - `target` must be a contract.\\n     * - calling `target` with `data` must not revert.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(address target, bytes memory data) internal returns (bytes memory) {\\n        return functionCall(target, data, \\\"Address: low-level call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with\\n     * `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, 0, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but also transferring `value` wei to `target`.\\n     *\\n     * Requirements:\\n     *\\n     * - the calling contract must have an ETH balance of at least `value`.\\n     * - the called Solidity function must be `payable`.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, value, \\\"Address: low-level call with value failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but\\n     * with `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        require(address(this).balance >= value, \\\"Address: insufficient balance for call\\\");\\n        require(isContract(target), \\\"Address: call to non-contract\\\");\\n\\n        (bool success, bytes memory returndata) = target.call{value: value}(data);\\n        return verifyCallResult(success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {\\n        return functionStaticCall(target, data, \\\"Address: low-level static call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal view returns (bytes memory) {\\n        require(isContract(target), \\\"Address: static call to non-contract\\\");\\n\\n        (bool success, bytes memory returndata) = target.staticcall(data);\\n        return verifyCallResult(success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Tool to verifies that a low level call was successful, and revert if it wasn't, either by bubbling the\\n     * revert reason using the provided one.\\n     *\\n     * _Available since v4.3._\\n     */\\n    function verifyCallResult(\\n        bool success,\\n        bytes memory returndata,\\n        string memory errorMessage\\n    ) internal pure returns (bytes memory) {\\n        if (success) {\\n            return returndata;\\n        } else {\\n            // Look for revert reason and bubble it up if present\\n            if (returndata.length > 0) {\\n                // The easiest way to bubble the revert reason is using memory via assembly\\n\\n                assembly {\\n                    let returndata_size := mload(returndata)\\n                    revert(add(32, returndata), returndata_size)\\n                }\\n            } else {\\n                revert(errorMessage);\\n            }\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x55cf2bd9fc76704ddcdc19834cd288b7de00fc0f298a40ea16a954ae8991db2d\",\"license\":\"MIT\"},\"@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\nimport \\\"../proxy/utils/Initializable.sol\\\";\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract ContextUpgradeable is Initializable {\\n    function __Context_init() internal onlyInitializing {\\n    }\\n\\n    function __Context_init_unchained() internal onlyInitializing {\\n    }\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    /**\\n     * This empty reserved space is put in place to allow future versions to add new\\n     * variables without shifting down storage in the inheritance chain.\\n     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps\\n     */\\n    uint256[50] private __gap;\\n}\\n\",\"keccak256\":\"0xcde1b9df57a7e25764a643792b42fb9b20f06199efc7b4bfc880334a45472ce7\",\"license\":\"MIT\"},\"contracts/wombat-core/interfaces/IAdaptor.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\npragma solidity ^0.8.5;\\n\\ninterface IAdaptor {\\n    /* Cross-chain functions that is used to initiate a cross-chain message, should be invoked by Pool */\\n\\n    function bridgeCreditAndSwapForTokens(\\n        address toToken,\\n        uint256 toChain,\\n        uint256 fromAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint32 nonce\\n    ) external payable returns (uint256 trackingId);\\n}\\n\",\"keccak256\":\"0xc9707f1238f1bab2d6c629e204840f9b6e34c35f51ce292fbcdd3448cbc17a4a\",\"license\":\"GPL-3.0\"},\"contracts/wombat-core/interfaces/ICoreRelayer.sol\":{\"content\":\"// contracts/Messages.sol\\n// SPDX-License-Identifier: Apache 2\\n\\npragma solidity ^0.8.0;\\n\\nimport './IRelayProvider.sol';\\n\\ninterface ICoreRelayer {\\n    /**\\n     * @dev This is the basic function for requesting delivery\\n     */\\n    function requestDelivery(\\n        DeliveryRequest memory request,\\n        uint32 nonce,\\n        IRelayProvider provider\\n    ) external payable returns (uint64 sequence);\\n\\n    function requestForward(\\n        DeliveryRequest memory request,\\n        uint16 rolloverChain,\\n        uint32 nonce,\\n        IRelayProvider provider\\n    ) external payable;\\n\\n    function requestRedelivery(\\n        RedeliveryByTxHashRequest memory request,\\n        uint32 nonce,\\n        IRelayProvider provider\\n    ) external payable returns (uint64 sequence);\\n\\n    function requestMultidelivery(DeliveryRequestsContainer memory deliveryRequests, uint32 nonce)\\n        external\\n        payable\\n        returns (uint64 sequence);\\n\\n    /**\\n     * @dev When requesting a multiforward, the rollover chain is the chain where any remaining funds should be sent once all\\n     *     the requested budgets have been covered. The remaining funds will be added to the computeBudget of the rollover chain.\\n     */\\n    function requestMultiforward(\\n        DeliveryRequestsContainer memory deliveryRequests,\\n        uint16 rolloverChain,\\n        uint32 nonce,\\n        IRelayProvider provider\\n    ) external payable;\\n\\n    function deliverSingle(TargetDeliveryParametersSingle memory targetParams)\\n        external\\n        payable\\n        returns (uint64 sequence);\\n\\n    function redeliverSingle(TargetRedeliveryByTxHashParamsSingle memory targetParams)\\n        external\\n        payable\\n        returns (uint64 sequence);\\n\\n    // function requestRewardPayout(uint16 rewardChain, bytes32 receiver, uint32 nonce) external payable returns (uint64 sequence);\\n\\n    // function collectRewards(bytes memory encodedVm) external;\\n\\n    function toWormholeFormat(address addr) external pure returns (bytes32 whFormat);\\n\\n    function fromWormholeFormat(bytes32 whFormatAddress) external pure returns (address addr);\\n\\n    function getDefaultRelayProvider() external view returns (IRelayProvider);\\n\\n    function getDefaultRelayParams() external pure returns (bytes memory relayParams);\\n\\n    function quoteGasDeliveryFee(\\n        uint16 targetChain,\\n        uint32 gasLimit,\\n        IRelayProvider relayProvider\\n    ) external pure returns (uint256 deliveryQuote);\\n\\n    function quoteGasRedeliveryFee(\\n        uint16 targetChain,\\n        uint32 gasLimit,\\n        IRelayProvider relayProvider\\n    ) external pure returns (uint256 redeliveryQuote);\\n\\n    function quoteApplicationBudgetFee(\\n        uint16 targetChain,\\n        uint256 targetAmount,\\n        IRelayProvider provider\\n    ) external pure returns (uint256 nativeQuote);\\n\\n    function getDeliveryInstructionsContainer(bytes memory encoded)\\n        external\\n        view\\n        returns (DeliveryInstructionsContainer memory container);\\n\\n    function getRedeliveryByTxHashInstruction(bytes memory encoded)\\n        external\\n        view\\n        returns (RedeliveryByTxHashInstruction memory instruction);\\n\\n    struct DeliveryRequestsContainer {\\n        uint8 payloadId; // payloadID = 1\\n        address relayProviderAddress;\\n        DeliveryRequest[] requests;\\n    }\\n\\n    /**\\n     *  targetChain - the chain to send to in Wormhole Chain ID format.\\n     *  targetAddress - is the recipient contract address on the target chain (in Wormhole 32-byte address format).\\n     *  refundAddress - is the address where any remaining computeBudget should be sent at the end of the transaction. (In Wormhole address format. Must be on the target chain.)\\n     *  computeBudget - is the maximum amount (denominated in this chain's wei) that the relayer should spend on transaction fees (gas) for this delivery. Usually calculated from quoteEvmDeliveryPrice.\\n     *  applicationBudget - this amount (denominated in this chain's wei) will be converted to the target native currency and given to the recipient contract at the beginning of the delivery execution.\\n     *  relayParameters - optional payload which can alter relayer behavior.\\n     */\\n    struct DeliveryRequest {\\n        uint16 targetChain;\\n        bytes32 targetAddress;\\n        bytes32 refundAddress;\\n        uint256 computeBudget;\\n        uint256 applicationBudget;\\n        bytes relayParameters; //Optional\\n    }\\n\\n    struct RedeliveryByTxHashRequest {\\n        uint16 sourceChain;\\n        bytes32 sourceTxHash;\\n        uint32 sourceNonce;\\n        uint16 targetChain;\\n        uint256 newComputeBudget;\\n        uint256 newApplicationBudget;\\n        bytes newRelayParameters;\\n    }\\n\\n    struct TargetDeliveryParameters {\\n        // encoded batchVM to be delivered on the target chain\\n        bytes encodedVM;\\n        // Index of the delivery VM in a batch\\n        uint8 deliveryIndex;\\n        // Index of the target chain inside the delivery VM\\n        uint8 multisendIndex;\\n    }\\n    // Optional gasOverride which can be supplied by the relayer\\n    // uint32 targetCallGasOverride;\\n\\n    struct TargetDeliveryParametersSingle {\\n        // encoded batchVM to be delivered on the target chain\\n        bytes[] encodedVMs;\\n        // Index of the delivery VM in a batch\\n        uint8 deliveryIndex;\\n        // Index of the target chain inside the delivery VM\\n        uint8 multisendIndex;\\n    }\\n    // Optional gasOverride which can be supplied by the relayer\\n    // uint32 targetCallGasOverride;\\n\\n    struct TargetRedeliveryByTxHashParamsSingle {\\n        bytes redeliveryVM;\\n        bytes[] sourceEncodedVMs;\\n        uint8 deliveryIndex;\\n        uint8 multisendIndex;\\n    }\\n\\n    //REVISE consider removing this, or keeping for future compatibility\\n    // struct RelayParameters {\\n    // }\\n\\n    struct DeliveryInstructionsContainer {\\n        uint8 payloadId; //1\\n        bool sufficientlyFunded;\\n        DeliveryInstruction[] instructions;\\n    }\\n\\n    struct DeliveryInstruction {\\n        uint16 targetChain;\\n        bytes32 targetAddress;\\n        bytes32 refundAddress;\\n        uint256 maximumRefundTarget;\\n        uint256 applicationBudgetTarget;\\n        ExecutionParameters executionParameters; //Has the gas limit to execute with\\n    }\\n\\n    struct RedeliveryByTxHashInstruction {\\n        uint8 payloadId; //2\\n        uint16 sourceChain;\\n        bytes32 sourceTxHash;\\n        uint32 sourceNonce;\\n        uint16 targetChain;\\n        uint256 newMaximumRefundTarget;\\n        uint256 newApplicationBudgetTarget;\\n        ExecutionParameters executionParameters;\\n    }\\n\\n    struct ExecutionParameters {\\n        uint8 version;\\n        uint32 gasLimit;\\n        bytes32 providerDeliveryAddress;\\n    }\\n}\\n\",\"keccak256\":\"0x66ced3eff8732e025ee60b844f86da99bede2f03c6ed5fa821906ea4e9ca995d\",\"license\":\"Apache 2\"},\"contracts/wombat-core/interfaces/IMegaPool.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\npragma solidity ^0.8.5;\\n\\ninterface IMegaPool {\\n    function swapTokensForTokensCrossChain(\\n        address fromToken,\\n        address toToken,\\n        uint256 toChain,\\n        uint256 fromAmount,\\n        uint256 minimumCreditAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint32 nonce\\n    )\\n        external\\n        payable\\n        returns (\\n            uint256 creditAmount,\\n            uint256 haircut,\\n            uint256 id\\n        );\\n\\n    function swapCreditForTokens(\\n        address toToken,\\n        uint256 fromAmount,\\n        uint256 minimumToAmount,\\n        address receiver\\n    ) external returns (uint256 actualToAmount, uint256 haircut);\\n\\n    function swapCreditForTokensCrossChain(\\n        address toToken,\\n        uint256 toChain,\\n        uint256 fromAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint32 nonce\\n    ) external payable returns (uint256 id);\\n\\n    /*\\n     * Permissioned Functions\\n     */\\n\\n    function completeSwapCreditForTokens(\\n        address toToken,\\n        uint256 fromAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint256 trackingId\\n    ) external returns (uint256 actualToAmount, uint256 haircut);\\n\\n    function mintCredit(\\n        uint256 creditAmount,\\n        address receiver,\\n        uint256 trackingId\\n    ) external;\\n}\\n\",\"keccak256\":\"0x746eb660bac9e2b7bd1a5dec8e712ecd2c6b70ac0f18bda0f17740e05d0ddf24\",\"license\":\"GPL-3.0\"},\"contracts/wombat-core/interfaces/IRelayProvider.sol\":{\"content\":\"// contracts/Messages.sol\\n// SPDX-License-Identifier: Apache 2\\n\\npragma solidity ^0.8.0;\\n\\ninterface IRelayProvider {\\n    function quoteDeliveryOverhead(uint16 targetChain) external view returns (uint256 deliveryOverhead);\\n\\n    function quoteRedeliveryOverhead(uint16 targetChain) external view returns (uint256 redeliveryOverhead);\\n\\n    function quoteGasPrice(uint16 targetChain) external view returns (uint256 gasPriceSource);\\n\\n    function quoteAssetPrice(uint16 chainId) external view returns (uint256 usdPrice);\\n\\n    // should this have source chain as a parameter, or default to current chain id?\\n    function assetConversionBuffer(uint16 sourceChain, uint16 targetChain)\\n        external\\n        view\\n        returns (uint16 tolerance, uint16 toleranceDenominator);\\n\\n    //In order to be compliant, this must return an amount larger than both\\n    // quoteDeliveryOverhead(targetChain) and quoteRedeliveryOverhead(targetChain)\\n    function quoteMaximumBudget(uint16 targetChain) external view returns (uint256 maximumTargetBudget);\\n\\n    //If this returns 0, the targetChain will be considered unsupported.\\n    //Otherwise, the delivery on the target chain (msg.sender) must equal this address.\\n    function getDeliveryAddress(uint16 targetChain) external view returns (bytes32 whAddress);\\n\\n    function getRewardAddress() external view returns (address rewardAddress);\\n\\n    function getConsistencyLevel() external view returns (uint8 consistencyLevel);\\n}\\n\",\"keccak256\":\"0x6ffe0dba0f1745cb6f9956082f2e846af1c29024a728ca16bcc1900a13c7093f\",\"license\":\"Apache 2\"},\"contracts/wombat-core/interfaces/IWormhole.sol\":{\"content\":\"// contracts/Messages.sol\\n// SPDX-License-Identifier: Apache 2\\n\\npragma solidity ^0.8.0;\\n\\ninterface IWormhole {\\n    struct GuardianSet {\\n        address[] keys;\\n        uint32 expirationTime;\\n    }\\n\\n    struct Signature {\\n        bytes32 r;\\n        bytes32 s;\\n        uint8 v;\\n        uint8 guardianIndex;\\n    }\\n\\n    struct VM {\\n        uint8 version;\\n        uint32 timestamp;\\n        uint32 nonce;\\n        uint16 emitterChainId;\\n        bytes32 emitterAddress;\\n        uint64 sequence;\\n        uint8 consistencyLevel;\\n        bytes payload;\\n        uint32 guardianSetIndex;\\n        Signature[] signatures;\\n        bytes32 hash;\\n    }\\n\\n    struct ContractUpgrade {\\n        bytes32 module;\\n        uint8 action;\\n        uint16 chain;\\n        address newContract;\\n    }\\n\\n    struct GuardianSetUpgrade {\\n        bytes32 module;\\n        uint8 action;\\n        uint16 chain;\\n        GuardianSet newGuardianSet;\\n        uint32 newGuardianSetIndex;\\n    }\\n\\n    struct SetMessageFee {\\n        bytes32 module;\\n        uint8 action;\\n        uint16 chain;\\n        uint256 messageFee;\\n    }\\n\\n    struct TransferFees {\\n        bytes32 module;\\n        uint8 action;\\n        uint16 chain;\\n        uint256 amount;\\n        bytes32 recipient;\\n    }\\n\\n    struct RecoverChainId {\\n        bytes32 module;\\n        uint8 action;\\n        uint256 evmChainId;\\n        uint16 newChainId;\\n    }\\n\\n    event LogMessagePublished(\\n        address indexed sender,\\n        uint64 sequence,\\n        uint32 nonce,\\n        bytes payload,\\n        uint8 consistencyLevel\\n    );\\n    event ContractUpgraded(address indexed oldContract, address indexed newContract);\\n    event GuardianSetAdded(uint32 indexed index);\\n\\n    function publishMessage(\\n        uint32 nonce,\\n        bytes memory payload,\\n        uint8 consistencyLevel\\n    ) external payable returns (uint64 sequence);\\n\\n    function initialize() external;\\n\\n    function parseAndVerifyVM(bytes calldata encodedVM)\\n        external\\n        view\\n        returns (\\n            VM memory vm,\\n            bool valid,\\n            string memory reason\\n        );\\n\\n    function verifyVM(VM memory vm) external view returns (bool valid, string memory reason);\\n\\n    function verifySignatures(\\n        bytes32 hash,\\n        Signature[] memory signatures,\\n        GuardianSet memory guardianSet\\n    ) external pure returns (bool valid, string memory reason);\\n\\n    function parseVM(bytes memory encodedVM) external pure returns (VM memory vm);\\n\\n    function quorum(uint256 numGuardians) external pure returns (uint256 numSignaturesRequiredForQuorum);\\n\\n    function getGuardianSet(uint32 index) external view returns (GuardianSet memory);\\n\\n    function getCurrentGuardianSetIndex() external view returns (uint32);\\n\\n    function getGuardianSetExpiry() external view returns (uint32);\\n\\n    function governanceActionIsConsumed(bytes32 hash) external view returns (bool);\\n\\n    function isInitialized(address impl) external view returns (bool);\\n\\n    function chainId() external view returns (uint16);\\n\\n    function isFork() external view returns (bool);\\n\\n    function governanceChainId() external view returns (uint16);\\n\\n    function governanceContract() external view returns (bytes32);\\n\\n    function messageFee() external view returns (uint256);\\n\\n    function evmChainId() external view returns (uint256);\\n\\n    function nextSequence(address emitter) external view returns (uint64);\\n\\n    function parseContractUpgrade(bytes memory encodedUpgrade) external pure returns (ContractUpgrade memory cu);\\n\\n    function parseGuardianSetUpgrade(bytes memory encodedUpgrade) external pure returns (GuardianSetUpgrade memory gsu);\\n\\n    function parseSetMessageFee(bytes memory encodedSetMessageFee) external pure returns (SetMessageFee memory smf);\\n\\n    function parseTransferFees(bytes memory encodedTransferFees) external pure returns (TransferFees memory tf);\\n\\n    function parseRecoverChainId(bytes memory encodedRecoverChainId) external pure returns (RecoverChainId memory rci);\\n\\n    function submitContractUpgrade(bytes memory _vm) external;\\n\\n    function submitSetMessageFee(bytes memory _vm) external;\\n\\n    function submitNewGuardianSet(bytes memory _vm) external;\\n\\n    function submitTransferFees(bytes memory _vm) external;\\n\\n    function submitRecoverChainId(bytes memory _vm) external;\\n}\\n\",\"keccak256\":\"0x9e7265a75ac60150998a60b4921d653e0ec90d6f19ca1d7c698294e65f14a246\",\"license\":\"Apache 2\"},\"contracts/wombat-core/libraries/Adaptor.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\npragma solidity ^0.8.5;\\n\\nimport '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';\\nimport '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';\\nimport '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';\\nimport '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';\\n\\nimport '../libraries/BytesLib.sol';\\nimport '../interfaces/IAdaptor.sol';\\nimport '../interfaces/IMegaPool.sol';\\n\\nabstract contract Adaptor is\\n    IAdaptor,\\n    Initializable,\\n    OwnableUpgradeable,\\n    ReentrancyGuardUpgradeable,\\n    PausableUpgradeable\\n{\\n    using BytesLib for bytes;\\n\\n    IMegaPool public megaPool;\\n\\n    /// @notice whether the contract is a trusted adaptor\\n    /// @dev wormhole chainId => contract address => bool\\n    mapping(uint256 => mapping(address => bool)) public trustedContract;\\n\\n    /// @notice whether the token is valid\\n    /// @dev wormhole chainId => token address => bool\\n    /// Instead of a security feature, this is a sanity check in case user uses an invalid token address\\n    mapping(uint256 => mapping(address => bool)) public validToken;\\n\\n    uint256[50] private _gap;\\n\\n    event LogError(uint256 emitterChainId, address emitterAddress, uint256 nonce, bytes data);\\n\\n    error ADAPTOR__CONTRACT_NOT_TRUSTED();\\n    error ADAPTOR__INVALID_TOKEN();\\n\\n    function __Adaptor_init(IMegaPool _megaPool) internal virtual onlyInitializing {\\n        __Ownable_init();\\n        __ReentrancyGuard_init_unchained();\\n\\n        megaPool = _megaPool;\\n    }\\n\\n    /**\\n     * @dev Nonce must be non-zero, otherwise wormhole will revert the message\\n     */\\n    function bridgeCreditAndSwapForTokens(\\n        address toToken,\\n        uint256 toChain,\\n        uint256 fromAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint32 nonce\\n    ) external payable override returns (uint256 trackingId) {\\n        require(msg.sender == address(megaPool), 'Adaptor: not authorized');\\n\\n        _isValidToken(toChain, toToken);\\n        return _bridgeCreditAndSwapForTokens(toToken, toChain, fromAmount, minimumToAmount, receiver, nonce);\\n    }\\n\\n    /**\\n     * Internal functions\\n     */\\n\\n    function _bridgeCreditAndSwapForTokens(\\n        address toToken,\\n        uint256 toChain,\\n        uint256 fromAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint32 nonce\\n    ) internal virtual returns (uint256 trackingId);\\n\\n    function _isTrustedContract(uint256 chainId, address addr) internal view {\\n        if (!trustedContract[chainId][addr]) revert ADAPTOR__CONTRACT_NOT_TRUSTED();\\n    }\\n\\n    function _isValidToken(uint256 chainId, address tokenAddr) internal view {\\n        if (!validToken[chainId][tokenAddr]) revert ADAPTOR__INVALID_TOKEN();\\n    }\\n\\n    function _swapCreditForTokens(\\n        uint256 emitterChainId,\\n        address emitterAddress,\\n        address toToken,\\n        uint256 creditAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint256 trackingId\\n    ) internal returns (bool success, uint256 amount) {\\n        try megaPool.completeSwapCreditForTokens(toToken, creditAmount, minimumToAmount, receiver, trackingId) returns (\\n            uint256 actualToAmount,\\n            uint256\\n        ) {\\n            return (true, actualToAmount);\\n        } catch (bytes memory reason) {\\n            // TODO: Investigate how can we decode error message from logs\\n            emit LogError(emitterChainId, emitterAddress, trackingId, reason);\\n            megaPool.mintCredit(creditAmount, receiver, trackingId);\\n\\n            return (false, creditAmount);\\n        }\\n    }\\n\\n    function _encode(\\n        address toToken,\\n        uint256 creditAmount,\\n        uint256 minimumToAmount,\\n        address receiver\\n    ) internal pure returns (bytes memory) {\\n        return abi.encodePacked(toToken, creditAmount, minimumToAmount, receiver);\\n    }\\n\\n    function _decode(bytes memory encoded)\\n        internal\\n        pure\\n        returns (\\n            address toToken,\\n            uint256 creditAmount,\\n            uint256 minimumToAmount,\\n            address receiver\\n        )\\n    {\\n        return (encoded.toAddress(0), encoded.toUint256(20), encoded.toUint256(52), encoded.toAddress(84));\\n    }\\n\\n    /**\\n     * Permisioneed functions\\n     */\\n\\n    function approveContract(uint256 wormholeChainId, address addr) external onlyOwner {\\n        require(!trustedContract[wormholeChainId][addr]);\\n        trustedContract[wormholeChainId][addr] = true;\\n    }\\n\\n    function revokeTrustedContract(uint256 wormholeChainId, address addr) external onlyOwner {\\n        require(trustedContract[wormholeChainId][addr]);\\n        trustedContract[wormholeChainId][addr] = false;\\n    }\\n\\n    function approveToken(uint256 wormholeChainId, address tokenAddr) external onlyOwner {\\n        require(!validToken[wormholeChainId][tokenAddr]);\\n        validToken[wormholeChainId][tokenAddr] = true;\\n    }\\n\\n    function revokeToken(uint256 wormholeChainId, address tokenAddr) external onlyOwner {\\n        require(validToken[wormholeChainId][tokenAddr]);\\n        validToken[wormholeChainId][tokenAddr] = false;\\n    }\\n}\\n\",\"keccak256\":\"0x566ad897fdce1168515c7a40aa77b8b2ec15abb9517937681484bc06acc92d9f\",\"license\":\"BUSL-1.1\"},\"contracts/wombat-core/libraries/BytesLib.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\n/*\\n * @title Solidity Bytes Arrays Utils\\n * @author Gon\\u00e7alo S\\u00e1 <goncalo.sa@consensys.net>\\n *\\n * @dev Bytes tightly packed arrays utility library for ethereum contracts written in Solidity.\\n *      The library lets you concatenate, slice and type cast bytes arrays both in memory and storage.\\n */\\npragma solidity >=0.8.0 <0.9.0;\\n\\nlibrary BytesLib {\\n    function concat(bytes memory _preBytes, bytes memory _postBytes) internal pure returns (bytes memory) {\\n        bytes memory tempBytes;\\n\\n        assembly {\\n            // Get a location of some free memory and store it in tempBytes as\\n            // Solidity does for memory variables.\\n            tempBytes := mload(0x40)\\n\\n            // Store the length of the first bytes array at the beginning of\\n            // the memory for tempBytes.\\n            let length := mload(_preBytes)\\n            mstore(tempBytes, length)\\n\\n            // Maintain a memory counter for the current write location in the\\n            // temp bytes array by adding the 32 bytes for the array length to\\n            // the starting location.\\n            let mc := add(tempBytes, 0x20)\\n            // Stop copying when the memory counter reaches the length of the\\n            // first bytes array.\\n            let end := add(mc, length)\\n\\n            for {\\n                // Initialize a copy counter to the start of the _preBytes data,\\n                // 32 bytes into its memory.\\n                let cc := add(_preBytes, 0x20)\\n            } lt(mc, end) {\\n                // Increase both counters by 32 bytes each iteration.\\n                mc := add(mc, 0x20)\\n                cc := add(cc, 0x20)\\n            } {\\n                // Write the _preBytes data into the tempBytes memory 32 bytes\\n                // at a time.\\n                mstore(mc, mload(cc))\\n            }\\n\\n            // Add the length of _postBytes to the current length of tempBytes\\n            // and store it as the new length in the first 32 bytes of the\\n            // tempBytes memory.\\n            length := mload(_postBytes)\\n            mstore(tempBytes, add(length, mload(tempBytes)))\\n\\n            // Move the memory counter back from a multiple of 0x20 to the\\n            // actual end of the _preBytes data.\\n            mc := end\\n            // Stop copying when the memory counter reaches the new combined\\n            // length of the arrays.\\n            end := add(mc, length)\\n\\n            for {\\n                let cc := add(_postBytes, 0x20)\\n            } lt(mc, end) {\\n                mc := add(mc, 0x20)\\n                cc := add(cc, 0x20)\\n            } {\\n                mstore(mc, mload(cc))\\n            }\\n\\n            // Update the free-memory pointer by padding our last write location\\n            // to 32 bytes: add 31 bytes to the end of tempBytes to move to the\\n            // next 32 byte block, then round down to the nearest multiple of\\n            // 32. If the sum of the length of the two arrays is zero then add\\n            // one before rounding down to leave a blank 32 bytes (the length block with 0).\\n            mstore(\\n                0x40,\\n                and(\\n                    add(add(end, iszero(add(length, mload(_preBytes)))), 31),\\n                    not(31) // Round down to the nearest 32 bytes.\\n                )\\n            )\\n        }\\n\\n        return tempBytes;\\n    }\\n\\n    function concatStorage(bytes storage _preBytes, bytes memory _postBytes) internal {\\n        assembly {\\n            // Read the first 32 bytes of _preBytes storage, which is the length\\n            // of the array. (We don't need to use the offset into the slot\\n            // because arrays use the entire slot.)\\n            let fslot := sload(_preBytes.slot)\\n            // Arrays of 31 bytes or less have an even value in their slot,\\n            // while longer arrays have an odd value. The actual length is\\n            // the slot divided by two for odd values, and the lowest order\\n            // byte divided by two for even values.\\n            // If the slot is even, bitwise and the slot with 255 and divide by\\n            // two to get the length. If the slot is odd, bitwise and the slot\\n            // with -1 and divide by two.\\n            let slength := div(and(fslot, sub(mul(0x100, iszero(and(fslot, 1))), 1)), 2)\\n            let mlength := mload(_postBytes)\\n            let newlength := add(slength, mlength)\\n            // slength can contain both the length and contents of the array\\n            // if length < 32 bytes so let's prepare for that\\n            // v. http://solidity.readthedocs.io/en/latest/miscellaneous.html#layout-of-state-variables-in-storage\\n            switch add(lt(slength, 32), lt(newlength, 32))\\n            case 2 {\\n                // Since the new array still fits in the slot, we just need to\\n                // update the contents of the slot.\\n                // uint256(bytes_storage) = uint256(bytes_storage) + uint256(bytes_memory) + new_length\\n                sstore(\\n                    _preBytes.slot,\\n                    // all the modifications to the slot are inside this\\n                    // next block\\n                    add(\\n                        // we can just add to the slot contents because the\\n                        // bytes we want to change are the LSBs\\n                        fslot,\\n                        add(\\n                            mul(\\n                                div(\\n                                    // load the bytes from memory\\n                                    mload(add(_postBytes, 0x20)),\\n                                    // zero all bytes to the right\\n                                    exp(0x100, sub(32, mlength))\\n                                ),\\n                                // and now shift left the number of bytes to\\n                                // leave space for the length in the slot\\n                                exp(0x100, sub(32, newlength))\\n                            ),\\n                            // increase length by the double of the memory\\n                            // bytes length\\n                            mul(mlength, 2)\\n                        )\\n                    )\\n                )\\n            }\\n            case 1 {\\n                // The stored value fits in the slot, but the combined value\\n                // will exceed it.\\n                // get the keccak hash to get the contents of the array\\n                mstore(0x0, _preBytes.slot)\\n                let sc := add(keccak256(0x0, 0x20), div(slength, 32))\\n\\n                // save new length\\n                sstore(_preBytes.slot, add(mul(newlength, 2), 1))\\n\\n                // The contents of the _postBytes array start 32 bytes into\\n                // the structure. Our first read should obtain the `submod`\\n                // bytes that can fit into the unused space in the last word\\n                // of the stored array. To get this, we read 32 bytes starting\\n                // from `submod`, so the data we read overlaps with the array\\n                // contents by `submod` bytes. Masking the lowest-order\\n                // `submod` bytes allows us to add that value directly to the\\n                // stored value.\\n\\n                let submod := sub(32, slength)\\n                let mc := add(_postBytes, submod)\\n                let end := add(_postBytes, mlength)\\n                let mask := sub(exp(0x100, submod), 1)\\n\\n                sstore(\\n                    sc,\\n                    add(\\n                        and(fslot, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00),\\n                        and(mload(mc), mask)\\n                    )\\n                )\\n\\n                for {\\n                    mc := add(mc, 0x20)\\n                    sc := add(sc, 1)\\n                } lt(mc, end) {\\n                    sc := add(sc, 1)\\n                    mc := add(mc, 0x20)\\n                } {\\n                    sstore(sc, mload(mc))\\n                }\\n\\n                mask := exp(0x100, sub(mc, end))\\n\\n                sstore(sc, mul(div(mload(mc), mask), mask))\\n            }\\n            default {\\n                // get the keccak hash to get the contents of the array\\n                mstore(0x0, _preBytes.slot)\\n                // Start copying to the last used word of the stored array.\\n                let sc := add(keccak256(0x0, 0x20), div(slength, 32))\\n\\n                // save new length\\n                sstore(_preBytes.slot, add(mul(newlength, 2), 1))\\n\\n                // Copy over the first `submod` bytes of the new data as in\\n                // case 1 above.\\n                let slengthmod := mod(slength, 32)\\n                let mlengthmod := mod(mlength, 32)\\n                let submod := sub(32, slengthmod)\\n                let mc := add(_postBytes, submod)\\n                let end := add(_postBytes, mlength)\\n                let mask := sub(exp(0x100, submod), 1)\\n\\n                sstore(sc, add(sload(sc), and(mload(mc), mask)))\\n\\n                for {\\n                    sc := add(sc, 1)\\n                    mc := add(mc, 0x20)\\n                } lt(mc, end) {\\n                    sc := add(sc, 1)\\n                    mc := add(mc, 0x20)\\n                } {\\n                    sstore(sc, mload(mc))\\n                }\\n\\n                mask := exp(0x100, sub(mc, end))\\n\\n                sstore(sc, mul(div(mload(mc), mask), mask))\\n            }\\n        }\\n    }\\n\\n    function slice(bytes memory _bytes, uint256 _start, uint256 _length) internal pure returns (bytes memory) {\\n        require(_length + 31 >= _length, 'slice_overflow');\\n        require(_bytes.length >= _start + _length, 'slice_outOfBounds');\\n\\n        bytes memory tempBytes;\\n\\n        assembly {\\n            switch iszero(_length)\\n            case 0 {\\n                // Get a location of some free memory and store it in tempBytes as\\n                // Solidity does for memory variables.\\n                tempBytes := mload(0x40)\\n\\n                // The first word of the slice result is potentially a partial\\n                // word read from the original array. To read it, we calculate\\n                // the length of that partial word and start copying that many\\n                // bytes into the array. The first word we copy will start with\\n                // data we don't care about, but the last `lengthmod` bytes will\\n                // land at the beginning of the contents of the new array. When\\n                // we're done copying, we overwrite the full first word with\\n                // the actual length of the slice.\\n                let lengthmod := and(_length, 31)\\n\\n                // The multiplication in the next line is necessary\\n                // because when slicing multiples of 32 bytes (lengthmod == 0)\\n                // the following copy loop was copying the origin's length\\n                // and then ending prematurely not copying everything it should.\\n                let mc := add(add(tempBytes, lengthmod), mul(0x20, iszero(lengthmod)))\\n                let end := add(mc, _length)\\n\\n                for {\\n                    // The multiplication in the next line has the same exact purpose\\n                    // as the one above.\\n                    let cc := add(add(add(_bytes, lengthmod), mul(0x20, iszero(lengthmod))), _start)\\n                } lt(mc, end) {\\n                    mc := add(mc, 0x20)\\n                    cc := add(cc, 0x20)\\n                } {\\n                    mstore(mc, mload(cc))\\n                }\\n\\n                mstore(tempBytes, _length)\\n\\n                //update free-memory pointer\\n                //allocating the array padded to 32 bytes like the compiler does now\\n                mstore(0x40, and(add(mc, 31), not(31)))\\n            }\\n            //if we want a zero-length slice let's just return a zero-length array\\n            default {\\n                tempBytes := mload(0x40)\\n                //zero out the 32 bytes slice we are about to return\\n                //we need to do it because Solidity does not garbage collect\\n                mstore(tempBytes, 0)\\n\\n                mstore(0x40, add(tempBytes, 0x20))\\n            }\\n        }\\n\\n        return tempBytes;\\n    }\\n\\n    function toAddress(bytes memory _bytes, uint256 _start) internal pure returns (address) {\\n        require(_bytes.length >= _start + 20, 'toAddress_outOfBounds');\\n        address tempAddress;\\n\\n        assembly {\\n            tempAddress := div(mload(add(add(_bytes, 0x20), _start)), 0x1000000000000000000000000)\\n        }\\n\\n        return tempAddress;\\n    }\\n\\n    function toUint8(bytes memory _bytes, uint256 _start) internal pure returns (uint8) {\\n        require(_bytes.length >= _start + 1, 'toUint8_outOfBounds');\\n        uint8 tempUint;\\n\\n        assembly {\\n            tempUint := mload(add(add(_bytes, 0x1), _start))\\n        }\\n\\n        return tempUint;\\n    }\\n\\n    function toUint16(bytes memory _bytes, uint256 _start) internal pure returns (uint16) {\\n        require(_bytes.length >= _start + 2, 'toUint16_outOfBounds');\\n        uint16 tempUint;\\n\\n        assembly {\\n            tempUint := mload(add(add(_bytes, 0x2), _start))\\n        }\\n\\n        return tempUint;\\n    }\\n\\n    function toUint32(bytes memory _bytes, uint256 _start) internal pure returns (uint32) {\\n        require(_bytes.length >= _start + 4, 'toUint32_outOfBounds');\\n        uint32 tempUint;\\n\\n        assembly {\\n            tempUint := mload(add(add(_bytes, 0x4), _start))\\n        }\\n\\n        return tempUint;\\n    }\\n\\n    function toUint64(bytes memory _bytes, uint256 _start) internal pure returns (uint64) {\\n        require(_bytes.length >= _start + 8, 'toUint64_outOfBounds');\\n        uint64 tempUint;\\n\\n        assembly {\\n            tempUint := mload(add(add(_bytes, 0x8), _start))\\n        }\\n\\n        return tempUint;\\n    }\\n\\n    function toUint96(bytes memory _bytes, uint256 _start) internal pure returns (uint96) {\\n        require(_bytes.length >= _start + 12, 'toUint96_outOfBounds');\\n        uint96 tempUint;\\n\\n        assembly {\\n            tempUint := mload(add(add(_bytes, 0xc), _start))\\n        }\\n\\n        return tempUint;\\n    }\\n\\n    function toUint128(bytes memory _bytes, uint256 _start) internal pure returns (uint128) {\\n        require(_bytes.length >= _start + 16, 'toUint128_outOfBounds');\\n        uint128 tempUint;\\n\\n        assembly {\\n            tempUint := mload(add(add(_bytes, 0x10), _start))\\n        }\\n\\n        return tempUint;\\n    }\\n\\n    function toUint256(bytes memory _bytes, uint256 _start) internal pure returns (uint256) {\\n        require(_bytes.length >= _start + 32, 'toUint256_outOfBounds');\\n        uint256 tempUint;\\n\\n        assembly {\\n            tempUint := mload(add(add(_bytes, 0x20), _start))\\n        }\\n\\n        return tempUint;\\n    }\\n\\n    function toBytes32(bytes memory _bytes, uint256 _start) internal pure returns (bytes32) {\\n        require(_bytes.length >= _start + 32, 'toBytes32_outOfBounds');\\n        bytes32 tempBytes32;\\n\\n        assembly {\\n            tempBytes32 := mload(add(add(_bytes, 0x20), _start))\\n        }\\n\\n        return tempBytes32;\\n    }\\n\\n    function equal(bytes memory _preBytes, bytes memory _postBytes) internal pure returns (bool) {\\n        bool success = true;\\n\\n        assembly {\\n            let length := mload(_preBytes)\\n\\n            // if lengths don't match the arrays are not equal\\n            switch eq(length, mload(_postBytes))\\n            case 1 {\\n                // cb is a circuit breaker in the for loop since there's\\n                //  no said feature for inline assembly loops\\n                // cb = 1 - don't breaker\\n                // cb = 0 - break\\n                let cb := 1\\n\\n                let mc := add(_preBytes, 0x20)\\n                let end := add(mc, length)\\n\\n                for {\\n                    let cc := add(_postBytes, 0x20)\\n                } eq(add(lt(mc, end), cb), 2) {\\n                    // while(uint256(mc < end) + cb == 2) // the next line is the loop condition:\\n                    mc := add(mc, 0x20)\\n                    cc := add(cc, 0x20)\\n                } {\\n                    // if any of these checks fails then arrays are not equal\\n                    if iszero(eq(mload(mc), mload(cc))) {\\n                        // unsuccess:\\n                        success := 0\\n                        cb := 0\\n                    }\\n                }\\n            }\\n            default {\\n                // unsuccess:\\n                success := 0\\n            }\\n        }\\n\\n        return success;\\n    }\\n\\n    function equalStorage(bytes storage _preBytes, bytes memory _postBytes) internal view returns (bool) {\\n        bool success = true;\\n\\n        assembly {\\n            // we know _preBytes_offset is 0\\n            let fslot := sload(_preBytes.slot)\\n            // Decode the length of the stored array like in concatStorage().\\n            let slength := div(and(fslot, sub(mul(0x100, iszero(and(fslot, 1))), 1)), 2)\\n            let mlength := mload(_postBytes)\\n\\n            // if lengths don't match the arrays are not equal\\n            switch eq(slength, mlength)\\n            case 1 {\\n                // slength can contain both the length and contents of the array\\n                // if length < 32 bytes so let's prepare for that\\n                // v. http://solidity.readthedocs.io/en/latest/miscellaneous.html#layout-of-state-variables-in-storage\\n                if iszero(iszero(slength)) {\\n                    switch lt(slength, 32)\\n                    case 1 {\\n                        // blank the last byte which is the length\\n                        fslot := mul(div(fslot, 0x100), 0x100)\\n\\n                        if iszero(eq(fslot, mload(add(_postBytes, 0x20)))) {\\n                            // unsuccess:\\n                            success := 0\\n                        }\\n                    }\\n                    default {\\n                        // cb is a circuit breaker in the for loop since there's\\n                        //  no said feature for inline assembly loops\\n                        // cb = 1 - don't breaker\\n                        // cb = 0 - break\\n                        let cb := 1\\n\\n                        // get the keccak hash to get the contents of the array\\n                        mstore(0x0, _preBytes.slot)\\n                        let sc := keccak256(0x0, 0x20)\\n\\n                        let mc := add(_postBytes, 0x20)\\n                        let end := add(mc, mlength)\\n\\n                        // the next line is the loop condition:\\n                        // while(uint256(mc < end) + cb == 2)\\n                        for {\\n\\n                        } eq(add(lt(mc, end), cb), 2) {\\n                            sc := add(sc, 1)\\n                            mc := add(mc, 0x20)\\n                        } {\\n                            if iszero(eq(sload(sc), mload(mc))) {\\n                                // unsuccess:\\n                                success := 0\\n                                cb := 0\\n                            }\\n                        }\\n                    }\\n                }\\n            }\\n            default {\\n                // unsuccess:\\n                success := 0\\n            }\\n        }\\n\\n        return success;\\n    }\\n}\\n\",\"keccak256\":\"0x70b852fe80f3cecb3164b6db85240fa29260412628affa9bdccfe652aa6a5979\",\"license\":\"Unlicense\"},\"contracts/wombat-core/pool/WormholeAdaptor.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\npragma solidity ^0.8.5;\\n\\nimport '../libraries/Adaptor.sol';\\nimport '../interfaces/ICoreRelayer.sol';\\nimport '../interfaces/IWormhole.sol';\\n\\n// Relayer testnet deployments: https://book.wormhole.com/reference/contracts.html#relayer-contracts\\n\\ncontract WormholeAdaptor is Adaptor {\\n    struct MegaPoolData {\\n        uint256 creditAmount;\\n        address toToken;\\n        uint256 minimumToAmount;\\n        address receiver;\\n    }\\n\\n    ICoreRelayer public relayer;\\n    IWormhole public wormhole;\\n\\n    // @dev wormhole chainId => adaptor address\\n    mapping(uint256 => address) public targetAdaptor;\\n\\n    function initialize(\\n        ICoreRelayer _relayer,\\n        IWormhole _wormhole,\\n        IMegaPool _megaPool\\n    ) public virtual {\\n        relayer = _relayer;\\n        wormhole = _wormhole;\\n        megaPool = _megaPool;\\n\\n        // __Adaptor_init(_megaPool);\\n    }\\n\\n    /**\\n     * External/public functions\\n     */\\n\\n    function requestRedeliver(\\n        uint16 sourceChain,\\n        bytes32 sourceTxHash,\\n        uint32 sourceNonce,\\n        uint16 targetChain\\n    ) external payable {\\n        // const redeliveryBudget = relayer.quoteGasReeliveryFee(\\n        //     TARGET_CHAIN,\\n        //     gasLimit,\\n        //     relayer.getDefaultRelayProvider()\\n        // );\\n\\n        // const applicationBudget = relayer.quoteApplicationBudgetFee(targetChain, 0, relayer.getDefaultRelayProvider());\\n\\n        ICoreRelayer.RedeliveryByTxHashRequest memory redeliveryRequest = ICoreRelayer.RedeliveryByTxHashRequest(\\n            sourceChain,\\n            sourceTxHash,\\n            sourceNonce,\\n            targetChain,\\n            msg.value - wormhole.messageFee(), // TODO: confirm we don't need to pay wormhole message fee\\n            0,\\n            relayer.getDefaultRelayParams()\\n        );\\n\\n        relayer.requestRedelivery{value: msg.value}(redeliveryRequest, sourceNonce, relayer.getDefaultRelayProvider());\\n    }\\n\\n    /**\\n     * Permisioneed functions\\n     */\\n\\n    function receiveWormholeMessages(bytes[] memory vaas, bytes[] memory) external {\\n        require(msg.sender == address(relayer), 'not authorized');\\n\\n        uint256 numObservations = vaas.length;\\n        for (uint256 i = 0; i < numObservations - 1; ++i) {\\n            (IWormhole.VM memory vm, bool valid, string memory reason) = wormhole.parseAndVerifyVM(vaas[i]);\\n            require(valid, reason);\\n\\n            // only accept messages from a trusted chain & contract\\n            // TODO: shall we use only `targetAdaptor`?\\n            if (!trustedContract[vm.emitterChainId][_wormholeAddrToEthAddr(vm.emitterAddress)]) continue;\\n\\n            (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) = _decode(vm.payload);\\n\\n            // Important note: While Wormhole is in beta, the selected RelayProvider can potentially\\n            // reorder, omit, or mix-and-match VAAs if they were to behave maliciously\\n\\n            // TODO: Replay protection\\n\\n            // `vm.sequence` is effectively the `trackingId`\\n            _swapCreditForTokens(\\n                vm.emitterChainId,\\n                _wormholeAddrToEthAddr(vm.emitterAddress),\\n                toToken,\\n                creditAmount,\\n                minimumToAmount,\\n                receiver,\\n                vm.sequence\\n            );\\n        }\\n    }\\n\\n    function setTargetAdaptor(uint256 wormholeChainId, address addr) external onlyOwner {\\n        targetAdaptor[wormholeChainId] = addr;\\n    }\\n\\n    /**\\n     * Internal functions\\n     */\\n\\n    function _bridgeCreditAndSwapForTokens(\\n        address toToken,\\n        uint256 toChain,\\n        uint256 fromAmount,\\n        uint256 minimumToAmount,\\n        address receiver,\\n        uint32 nonce\\n    ) internal override returns (uint256 trackingId) {\\n        // publish the message to wormhole\\n        // (emitterChainID, emitterAddress, sequence aka trackingId) is used to retrive the generated VAA from the Guardian Network and for tracking\\n        trackingId = wormhole.publishMessage{value: wormhole.messageFee()}(\\n            nonce, // nonce\\n            _encode(toToken, fromAmount, minimumToAmount, receiver), // payload\\n            200 // consistencyLevel. TODO: confirm the value\\n        );\\n\\n        // calculate cost to deliver this message\\n        // uint256 computeBudget = relayer.quoteGasDeliveryFee(toChain, gasLimit, relayer.getDefaultRelayProvider());\\n\\n        // calculate cost to cover application budget of 100 wei on the targetChain.\\n        // if you don't need an application budget, feel free to skip this and just pass 0 to the request\\n        // uint256 applicationBudget = relayer.quoteApplicationBudgetFee(\\n        //     targetChain,\\n        //     100,\\n        //     relayer.getDefaultRelayProvider()\\n        // );\\n\\n        // require(msg.value > deliveryFeeBuffer + core_bridge.messageFee());\\n\\n        require(toChain <= type(uint16).max);\\n        ICoreRelayer.DeliveryRequest memory request = ICoreRelayer.DeliveryRequest(\\n            uint16(toChain), // targetChain\\n            _ethAddrToWormholeAddr(targetAdaptor[toChain]), // targetAddress\\n            _ethAddrToWormholeAddr(receiver), // refundAddress\\n            msg.value - 2 * wormhole.messageFee(), // computeBudget - should be calculate from `quoteEvmDeliveryPrice`\\n            0, // applicationBudget - convert to native currency at the target chain\\n            relayer.getDefaultRelayParams() // relayParameters\\n        );\\n\\n        // TODO: confirm we don't need to pay wormhole message fee\\n        relayer.requestDelivery{value: msg.value - wormhole.messageFee()}(\\n            request,\\n            nonce,\\n            relayer.getDefaultRelayProvider()\\n        );\\n    }\\n\\n    /**\\n     * Read-only functions\\n     */\\n\\n    function estimateCost(uint16 toChain, uint32 gasLimit) external view returns (uint256 gasEstimate) {\\n        return relayer.quoteGasDeliveryFee(toChain, gasLimit, relayer.getDefaultRelayProvider());\\n    }\\n\\n    function _wormholeAddrToEthAddr(bytes32 addr) internal pure returns (address) {\\n        return address(uint160(uint256(addr)));\\n    }\\n\\n    function _ethAddrToWormholeAddr(address addr) internal pure returns (bytes32) {\\n        return bytes32(uint256(uint160(addr)));\\n    }\\n}\\n\",\"keccak256\":\"0x4d6800734b656cabbefe43904b069ccf660ac6e3b101778ff74a1762fea0194d\",\"license\":\"BUSL-1.1\"}},\"version\":1}",
+  "bytecode": "0x6080806040523461001657611dcb908161001c8239f35b600080fdfe60806040526004361015610013575b600080fd5b60003560e01c806359cae117146101a35780635c975abb1461019a5780636faf5d6f1461019157806371233d3b14610188578063715018a61461017f5780637419a2da146101765780638406c0791461016d57806384acd1bb146101645780638da5cb5b1461015b578063a1dd748614610152578063a2cf8e5614610149578063b0fb9b6c14610140578063bc3646d414610137578063bdc990541461012e578063c0c53b8b14610125578063c1f74e501461011c578063cad816ef14610113578063d2180e611461010a578063f03ab13f146101015763f2fde38b146100f957600080fd5b61000e610ff1565b5061000e610f88565b5061000e610ef7565b5061000e610cdf565b5061000e6109b2565b5061000e610937565b5061000e61090f565b5061000e6108d8565b5061000e610677565b5061000e6105d9565b5061000e61058d565b5061000e610565565b5061000e61053d565b5061000e610515565b5061000e610403565b5061000e610384565b5061000e61032c565b5061000e61028d565b5061000e610269565b5061000e6101bd565b6001600160a01b0381160361000e57565b503461000e57604036600319011261000e576024356004356101de826101ac565b6101f46001600160a01b036033541633146110a0565b60009181835260cb60205260ff6102218260408620906001600160a01b0316600052602052604060002090565b54161561025a5761024f91835260cb60205260408320906001600160a01b0316600052602052604060002090565b805460ff1916905580f35b8280fd5b600091031261000e57565b503461000e57600036600319011261000e57602060ff609754166040519015158152f35b503461000e57604036600319011261000e576024356004356102ae826101ac565b6102c46001600160a01b036033541633146110a0565b60009181835260ca60205260ff6102f18260408620906001600160a01b0316600052602052604060002090565b541661025a5761031e91835260ca60205260408320906001600160a01b0316600052602052604060002090565b805460ff1916600117905580f35b503461000e57604036600319011261000e57602060ff610378602435610351816101ac565b60043560005260cb84526040600020906001600160a01b0316600052602052604060002090565b54166040519015158152f35b503461000e576000806003193601126103f2578060335473ffffffffffffffffffffffffffffffffffffffff196001600160a01b038216916103c73384146110a0565b166033557f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b80fd5b63ffffffff81160361000e57565b5060c036600319011261000e5760043561041c816101ac565b6024359060843561042c816101ac565b60a43590610439826103f5565b6001600160a01b0360c9541633036104d1578360005260cb60205260ff610477846040600020906001600160a01b0316600052602052604060002090565b5416156104a7576104a3936104939360643591604435916119b1565b6040519081529081906020820190565b0390f35b60046040517f859ce673000000000000000000000000000000000000000000000000000000008152fd5b606460405162461bcd60e51b815260206004820152601760248201527f41646170746f723a206e6f7420617574686f72697a65640000000000000000006044820152fd5b503461000e57600036600319011261000e5760206001600160a01b0360fe5416604051908152f35b503461000e57600036600319011261000e5760206001600160a01b0360ff5416604051908152f35b503461000e57600036600319011261000e5760206001600160a01b0360335416604051908152f35b503461000e57604036600319011261000e57602060ff6103786024356105b2816101ac565b60043560005260ca84526040600020906001600160a01b0316600052602052604060002090565b503461000e57604036600319011261000e576024356004356105fa826101ac565b6106106001600160a01b036033541633146110a0565b60009181835260ca60205260ff61063d8260408620906001600160a01b0316600052602052604060002090565b54161561025a5761024f91835260ca60205260408320906001600160a01b0316600052602052604060002090565b61ffff81160361000e57565b50608036600319011261000e5760046107e681356106948161066b565b604435906106a1826103f5565b6064356106ad8161066b565b6106ce6106c260ff546001600160a01b031690565b6001600160a01b031690565b926107026040518095631a90a21960e01b8252816020998a9889935afa9081156108cb575b60009161089e575b5034611193565b916107186106c260fe546001600160a01b031690565b926040519163421a178b60e01b8352600083600481885afa928315610891575b60009361086a575b506107789061075a610750610b72565b61ffff9098168852565b6024358789015263ffffffff8516604088015261ffff166060870152565b6080850152600060a085015260c0840152604051926310fc145b60e01b84528484600481865afa93841561085d575b60009461082e575b50604051958694859384937fc953b38000000000000000000000000000000000000000000000000000000000855260048501611291565b039134905af18015610821575b6107f957005b8161081892903d1061081a575b6108108183610b50565b810190611258565b005b503d610806565b610829611156565b6107f3565b61084f919450853d8711610856575b6108478183610b50565b81019061122e565b92386107af565b503d61083d565b610865611156565b6107a7565b61088a9061077892943d8091833e6108828183610b50565b810190611208565b9290610740565b610899611156565b610738565b6108be9150863d88116108c4575b6108b68183610b50565b810190611147565b386106fb565b503d6108ac565b6108d3611156565b6106f3565b503461000e57602036600319011261000e5760043560005261010060205260206001600160a01b0360406000205416604051908152f35b503461000e57600036600319011261000e5760206001600160a01b0360c95416604051908152f35b503461000e57606036600319011261000e57600435610955816101ac565b602435610961816101ac565b60443561096d816101ac565b6001600160a01b0380928173ffffffffffffffffffffffffffffffffffffffff1995168560fe54161760fe55168360ff54161760ff55169060c954161760c955600080f35b503461000e57604036600319011261000e576104a36004356109d38161066b565b610a80602435916109e3836103f5565b6109f86106c260fe546001600160a01b031690565b604051906310fc145b60e01b825260209485938484600481865afa938415610aef575b600094610ad0575b50604051958694859384937fd9e789600000000000000000000000000000000000000000000000000000000085526004850191604091949363ffffffff6001600160a01b039261ffff606087019816865216602085015216910152565b03915afa918215610ac3575b600092610aa6575b50506040519081529081906020820190565b610abc9250803d106108c4576108b68183610b50565b3880610a94565b610acb611156565b610a8c565b610ae8919450853d8711610856576108478183610b50565b9238610a23565b610af7611156565b610a1b565b50634e487b7160e01b600052604160045260246000fd5b6080810190811067ffffffffffffffff821117610b2f57604052565b610b37610afc565b604052565b67ffffffffffffffff8111610b2f57604052565b90601f8019910116810190811067ffffffffffffffff821117610b2f57604052565b6040519060e0820182811067ffffffffffffffff821117610b2f57604052565b60405190610160820182811067ffffffffffffffff821117610b2f57604052565b6040519060c0820182811067ffffffffffffffff821117610b2f57604052565b60209067ffffffffffffffff8111610bed575b60051b0190565b610bf5610afc565b610be6565b60209067ffffffffffffffff8111610c18575b601f01601f19160190565b610c20610afc565b610c0d565b9080601f8301121561000e57813591610c3d83610bd3565b92604090610c4d82519586610b50565b808552602093848087019260051b8501019381851161000e57858101925b858410610c7c575050505050505090565b833567ffffffffffffffff811161000e57820183603f8201121561000e578781013591610ca883610bfa565b610cb488519182610b50565b8381528588858501011161000e5760008a8581968b8397018386013783010152815201930192610c6b565b503461000e5760408060031936011261000e57600467ffffffffffffffff813581811161000e57610d139036908401610c25565b9060243581811161000e57610d2b9036908501610c25565b50610d4e610d476106c26106c260fe546001600160a01b031690565b331461131e565b81519260005b610d5d8561117a565b81101561081857610eaf610d5d91610dc36000610d856106c260ff546001600160a01b031690565b610d8f848a611385565b51908b5180809581947fc0fd8bde0000000000000000000000000000000000000000000000000000000083528b83016115a0565b03915afa8015610eea575b600090818291610ebe575b610de49293506115b1565b6060810190610e0c610df8835161ffff1690565b61ffff1660005260ca602052604060002090565b90610e4e610e4a610e436080840194610e2c86516001600160a01b031690565b6001600160a01b0316600052602052604060002090565b5460ff1690565b1590565b610eb657610ea892610e82610e908361ffff8c610ea0610e7360e060a0990151611804565b9a9297919890995161ffff1690565b9a516001600160a01b031690565b94015167ffffffffffffffff1690565b169616611653565b5050611369565b9050610d54565b505050611369565b5050610de491610edf913d8091833e610ed78183610b50565b810190611484565b919250829190610dd9565b610ef2611156565b610dce565b503461000e57604036600319011261000e57602435600435610f18826101ac565b610f2e6001600160a01b036033541633146110a0565b60009181835260cb60205260ff610f5b8260408620906001600160a01b0316600052602052604060002090565b541661025a5761031e91835260cb60205260408320906001600160a01b0316600052602052604060002090565b503461000e57604036600319011261000e57602435610fa6816101ac565b6001600160a01b03610fbd816033541633146110a0565b6004356000526101006020526040600020911673ffffffffffffffffffffffffffffffffffffffff19825416179055600080f35b503461000e57602036600319011261000e5760043561100f816101ac565b6001600160a01b03611026816033541633146110a0565b81161561103657610818906110eb565b608460405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201527f64647265737300000000000000000000000000000000000000000000000000006064820152fd5b156110a757565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fd5b603354906001600160a01b03809116918273ffffffffffffffffffffffffffffffffffffffff19821617603355167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0600080a3565b1561000e57565b9081602091031261000e575190565b506040513d6000823e3d90fd5b50634e487b7160e01b600052601160045260246000fd5b60001981019190821161118957565b611191611163565b565b9190820391821161118957565b60005b8381106111b35750506000910152565b81810151838201526020016111a3565b81601f8201121561000e5780516111d981610bfa565b926111e76040519485610b50565b8184526020828401011161000e5761120591602080850191016111a0565b90565b9060208282031261000e57815167ffffffffffffffff811161000e5761120592016111c3565b9081602091031261000e5751611205816101ac565b519067ffffffffffffffff8216820361000e57565b9081602091031261000e5761120590611243565b90602091611285815180928185528580860191016111a0565b601f01601f1916010190565b60409061130f61130060c0611191969897956060855261ffff8082511660608701526020820151608087015263ffffffff878301511660a087015260608201511682860152608081015160e086015260a0810151610100860152015160e061012085015261014084019061126c565b63ffffffff9097166020830152565b01906001600160a01b03169052565b1561132557565b606460405162461bcd60e51b815260206004820152600e60248201527f6e6f7420617574686f72697a65640000000000000000000000000000000000006044820152fd5b6001906000198114611379570190565b611381611163565b0190565b80518210156113995760209160051b010190565b634e487b7160e01b600052603260045260246000fd5b519060ff8216820361000e57565b5190611191826103f5565b51906111918261066b565b81601f8201121561000e578051906113ea82610bd3565b926040926113fa84519586610b50565b808552602091828087019260071b8501019381851161000e578301915b8483106114275750505050505090565b60808383031261000e5783608091875161144081610b13565b8551815282860151838201526114578987016113af565b8982015260606114688188016113af565b90820152815201920191611417565b5190811515820361000e57565b909160608284031261000e5781519167ffffffffffffffff9283811161000e5781016101608186031261000e576114b9610b92565b906114c3816113af565b82526114d1602082016113bd565b60208301526114e2604082016113bd565b60408301526114f3606082016113c8565b60608301526080810151608083015261150e60a08201611243565b60a083015261151f60c082016113af565b60c083015260e081015185811161000e578661153c9183016111c3565b60e083015261010061154f8183016113bd565b908301526101208082015186811161000e578761156d9184016113d3565b9083015261014080910151908201529361158960208301611477565b93604083015190811161000e5761120592016111c3565b90602061120592818152019061126c565b156115b95750565b6115dd9060405191829162461bcd60e51b835260206004840152602483019061126c565b0390fd5b919082604091031261000e576020825192015190565b3d15611622573d9061160882610bfa565b916116166040519384610b50565b82523d6000602084013e565b606090565b90926001600160a01b03608093611205969584521660208301526040820152816060820152019061126c565b8397969495929561166f6106c260c9546001600160a01b031690565b604080517f8e4b4d600000000000000000000000000000000000000000000000000000000081526001600160a01b03998a166004820152602481019790975260448701929092529684166064860152608485018690529384818060a4810103816000809b5af18791816117d4575b506117c65750907f27ee0f3d8737cb51dd7564bc60c6fc5b568f00faf467af122f020a11a66ba1549161171d6117116115f7565b87875194859485611627565b0390a16117356106c260c9546001600160a01b031690565b91823b156117c257517f53a284d0000000000000000000000000000000000000000000000000000000008152600481018790526001600160a01b03919091166024820152604481019290925282908290606490829084905af180156117b5575b61179e57509190565b806117ab6117b192610b3c565b8061025e565b9190565b6117bd611156565b611795565b8480fd5b975050505050505060019190565b6117f5919250863d88116117fd575b6117ed8183610b50565b8101906115e1565b5090386116dd565b503d6117e3565b601481511061188157602081015160601c603482511061183d57603482015192611836611830846118d8565b936118c5565b9193929190565b606460405162461bcd60e51b815260206004820152601560248201527f746f55696e743235365f6f75744f66426f756e647300000000000000000000006044820152fd5b606460405162461bcd60e51b815260206004820152601560248201527f746f416464726573735f6f75744f66426f756e647300000000000000000000006044820152fd5b6068815110611881576074015160601c90565b605481511061183d576054015190565b929161190c60409163ffffffff60c89416865260606020870152606086019061126c565b930152565b908160011b917f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff81160361118957565b9193926001600160a01b039063ffffffff6119a460a06040956060885261ffff8151166060890152602081015160808901528681015182890152606081015160c0890152608081015160e0890152015160c061010088015261012087019061126c565b9616602085015216910152565b9594909293919360ff546119cb906001600160a01b031690565b6001600160a01b0316936040948592835195631a90a21960e01b9a8b88526020998a9889809360049782848a81845afa908c8883159a67ffffffffffffffff98611a6298611b8e9d611d25575b600096611d00575b50611a2d93949596611d32565b928a8d51968795869485937fb19a437e00000000000000000000000000000000000000000000000000000000855284016118e8565b03925af1908115611cf3575b600091611cd6575b50169b61ffff611a8881881115611140565b85611ab16106c2611aa48a600052610100602052604060002090565b546001600160a01b031690565b611ac66106c260ff546001600160a01b031690565b95611af5611aef8c51878152888187818d5afa908115611cc9575b600091611cac575b50611911565b34611193565b916000611b0d6106c260fe546001600160a01b031690565b809d519586809263421a178b60e01b82525afa938415611c9f575b600094611c77575b50611b536001600160a01b03939495611b47610bb3565b9c168c9061ffff169052565b868b0152168c89015260608801526000608088015260a0870152848a518094819382525afa908115611c6a575b600091611c53575034611193565b908651966310fc145b60e01b885286888381885afa978815611c46575b600098611c23575b50611bea9051978896879586947f7fd66e3e0000000000000000000000000000000000000000000000000000000086528501611941565b03925af18015611c16575b611bfd575050565b81611c1392903d1061081a576108108183610b50565b50565b611c1e611156565b611bf5565b611bea919850611c3f90883d8a11610856576108478183610b50565b9790611bb3565b611c4e611156565b611bab565b6108be9150873d89116108c4576108b68183610b50565b611c72611156565b611b80565b611c97611b53916001600160a01b0395963d8091833e6108828183610b50565b949350611b30565b611ca7611156565b611b28565b611cc39150893d8b116108c4576108b68183610b50565b38611ae9565b611cd1611156565b611ae1565b611ced9150833d851161081a576108108183610b50565b38611a76565b611cfb611156565b611a6e565b611a2d94959650611d1d90893d8b116108c4576108b68183610b50565b959493611a20565b611d2d611156565b611a18565b91929092604051936bffffffffffffffffffffffff19809460601b1660208601526034850152605484015260601b1660748201526068815260a0810181811067ffffffffffffffff821117611d88575b60405290565b611d90610afc565b611d8256fea2646970667358221220f206d94036ed9191f87e182a029ea569c2e98471609c927d867984d99ba0ee1664736f6c63430008110033",
+  "deployedBytecode": "0x60806040526004361015610013575b600080fd5b60003560e01c806359cae117146101a35780635c975abb1461019a5780636faf5d6f1461019157806371233d3b14610188578063715018a61461017f5780637419a2da146101765780638406c0791461016d57806384acd1bb146101645780638da5cb5b1461015b578063a1dd748614610152578063a2cf8e5614610149578063b0fb9b6c14610140578063bc3646d414610137578063bdc990541461012e578063c0c53b8b14610125578063c1f74e501461011c578063cad816ef14610113578063d2180e611461010a578063f03ab13f146101015763f2fde38b146100f957600080fd5b61000e610ff1565b5061000e610f88565b5061000e610ef7565b5061000e610cdf565b5061000e6109b2565b5061000e610937565b5061000e61090f565b5061000e6108d8565b5061000e610677565b5061000e6105d9565b5061000e61058d565b5061000e610565565b5061000e61053d565b5061000e610515565b5061000e610403565b5061000e610384565b5061000e61032c565b5061000e61028d565b5061000e610269565b5061000e6101bd565b6001600160a01b0381160361000e57565b503461000e57604036600319011261000e576024356004356101de826101ac565b6101f46001600160a01b036033541633146110a0565b60009181835260cb60205260ff6102218260408620906001600160a01b0316600052602052604060002090565b54161561025a5761024f91835260cb60205260408320906001600160a01b0316600052602052604060002090565b805460ff1916905580f35b8280fd5b600091031261000e57565b503461000e57600036600319011261000e57602060ff609754166040519015158152f35b503461000e57604036600319011261000e576024356004356102ae826101ac565b6102c46001600160a01b036033541633146110a0565b60009181835260ca60205260ff6102f18260408620906001600160a01b0316600052602052604060002090565b541661025a5761031e91835260ca60205260408320906001600160a01b0316600052602052604060002090565b805460ff1916600117905580f35b503461000e57604036600319011261000e57602060ff610378602435610351816101ac565b60043560005260cb84526040600020906001600160a01b0316600052602052604060002090565b54166040519015158152f35b503461000e576000806003193601126103f2578060335473ffffffffffffffffffffffffffffffffffffffff196001600160a01b038216916103c73384146110a0565b166033557f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b80fd5b63ffffffff81160361000e57565b5060c036600319011261000e5760043561041c816101ac565b6024359060843561042c816101ac565b60a43590610439826103f5565b6001600160a01b0360c9541633036104d1578360005260cb60205260ff610477846040600020906001600160a01b0316600052602052604060002090565b5416156104a7576104a3936104939360643591604435916119b1565b6040519081529081906020820190565b0390f35b60046040517f859ce673000000000000000000000000000000000000000000000000000000008152fd5b606460405162461bcd60e51b815260206004820152601760248201527f41646170746f723a206e6f7420617574686f72697a65640000000000000000006044820152fd5b503461000e57600036600319011261000e5760206001600160a01b0360fe5416604051908152f35b503461000e57600036600319011261000e5760206001600160a01b0360ff5416604051908152f35b503461000e57600036600319011261000e5760206001600160a01b0360335416604051908152f35b503461000e57604036600319011261000e57602060ff6103786024356105b2816101ac565b60043560005260ca84526040600020906001600160a01b0316600052602052604060002090565b503461000e57604036600319011261000e576024356004356105fa826101ac565b6106106001600160a01b036033541633146110a0565b60009181835260ca60205260ff61063d8260408620906001600160a01b0316600052602052604060002090565b54161561025a5761024f91835260ca60205260408320906001600160a01b0316600052602052604060002090565b61ffff81160361000e57565b50608036600319011261000e5760046107e681356106948161066b565b604435906106a1826103f5565b6064356106ad8161066b565b6106ce6106c260ff546001600160a01b031690565b6001600160a01b031690565b926107026040518095631a90a21960e01b8252816020998a9889935afa9081156108cb575b60009161089e575b5034611193565b916107186106c260fe546001600160a01b031690565b926040519163421a178b60e01b8352600083600481885afa928315610891575b60009361086a575b506107789061075a610750610b72565b61ffff9098168852565b6024358789015263ffffffff8516604088015261ffff166060870152565b6080850152600060a085015260c0840152604051926310fc145b60e01b84528484600481865afa93841561085d575b60009461082e575b50604051958694859384937fc953b38000000000000000000000000000000000000000000000000000000000855260048501611291565b039134905af18015610821575b6107f957005b8161081892903d1061081a575b6108108183610b50565b810190611258565b005b503d610806565b610829611156565b6107f3565b61084f919450853d8711610856575b6108478183610b50565b81019061122e565b92386107af565b503d61083d565b610865611156565b6107a7565b61088a9061077892943d8091833e6108828183610b50565b810190611208565b9290610740565b610899611156565b610738565b6108be9150863d88116108c4575b6108b68183610b50565b810190611147565b386106fb565b503d6108ac565b6108d3611156565b6106f3565b503461000e57602036600319011261000e5760043560005261010060205260206001600160a01b0360406000205416604051908152f35b503461000e57600036600319011261000e5760206001600160a01b0360c95416604051908152f35b503461000e57606036600319011261000e57600435610955816101ac565b602435610961816101ac565b60443561096d816101ac565b6001600160a01b0380928173ffffffffffffffffffffffffffffffffffffffff1995168560fe54161760fe55168360ff54161760ff55169060c954161760c955600080f35b503461000e57604036600319011261000e576104a36004356109d38161066b565b610a80602435916109e3836103f5565b6109f86106c260fe546001600160a01b031690565b604051906310fc145b60e01b825260209485938484600481865afa938415610aef575b600094610ad0575b50604051958694859384937fd9e789600000000000000000000000000000000000000000000000000000000085526004850191604091949363ffffffff6001600160a01b039261ffff606087019816865216602085015216910152565b03915afa918215610ac3575b600092610aa6575b50506040519081529081906020820190565b610abc9250803d106108c4576108b68183610b50565b3880610a94565b610acb611156565b610a8c565b610ae8919450853d8711610856576108478183610b50565b9238610a23565b610af7611156565b610a1b565b50634e487b7160e01b600052604160045260246000fd5b6080810190811067ffffffffffffffff821117610b2f57604052565b610b37610afc565b604052565b67ffffffffffffffff8111610b2f57604052565b90601f8019910116810190811067ffffffffffffffff821117610b2f57604052565b6040519060e0820182811067ffffffffffffffff821117610b2f57604052565b60405190610160820182811067ffffffffffffffff821117610b2f57604052565b6040519060c0820182811067ffffffffffffffff821117610b2f57604052565b60209067ffffffffffffffff8111610bed575b60051b0190565b610bf5610afc565b610be6565b60209067ffffffffffffffff8111610c18575b601f01601f19160190565b610c20610afc565b610c0d565b9080601f8301121561000e57813591610c3d83610bd3565b92604090610c4d82519586610b50565b808552602093848087019260051b8501019381851161000e57858101925b858410610c7c575050505050505090565b833567ffffffffffffffff811161000e57820183603f8201121561000e578781013591610ca883610bfa565b610cb488519182610b50565b8381528588858501011161000e5760008a8581968b8397018386013783010152815201930192610c6b565b503461000e5760408060031936011261000e57600467ffffffffffffffff813581811161000e57610d139036908401610c25565b9060243581811161000e57610d2b9036908501610c25565b50610d4e610d476106c26106c260fe546001600160a01b031690565b331461131e565b81519260005b610d5d8561117a565b81101561081857610eaf610d5d91610dc36000610d856106c260ff546001600160a01b031690565b610d8f848a611385565b51908b5180809581947fc0fd8bde0000000000000000000000000000000000000000000000000000000083528b83016115a0565b03915afa8015610eea575b600090818291610ebe575b610de49293506115b1565b6060810190610e0c610df8835161ffff1690565b61ffff1660005260ca602052604060002090565b90610e4e610e4a610e436080840194610e2c86516001600160a01b031690565b6001600160a01b0316600052602052604060002090565b5460ff1690565b1590565b610eb657610ea892610e82610e908361ffff8c610ea0610e7360e060a0990151611804565b9a9297919890995161ffff1690565b9a516001600160a01b031690565b94015167ffffffffffffffff1690565b169616611653565b5050611369565b9050610d54565b505050611369565b5050610de491610edf913d8091833e610ed78183610b50565b810190611484565b919250829190610dd9565b610ef2611156565b610dce565b503461000e57604036600319011261000e57602435600435610f18826101ac565b610f2e6001600160a01b036033541633146110a0565b60009181835260cb60205260ff610f5b8260408620906001600160a01b0316600052602052604060002090565b541661025a5761031e91835260cb60205260408320906001600160a01b0316600052602052604060002090565b503461000e57604036600319011261000e57602435610fa6816101ac565b6001600160a01b03610fbd816033541633146110a0565b6004356000526101006020526040600020911673ffffffffffffffffffffffffffffffffffffffff19825416179055600080f35b503461000e57602036600319011261000e5760043561100f816101ac565b6001600160a01b03611026816033541633146110a0565b81161561103657610818906110eb565b608460405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201527f64647265737300000000000000000000000000000000000000000000000000006064820152fd5b156110a757565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fd5b603354906001600160a01b03809116918273ffffffffffffffffffffffffffffffffffffffff19821617603355167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0600080a3565b1561000e57565b9081602091031261000e575190565b506040513d6000823e3d90fd5b50634e487b7160e01b600052601160045260246000fd5b60001981019190821161118957565b611191611163565b565b9190820391821161118957565b60005b8381106111b35750506000910152565b81810151838201526020016111a3565b81601f8201121561000e5780516111d981610bfa565b926111e76040519485610b50565b8184526020828401011161000e5761120591602080850191016111a0565b90565b9060208282031261000e57815167ffffffffffffffff811161000e5761120592016111c3565b9081602091031261000e5751611205816101ac565b519067ffffffffffffffff8216820361000e57565b9081602091031261000e5761120590611243565b90602091611285815180928185528580860191016111a0565b601f01601f1916010190565b60409061130f61130060c0611191969897956060855261ffff8082511660608701526020820151608087015263ffffffff878301511660a087015260608201511682860152608081015160e086015260a0810151610100860152015160e061012085015261014084019061126c565b63ffffffff9097166020830152565b01906001600160a01b03169052565b1561132557565b606460405162461bcd60e51b815260206004820152600e60248201527f6e6f7420617574686f72697a65640000000000000000000000000000000000006044820152fd5b6001906000198114611379570190565b611381611163565b0190565b80518210156113995760209160051b010190565b634e487b7160e01b600052603260045260246000fd5b519060ff8216820361000e57565b5190611191826103f5565b51906111918261066b565b81601f8201121561000e578051906113ea82610bd3565b926040926113fa84519586610b50565b808552602091828087019260071b8501019381851161000e578301915b8483106114275750505050505090565b60808383031261000e5783608091875161144081610b13565b8551815282860151838201526114578987016113af565b8982015260606114688188016113af565b90820152815201920191611417565b5190811515820361000e57565b909160608284031261000e5781519167ffffffffffffffff9283811161000e5781016101608186031261000e576114b9610b92565b906114c3816113af565b82526114d1602082016113bd565b60208301526114e2604082016113bd565b60408301526114f3606082016113c8565b60608301526080810151608083015261150e60a08201611243565b60a083015261151f60c082016113af565b60c083015260e081015185811161000e578661153c9183016111c3565b60e083015261010061154f8183016113bd565b908301526101208082015186811161000e578761156d9184016113d3565b9083015261014080910151908201529361158960208301611477565b93604083015190811161000e5761120592016111c3565b90602061120592818152019061126c565b156115b95750565b6115dd9060405191829162461bcd60e51b835260206004840152602483019061126c565b0390fd5b919082604091031261000e576020825192015190565b3d15611622573d9061160882610bfa565b916116166040519384610b50565b82523d6000602084013e565b606090565b90926001600160a01b03608093611205969584521660208301526040820152816060820152019061126c565b8397969495929561166f6106c260c9546001600160a01b031690565b604080517f8e4b4d600000000000000000000000000000000000000000000000000000000081526001600160a01b03998a166004820152602481019790975260448701929092529684166064860152608485018690529384818060a4810103816000809b5af18791816117d4575b506117c65750907f27ee0f3d8737cb51dd7564bc60c6fc5b568f00faf467af122f020a11a66ba1549161171d6117116115f7565b87875194859485611627565b0390a16117356106c260c9546001600160a01b031690565b91823b156117c257517f53a284d0000000000000000000000000000000000000000000000000000000008152600481018790526001600160a01b03919091166024820152604481019290925282908290606490829084905af180156117b5575b61179e57509190565b806117ab6117b192610b3c565b8061025e565b9190565b6117bd611156565b611795565b8480fd5b975050505050505060019190565b6117f5919250863d88116117fd575b6117ed8183610b50565b8101906115e1565b5090386116dd565b503d6117e3565b601481511061188157602081015160601c603482511061183d57603482015192611836611830846118d8565b936118c5565b9193929190565b606460405162461bcd60e51b815260206004820152601560248201527f746f55696e743235365f6f75744f66426f756e647300000000000000000000006044820152fd5b606460405162461bcd60e51b815260206004820152601560248201527f746f416464726573735f6f75744f66426f756e647300000000000000000000006044820152fd5b6068815110611881576074015160601c90565b605481511061183d576054015190565b929161190c60409163ffffffff60c89416865260606020870152606086019061126c565b930152565b908160011b917f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff81160361118957565b9193926001600160a01b039063ffffffff6119a460a06040956060885261ffff8151166060890152602081015160808901528681015182890152606081015160c0890152608081015160e0890152015160c061010088015261012087019061126c565b9616602085015216910152565b9594909293919360ff546119cb906001600160a01b031690565b6001600160a01b0316936040948592835195631a90a21960e01b9a8b88526020998a9889809360049782848a81845afa908c8883159a67ffffffffffffffff98611a6298611b8e9d611d25575b600096611d00575b50611a2d93949596611d32565b928a8d51968795869485937fb19a437e00000000000000000000000000000000000000000000000000000000855284016118e8565b03925af1908115611cf3575b600091611cd6575b50169b61ffff611a8881881115611140565b85611ab16106c2611aa48a600052610100602052604060002090565b546001600160a01b031690565b611ac66106c260ff546001600160a01b031690565b95611af5611aef8c51878152888187818d5afa908115611cc9575b600091611cac575b50611911565b34611193565b916000611b0d6106c260fe546001600160a01b031690565b809d519586809263421a178b60e01b82525afa938415611c9f575b600094611c77575b50611b536001600160a01b03939495611b47610bb3565b9c168c9061ffff169052565b868b0152168c89015260608801526000608088015260a0870152848a518094819382525afa908115611c6a575b600091611c53575034611193565b908651966310fc145b60e01b885286888381885afa978815611c46575b600098611c23575b50611bea9051978896879586947f7fd66e3e0000000000000000000000000000000000000000000000000000000086528501611941565b03925af18015611c16575b611bfd575050565b81611c1392903d1061081a576108108183610b50565b50565b611c1e611156565b611bf5565b611bea919850611c3f90883d8a11610856576108478183610b50565b9790611bb3565b611c4e611156565b611bab565b6108be9150873d89116108c4576108b68183610b50565b611c72611156565b611b80565b611c97611b53916001600160a01b0395963d8091833e6108828183610b50565b949350611b30565b611ca7611156565b611b28565b611cc39150893d8b116108c4576108b68183610b50565b38611ae9565b611cd1611156565b611ae1565b611ced9150833d851161081a576108108183610b50565b38611a76565b611cfb611156565b611a6e565b611a2d94959650611d1d90893d8b116108c4576108b68183610b50565b959493611a20565b611d2d611156565b611a18565b91929092604051936bffffffffffffffffffffffff19809460601b1660208601526034850152605484015260601b1660748201526068815260a0810181811067ffffffffffffffff821117611d88575b60405290565b611d90610afc565b611d8256fea2646970667358221220f206d94036ed9191f87e182a029ea569c2e98471609c927d867984d99ba0ee1664736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "bridgeCreditAndSwapForTokens(address,uint256,uint256,uint256,address,uint32)": {
+        "details": "Nonce must be non-zero, otherwise wormhole will revert the message"
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "paused()": {
+        "details": "Returns true if the contract is paused, and false otherwise."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "approveContract(uint256,address)": {
+        "notice": "Permisioneed functions"
+      },
+      "estimateCost(uint16,uint32)": {
+        "notice": "Read-only functions"
+      },
+      "receiveWormholeMessages(bytes[],bytes[])": {
+        "notice": "Permisioneed functions"
+      },
+      "requestRedeliver(uint16,bytes32,uint32,uint16)": {
+        "notice": "External/public functions"
+      },
+      "trustedContract(uint256,address)": {
+        "notice": "whether the contract is a trusted adaptor"
+      },
+      "validToken(uint256,address)": {
+        "notice": "whether the token is valid"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 130,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "_initialized",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_bool"
+      },
+      {
+        "astId": 133,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "_initializing",
+        "offset": 1,
+        "slot": "0",
+        "type": "t_bool"
+      },
+      {
+        "astId": 651,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "__gap",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_array(t_uint256)50_storage"
+      },
+      {
+        "astId": 10,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "51",
+        "type": "t_address"
+      },
+      {
+        "astId": 122,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "__gap",
+        "offset": 0,
+        "slot": "52",
+        "type": "t_array(t_uint256)49_storage"
+      },
+      {
+        "astId": 322,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "_status",
+        "offset": 0,
+        "slot": "101",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 366,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "__gap",
+        "offset": 0,
+        "slot": "102",
+        "type": "t_array(t_uint256)49_storage"
+      },
+      {
+        "astId": 218,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "_paused",
+        "offset": 0,
+        "slot": "151",
+        "type": "t_bool"
+      },
+      {
+        "astId": 307,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "__gap",
+        "offset": 0,
+        "slot": "152",
+        "type": "t_array(t_uint256)49_storage"
+      },
+      {
+        "astId": 2380,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "megaPool",
+        "offset": 0,
+        "slot": "201",
+        "type": "t_contract(IMegaPool)1841"
+      },
+      {
+        "astId": 2387,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "trustedContract",
+        "offset": 0,
+        "slot": "202",
+        "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 2394,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "validToken",
+        "offset": 0,
+        "slot": "203",
+        "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 2398,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "_gap",
+        "offset": 0,
+        "slot": "204",
+        "type": "t_array(t_uint256)50_storage"
+      },
+      {
+        "astId": 9073,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "relayer",
+        "offset": 0,
+        "slot": "254",
+        "type": "t_contract(ICoreRelayer)1755"
+      },
+      {
+        "astId": 9076,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "wormhole",
+        "offset": 0,
+        "slot": "255",
+        "type": "t_contract(IWormhole)2355"
+      },
+      {
+        "astId": 9080,
+        "contract": "contracts/wombat-core/pool/WormholeAdaptor.sol:WormholeAdaptor",
+        "label": "targetAdaptor",
+        "offset": 0,
+        "slot": "256",
+        "type": "t_mapping(t_uint256,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_uint256)49_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[49]",
+        "numberOfBytes": "1568"
+      },
+      "t_array(t_uint256)50_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[50]",
+        "numberOfBytes": "1600"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_contract(ICoreRelayer)1755": {
+        "encoding": "inplace",
+        "label": "contract ICoreRelayer",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IMegaPool)1841": {
+        "encoding": "inplace",
+        "label": "contract IMegaPool",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IWormhole)2355": {
+        "encoding": "inplace",
+        "label": "contract IWormhole",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_uint256,t_address)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

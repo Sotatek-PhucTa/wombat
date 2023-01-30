@@ -35,11 +35,22 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey], // replace with mainnet wallet private key
     },
+    fuji: {
+      url: 'https://api.avax-test.network/ext/bc/C/rpc',
+      gas: 5000000,
+      gasPrice: 30 * 1000000000,
+      chainId: 43113,
+      accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
+    },
   },
   etherscan: {
-    // Your API key for BSCscan
-    // Obtain one at https://bscscan.io/
-    apiKey: secrets.bscscan_api_key,
+    apiKey: {
+      // get the correct key in https://github.com/NomicFoundation/hardhat/blob/main/packages/hardhat-etherscan/src/ChainConfig.ts
+      bsc: secrets.bscscan_api_key,
+      bscTestnet: secrets.bscscan_api_key,
+      avalancheFujiTestnet: secrets.snowtrace_api_key,
+      avalanche: secrets.snowtrace_api_key,
+    },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [],
   },

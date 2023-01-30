@@ -5,7 +5,9 @@ import '../libraries/Adaptor.sol';
 import '../interfaces/ICoreRelayer.sol';
 import '../interfaces/IWormhole.sol';
 
-contract WomholeAdaptor is Adaptor {
+// Relayer testnet deployments: https://book.wormhole.com/reference/contracts.html#relayer-contracts
+
+contract WormholeAdaptor is Adaptor {
     struct MegaPoolData {
         uint256 creditAmount;
         address toToken;
@@ -16,7 +18,14 @@ contract WomholeAdaptor is Adaptor {
     ICoreRelayer public relayer;
     IWormhole public wormhole;
 
-    function initialize(ICoreRelayer _relayer, IWormhole _wormhole, IMegaPool _megaPool) public virtual initializer {
+    // @dev wormhole chainId => adaptor address
+    mapping(uint256 => address) public targetAdaptor;
+
+    function initialize(
+        ICoreRelayer _relayer,
+        IWormhole _wormhole,
+        IMegaPool _megaPool
+    ) public virtual initializer {
         relayer = _relayer;
         wormhole = _wormhole;
 
@@ -26,29 +35,6 @@ contract WomholeAdaptor is Adaptor {
     /**
      * External/public functions
      */
-
-    function receiveWormholeMessages(bytes[] memory vaas, bytes[] memory) external {
-        require(msg.sender == address(relayer), 'not authorized');
-
-        uint256 numObservations = vaas.length;
-        for (uint256 i = 0; i < numObservations - 1; ) {
-            (IWormhole.VM memory vm, bool valid, string memory reason) = wormhole.parseAndVerifyVM(vaas[i]);
-            require(valid, reason);
-
-            // only accept messages from a trusted chain & contract
-            if (!trustedContract[vm.emitterChainId][_wormholeAddrToEthAddr(vm.emitterAddress)]) continue;
-
-            (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) = _decode(vm.payload);
-
-            // Important note: While Wormhole is in beta, the selected RelayProvider can potentially
-            // reorder, omit, or mix-and-match VAAs if they were to behave maliciously
-
-            // TODO: Replay protection
-
-            // `vm.sequence` is effectively the `trackingId`
-            _swapCreditForTokens(toToken, creditAmount, minimumToAmount, receiver, vm.sequence);
-        }
-    }
 
     function requestRedeliver(
         uint16 sourceChain,
@@ -69,12 +55,52 @@ contract WomholeAdaptor is Adaptor {
             sourceTxHash,
             sourceNonce,
             targetChain,
-            msg.value, // TODO: confirm we don't need to pay wormhole message fee
+            msg.value - wormhole.messageFee(), // TODO: confirm we don't need to pay wormhole message fee
             0,
             relayer.getDefaultRelayParams()
         );
 
         relayer.requestRedelivery{value: msg.value}(redeliveryRequest, sourceNonce, relayer.getDefaultRelayProvider());
+    }
+
+    /**
+     * Permisioneed functions
+     */
+
+    function receiveWormholeMessages(bytes[] memory vaas, bytes[] memory) external {
+        require(msg.sender == address(relayer), 'not authorized');
+
+        uint256 numObservations = vaas.length;
+        for (uint256 i = 0; i < numObservations - 1; ++i) {
+            (IWormhole.VM memory vm, bool valid, string memory reason) = wormhole.parseAndVerifyVM(vaas[i]);
+            require(valid, reason);
+
+            // only accept messages from a trusted chain & contract
+            // TODO: shall we use only `targetAdaptor`?
+            if (!trustedContract[vm.emitterChainId][_wormholeAddrToEthAddr(vm.emitterAddress)]) continue;
+
+            (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) = _decode(vm.payload);
+
+            // Important note: While Wormhole is in beta, the selected RelayProvider can potentially
+            // reorder, omit, or mix-and-match VAAs if they were to behave maliciously
+
+            // TODO: Replay protection
+
+            // `vm.sequence` is effectively the `trackingId`
+            _swapCreditForTokens(
+                vm.emitterChainId,
+                _wormholeAddrToEthAddr(vm.emitterAddress),
+                toToken,
+                creditAmount,
+                minimumToAmount,
+                receiver,
+                vm.sequence
+            );
+        }
+    }
+
+    function setTargetAdaptor(uint256 wormholeChainId, address addr) external onlyOwner {
+        targetAdaptor[wormholeChainId] = addr;
     }
 
     /**
@@ -113,7 +139,7 @@ contract WomholeAdaptor is Adaptor {
         require(toChain <= type(uint16).max);
         ICoreRelayer.DeliveryRequest memory request = ICoreRelayer.DeliveryRequest(
             uint16(toChain), // targetChain
-            _ethAddrToWormholeAddr(receiver), // targetAddress
+            _ethAddrToWormholeAddr(targetAdaptor[toChain]), // targetAddress
             _ethAddrToWormholeAddr(receiver), // refundAddress
             msg.value - 2 * wormhole.messageFee(), // computeBudget - should be calculate from `quoteEvmDeliveryPrice`
             0, // applicationBudget - convert to native currency at the target chain

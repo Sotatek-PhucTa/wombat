@@ -32,7 +32,7 @@ abstract contract Adaptor is
 
     uint256[50] private _gap;
 
-    event LogError(uint256 nonce, bytes data);
+    event LogError(uint256 emitterChainId, address emitterAddress, uint256 nonce, bytes data);
 
     error ADAPTOR__CONTRACT_NOT_TRUSTED();
     error ADAPTOR__INVALID_TOKEN();
@@ -44,6 +44,9 @@ abstract contract Adaptor is
         megaPool = _megaPool;
     }
 
+    /**
+     * @dev Nonce must be non-zero, otherwise wormhole will revert the message
+     */
     function bridgeCreditAndSwapForTokens(
         address toToken,
         uint256 toChain,
@@ -52,6 +55,8 @@ abstract contract Adaptor is
         address receiver,
         uint32 nonce
     ) external payable override returns (uint256 trackingId) {
+        require(msg.sender == address(megaPool), 'Adaptor: not authorized');
+
         _isValidToken(toChain, toToken);
         return _bridgeCreditAndSwapForTokens(toToken, toChain, fromAmount, minimumToAmount, receiver, nonce);
     }
@@ -78,6 +83,8 @@ abstract contract Adaptor is
     }
 
     function _swapCreditForTokens(
+        uint256 emitterChainId,
+        address emitterAddress,
         address toToken,
         uint256 creditAmount,
         uint256 minimumToAmount,
@@ -91,7 +98,7 @@ abstract contract Adaptor is
             return (true, actualToAmount);
         } catch (bytes memory reason) {
             // TODO: Investigate how can we decode error message from logs
-            emit LogError(trackingId, reason);
+            emit LogError(emitterChainId, emitterAddress, trackingId, reason);
             megaPool.mintCredit(creditAmount, receiver, trackingId);
 
             return (false, creditAmount);

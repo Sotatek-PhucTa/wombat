@@ -148,6 +148,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
 
     /**
      * @notice Bridge credit and swap it for `toToken` in the `toChain`
+     * Nonce must be non-zero, otherwise wormhole will revert the message
      */
     function swapCreditForTokensCrossChain(
         address toToken,
@@ -156,10 +157,10 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         uint256 minimumToAmount,
         address receiver,
         uint32 nonce
-    ) external override nonReentrant whenNotPaused returns (uint256 trackingId) {
+    ) external payable override nonReentrant whenNotPaused returns (uint256 trackingId) {
         _beforeSwapCreditForTokens(fromAmount, receiver);
 
-        trackingId = adaptor.bridgeCreditAndSwapForTokens(
+        trackingId = adaptor.bridgeCreditAndSwapForTokens{value: msg.value}(
             toToken,
             toChain,
             fromAmount,

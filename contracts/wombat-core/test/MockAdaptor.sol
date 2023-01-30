@@ -88,7 +88,16 @@ contract MockAdaptor is Adaptor {
         messageDelivered[fromChain][id] = true;
 
         MegaPoolData memory data = abi.decode(deliverData.data, (MegaPoolData));
-        return _swapCreditForTokens(data.toToken, data.creditAmount, data.minimumToAmount, data.receiver, id);
+        return
+            _swapCreditForTokens(
+                fromChain,
+                fromAddr,
+                data.toToken,
+                data.creditAmount,
+                data.minimumToAmount,
+                data.receiver,
+                id
+            );
     }
 
     function faucetCredit(uint256 creditAmount) external {
