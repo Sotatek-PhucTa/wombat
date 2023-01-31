@@ -13,7 +13,7 @@ import 'hardhat-gas-reporter'
 import { HardhatUserConfig } from 'hardhat/config'
 import 'solidity-coverage'
 import secrets from './secrets.json' // BSC TESTNET ONLY!
-
+import './tasks/tasks.index'
 dotenv.config()
 
 const config: HardhatUserConfig = {

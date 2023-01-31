@@ -46,7 +46,6 @@ export function logVerifyCommand(network: string, deployment: Deployment) {
 
 // Print all assets with some alloc points in MasterWombatV2
 // Typical usage in hardhat console.
-// TODO: create a hardhat task
 export async function printMasterWombatV2AllocPoints() {
   const masterWombatV2 = await getDeployedContract('MasterWombatV2')
   const poolLength = await masterWombatV2.poolLength()
