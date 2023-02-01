@@ -72,6 +72,8 @@ To verify proxy contracts:
   - Whitelist => `0xD61C53dcd6F3b4258E28c7Eb1C328789fa71B591`
   - Bribe_BNBx => `0x20d7B9Ed2c4E2DCC55F9B463975b21bBf2A6eCd1`
   - Bribe_BnbxPool_WBNB => `0x40841197A2ac1fb7d21d4eb9577e6529bd9892a1`
+  - Bribe_StkBnb => `0xC4992f30b4F0398718FE945FFF9f0C273d74afAF`
+  - Bribe_StkBnbPool_WBNB => `0x60ACa4Fd79BA7855771F78fC255539464252e1BD`
   - Bribe_mWOM => `0x7DC7E908427ab2C737A827cDc8069fF002489649`
   - Bribe_mWOMPool_WOM => `0x5E5dCBa266AB4c999889421C001b93b899d3092a`
   - Bribe_qWOM => `0x7F95D391e5F1A4B0a265e40Bf588739BEa2202c4`
@@ -115,6 +117,12 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0x8df1126de13bcfef999556899F469d64021adBae`
   - Asset_BnbxPool_BNBx => `0x16B37225889A038FAD42efdED462821224A509A7`
   - Asset_BnbxPool_WBNB => `0x0321D1D769cc1e81Ba21a157992b635363740f86`
+
+- stkBNB Pool
+
+  - Pool Proxy (Main entry) => `0xB0219A90EF6A24a237bC038f7B7a6eAc5e01edB0`
+  - Asset_StkBnbPool_stkBNB => `0x0E202A0bCad2712d1fdeEB94Ec98C58bEeD0679f`
+  - Asset_StkBnbPool_WBNB => `0x6C7B407411b3DB90DfA25DA4aA66605438D378CE`
 
 - Wombat Dynamic Pool (Deprecated)
 
@@ -165,6 +173,8 @@ To verify proxy contracts:
   - MultiRewarderPerSec_qWOMPool_WOM => `0x5D0f17F6385B3C0d1d8Ac4a6CcCacA2A558408e6`
   - MultiRewarderPerSec_V3_BNBx => `0xe4fD5D5C4D058c2323a35FbB720897EEeB6C76Bd`
   - MultiRewarderPerSec_V3_BnbxPool_WBNB => `0xFbc083ed7655F68baF0f2039431Ea09c3635176D`
+  - MultiRewarderPerSec_V3_stkBnb => `0x28edda710ef4E72bf1389e2ff7d50Ccfa75f95Af`
+  - MultiRewarderPerSec_V3_StkBnbPool_WBNB => `0x7Db1B59747430b0F5946e8Cd525CFc41bfD3A1C1`
 
 ### BSC testnet deployed contracts:
 

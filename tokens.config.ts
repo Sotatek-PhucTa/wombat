@@ -212,6 +212,26 @@ export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   },
 }
 
+export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+  bsc_mainnet: {
+    WBNB: [
+      'Wrapped BNB',
+      'WBNB',
+      '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+      '', //
+      'DynamicAsset',
+    ], // last 2 items are exchange rate oracle, asset type
+    BNBX: [
+      'Staked BNB',
+      'stkBNB',
+      '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
+      '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8', // exchange rate oracle
+      'StkbnbAsset',
+    ],
+  },
+  bsc_testnet: {},
+}
+
 export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
   bsc_mainnet: {
     HAY: {
@@ -264,6 +284,16 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
     BnbxPool_WBNB: {
       ...defaultRewarder(),
       lpToken: '0x0321D1D769cc1e81Ba21a157992b635363740f86',
+      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+    },
+    stkBnb: {
+      ...defaultRewarder(),
+      lpToken: '0x0E202A0bCad2712d1fdeEB94Ec98C58bEeD0679f',
+      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+    },
+    StkBnbPool_WBNB: {
+      ...defaultRewarder(),
+      lpToken: '0x6C7B407411b3DB90DfA25DA4aA66605438D378CE',
       rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
     },
   },
@@ -340,6 +370,16 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       ...defaultRewarder(),
       lpToken: '0x0321D1D769cc1e81Ba21a157992b635363740f86', // LP-BnbxPool_WBNB pid: 16
       rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
+    },
+    stkBnb: {
+      ...defaultRewarder(),
+      lpToken: '0x0E202A0bCad2712d1fdeEB94Ec98C58bEeD0679f',
+      rewardToken: '0x4C882ec256823eE773B25b414d36F92ef58a7c0C', // pSTAKE
+    },
+    StkBnbPool_WBNB: {
+      ...defaultRewarder(),
+      lpToken: '0x6C7B407411b3DB90DfA25DA4aA66605438D378CE',
+      rewardToken: '0x4C882ec256823eE773B25b414d36F92ef58a7c0C', // pSTAKE
     },
     wmxWom: {
       ...defaultRewarder(),
