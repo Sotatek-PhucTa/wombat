@@ -79,9 +79,7 @@ describe('MasterWombatV3Migration', function () {
     it('Voter emits baseWomPerSec in the first epoch', async function () {
       const pendingWom = await voter.pendingWom(busdAsset.address)
       await advanceTimeAndBlock(3600)
-      expect(await voter.pendingWom(busdAsset.address)).to.eq(baseWomPerSec.mul(3600).add(pendingWom))
-      // TODO: create PR to check in this
-      // expect(await voter.pendingWom(busdAsset.address)).to.near(baseWomPerSec.mul(3600).add(pendingWom))
+      expect(await voter.pendingWom(busdAsset.address)).to.near(baseWomPerSec.mul(3600).add(pendingWom))
     })
 
     it('MasterWombat emits baseWomPerSec after the first epoch', async function () {
