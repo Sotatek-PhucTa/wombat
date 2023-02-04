@@ -2,12 +2,11 @@ import { ethers } from 'hardhat'
 import chai from 'chai'
 import { parseUnits } from '@ethersproject/units'
 import { Contract } from 'ethers'
-import { solidity } from 'ethereum-waffle'
+
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { signERC2612Permit } from '../contracts/wombat-peripheral/permit/eth-permit' // https://github.com/dmihal/eth-permit
 import secrets from '../secrets.json' // BSC TESTNET ONLY!
 
-chai.use(solidity)
 const { expect } = chai
 
 describe('WombatERC20', function () {
@@ -54,7 +53,7 @@ describe('WombatERC20', function () {
   describe('[transferFrom with approve]', function () {
     it('Should revert as user has not approved transferFrom', async function () {
       await expect(tokenContract.transferFrom(owner.address, user2.address, parseUnits('1000', 18))).to.be.revertedWith(
-        'ERC20: transfer amount exceeds allowance'
+        'ERC20: insufficient allowance'
       )
     })
 
@@ -75,7 +74,7 @@ describe('WombatERC20', function () {
       await tokenContract.connect(owner).increaseAllowance(user1.address, parseUnits('1000', 18))
       expect(await tokenContract.allowance(owner.address, user1.address)).to.equal(parseUnits('1000', 18))
       await expect(tokenContract.transferFrom(owner.address, user2.address, parseUnits('2000', 18))).to.be.revertedWith(
-        'ERC20: transfer amount exceeds allowance'
+        'ERC20: insufficient allowance'
       )
     })
 
@@ -83,7 +82,7 @@ describe('WombatERC20', function () {
       await tokenContract.connect(owner).increaseAllowance(user1.address, parseUnits('1000', 18))
       await tokenContract.connect(owner).decreaseAllowance(user1.address, parseUnits('900', 18))
       await expect(tokenContract.transferFrom(owner.address, user2.address, parseUnits('200', 18))).to.be.revertedWith(
-        'ERC20: transfer amount exceeds allowance'
+        'ERC20: insufficient allowance'
       )
     })
 
@@ -130,7 +129,7 @@ describe('WombatERC20', function () {
       // user1 transferFrom sender 2000 WOM tokens but fails as > than given allowance
       await expect(
         tokenContract.connect(user1).transferFrom(senderAddress, user2.address, parseUnits('2000', 18))
-      ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+      ).to.be.revertedWith('ERC20: insufficient allowance')
     })
 
     it('Should transferFrom sender to user 1000 WOM tokens', async function () {

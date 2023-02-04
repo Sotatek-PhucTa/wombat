@@ -2,13 +2,11 @@ import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { BigNumber } from '@ethersproject/bignumber'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { ContractFactory, Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 const { expect } = chai
-
-chai.use(solidity)
 
 describe('CoreV2', function () {
   let owner: SignerWithAddress

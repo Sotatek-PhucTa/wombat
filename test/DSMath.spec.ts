@@ -1,10 +1,9 @@
 import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { ContractFactory } from '@ethersproject/contracts'
 
-chai.use(solidity)
 const { expect } = chai
 
 let DSMath: ContractFactory

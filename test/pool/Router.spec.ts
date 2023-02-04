@@ -1,7 +1,6 @@
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
 import { Contract, ContractFactory } from 'ethers'
 import { ethers } from 'hardhat'
 import {
@@ -22,7 +21,6 @@ import { near } from '../assertions/near'
 import { expectAssetValues } from '../helpers/helper'
 
 const { expect } = chai
-chai.use(solidity)
 chai.use(near)
 
 describe('WombatRouter', function () {
@@ -206,7 +204,7 @@ describe('WombatRouter', function () {
 
       await expect(
         this.router.connect(user1).getAmountOut([BUSD.address, USDT.address], [pool1.address], 0)
-      ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
+      ).to.be.revertedWithCustomError(pool1, 'WOMBAT_ZERO_AMOUNT')
 
       // swap via router
       await expect(
@@ -220,7 +218,7 @@ describe('WombatRouter', function () {
             user1.address,
             fiveSecondsSince
           )
-      ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
+      ).to.be.revertedWithCustomError(pool1, 'WOMBAT_ZERO_AMOUNT')
     })
 
     it('reverts if invalid token path', async function () {
@@ -283,7 +281,7 @@ describe('WombatRouter', function () {
             ethers.constants.AddressZero,
             fiveSecondsSince
           )
-      ).to.be.revertedWith('WOMBAT_ZERO_ADDRESS')
+      ).to.be.revertedWithCustomError(pool1, 'WOMBAT_ZERO_ADDRESS')
     })
 
     it('reverts if amountOut too low', async function () {

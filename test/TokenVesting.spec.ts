@@ -1,13 +1,11 @@
 import { ethers } from 'hardhat'
 import { parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 const { expect } = chai
-
-chai.use(solidity)
 
 describe('TokenVesting', function () {
   let owner: SignerWithAddress

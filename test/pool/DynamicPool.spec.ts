@@ -1,12 +1,11 @@
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 import { ethers } from 'hardhat'
 
 const { expect } = chai
-chai.use(solidity)
 
 describe('DynamicPool', function () {
   let owner: SignerWithAddress

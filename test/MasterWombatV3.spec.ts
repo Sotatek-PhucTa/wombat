@@ -3,7 +3,7 @@ import { AddressZero } from '@ethersproject/constants'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { BigNumber, Contract } from 'ethers'
 import { ethers } from 'hardhat'
 import {
@@ -23,7 +23,6 @@ import { near } from './assertions/near'
 import { roughlyNear } from './assertions/roughlyNear'
 import { advanceTimeAndBlock, latest, sqrt } from './helpers'
 
-chai.use(solidity)
 chai.use(near)
 chai.use(roughlyNear)
 

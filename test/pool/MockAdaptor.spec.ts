@@ -2,7 +2,7 @@ import { AddressZero } from '@ethersproject/constants'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
 import {
@@ -15,8 +15,6 @@ import {
   MockAdaptor__factory,
   TestERC20__factory,
 } from '../../build/typechain'
-
-chai.use(solidity)
 
 describe('MockAdaptor', function () {
   let owner: SignerWithAddress

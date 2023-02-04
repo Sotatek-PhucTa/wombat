@@ -1,12 +1,10 @@
 import { ethers } from 'hardhat'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { ContractFactory, Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 const { expect } = chai
-
-chai.use(solidity)
 
 describe('PausableAssets', function () {
   let owner: SignerWithAddress
@@ -38,9 +36,9 @@ describe('PausableAssets', function () {
 
     it('Should revert when asset is paused', async function () {
       await PausableAssets.test_pauseAsset(token0.address)
-      await expect(PausableAssets.connect(user1).testRequireAssetNotPaused(token0.address)).to.be.revertedWith(
-        'WOMBAT_ASSET_ALREADY_PAUSED'
-      )
+      await expect(
+        PausableAssets.connect(user1).testRequireAssetNotPaused(token0.address)
+      ).to.be.revertedWithCustomError(PausableAssets, 'WOMBAT_ASSET_ALREADY_PAUSED')
 
       // does not revert for other assets
       await PausableAssets.connect(user1).testRequireAssetNotPaused(token1.address)
@@ -54,7 +52,8 @@ describe('PausableAssets', function () {
     })
 
     it('Would revert when asset does not exist', async function () {
-      await expect(PausableAssets.connect(user1).testRequireAssetPaused(token0.address)).to.be.revertedWith(
+      await expect(PausableAssets.connect(user1).testRequireAssetPaused(token0.address)).to.be.revertedWithCustomError(
+        PausableAssets,
         'WOMBAT_ASSET_NOT_PAUSED'
       )
     })
@@ -63,7 +62,8 @@ describe('PausableAssets', function () {
       await PausableAssets.test_pauseAsset(token0.address)
       await PausableAssets.test_pauseAsset(token1.address)
       await PausableAssets.test_unpauseAsset(token0.address)
-      await expect(PausableAssets.connect(user1).testRequireAssetPaused(token0.address)).to.be.revertedWith(
+      await expect(PausableAssets.connect(user1).testRequireAssetPaused(token0.address)).to.be.revertedWithCustomError(
+        PausableAssets,
         'WOMBAT_ASSET_NOT_PAUSED'
       )
 

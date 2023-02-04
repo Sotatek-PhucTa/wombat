@@ -1,13 +1,12 @@
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 import { ethers } from 'hardhat'
 import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
-chai.use(solidity)
 
 describe('Pool - Withdraw', function () {
   let owner: SignerWithAddress
@@ -23,6 +22,7 @@ describe('Pool - Withdraw', function () {
   let asset0: Contract // BUSD LP
   let asset1: Contract // vUSDC LP
   let asset2: Contract // CAKE LP
+  let coreV3: Contract
   let lastBlockTime: number
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
@@ -43,7 +43,7 @@ describe('Pool - Withdraw', function () {
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-    const coreV3 = await CoreV3Factory.deploy()
+    coreV3 = await CoreV3Factory.deploy()
     PoolFactory = (await ethers.getContractFactory('PoolV3', {
       libraries: { CoreV3: coreV3.address },
     })) as MegaPool__factory
@@ -141,7 +141,7 @@ describe('Pool - Withdraw', function () {
           poolContract
             .connect(user1)
             .withdraw(token0.address, parseEther('100'), parseEther('100'), user1.address, fiveSecondsAgo)
-        ).to.be.revertedWith('WOMBAT_EXPIRED')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_EXPIRED')
       })
 
       it('reverts if liquidity provider does not have enough liquidity token', async function () {
@@ -149,7 +149,7 @@ describe('Pool - Withdraw', function () {
           poolContract
             .connect(user2)
             .withdraw(token0.address, parseEther('1001'), parseEther('1001'), user2.address, fiveSecondsSince)
-        ).to.be.revertedWith('ERC20: transfer amount exceeds balance')
+        ).to.be.revertedWith('ERC20: insufficient allowance')
       })
 
       it('reverts if amount to receive is less than expected', async function () {
@@ -165,7 +165,7 @@ describe('Pool - Withdraw', function () {
         await expect(
           poolContract
             .connect(user1)
-            .withdraw(token0.address, parseEther('0'), parseEther('0'), user1, fiveSecondsSince),
+            .withdraw(token0.address, parseEther('0'), parseEther('0'), user1.address, fiveSecondsSince),
           'Wombat: INSUFFICIENT_LIQUIDITY_BURNED'
         ).to.be.reverted
       })
@@ -190,7 +190,7 @@ describe('Pool - Withdraw', function () {
               user1.address,
               fiveSecondsSince
             )
-        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if asset not exist', async function () {
@@ -201,7 +201,7 @@ describe('Pool - Withdraw', function () {
           poolContract
             .connect(user1)
             .withdraw(mockToken.address, parseEther('100'), parseEther('100'), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
       })
     })
 
@@ -246,7 +246,8 @@ describe('Pool - Withdraw', function () {
       }
 
       it('reverts when withdraw all liquidity', async function () {
-        await expect(withdrawFromOtherAsset(owner, parseEther('10.1'), token1, token0)).to.be.revertedWith(
+        await expect(withdrawFromOtherAsset(owner, parseEther('10.1'), token1, token0)).to.be.revertedWithCustomError(
+          coreV3,
           'CORE_UNDERFLOW'
         )
       })
@@ -254,13 +255,13 @@ describe('Pool - Withdraw', function () {
       it('reverts when deadline passes', async function () {
         await expect(
           withdrawFromOtherAsset(owner, parseEther('1'), token1, token0, undefined, fiveSecondsAgo)
-        ).to.be.revertedWith('WOMBAT_EXPIRED()')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_EXPIRED')
       })
 
       it('reverts when amount is too low', async function () {
         await expect(
           withdrawFromOtherAsset(owner, parseEther('1'), token1, token0, parseEther('1'))
-        ).to.be.revertedWith('WOMBAT_AMOUNT_TOO_LOW()')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_AMOUNT_TOO_LOW')
       })
 
       it('reverts when pool is paused', async function () {
@@ -272,8 +273,9 @@ describe('Pool - Withdraw', function () {
 
       it('reverts when toToken is paused', async function () {
         await poolContract.connect(owner).pauseAsset(token1.address)
-        await expect(withdrawFromOtherAsset(owner, parseEther('10'), token1, token0)).to.be.revertedWith(
-          'WOMBAT_ASSET_ALREADY_PAUSED()'
+        await expect(withdrawFromOtherAsset(owner, parseEther('10'), token1, token0)).to.be.revertedWithCustomError(
+          poolContract,
+          'WOMBAT_ASSET_ALREADY_PAUSED'
         )
       })
 

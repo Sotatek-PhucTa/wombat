@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat'
 import { parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
@@ -9,7 +9,6 @@ import { latest } from '../helpers'
 import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
-chai.use(solidity)
 
 describe('Pool - Utils', function () {
   let owner: SignerWithAddress
@@ -79,20 +78,23 @@ describe('Pool - Utils', function () {
     })
 
     it('Should revert if retention + lp dividend > 1', async function () {
-      await expect(poolContract.connect(owner).setFee(parseEther('0.5'), parseEther('0.51'))).to.be.revertedWith(
-        'WOMBAT_INVALID_VALUE'
-      )
+      await expect(
+        poolContract.connect(owner).setFee(parseEther('0.5'), parseEther('0.51'))
+      ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_INVALID_VALUE')
     })
 
     it('Should revert if params are set outside out of their boundaries', async function () {
       // should not be bigger than 1
-      await expect(poolContract.connect(owner).setAmpFactor(parseUnits('1.1', 18))).to.be.revertedWith(
+      await expect(poolContract.connect(owner).setAmpFactor(parseUnits('1.1', 18))).to.be.revertedWithCustomError(
+        poolContract,
         'WOMBAT_INVALID_VALUE'
       )
-      await expect(poolContract.connect(owner).setHaircutRate(parseUnits('12.1', 18))).to.be.revertedWith(
+      await expect(poolContract.connect(owner).setHaircutRate(parseUnits('12.1', 18))).to.be.revertedWithCustomError(
+        poolContract,
         'WOMBAT_INVALID_VALUE'
       )
-      await expect(poolContract.connect(owner).setFee(parseUnits('1.0001', 18), 0)).to.be.revertedWith(
+      await expect(poolContract.connect(owner).setFee(parseUnits('1.0001', 18), 0)).to.be.revertedWithCustomError(
+        poolContract,
         'WOMBAT_INVALID_VALUE'
       )
     })
@@ -130,12 +132,12 @@ describe('Pool - Utils', function () {
         // Add Asset with zero address
         await expect(
           poolContract.connect(owner).addAsset(mockToken.address, ethers.constants.AddressZero)
-        ).to.be.revertedWith('WOMBAT_ZERO_ADDRESS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ZERO_ADDRESS')
 
         // Add existing asset
-        await expect(poolContract.connect(owner).addAsset(token0.address, asset0.address)).to.be.revertedWith(
-          'WOMBAT_ASSET_ALREADY_EXIST'
-        )
+        await expect(
+          poolContract.connect(owner).addAsset(token0.address, asset0.address)
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_ALREADY_EXIST')
       })
 
       it('restricts to only owner', async function () {
@@ -157,16 +159,17 @@ describe('Pool - Utils', function () {
         await expect(receipt).to.emit(poolContract, 'AssetRemoved').withArgs(mockToken.address, mockAsset.address)
 
         // expect to revert if remove mock token and asset again
-        await expect(poolContract.connect(owner).removeAsset(mockToken.address)).to.be.revertedWith(
-          'WOMBAT_ASSET_NOT_EXISTS()'
+        await expect(poolContract.connect(owner).removeAsset(mockToken.address)).to.be.revertedWithCustomError(
+          poolContract,
+          'WOMBAT_ASSET_NOT_EXISTS'
         )
       })
 
       it('reverts for invalid params', async function () {
         // Remove ERC20 token with zero address
-        await expect(poolContract.connect(owner).removeAsset(ethers.constants.AddressZero)).to.be.revertedWith(
-          'WOMBAT_ASSET_NOT_EXISTS()'
-        )
+        await expect(
+          poolContract.connect(owner).removeAsset(ethers.constants.AddressZero)
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('restricts to only owner', async function () {
@@ -247,7 +250,8 @@ describe('Pool - Utils', function () {
 
       await poolContract.mintFee(token1.address)
 
-      await expect(poolContract.connect(owner).fillPool(token1.address, 5e15)).to.be.revertedWith(
+      await expect(poolContract.connect(owner).fillPool(token1.address, 5e15)).to.be.revertedWithCustomError(
+        poolContract,
         'WOMBAT_INVALID_VALUE'
       )
     })

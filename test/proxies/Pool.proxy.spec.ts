@@ -1,13 +1,11 @@
 import { parseEther } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { Contract, ContractFactory } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { ethers, upgrades } from 'hardhat'
 import { latest } from '../helpers/time'
-
-chai.use(solidity)
 
 const proxyImplAddr = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc' // EIP1967
 

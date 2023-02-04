@@ -2,8 +2,8 @@ import { AddressZero } from '@ethersproject/constants'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
-import { solidity } from 'ethereum-waffle'
-import { BigNumber } from 'ethers'
+
+import { BigNumber, Contract } from 'ethers'
 import { ethers } from 'hardhat'
 import {
   Asset,
@@ -15,8 +15,6 @@ import {
   MockAdaptor__factory,
   TestERC20__factory,
 } from '../../build/typechain'
-
-chai.use(solidity)
 
 describe('MegaPool', function () {
   let owner: SignerWithAddress
@@ -35,6 +33,7 @@ describe('MegaPool', function () {
   let asset1: Asset // USDC LP
   let asset2: Asset // CAKE LP
   let asset3: Asset // USDT LP
+  let coreV3: Contract
   let lastBlockTime: number
   let fiveSecondsSince: number
 
@@ -53,7 +52,7 @@ describe('MegaPool', function () {
     TestERC20Factory = (await ethers.getContractFactory('TestERC20')) as TestERC20__factory
     MockAdaptorFactory = (await ethers.getContractFactory('MockAdaptor')) as MockAdaptor__factory
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-    const coreV3 = await CoreV3Factory.deploy()
+    coreV3 = await CoreV3Factory.deploy()
     PoolFactory = (await ethers.getContractFactory('MegaPool', {
       libraries: { CoreV3: coreV3.address },
     })) as MegaPool__factory
@@ -125,19 +124,19 @@ describe('MegaPool', function () {
             user1.address,
             0
           )
-      ).to.revertedWith('WOMBAT_ZERO_AMOUNT')
+      ).to.revertedWithCustomError(pool, 'WOMBAT_ZERO_AMOUNT')
     })
 
     it('swapCreditForTokens - WOMBAT_ZERO_AMOUNT', async function () {
       await expect(
         pool.connect(user1).swapCreditForTokens(token1.address, 0, parseUnits('99', 6), user1.address)
-      ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
+      ).to.be.revertedWithCustomError(pool, 'WOMBAT_ZERO_AMOUNT')
     })
 
     it('swapCreditForTokensCrossChain - WOMBAT_ZERO_AMOUNT', async function () {
       await expect(
         pool.connect(user1).swapCreditForTokensCrossChain(token2.address, 1, 0, parseEther('99'), user1.address, 0)
-      ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
+      ).to.be.revertedWithCustomError(pool, 'WOMBAT_ZERO_AMOUNT')
     })
 
     it('swapCreditForTokens - POOL__CREDIT_NOT_ENOUGH', async function () {
@@ -149,7 +148,7 @@ describe('MegaPool', function () {
         pool
           .connect(user1)
           .swapCreditForTokens(token1.address, parseEther('100.198019801980200001'), parseUnits('99', 6), user1.address)
-      ).to.be.revertedWith('POOL__CREDIT_NOT_ENOUGH')
+      ).to.be.revertedWithCustomError(pool, 'POOL__CREDIT_NOT_ENOUGH')
 
       // verify the return value
       expect(
@@ -175,7 +174,7 @@ describe('MegaPool', function () {
             user1.address,
             0
           )
-      ).to.be.revertedWith('POOL__CREDIT_NOT_ENOUGH')
+      ).to.be.revertedWithCustomError(pool, 'POOL__CREDIT_NOT_ENOUGH')
 
       // verify the return value
       expect(
@@ -212,7 +211,7 @@ describe('MegaPool', function () {
             user1.address,
             0
           )
-      ).to.revertedWith('WOMBAT_AMOUNT_TOO_LOW')
+      ).to.revertedWithCustomError(pool, 'WOMBAT_AMOUNT_TOO_LOW')
     })
 
     it('swapTokensForTokensCrossChain - POOL__REACH_MAXIMUM_MINTED_CREDIT', async function () {
@@ -227,9 +226,10 @@ describe('MegaPool', function () {
         pool
           .connect(user1)
           .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, 100000, 0, 0, user1.address, 0)
-      ).to.be.revertedWith('POOL__REACH_MAXIMUM_MINTED_CREDIT')
+      ).to.be.revertedWithCustomError(pool, 'POOL__REACH_MAXIMUM_MINTED_CREDIT')
 
-      await expect(pool.quoteSwapTokensForCredit(token0.address, 100000)).to.be.revertedWith(
+      await expect(pool.quoteSwapTokensForCredit(token0.address, 100000)).to.be.revertedWithCustomError(
+        pool,
         'POOL__REACH_MAXIMUM_MINTED_CREDIT'
       )
     })
@@ -247,7 +247,7 @@ describe('MegaPool', function () {
             parseUnits('99.7', 6),
             user1.address
           )
-      ).to.be.revertedWith('WOMBAT_AMOUNT_TOO_LOW')
+      ).to.be.revertedWithCustomError(pool, 'WOMBAT_AMOUNT_TOO_LOW')
     })
 
     it('swapCreditForTokens - POOL__REACH_MAXIMUM_BURNED_CREDIT', async function () {
@@ -283,11 +283,11 @@ describe('MegaPool', function () {
             parseEther('99'),
             user1.address
           )
-      ).to.be.revertedWith('POOL__REACH_MAXIMUM_BURNED_CREDIT')
+      ).to.be.revertedWithCustomError(pool, 'POOL__REACH_MAXIMUM_BURNED_CREDIT')
 
       await expect(
         pool.quoteSwapCreditForTokens(token0.address, parseEther('101.198019801980200001'))
-      ).to.be.revertedWith('POOL__REACH_MAXIMUM_BURNED_CREDIT')
+      ).to.be.revertedWithCustomError(pool, 'POOL__REACH_MAXIMUM_BURNED_CREDIT')
 
       expect(
         await pool
@@ -338,11 +338,11 @@ describe('MegaPool', function () {
             user1.address,
             0
           )
-      ).to.be.revertedWith('POOL__REACH_MAXIMUM_BURNED_CREDIT')
+      ).to.be.revertedWithCustomError(pool, 'POOL__REACH_MAXIMUM_BURNED_CREDIT')
 
       await expect(
         pool.quoteSwapCreditForTokens(token0.address, parseEther('100.998023754471257486'))
-      ).to.be.revertedWith('POOL__REACH_MAXIMUM_BURNED_CREDIT')
+      ).to.be.revertedWithCustomError(pool, 'POOL__REACH_MAXIMUM_BURNED_CREDIT')
 
       expect(
         await pool
@@ -392,7 +392,7 @@ describe('MegaPool', function () {
             user1.address,
             0
           )
-      ).to.be.revertedWith('ADAPTOR__INVALID_TOKEN')
+      ).to.be.revertedWithCustomError(mockAdaptor, 'ADAPTOR__INVALID_TOKEN')
     })
 
     it('Adaptor - _isTrustedContract', async function () {
@@ -426,7 +426,7 @@ describe('MegaPool', function () {
           AddressZero,
           message.deliverData
         )
-      ).to.be.revertedWith('ADAPTOR__CONTRACT_NOT_TRUSTED')
+      ).to.be.revertedWithCustomError(mockAdaptor, 'ADAPTOR__CONTRACT_NOT_TRUSTED')
     })
   })
 
@@ -561,7 +561,7 @@ describe('MegaPool', function () {
             user1.address,
             0
           )
-      ).to.be.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.be.revertedWithCustomError(coreV3, 'CORE_COV_RATIO_LIMIT_EXCEEDED')
 
       // verify the return value
       const result = await pool
@@ -753,7 +753,7 @@ describe('MegaPool', function () {
             user1.address,
             0
           )
-      ).to.be.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.be.revertedWithCustomError(coreV3, 'CORE_COV_RATIO_LIMIT_EXCEEDED')
 
       // verify the return value
       const result = await pool

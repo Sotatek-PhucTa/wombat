@@ -1,10 +1,9 @@
 import { ethers } from 'hardhat'
 import { parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { ContractFactory, Contract } from 'ethers'
 
-chai.use(solidity)
 const { expect } = chai
 
 // skipped as it fails lint

@@ -1,13 +1,12 @@
 import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
-chai.use(solidity)
 
 describe('Pool - Swap', function () {
   let owner: SignerWithAddress
@@ -419,7 +418,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_ALREADY_PAUSED')
       })
 
       it('allows swap if asset paused and unpaused after', async function () {
@@ -433,7 +432,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_ALREADY_PAUSED')
 
         await poolContract.connect(owner).unpauseAsset(token1.address)
         const receipt = await poolContract.connect(user1).swap(
@@ -502,7 +501,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsAgo
           )
-        ).to.be.revertedWith('WOMBAT_EXPIRED')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_EXPIRED')
       })
 
       it('reverts if amount to receive is less than expected', async function () {
@@ -515,7 +514,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_AMOUNT_TOO_LOW')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_AMOUNT_TOO_LOW')
       })
 
       it('reverts if pool paused', async function () {
@@ -542,7 +541,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
 
         await expect(
           poolContract.connect(user1).swap(
@@ -553,7 +552,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if asset not exist', async function () {
@@ -562,7 +561,7 @@ describe('Pool - Swap', function () {
           poolContract
             .connect(user1)
             .swap(pax.address, token1.address, parseEther('100'), parseUnits('90', 18), user1.address, fiveSecondsSince)
-        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if cov ratio will be less than 1%', async function () {
@@ -575,7 +574,7 @@ describe('Pool - Swap', function () {
             user1.address,
             fiveSecondsSince
           )
-        ).to.be.revertedWith('WOMBAT_FORBIDDEN')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_FORBIDDEN')
       })
     })
   })

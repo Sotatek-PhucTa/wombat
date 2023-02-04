@@ -1,14 +1,13 @@
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { Contract, ContractFactory } from 'ethers'
 import { ethers } from 'hardhat'
 import { latest } from '../helpers'
 import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
-chai.use(solidity)
 
 describe('Pool - Deposit', function () {
   let owner: SignerWithAddress
@@ -182,7 +181,7 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsAgo, false)
-        ).to.be.revertedWith('WOMBAT_EXPIRED')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_EXPIRED')
       })
 
       it('reverts if liquidity to mint is too small', async function () {
@@ -190,7 +189,7 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(token0.address, parseEther('0'), 0, user1.address, fiveSecondsSince, false)
-        ).to.be.revertedWith('WOMBAT_ZERO_AMOUNT')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ZERO_AMOUNT')
       })
 
       it('reverts if liquidity provider does not have enough balance', async function () {
@@ -216,11 +215,14 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
-        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_ALREADY_PAUSED')
       })
 
       it('reverts if pause asset is invoked by non-owner', async function () {
-        await expect(poolContract.connect(user1).pauseAsset(token0.address)).to.be.revertedWith('WOMBAT_FORBIDDEN')
+        await expect(poolContract.connect(user1).pauseAsset(token0.address)).to.be.revertedWithCustomError(
+          poolContract,
+          'WOMBAT_FORBIDDEN'
+        )
       })
 
       it('allows deposit if asset paused and unpaused after', async function () {
@@ -229,7 +231,7 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(token0.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
-        ).to.be.revertedWith('WOMBAT_ASSET_ALREADY_PAUSED')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_ALREADY_PAUSED')
 
         await poolContract.connect(owner).unpauseAsset(token0.address)
         const receipt = await poolContract
@@ -246,7 +248,7 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(ethers.constants.AddressZero, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
-        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
       })
 
       it('reverts if asset not exist', async function () {
@@ -257,7 +259,7 @@ describe('Pool - Deposit', function () {
           poolContract
             .connect(user1)
             .deposit(mockToken.address, parseEther('100'), 0, user1.address, fiveSecondsSince, false)
-        ).to.be.revertedWith('WOMBAT_ASSET_NOT_EXISTS')
+        ).to.be.revertedWithCustomError(poolContract, 'WOMBAT_ASSET_NOT_EXISTS')
       })
     })
   })

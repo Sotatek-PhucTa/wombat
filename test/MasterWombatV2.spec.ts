@@ -5,12 +5,11 @@ import { advanceTimeAndBlock, latest, sqrt } from './helpers'
 import { formatEther, parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { AddressZero } from '@ethersproject/constants'
-import { solidity } from 'ethereum-waffle'
+
 import { near } from './assertions/near'
 import { BigNumberish } from '@ethersproject/bignumber'
 import { roughlyNear } from './assertions/roughlyNear'
 
-chai.use(solidity)
 chai.use(near)
 chai.use(roughlyNear)
 

@@ -2,11 +2,10 @@ import { ethers } from 'hardhat'
 import chai from 'chai'
 import { parseUnits } from '@ethersproject/units'
 import { Contract, Wallet } from 'ethers'
-import { solidity } from 'ethereum-waffle'
+
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { signERC2612Permit } from '../contracts/wombat-peripheral/permit/eth-permit' // https://github.com/dmihal/eth-permit
 
-chai.use(solidity)
 const { expect } = chai
 
 describe('Asset', function () {
@@ -121,7 +120,8 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect(asset.transferUnderlyingToken(owner.address, parseUnits('100', 18))).to.be.revertedWith(
+      await expect(asset.transferUnderlyingToken(owner.address, parseUnits('100', 18))).to.be.revertedWithCustomError(
+        asset,
         'WOMBAT_FORBIDDEN'
       )
     })
@@ -145,7 +145,8 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect(asset.connect(owner).mint(senderAddress, parseUnits('100', 18))).to.be.revertedWith(
+      await expect(asset.connect(owner).mint(senderAddress, parseUnits('100', 18))).to.be.revertedWithCustomError(
+        asset,
         'WOMBAT_FORBIDDEN'
       )
     })
@@ -165,7 +166,7 @@ describe('Asset', function () {
     it('Should revert if Asset LP token transferFrom pool', async function () {
       await expect(
         asset.connect(pool).transferFrom(senderAddress, asset.address, parseUnits('90', 18))
-      ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+      ).to.be.revertedWith('ERC20: insufficient allowance')
     })
 
     it('Should revert as invalid signature called for permitted allowance', async function () {
@@ -215,7 +216,7 @@ describe('Asset', function () {
       // pool transferFrom sender 110 Asset LP tokens but fails as > than permitted allowance
       await expect(
         asset.connect(pool).transferFrom(senderAddress, asset.address, parseUnits('110', 18))
-      ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+      ).to.be.revertedWith('ERC20: insufficient allowance')
     })
 
     it('Should transferFrom sender to pool if permitted allowance', async function () {
@@ -264,9 +265,9 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect((await asset.connect(owner)).burn(user.address, parseUnits('100', 18))).to.be.revertedWith(
-        'WOMBAT_FORBIDDEN'
-      )
+      await expect(
+        (await asset.connect(owner)).burn(user.address, parseUnits('100', 18))
+      ).to.be.revertedWithCustomError(asset, 'WOMBAT_FORBIDDEN')
     })
   })
 
@@ -278,7 +279,10 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect((await asset.connect(owner)).addCash(parseUnits('100', 18))).to.be.revertedWith('WOMBAT_FORBIDDEN')
+      await expect((await asset.connect(owner)).addCash(parseUnits('100', 18))).to.be.revertedWithCustomError(
+        asset,
+        'WOMBAT_FORBIDDEN'
+      )
     })
   })
 
@@ -301,7 +305,7 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect(asset.removeCash(parseUnits('100', 18))).to.be.revertedWith('WOMBAT_FORBIDDEN')
+      await expect(asset.removeCash(parseUnits('100', 18))).to.be.revertedWithCustomError(asset, 'WOMBAT_FORBIDDEN')
     })
   })
 
@@ -313,7 +317,8 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect((await asset.connect(owner)).addLiability(parseUnits('100', 18))).to.be.revertedWith(
+      await expect((await asset.connect(owner)).addLiability(parseUnits('100', 18))).to.be.revertedWithCustomError(
+        asset,
         'WOMBAT_FORBIDDEN'
       )
     })
@@ -338,7 +343,10 @@ describe('Asset', function () {
     })
 
     it('Should revert as restricted to only pool', async function () {
-      await expect(asset.connect(owner).removeLiability(parseUnits('100', 18))).to.be.revertedWith('WOMBAT_FORBIDDEN')
+      await expect(asset.connect(owner).removeLiability(parseUnits('100', 18))).to.be.revertedWithCustomError(
+        asset,
+        'WOMBAT_FORBIDDEN'
+      )
     })
   })
 })

@@ -1,10 +1,8 @@
 import { ethers } from 'hardhat'
 import chai from 'chai'
-import { BigNumber, BigNumberish, Contract, ContractFactory, Signer } from 'ethers'
-import { solidity } from 'ethereum-waffle'
+import { BigNumber, BigNumberish, Contract } from 'ethers'
 
 const { expect } = chai
-chai.use(solidity)
 
 export function toWei(amount: BigNumberish, tokenDecimals: BigNumberish): BigNumber {
   return ethers.utils.parseUnits(amount.toString(), tokenDecimals)

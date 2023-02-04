@@ -1,10 +1,9 @@
 import chai from 'chai'
 import { expect } from 'chai'
 import { parseEther, parseUnits } from '@ethersproject/units'
-import { solidity } from 'ethereum-waffle'
+
 import { near } from './near'
 
-chai.use(solidity)
 chai.use(near)
 
 describe('Testing Near Assert', function () {

@@ -1,13 +1,13 @@
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 import { ethers } from 'hardhat'
 import { near } from '../assertions/near'
 
 const { expect } = chai
-chai.use(solidity)
+
 chai.use(near)
 
 describe('High Coverage Ratio Pool - Swap', function () {
@@ -18,7 +18,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
   let TestERC20Factory: ContractFactory
   let PoolFactory: ContractFactory
   let pool: Contract
-
+  let coreV3: Contract
   let fiveSecondsSince: number
 
   before(async function () {
@@ -28,7 +28,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-    const coreV3 = await CoreV3Factory.deploy()
+    coreV3 = await CoreV3Factory.deploy()
     PoolFactory = await ethers.getContractFactory('HighCovRatioFeePoolV3', { libraries: { CoreV3: coreV3.address } })
   })
 
@@ -340,16 +340,16 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // reverse quote is rejected
-      await expect(pool.quotePotentialSwap(token1.address, token0.address, parseUnits('-63861', 8))).to.be.revertedWith(
-        'WOMBAT_COV_RATIO_LIMIT_EXCEEDED'
-      )
+      await expect(
+        pool.quotePotentialSwap(token1.address, token0.address, parseUnits('-63861', 8))
+      ).to.be.revertedWithCustomError(pool, 'WOMBAT_COV_RATIO_LIMIT_EXCEEDED')
 
       // swap is rejected
       await expect(
         pool
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('200001', 6), 0, users[0].address, fiveSecondsSince)
-      ).to.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.revertedWithCustomError(coreV3, 'CORE_COV_RATIO_LIMIT_EXCEEDED')
     })
 
     it('from asset: r = 1.4 -> r = 1.8+ (reject)', async function () {
@@ -373,14 +373,14 @@ describe('High Coverage Ratio Pool - Swap', function () {
       // reverse quote is rejected
       await expect(
         pool.quotePotentialSwap(token1.address, token0.address, parseUnits('-235907', 8))
-      ).to.be.revertedWith('WOMBAT_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.be.revertedWithCustomError(pool, 'WOMBAT_COV_RATIO_LIMIT_EXCEEDED')
 
       // swap is rejected
       await expect(
         pool
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('400001', 6), 0, users[0].address, fiveSecondsSince)
-      ).to.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.revertedWithCustomError(coreV3, 'CORE_COV_RATIO_LIMIT_EXCEEDED')
     })
 
     it('from asset: r = 1.8+ -> (reject)', async function () {
@@ -402,16 +402,16 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // reverse quote is rejected
-      await expect(pool.quotePotentialSwap(token1.address, token0.address, parseUnits('-1', 8))).to.be.revertedWith(
-        'WOMBAT_COV_RATIO_LIMIT_EXCEEDED'
-      )
+      await expect(
+        pool.quotePotentialSwap(token1.address, token0.address, parseUnits('-1', 8))
+      ).to.be.revertedWithCustomError(pool, 'WOMBAT_COV_RATIO_LIMIT_EXCEEDED')
 
       // swap is rejected
       await expect(
         pool
           .connect(users[0])
           .swap(token0.address, token1.address, parseUnits('1', 6), 0, users[0].address, fiveSecondsSince)
-      ).to.revertedWith('CORE_COV_RATIO_LIMIT_EXCEEDED')
+      ).to.revertedWithCustomError(coreV3, 'CORE_COV_RATIO_LIMIT_EXCEEDED')
     })
 
     it('from asset: r = 1.7 -> 1.4 (should not change high cov ratio fee)', async function () {

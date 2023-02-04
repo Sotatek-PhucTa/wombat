@@ -2,13 +2,12 @@ import { toUtf8Bytes } from '@ethersproject/strings'
 import { parseEther } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { ethers, network } from 'hardhat'
 import { near } from './assertions/near'
 import { advanceTimeAndBlock, latest } from './helpers'
 import { Ability } from './helpers/nft'
 
-chai.use(solidity)
 chai.use(near)
 
 describe('VeWOM', function () {

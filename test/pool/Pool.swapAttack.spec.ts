@@ -1,13 +1,12 @@
 import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
+
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { MegaPool__factory } from '../../build/typechain'
 
 const { expect } = chai
-chai.use(solidity)
 
 describe.skip('Pool - Swap', function () {
   let owner: SignerWithAddress
