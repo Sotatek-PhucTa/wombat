@@ -39,7 +39,7 @@
     "lodash": "^4.17.21",
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1",
-    "sol2uml": "^1.1.27",
+    "sol2uml": "^2.4.3",
     "solhint": "^3.3.8",
     "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.7.21",
