@@ -1,6 +1,6 @@
 import { BigNumberish } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { ethers, network } from 'hardhat'
+import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import bn from 'bignumber.js'
 
