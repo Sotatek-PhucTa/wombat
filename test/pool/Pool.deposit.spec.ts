@@ -497,6 +497,8 @@ describe('Pool - Deposit', function () {
       expect(await masterWombat.getAssetPid(asset0.address)).to.equal(0)
       expect(await masterWombat.getAssetPid(asset1.address)).to.equal(1)
       // skip this line as chai is unable to get the revert reason
+      // Solution : https://github.com/NomicFoundation/hardhat/issues/3365
+      // TODO: To be solved after hardhat@ir is integrated to the normal version
       // await expect(masterWombat.getAssetPid(asset2.address)).to.be.reverted
 
       // deposit and stake

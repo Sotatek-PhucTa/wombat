@@ -7,7 +7,7 @@ import { ContractFactory, Contract } from 'ethers'
 const { expect } = chai
 
 // skipped as it fails lint
-describe.skip('SignedSafeMath', function () {
+describe('SignedSafeMath', function () {
   let SignedSafeMathFactory: ContractFactory
   let SignedSafeMath: Contract
   before(async function () {
@@ -37,7 +37,7 @@ describe.skip('SignedSafeMath', function () {
 
     // lowest unit 'wei' does not allow decimals, i.e. 1.2 wei
     it('1.2 + 3.3 = throw underflow error', async function () {
-      await expect(SignedSafeMath.add(1.2, 3.3)).to.be.reverted
+      await expect(SignedSafeMath.add(1.2, 3.3)).to.be.revertedWithPanic
     })
   })
 

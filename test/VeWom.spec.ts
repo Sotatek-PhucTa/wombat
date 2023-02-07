@@ -106,10 +106,7 @@ describe('VeWOM', function () {
     expect(afterWomBalance.sub(beforeWomBalance)).to.equal(-100)
   })
 
-  // Skipped as weird error due to hardhat doesn't support solidity 15 yet
-  // AssertionError: Expected transaction to be reverted with Smart contract depositors not allowed, but
-  // other exception was thrown: Error: Transaction reverted: function was called with incorrect parameters
-  it.skip('should not allow mint from smart contract unless whitelisted', async function () {
+  it('should not allow mint from smart contract unless whitelisted', async function () {
     // try to attack by minting from a contract
     this.mockAttacker = await this.MockAttacker.deploy(this.wom.address, this.veWom.address)
     await this.mockAttacker.approve(100)
