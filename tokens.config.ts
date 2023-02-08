@@ -79,6 +79,39 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   },
 }
 
+export const IUSD_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+  bsc_mainnet: {
+    IUSD: ['iZUMi Bond USD', 'iUSD', '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', 0], // last item is pool alloc point
+    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
+  },
+  bsc_testnet: {
+    IUSD: ['iZUMi Bond USD', 'iUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
+    BUSD: ['Binance USD', 'BUSD', '18', 0],
+  },
+}
+
+export const CUSD_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+  bsc_mainnet: {
+    CUSD: ['Coin98 Dollar', 'CUSD', '0xfa4ba88cf97e282c505bea095297786c16070129', 0], // last item is pool alloc point
+    HAY: ['Hay Destablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
+  },
+  bsc_testnet: {
+    CUSD: ['Coin98 Dollar', 'CUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
+    HAY: ['Hay Destablecoin', 'HAY', '18', 0],
+  },
+}
+
+export const AXLUSDC_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+  bsc_mainnet: {
+    AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', 0], // last item is pool alloc point
+    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
+  },
+  bsc_testnet: {
+    AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '6', 0], // last item is 0 tokens minted to msg.sender initially
+    BUSD: ['Binance USD', 'BUSD', '18', 0],
+  },
+}
+
 export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
   bsc_mainnet: {
     stables_01: {
@@ -410,6 +443,36 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       ...defaultRewarder(),
       lpToken: '0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8', // LP-qWOMPool_WOM pid:10
       rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF', // QUO
+    },
+    IUSDPool_iUSD: {
+      ...defaultRewarder(),
+      lpToken: '0x3A29dF144bB54A8bF3d20357c116befa7adE962d',
+      rewardToken: '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', // iUSD
+    },
+    IUSDPool_BUSD: {
+      ...defaultRewarder(),
+      lpToken: '0x7Ff1AEc17ea060BBcB7dF6b8723F6Ea7fc905E8F',
+      rewardToken: '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', // iUSD
+    },
+    CUSDPool_CUSD: {
+      ...defaultRewarder(),
+      lpToken: '0x3ac762C607ed6Dba156cBcF11efF96340e86b490',
+      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+    },
+    CUSDPool_HAY: {
+      ...defaultRewarder(),
+      lpToken: '0xa6eF6C45EbFDBc13f6D032fbDFeC9b389C1603E5',
+      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+    },
+    AxlUsdcPool_axlUSDC: {
+      ...defaultRewarder(),
+      lpToken: '0x77F645Ee0c6d47380A942B04B8151fD542927391',
+      rewardToken: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', // axlUSDC
+    },
+    AxlUsdcPool_BUSD: {
+      ...defaultRewarder(),
+      lpToken: '0x791b2424df9865994Ad570425278902E2B5D7946',
+      rewardToken: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', // axlUSDC
     },
   },
   bsc_testnet: {
