@@ -21,11 +21,7 @@ contract WormholeAdaptor is Adaptor {
     // @dev wormhole chainId => adaptor address
     mapping(uint256 => address) public targetAdaptor;
 
-    function initialize(
-        ICoreRelayer _relayer,
-        IWormhole _wormhole,
-        IMegaPool _megaPool
-    ) public virtual initializer {
+    function initialize(ICoreRelayer _relayer, IWormhole _wormhole, IMegaPool _megaPool) public virtual initializer {
         relayer = _relayer;
         wormhole = _wormhole;
 
