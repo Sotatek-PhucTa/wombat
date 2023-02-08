@@ -14,16 +14,18 @@ describe('CoreV3', function () {
   })
 
   describe('balanced pool', function () {
-    ;[100, parseEther('5000')].map((tvl) => {
-      describe(`balanced pool (${tvl}) at equilibrium`, async function () {
-        _.range(0, 100).map((percent) => {
-          const swapAmount = BigNumber.from(tvl).mul(percent).div(100)
-          it(`ok to swap ${swapAmount}`, async function () {
-            await balancedPoolInvariant(tvl, swapAmount, ampFactor)
-          })
+    ;[100, 1e6, 1e9, 1e12, parseEther('1'), parseEther('5000'), parseEther('100000'), parseEther('1000000')].map(
+      (tvl) => {
+        it(`balanced pool (${tvl}) at equilibrium`, async function () {
+          await Promise.all(
+            _.range(0, 100).map((percent) => {
+              const swapAmount = BigNumber.from(tvl).mul(percent).div(100)
+              return balancedPoolInvariant(tvl, swapAmount, ampFactor)
+            })
+          )
         })
-      })
-    })
+      }
+    )
   })
 
   // invariant for a balanced pool where cash and liability are all the same
