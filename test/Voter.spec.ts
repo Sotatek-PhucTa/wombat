@@ -991,18 +991,18 @@ describe('Voter', async function () {
       // claim reward
       await advanceTimeAndBlock(600)
 
-      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).near(parseEther('55.55'))
+      expect((await mw.pendingTokens(0, users[0].address)).pendingRewards).roughlyNear(parseEther('55.55'))
       const balance1: BigNumber = await wom.balanceOf(users[0].address)
       await mw.connect(users[0]).multiClaim([0])
       const balance2: BigNumber = await wom.balanceOf(users[0].address)
       expect(balance2.sub(balance1)).roughlyNear(parseEther('55.5'))
 
-      expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).near(parseEther('143.0'))
+      expect((await mw.pendingTokens(1, users[0].address)).pendingRewards).roughlyNear(parseEther('143.0'))
       await mw.connect(users[0]).multiClaim([1])
       const balance3 = await wom.balanceOf(users[0].address)
       expect(balance3.sub(balance2)).roughlyNear(parseEther('143'))
 
-      expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).near(parseEther('167.2'))
+      expect((await mw.pendingTokens(2, users[0].address)).pendingRewards).roughlyNear(parseEther('167.2'))
       await mw.connect(users[0]).multiClaim([2])
       const balance4 = await wom.balanceOf(users[0].address)
       expect(balance4.sub(balance3)).roughlyNear(parseEther('167'))

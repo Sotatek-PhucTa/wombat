@@ -16,8 +16,7 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
-      // TODO: reduce contract size
-      allowUnlimitedContractSize: true,
+      allowUnlimitedContractSize: false,
     },
     bsc_testnet: {
       url: 'https://data-seed-prebsc-1-s3.binance.org:8545',
@@ -59,7 +58,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: '0.8.17',
+        version: '0.8.18',
         settings: {
           viaIR: true,
           optimizer: {
