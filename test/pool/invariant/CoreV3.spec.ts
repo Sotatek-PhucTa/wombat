@@ -46,6 +46,12 @@ describe('CoreV3', function () {
     )
   })
 
+  // TODO: set up pool with different TVL, 100% cov ratio
+
+  // TODO: set up pool with same TVL and 0~200% cov ratio
+
+  // TODO: set up pool with different TVL and different cov ratio
+
   // verify that quote = swapFromCredit(swapToCredit)
   async function invariant(
     fromAssetCash: BigNumberish,
