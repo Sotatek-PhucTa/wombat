@@ -41,7 +41,7 @@
     "hardhat-etherscan-abi": "^0.3.0",
     "hardhat-gas-reporter": "^1.0.9",
     "lodash": "^4.17.21",
-    "prettier": "^2.8.3",
+    "prettier": "^2.8.4",
     "prettier-plugin-solidity": "^1.1.2",
     "sol2uml": "^2.4.3",
     "solhint": "^3.3.8",
