@@ -2,24 +2,21 @@ import { expect } from 'chai'
 import { BigNumber, BigNumberish, Contract } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
-import { dynamicImport } from 'tsimportlib'
-import seedrandom from 'seedrandom'
+import { CreateRandom } from '../../../utils/random'
 import _ from 'lodash'
+import { Random } from 'random/dist/random'
 
 describe('CoreV3', function () {
   const ampFactor = parseEther('0.04')
   let core: Contract
-  let random: import('random').Random
+  let random: Random
 
   // deploy once only since this is stateless
   before(async function () {
     core = await ethers.deployContract('CoreV3')
-
-    const seed = process.env.RANDOM_SEED || +new Date()
-    // Workaround due to random being esm only
-    // solutions found in https://github.com/TypeStrong/ts-node/discussions/1290
-    const r = await dynamicImport('random', module)
-    random = new r.Random(new seedrandom(seed))
+    const seed = process.env.RANDOM_SEED || new Date().toDateString()
+    random = await CreateRandom(seed)
+    // to reproduce, use `RANDOM_SEED=... hh test`
     console.log(`initialized random using seed ${seed}`)
   })
 
