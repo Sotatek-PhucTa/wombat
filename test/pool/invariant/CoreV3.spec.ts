@@ -21,9 +21,15 @@ describe('CoreV3', function () {
   })
 
   describe('balanced pool', function () {
+    // a balanced pool has two assets, both with the same tvl and 100% cov ratio.
+    async function balancedPoolInvariant(tvl: BigNumberish, swapAmount: BigNumberish, ampFactor: BigNumberish) {
+      return invariant(tvl, tvl, tvl, tvl, swapAmount, ampFactor)
+    }
+
     ;[100, 1e6, 1e9, 1e12, parseEther('1'), parseEther('5000'), parseEther('100000'), parseEther('1000000')].map(
       (tvl) => {
         it(`balanced pool (${tvl}) at equilibrium`, async function () {
+          // perform swap with 0~100% of TVL, plus 0~99 bips in each step.
           await Promise.all(
             _.range(0, 100).map((percent) => {
               const bips = random.int(0, 99) // [0, 100)
@@ -39,11 +45,6 @@ describe('CoreV3', function () {
       }
     )
   })
-
-  // invariant for a balanced pool where cash and liability are all the same
-  async function balancedPoolInvariant(tvl: BigNumberish, swapAmount: BigNumberish, ampFactor: BigNumberish) {
-    return invariant(tvl, tvl, tvl, tvl, swapAmount, ampFactor)
-  }
 
   // verify that quote = swapFromCredit(swapToCredit)
   async function invariant(
