@@ -12,7 +12,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer, multisig } = await getNamedAccounts()
   const deployerSigner = await ethers.getSigner(deployer)
 
-  console.log(`Step 131. Deploying on: ${hre.network.name}...`)
+  deployments.log(`Step 131. Deploying on: ${hre.network.name}...`)
 
   // Deploy all Bribe
   const voter = await getDeployedContract('Voter')
@@ -30,25 +30,25 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
-      console.log(`Bribe_${token} Deployment complete.`)
+      deployments.log(`Bribe_${token} Deployment complete.`)
       if (await isOwner(voter, deployerSigner.address)) {
         const masterWombat = await deployments.get('MasterWombatV3')
         await addBribe(voter, deployerSigner, masterWombat.address, bribeConfig.lpToken, deployResult.address)
-        console.log(`addBribe for ${bribeConfig.lpToken} complete.`)
+        deployments.log(`addBribe for ${bribeConfig.lpToken} complete.`)
       } else {
-        console.log(
+        deployments.log(
           `User ${deployerSigner.address} does not own Voter. Please call add/setBribe in multi-sig. Bribe: ${deployResult.address}. LP: ${bribeConfig.lpToken}.`
         )
       }
 
       const bribe = await getDeployedContract('Bribe', name)
-      console.log(`Transferring operator of ${deployResult.address} to ${deployer}...`)
+      deployments.log(`Transferring operator of ${deployResult.address} to ${deployer}...`)
       // The operator of the rewarder contract can set and update reward rates
       await confirmTxn(bribe.connect(deployerSigner).setOperator(deployer))
-      console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
+      deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the rewarder contract can add new reward tokens and withdraw them
       await confirmTxn(bribe.connect(deployerSigner).transferOwnership(multisig))
-      console.log('Bribe transferred to multisig')
+      deployments.log('Bribe transferred to multisig')
     }
 
     logVerifyCommand(hre.network.name, deployResult)
@@ -63,15 +63,15 @@ async function addBribe(
   lpToken: string,
   bribe: string
 ) {
-  console.log('addBribe', bribe)
+  deployments.log('addBribe', bribe)
   try {
     await confirmTxn(voter.connect(owner).add(masterWombat, lpToken, bribe))
   } catch (err: any) {
     if (err.error.stack.includes('voter: already added')) {
-      console.log(`Set bribe ${bribe} since it is already added`)
+      deployments.log(`Set bribe ${bribe} since it is already added`)
       await confirmTxn(voter.connect(owner).setBribe(lpToken, bribe))
     } else {
-      console.log('Failed to add bribe', bribe, 'due to', err)
+      deployments.log('Failed to add bribe', bribe, 'due to', err)
       throw err
     }
   }

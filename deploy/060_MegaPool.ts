@@ -21,7 +21,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 060. Deploying on : ${hre.network.name}...`)
+  deployments.log(`Step 060. Deploying on : ${hre.network.name}...`)
 
   // Note: For development purpose only. Not production ready
   if (!['bsc_testnet', 'fuji'].includes(hre.network.name)) throw 'MegaPool is only available in testnet'
@@ -50,15 +50,15 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   // Get freshly deployed Pool pool
   const pool = await ethers.getContractAt(contractName, poolDeployResult.address)
   const implAddr = await upgrades.erc1967.getImplementationAddress(poolDeployResult.address)
-  console.log('Contract address:', poolDeployResult.address)
-  console.log('Implementation address:', implAddr)
+  deployments.log('Contract address:', poolDeployResult.address)
+  deployments.log('Implementation address:', implAddr)
 
   if (poolDeployResult.newlyDeployed) {
     // Check setup config values
     const ampFactor = await pool.ampFactor()
     const hairCutRate = await pool.haircutRate()
-    console.log(`Amplification factor is : ${ampFactor}`)
-    console.log(`Haircut rate is : ${hairCutRate}`)
+    deployments.log(`Amplification factor is : ${ampFactor}`)
+    deployments.log(`Haircut rate is : ${hairCutRate}`)
 
     logVerifyCommand(hre.network.name, coreV3DeployResult)
     logVerifyCommand(hre.network.name, poolDeployResult)
@@ -67,7 +67,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       await setUpTestEnv(pool as MegaPool, owner, deployer, deploy, hre.network.name)
     }
   } else {
-    console.log(`${contractName} Contract already deployed.`)
+    deployments.log(`${contractName} Contract already deployed.`)
   }
 }
 
@@ -121,7 +121,7 @@ async function setUpTestEnv(
   const asset1 = (await ethers.getContractAt('Asset', asset1Result.address)) as Asset
 
   // set up pool
-  console.log('set up pool...')
+  deployments.log('set up pool...')
   await confirmTxn(pool.connect(owner).addAsset(asset0Result.address, asset0Result.address))
   await confirmTxn(pool.connect(owner).addAsset(token1Result.address, asset1Result.address))
 
@@ -134,7 +134,7 @@ async function setUpTestEnv(
   await confirmTxn(pool.setSwapCreditForTokensEnabled(true))
 
   // deposit tokens
-  console.log('deposit tokens...')
+  deployments.log('deposit tokens...')
   await confirmTxn(token0.approve(pool.address, parseEther('10000000')))
   await confirmTxn(token1.approve(pool.address, parseEther('10000000')))
   await confirmTxn(

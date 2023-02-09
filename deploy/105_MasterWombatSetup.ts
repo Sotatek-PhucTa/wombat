@@ -16,19 +16,19 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments } = hre
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 105. Deploying on: ${hre.network.name}...`)
+  deployments.log(`Step 105. Deploying on: ${hre.network.name}...`)
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
   const vewom = await getDeployedContract('VeWom')
   const voter = await getDeployedContract('Voter')
 
-  console.log(`set vewom to ${vewom.address}`)
+  deployments.log(`set vewom to ${vewom.address}`)
   await confirmTxn(masterWombat.connect(owner).setVeWom(vewom.address))
 
-  console.log(`set voter to ${voter.address}`)
+  deployments.log(`set voter to ${voter.address}`)
   await confirmTxn(masterWombat.connect(owner).setVoter(voter.address))
 
-  console.log('Setting up main pool')
+  deployments.log('Setting up main pool')
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
   for (const index in USD_TOKENS) {
     const tokenSymbol = USD_TOKENS[index][1] as string
@@ -37,7 +37,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     await addAsset(masterWombat, owner, assetContractAddress)
   }
 
-  console.log('Setting up side pool')
+  deployments.log('Setting up side pool')
   const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
   for (const index in USD_SIDEPOOL_TOKENS) {
     const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
@@ -46,7 +46,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     await addAsset(masterWombat, owner, assetContractAddress)
   }
 
-  // console.log('Setting up BNB pool')
+  // deployments.log('Setting up BNB pool')
   // const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
   // for (const index in BNB_DYNAMICPOOL_TOKENS) {
   //   const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
@@ -55,7 +55,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   //   await addAsset(masterWombat, owner, assetContractAddress)
   // }
 
-  console.log('Setting up wom pool')
+  deployments.log('Setting up wom pool')
   const WOM_DYNAMICPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
   for (const pool in WOM_DYNAMICPOOL_TOKENS) {
     const WOM_POOL_TOKENS = WOM_DYNAMICPOOL_TOKENS[pool]
@@ -67,7 +67,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     }
   }
 
-  console.log('Setting up factory pool')
+  deployments.log('Setting up factory pool')
   const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
   for (const pool in FACTORYPOOL_TOKENS) {
     const POOL_TOKENS = FACTORYPOOL_TOKENS[pool]
@@ -81,14 +81,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetAddress: string) {
-  console.log('addAsset', assetAddress)
+  deployments.log('addAsset', assetAddress)
   try {
     await confirmTxn(masterWombat.connect(owner).add(assetAddress, ethers.constants.AddressZero))
   } catch (err: any) {
     if (err.error.stack.includes('add: LP already added')) {
-      console.log(`Skip adding asset ${assetAddress} since it is already added`)
+      deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
     } else {
-      console.log('Failed to add asset', assetAddress, 'due to', err)
+      deployments.log('Failed to add asset', assetAddress, 'due to', err)
       throw err
     }
   }

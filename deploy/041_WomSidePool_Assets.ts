@@ -15,7 +15,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 041. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 041. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
   const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
@@ -32,7 +32,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         hre.network.name == 'bsc_mainnet'
           ? (args[2] as string)
           : ((await deployments.get(tokenSymbol)).address as string)
-      console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
+      deployments.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
       await deployAsset(
         hre.network.name,

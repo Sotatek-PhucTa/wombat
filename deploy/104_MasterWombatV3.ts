@@ -9,7 +9,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
 
-  console.log(`Step 104. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 104. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
   const deployResult = await deploy(contractName, {
@@ -32,9 +32,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   })
 
   if (deployResult.newlyDeployed) {
-    console.log(`${contractName} Contract deployed at ${deployResult.address}.`)
+    deployments.log(`${contractName} Contract deployed at ${deployResult.address}.`)
   } else {
-    console.log(`${contractName} Contract already deployed.`)
+    deployments.log(`${contractName} Contract already deployed.`)
   }
   logVerifyCommand(hre.network.name, deployResult)
   return deployResult

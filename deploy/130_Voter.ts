@@ -10,7 +10,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
 
-  console.log(`Step 130. Deploying on: ${hre.network.name}...`)
+  deployments.log(`Step 130. Deploying on: ${hre.network.name}...`)
 
   const wombatToken = await deployments.get('WombatToken')
   const vewom = await deployments.get('VeWom')
@@ -42,11 +42,11 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   })
 
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
-  console.log('Contract address:', deployResult.address)
-  console.log('Implementation address:', implAddr)
+  deployments.log('Contract address:', deployResult.address)
+  deployments.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
-    console.log(`Voter Deployment complete.`)
+    deployments.log(`Voter Deployment complete.`)
   }
 
   logVerifyCommand(hre.network.name, deployResult)

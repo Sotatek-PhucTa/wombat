@@ -11,7 +11,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 103. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 103. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const veWom = await deployments.get('VeWom')
 
@@ -26,21 +26,21 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   })
   // Get freshly deployed Whitelist contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)
-  console.log('Contract address:', deployResult.address)
+  deployments.log('Contract address:', deployResult.address)
 
   if (deployResult.newlyDeployed) {
     const veWomContract = await ethers.getContractAt('VeWom', veWom.address)
-    console.log('Setting whitelist contract for VeWom...')
+    deployments.log('Setting whitelist contract for VeWom...')
     const setWhitelistTxn = await veWomContract.connect(owner).setWhitelist(deployResult.address)
     await setWhitelistTxn.wait()
 
     // Check setup config values
     const whitelistAddress = await veWomContract.whitelist()
-    console.log(`VeWomAddress is : ${whitelistAddress}`)
+    deployments.log(`VeWomAddress is : ${whitelistAddress}`)
     logVerifyCommand(hre.network.name, deployResult)
     return deployResult
   } else {
-    console.log(`${contractName} Contract already deployed.`)
+    deployments.log(`${contractName} Contract already deployed.`)
     return deployResult
   }
 }

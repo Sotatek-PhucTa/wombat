@@ -14,7 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
 
-  console.log(`Step 120. Deploying on: ${hre.network.name}...`)
+  deployments.log(`Step 120. Deploying on: ${hre.network.name}...`)
 
   for await (const [token, rewarder] of Object.entries(REWARDERS_MAP[hre.network.name])) {
     const startTimestamp = rewarder?.startTimestamp || getDeadlineFromNow(rewarder.secondsToStart!)
@@ -32,13 +32,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const contract = await ethers.getContractAt(contractName, address)
 
     if (deployResult.newlyDeployed) {
-      console.log(`Transferring operator of ${deployResult.address} to ${owner.address}...`)
+      deployments.log(`Transferring operator of ${deployResult.address} to ${owner.address}...`)
       // The operator of the rewarder contract can set and update reward rates
       await confirmTxn(contract.connect(owner).setOperator(owner.address))
-      console.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
+      deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the rewarder contract can add new reward tokens and withdraw them
       await confirmTxn(contract.connect(owner).transferOwnership(multisig))
-      console.log(`${name} Deployment complete.`)
+      deployments.log(`${name} Deployment complete.`)
     }
 
     logVerifyCommand(hre.network.name, deployResult)

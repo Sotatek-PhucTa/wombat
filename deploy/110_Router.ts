@@ -26,7 +26,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 110. Deploying on : ${hre.network.name}...`)
+  deployments.log(`Step 110. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
   const deployResult = await deploy(`${hre.network.name == 'bsc_mainnet' ? 'WombatRouter' : 'Router'}`, {
@@ -57,7 +57,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       await approveBnbxPool(router, owner)
     }
 
-    console.log(`Deployment complete.`)
+    deployments.log(`Deployment complete.`)
     logVerifyCommand(hre.network.name, deployResult)
   }
 
@@ -156,7 +156,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const factoryPoolDeployment = await deployments.get(contractName)
 
       // approve by poolName
-      console.log(`Approving pool tokens for Pool: ${contractName}...`)
+      deployments.log(`Approving pool tokens for Pool: ${contractName}...`)
       await approveSpending(router, owner, factoryPoolTokens, factoryPoolDeployment.address)
     }
   }
@@ -176,7 +176,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const womSidePoolDeployment = await deployments.get(contractName)
 
       // approve by poolName
-      console.log(`Approving pool tokens for Pool: ${contractName}...`)
+      deployments.log(`Approving pool tokens for Pool: ${contractName}...`)
       await approveSpending(router, owner, womSidePoolTokens, womSidePoolDeployment.address)
     }
   }

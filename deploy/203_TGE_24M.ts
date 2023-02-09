@@ -13,7 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner, user1, user2] = await ethers.getSigners()
 
-  console.log(`Step 203. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 203. Deploying on : ${hre.network.name} with account : ${deployer}`)
   /// NOTE: This script is used only for initial 2.5% TGE WOM distribution to investors
   return
 
@@ -24,27 +24,27 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   if (hre.network.name == 'bsc_mainnet') {
     // Check WOM token
-    console.log(`WOM Token Address is : ${womToken.address}`)
-    console.log(`Deployer account is: ${deployer}`)
+    deployments.log(`WOM Token Address is : ${womToken.address}`)
+    deployments.log(`Deployer account is: ${deployer}`)
 
     // send WOM allocation for beneficiaries 2.5% TGE
     const beneficiariesList = beneficiaries['TGE']
     // let totalAmt = 0
     for (let i = 0; i < beneficiariesList.length; i++) {
       const initialUserBalance = await womTokenContract.balanceOf(beneficiariesList[i].address)
-      console.log(`Beneficiary initial WOM balance is: ${ethers.utils.formatEther(initialUserBalance)}`)
+      deployments.log(`Beneficiary initial WOM balance is: ${ethers.utils.formatEther(initialUserBalance)}`)
       // totalAmt += +beneficiariesList[i].amount
 
       const sendBeneficiaryTxn = await womTokenContract
         .connect(owner)
         .transfer(beneficiariesList[i].address, parseUnits(beneficiariesList[i].amount, 18))
       await sendBeneficiaryTxn.wait()
-      console.log(`Sent Beneficiary ${beneficiariesList[i].address} with amount ${beneficiariesList[i].amount}`)
+      deployments.log(`Sent Beneficiary ${beneficiariesList[i].address} with amount ${beneficiariesList[i].amount}`)
 
       const userBalance = await womTokenContract.balanceOf(beneficiariesList[i].address)
-      console.log(`Beneficiary latest WOM balance is: ${ethers.utils.formatEther(userBalance)}`)
+      deployments.log(`Beneficiary latest WOM balance is: ${ethers.utils.formatEther(userBalance)}`)
     }
-    // console.log(32, totalAmt)
+    // deployments.log(32, totalAmt)
   }
 }
 

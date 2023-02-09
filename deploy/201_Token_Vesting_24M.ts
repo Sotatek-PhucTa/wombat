@@ -13,7 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner, user1, user2] = await ethers.getSigners()
 
-  console.log(`Step 201. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 201. Deploying on : ${hre.network.name} with account : ${deployer}`)
   return
 
   // Get deployed WOM token instance
@@ -63,8 +63,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
       // Check vested token
       const vestedTokenAddress = await tokenVesting.vestedToken()
-      console.log(`24 Month Vested Token Address is : ${vestedTokenAddress}`)
-      console.log(`Deployer account is: ${deployer}`)
+      deployments.log(`24 Month Vested Token Address is : ${vestedTokenAddress}`)
+      deployments.log(`Deployer account is: ${deployer}`)
 
       if (hre.network.name == 'bsc_mainnet') {
         // set WOM allocation for beneficiaries
@@ -74,15 +74,17 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
             .connect(owner)
             .setBeneficiary(beneficiariesList[i].address, parseUnits(beneficiariesList[i].amount, 18))
           await setBeneficiaryTxn.wait()
-          console.log(`Added Beneficiary ${beneficiariesList[i].address} with amount ${beneficiariesList[i].amount}`)
+          deployments.log(
+            `Added Beneficiary ${beneficiariesList[i].address} with amount ${beneficiariesList[i].amount}`
+          )
         }
 
         // transfer token vesting contract ownership to Gnosis Safe
-        console.log(`Transferring ownership of ${tokenVestingDeployResult.address} to ${multisig}...`)
+        deployments.log(`Transferring ownership of ${tokenVestingDeployResult.address} to ${multisig}...`)
         // The owner of the token vesting contract is very powerful!
         const transferOwnershipTxn = await tokenVesting.connect(owner).transferOwnership(multisig)
         await transferOwnershipTxn.wait()
-        console.log(`Transferred ownership of ${tokenVestingDeployResult.address} to:`, multisig)
+        deployments.log(`Transferred ownership of ${tokenVestingDeployResult.address} to:`, multisig)
 
         // Query totalAllocationBalance and transfer exact WOM tokens to vesting contract via multi-sig
         // To be performed by Gnosis Safe [mainnet only]
@@ -103,11 +105,11 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const totalUnderlyingBalance = await tokenVesting.totalUnderlyingBalance()
       const beneficiaryCount = await tokenVesting.beneficiaryCount()
       const totalAllocationBalance = await tokenVesting.totalAllocationBalance()
-      console.log(`Start timestamp is : ${start}`)
-      console.log(`Duration in seconds is : ${duration}`)
-      console.log(`Total underlying WOM balance is : ${totalUnderlyingBalance}`)
-      console.log(`Beneficiary count is : ${beneficiaryCount}`)
-      console.log(`Total Allocation Balance is : ${totalAllocationBalance}`)
+      deployments.log(`Start timestamp is : ${start}`)
+      deployments.log(`Duration in seconds is : ${duration}`)
+      deployments.log(`Total underlying WOM balance is : ${totalUnderlyingBalance}`)
+      deployments.log(`Beneficiary count is : ${beneficiaryCount}`)
+      deployments.log(`Total Allocation Balance is : ${totalAllocationBalance}`)
     }
   }
 }

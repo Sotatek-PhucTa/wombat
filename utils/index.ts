@@ -34,6 +34,10 @@ export async function setRewarder(masterWombat: Contract, owner: SignerWithAddre
 }
 
 export function logVerifyCommand(network: string, deployment: Deployment) {
+  if (network === 'hardhat') {
+    return
+  }
+
   if (deployment.implementation) {
     console.log(
       `This is a proxy. To verify its implementation, run: hh verify --network ${network} ${deployment.implementation}`

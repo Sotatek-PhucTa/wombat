@@ -17,14 +17,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments } = hre
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 132. Deploying on: ${hre.network.name}...`)
+  deployments.log(`Step 132. Deploying on: ${hre.network.name}...`)
 
   const voter = await getDeployedContract('Voter')
   const masterWombat = await getDeployedContract('MasterWombatV3')
   // In mainnet, we wait for 2 blocks for stabilization
   const blocksToConfirm = hre.network.name != 'bsc_mainnet' ? 1 : 2
 
-  console.log('Setting up main pool')
+  deployments.log('Setting up main pool')
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
   for (const index in USD_TOKENS) {
     const tokenSymbol = USD_TOKENS[index][1] as string
@@ -35,7 +35,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   }
 
-  console.log('Setting up side pool')
+  deployments.log('Setting up side pool')
   const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
   for (const index in USD_SIDEPOOL_TOKENS) {
     const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
@@ -46,7 +46,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   }
 
-  // console.log('Setting up BNB pool')
+  // deployments.log('Setting up BNB pool')
   // const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
   // for (const index in BNB_DYNAMICPOOL_TOKENS) {
   //   const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
@@ -57,7 +57,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   //   await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   // }
 
-  console.log('Setting up wom pool')
+  deployments.log('Setting up wom pool')
   const WOM_DYNAMICPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
   for (const pool in WOM_DYNAMICPOOL_TOKENS) {
     const WOM_POOL_TOKENS = WOM_DYNAMICPOOL_TOKENS[pool]
@@ -71,7 +71,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     }
   }
 
-  console.log('Setting up factory pool')
+  deployments.log('Setting up factory pool')
   const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
   for (const pool in FACTORYPOOL_TOKENS) {
     const POOL_TOKENS = FACTORYPOOL_TOKENS[pool]
@@ -87,7 +87,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat: string, assetAddress: string) {
-  console.log('addAsset', assetAddress)
+  deployments.log('addAsset', assetAddress)
   try {
     await confirmTxn(voter.connect(owner).add(masterWombat, assetAddress, ethers.constants.AddressZero))
   } catch (err: any) {
@@ -95,9 +95,9 @@ async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat:
       err.error.stack.includes('voter: already added') ||
       err.error.stack.includes('Voter: gaugeManager is already exist')
     ) {
-      console.log(`Skip adding asset ${assetAddress} since it is already added`)
+      deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
     } else {
-      console.log('Failed to add asset', assetAddress, 'due to', err)
+      deployments.log('Failed to add asset', assetAddress, 'due to', err)
       throw err
     }
   }
@@ -110,12 +110,12 @@ async function setAllocPoint(
   tokenAllocPoint: BigNumberish,
   blocksToConfirm: number
 ) {
-  console.log('setAllocPoint', assetAddress, tokenAllocPoint)
+  deployments.log('setAllocPoint', assetAddress, tokenAllocPoint)
   try {
     await confirmTxn(voter.connect(owner).setAllocPoint(assetAddress, tokenAllocPoint), blocksToConfirm)
   } catch (err) {
     // do nothing as asset already exists in pool
-    console.log('Contract', voter.address, 'fails to set alloc point on asset', assetAddress, 'due to', err)
+    deployments.log('Contract', voter.address, 'fails to set alloc point on asset', assetAddress, 'due to', err)
   }
 }
 

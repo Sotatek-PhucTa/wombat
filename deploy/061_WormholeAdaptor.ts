@@ -13,7 +13,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 061. Deploying on : ${hre.network.name}...`)
+  deployments.log(`Step 061. Deploying on : ${hre.network.name}...`)
 
   const poolDeployment = await deployments.get('MegaPool')
 
@@ -45,8 +45,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   // Get freshly deployed Pool pool
   const adaptor = (await ethers.getContractAt(contractName, deployResult.address)) as WormholeAdaptor
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
-  console.log('Contract address:', deployResult.address)
-  console.log('Implementation address:', implAddr)
+  deployments.log('Contract address:', deployResult.address)
+  deployments.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
     logVerifyCommand(hre.network.name, deployResult)
@@ -61,7 +61,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     const pool = (await ethers.getContractAt('MegaPool', poolDeployment.address)) as MegaPool
     await pool.setAdaptorAddr(adaptor.address)
   } else {
-    console.log(`${contractName} Contract already deployed.`)
+    deployments.log(`${contractName} Contract already deployed.`)
   }
 }
 

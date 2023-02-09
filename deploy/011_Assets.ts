@@ -13,7 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 011. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 011. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
@@ -24,7 +24,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const pool = await ethers.getContractAt('Pool', poolAddress)
 
   for (const index in USD_TOKENS) {
-    console.log('Attemping to deploy Asset contract : ' + USD_TOKENS[index][0])
+    deployments.log('Attemping to deploy Asset contract : ' + USD_TOKENS[index][0])
     const tokenSymbol = USD_TOKENS[index][1] as string
     const tokenName = USD_TOKENS[index][0] as string
 
@@ -32,7 +32,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       hre.network.name == 'bsc_mainnet'
         ? (USD_TOKENS[index][2] as string)
         : ((await deployments.get(tokenSymbol)).address as string)
-    console.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
+    deployments.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
     const name = `Wombat ${tokenName} Asset`
     const symbol = `LP-${tokenSymbol}`
@@ -55,15 +55,15 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       // Add pool reference to Asset
       await addPool(asset, owner, poolAddress)
 
-      console.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
+      deployments.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
 
       if (hre.network.name == 'bsc_mainnet') {
         // transfer asset LP token contract ownership to Gnosis Safe
-        console.log(`Transferring ownership of ${tokenAddress} to ${multisig}...`)
+        deployments.log(`Transferring ownership of ${tokenAddress} to ${multisig}...`)
         // The owner of the asset contract can change our pool address and change asset max supply
         const transferOwnershipTxn = await asset.connect(owner).transferOwnership(multisig)
         await transferOwnershipTxn.wait()
-        console.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
+        deployments.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
       }
 
       logVerifyCommand(hre.network.name, usdAssetDeployResult)
@@ -78,7 +78,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
         if (existingPoolAddress !== poolAddress) {
           // Add existing asset to newly-deployed Pool
-          console.log(`Adding existing Asset_${tokenSymbol} to new pool ${poolAddress}...`)
+          deployments.log(`Adding existing Asset_${tokenSymbol} to new pool ${poolAddress}...`)
           await addPool(asset, owner, poolAddress)
         }
       }
@@ -86,10 +86,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 
   // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
-  console.log(`Transferring ownership of ${poolAddress} to ${multisig}...`)
+  deployments.log(`Transferring ownership of ${poolAddress} to ${multisig}...`)
   // The owner of the pool contract is very powerful!
   await confirmTxn(pool.connect(owner).transferOwnership(multisig))
-  console.log(`Transferred ownership of ${poolAddress} to:`, multisig)
+  deployments.log(`Transferred ownership of ${poolAddress} to:`, multisig)
 }
 
 async function removeAsset(pool: any, owner: any, tokenAddress: string) {

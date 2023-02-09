@@ -18,7 +18,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  console.log(`Step 001. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 001. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // Mock tokens only on localhost and bsc testnet
   if (hre.network.name == 'localhost' || hre.network.name == 'hardhat' || hre.network.name == 'bsc_testnet') {

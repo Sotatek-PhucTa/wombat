@@ -17,7 +17,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
 
-  console.log(`Step 002. Deploying on : ${hre.network.name}...`)
+  deployments.log(`Step 002. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
   const womDeployResult = await deploy(contractName, {
@@ -45,8 +45,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const decimals = await womToken.decimals()
       const totalSupply = await womToken.totalSupply()
       const deployerBalance = await womToken.balanceOf(deployer)
-      console.log(`Token details are ${name}, ${symbol}, ${decimals}, ${totalSupply}, ${deployerBalance}`)
-      console.log(`Deployment complete.`)
+      deployments.log(`Token details are ${name}, ${symbol}, ${decimals}, ${totalSupply}, ${deployerBalance}`)
+      deployments.log(`Deployment complete.`)
     }
   }
 

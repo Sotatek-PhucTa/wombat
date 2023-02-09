@@ -11,7 +11,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   const wombatToken = await deployments.get('WombatToken')
   const masterWombat = await getDeployedContract('MasterWombatV3')
@@ -38,15 +38,15 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   // Get freshly deployed Pool contract
   const contract = await ethers.getContractAt(contractName, deployResult.address)
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
-  console.log('Contract address:', deployResult.address)
-  console.log('Implementation address:', implAddr)
+  deployments.log('Contract address:', deployResult.address)
+  deployments.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
     if (await isOwner(masterWombat, owner.address)) {
-      console.log('Setting veWOM contract for MasterWombatV3...')
+      deployments.log('Setting veWOM contract for MasterWombatV3...')
       await confirmTxn(masterWombat.connect(owner).setVeWom(deployResult.address))
     } else {
-      console.log(
+      deployments.log(
         `User ${owner.address} does not own MasterWombat. Please call setVeWom in multi-sig. VeWom: ${deployResult.address}`
       )
     }
@@ -55,12 +55,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     const womTokenAddress = await contract.wom()
     const masterWombatAddress = await contract.masterWombat()
     const veWomAddress = await masterWombat.veWom()
-    console.log(`WomTokenAddress is : ${womTokenAddress}`)
-    console.log(`MasterWombatV3Address is : ${masterWombatAddress}`)
-    console.log(`VeWomAddress is : ${veWomAddress}`)
+    deployments.log(`WomTokenAddress is : ${womTokenAddress}`)
+    deployments.log(`MasterWombatV3Address is : ${masterWombatAddress}`)
+    deployments.log(`VeWomAddress is : ${veWomAddress}`)
     return deployResult
   } else {
-    console.log(`${contractName} Contract already deployed.`)
+    deployments.log(`${contractName} Contract already deployed.`)
     return deployResult
   }
 }

@@ -15,7 +15,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
-  console.log(`Step 501. Changing contract ownerships on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 501. Changing contract ownerships on : ${hre.network.name} with account : ${deployer}`)
   /// NOTE: Manual ownership check and transfer seems to be more robust. This script however can be used if necessary
   return
 
@@ -26,13 +26,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
       // Get deployed contract
       const contract = await ethers.getContractAt(contractName[1], contractDeployment.address)
-      console.log('Contract address:', contractDeployment.address)
+      deployments.log('Contract address:', contractDeployment.address)
 
       // transfer contract ownership to multi-sig
-      console.log(`Transferring ownership of ${contractDeployment.address} to ${multisig}...`)
+      deployments.log(`Transferring ownership of ${contractDeployment.address} to ${multisig}...`)
       const transferOwnershipTxn = await contract.connect(owner).transferOwnership(multisig)
       await transferOwnershipTxn.wait()
-      console.log(`Transferred ownership of ${contractDeployment.address} to:`, multisig)
+      deployments.log(`Transferred ownership of ${contractDeployment.address} to:`, multisig)
     }
   }
 }

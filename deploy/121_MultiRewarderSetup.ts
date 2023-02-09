@@ -9,15 +9,15 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
   for await (const [token, args] of Object.entries(REWARDERS_MAP[hre.network.name])) {
-    console.log(token)
+    deployments.log(token)
     const name = `MultiRewarderPerSec_V3_${token}`
     const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
     if (await isOwner(masterWombat, owner.address)) {
-      console.log('rewarder', rewarder.address, args.lpToken)
+      deployments.log('rewarder', rewarder.address, args.lpToken)
       await setRewarder(masterWombat, owner, args.lpToken, rewarder.address)
-      console.log(`setRewarder for ${name} (${rewarder.address}) complete.`)
+      deployments.log(`setRewarder for ${name} (${rewarder.address}) complete.`)
     } else {
-      console.log(
+      deployments.log(
         `User ${owner.address} does not own MasterWombat. Please call setRewarder in multi-sig. Rewarder: ${rewarder.address}. LP: ${args.lpToken}.`
       )
     }
