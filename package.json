@@ -8,7 +8,7 @@
     "@ethersproject/providers": "^5.7.2",
     "@hardhat-docgen/core": "^1.2.3",
     "@hardhat-docgen/markdown": "^1.2.4",
-    "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
