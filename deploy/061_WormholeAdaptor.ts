@@ -56,7 +56,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // TODO:
     // await adaptor.approveContract(...)
     // await adaptor.approveToken(...)
-    // await adaptor.setTargetAdaptor(...)
+    // await adaptor.setAdaptorAddress(...)
 
     const pool = (await ethers.getContractAt('MegaPool', poolDeployment.address)) as MegaPool
     await pool.setAdaptorAddr(adaptor.address)

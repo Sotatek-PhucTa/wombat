@@ -121,6 +121,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
             minimumCreditAmount
         );
 
+        // Wormhole: computeBudget + applicationBudget + wormholeFee should equal the msg.value
         trackingId = adaptor.bridgeCreditAndSwapForTokens{value: msg.value}(
             toToken,
             toChain,
@@ -160,6 +161,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
     ) external payable override nonReentrant whenNotPaused returns (uint256 trackingId) {
         _beforeSwapCreditForTokens(fromAmount, receiver);
 
+        // Wormhole: computeBudget + applicationBudget + wormholeFee should equal the msg.value
         trackingId = adaptor.bridgeCreditAndSwapForTokens{value: msg.value}(
             toToken,
             toChain,
@@ -347,7 +349,6 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         address receiver,
         uint256 trackingId
     ) external override whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
-        // TODO: ass test for the sender
         require(msg.sender == address(adaptor));
         // Note: `_checkAddress(receiver)` could be skipped at it is called at the `fromChain`
         (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver, trackingId);

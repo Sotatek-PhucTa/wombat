@@ -110,9 +110,6 @@ describe('MockAdaptor', function () {
     await mockAdaptor0.approveToken(1, token3.address)
     await mockAdaptor1.approveToken(0, token0.address)
     await mockAdaptor1.approveToken(0, token1.address)
-
-    await mockAdaptor0.approveContract(1, mockAdaptor1.address)
-    await mockAdaptor1.approveContract(0, mockAdaptor0.address)
   })
 
   const relayEventToPool1 = async function (nonce: number) {

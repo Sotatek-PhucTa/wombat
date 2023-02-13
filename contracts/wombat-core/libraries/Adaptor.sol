@@ -21,9 +21,7 @@ abstract contract Adaptor is
 
     IMegaPool public megaPool;
 
-    /// @notice whether the contract is a trusted adaptor
-    /// @dev wormhole chainId => contract address => bool
-    mapping(uint256 => mapping(address => bool)) public trustedContract;
+    uint256 private _used;
 
     /// @notice whether the token is valid
     /// @dev wormhole chainId => token address => bool
@@ -74,10 +72,6 @@ abstract contract Adaptor is
         uint32 nonce
     ) internal virtual returns (uint256 trackingId);
 
-    function _isTrustedContract(uint256 chainId, address addr) internal view {
-        if (!trustedContract[chainId][addr]) revert ADAPTOR__CONTRACT_NOT_TRUSTED();
-    }
-
     function _isValidToken(uint256 chainId, address tokenAddr) internal view {
         if (!validToken[chainId][tokenAddr]) revert ADAPTOR__INVALID_TOKEN();
     }
@@ -124,16 +118,6 @@ abstract contract Adaptor is
     /**
      * Permisioneed functions
      */
-
-    function approveContract(uint256 wormholeChainId, address addr) external onlyOwner {
-        require(!trustedContract[wormholeChainId][addr]);
-        trustedContract[wormholeChainId][addr] = true;
-    }
-
-    function revokeTrustedContract(uint256 wormholeChainId, address addr) external onlyOwner {
-        require(trustedContract[wormholeChainId][addr]);
-        trustedContract[wormholeChainId][addr] = false;
-    }
 
     function approveToken(uint256 wormholeChainId, address tokenAddr) external onlyOwner {
         require(!validToken[wormholeChainId][tokenAddr]);

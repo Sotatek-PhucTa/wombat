@@ -83,7 +83,6 @@ contract MockAdaptor is Adaptor {
     ) external returns (bool success, uint256 amount) {
         require(targetChain == chainId, 'targetChain invalid');
         require(!messageDelivered[fromChain][id], 'message delivered');
-        _isTrustedContract(fromChain, fromAddr);
 
         messageDelivered[fromChain][id] = true;
 

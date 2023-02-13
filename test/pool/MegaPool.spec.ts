@@ -110,6 +110,18 @@ describe('MegaPool', function () {
         .deposit(token1.address, parseUnits('10000', 6), 0, user1.address, fiveSecondsSince, false)
     })
 
+    it('completeSwapCreditForTokens - only adaptor', async function () {
+      await expect(
+        pool.completeSwapCreditForTokens(
+          token0.address,
+          parseEther('100.998023754471257486'),
+          parseEther('99'),
+          user1.address,
+          0
+        )
+      ).to.be.reverted
+    })
+
     it('swapTokensForTokensCrossChain - WOMBAT_ZERO_AMOUNT', async function () {
       await expect(
         pool
@@ -393,40 +405,6 @@ describe('MegaPool', function () {
             0
           )
       ).to.be.revertedWithCustomError(mockAdaptor, 'ADAPTOR__INVALID_TOKEN')
-    })
-
-    it('Adaptor - _isTrustedContract', async function () {
-      // Transfer 100k of stables to user1
-      await token0.connect(owner).transfer(user1.address, parseEther('100000'))
-      // Approve max allowance of tokens from users to pool
-      await token0.connect(user1).approve(pool.address, ethers.constants.MaxUint256)
-
-      await pool.connect(user1).deposit(token0.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
-
-      await mockAdaptor.approveToken(0, token2.address)
-      await pool
-        .connect(user1)
-        .swapTokensForTokensCrossChain(
-          token0.address,
-          token2.address,
-          0,
-          parseEther('100'),
-          parseEther('99'),
-          parseEther('99'),
-          user1.address,
-          0
-        )
-      const message = await mockAdaptor.messages(1)
-      await expect(
-        mockAdaptor.deliver(
-          message.id,
-          message.sourceChain,
-          message.sourceAddress,
-          message.targetChain,
-          AddressZero,
-          message.deliverData
-        )
-      ).to.be.revertedWithCustomError(mockAdaptor, 'ADAPTOR__CONTRACT_NOT_TRUSTED')
     })
   })
 
