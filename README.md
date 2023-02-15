@@ -133,6 +133,11 @@ To verify proxy contracts:
   - Asset_AxlUsdcPool_axlUSDC (LP-axlUSDC) => `0x77F645Ee0c6d47380A942B04B8151fD542927391`
   - Asset_AxlUsdcPool_BUSD (LP-BUSD) => `0x791b2424df9865994Ad570425278902E2B5D7946`
 
+- USDD Pool
+  - Pool Proxy (Main entry) => `0x05f727876d7C123B9Bb41507251E2Afd81EAD09A`
+  - Asset_USDDPool_USDD (LP-USDD) => `0x24a70c1489d521F5e2D2612474630eFe7C2ba073`
+  - Asset_USDDPool_USDC (LP-USDC) => `0x9F9CeA30d242d7f5527Fa900f9fb0F77A98FdA82`
+
 - BNBx Pool
 
   - Pool Proxy (Main entry) => `0x8df1126de13bcfef999556899F469d64021adBae`
@@ -260,6 +265,11 @@ To verify proxy contracts:
   - Asset_AxlUsdcPool_axlUSDC (LP-axlUSDC) => `0xb826313c8B122757e617c0Ea963a4310c14a8Cc8`
   - Asset_AxlUsdcPool_BUSD (LP-BUSD) => `0x148cB0c89bD3fC0F89c81cDfDC2cB6Cd6D790317`
 
+- USDD Pool
+  - Pool Proxy (Main entry) => `0xb1583D73898E5F24311a1457dd4BCff051E2D427`
+  - Asset_USDDPool_USDD (LP-USDD) => `0xAB8D5b703edBed5733271d1Af5134e1C667dda0D`
+  - Asset_USDDPool_USDC (LP-USDC) => `0x3c64D9870632E12036888D5fc0CFA5dEb261B453`
+  - 
 - mWOM Side Pool
 
   - Pool Proxy (Main entry) => `0xd3c8392B86DB591FF95b4B8472C5344f9b237525`
@@ -333,6 +343,7 @@ To verify proxy contracts:
   - axlUSDC => `0x9624f6868807A44fCe6c52c2b9Ca28E07c3fBb59`
   - CUSD => `0x27Ec2901fb369B5C7d34fCabD8f03833F0741ef8`
   - iUSD => `0xe07829c8B7F934e03C83B0dC1fd2cCC9b62036D8`
+  - USDD => `0x5cf1c3F9c0EaBCd0EFF825C0d5c8A8B16b11626a`
 
 ### Fuji testnet deployed contracts:
 

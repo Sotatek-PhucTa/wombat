@@ -101,6 +101,17 @@ export const CUSD_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   },
 }
 
+export const USDD_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+  bsc_mainnet: {
+    USDD: ['Decentralized USD', 'USDD', '0xd17479997F34dd9156Deef8F95A52D81D265be9c', 0], // last item is pool alloc point
+    USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
+  },
+  bsc_testnet: {
+    USDD: ['Decentralized USD', 'USDD', '18', 100], // last item is 0 tokens minted to msg.sender initially
+    USDC: ['USD Coin', 'USDC', '18', 0],
+  },
+}
+
 export const AXLUSDC_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_mainnet: {
     AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', 0], // last item is pool alloc point
