@@ -790,10 +790,10 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.8.1.tgz#709cfc4bbb3ca9f4460d60101f15dac6b7a2d5e4"
   integrity sha512-xQ6eUZl+RDyb/FiZe1h+U7qr/f4p/SrTSQcTPH2bjur3C5DbuW/zFgCU/b1P/xcIaEqJep+9ju4xDRi3rmChdQ==
 
-"@openzeppelin/hardhat-defender@^1.8.1":
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-defender/-/hardhat-defender-1.8.1.tgz#d2527cc7898f76cf45ba51b0aaa40075ef742b52"
-  integrity sha512-vXfNSteO4xi8iGe/CRU5en2t6sbH8T4dIhrhZLa3TYke7LUt5du4GPFv74Kie+KIynPzAeVNEdW9suqDZNLYwA==
+"@openzeppelin/hardhat-defender@^1.8.2":
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-defender/-/hardhat-defender-1.8.2.tgz#138709fb7b68385aa79a73abd4abf8644b570136"
+  integrity sha512-hYxvaVOqgJ3myjF4NQznMG1puSO/owwhUThCeDq/Rcstou4XjSn7rm72u+SrXA34eMiCSaN6m6l9bDUp966tHQ==
   dependencies:
     "@openzeppelin/hardhat-upgrades" "^1.20.0"
     defender-admin-client "^1.29.0-rc.1"
