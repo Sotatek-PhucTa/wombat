@@ -5530,10 +5530,10 @@ slice-ansi@^4.0.0:
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
 
-sol2uml@^2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/sol2uml/-/sol2uml-2.4.3.tgz#ac5a3ef68345a4bead90ad143da65d11c37e4a7a"
-  integrity sha512-PyrKBJOTiSMzR+pEzseQCoKVMkJVALuY8ygj82vhQX8rY3pJ/B6X63rg5vTODHkE/+P3CP6GUQfNh2AzPTXXdQ==
+sol2uml@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/sol2uml/-/sol2uml-2.5.0.tgz#ccbeddc6951001560efde55127b78f78e1a772ec"
+  integrity sha512-owDhCfPxnZvkyAO8y9ZhKBJi4Nft//ZlSZH8kWdkI7MeU++avoelG6e34zkUaT5MelP6yjYrRWGcSuf+4YFEvQ==
   dependencies:
     "@aduh95/viz.js" "^3.7.0"
     "@solidity-parser/parser" "^0.14.5"
