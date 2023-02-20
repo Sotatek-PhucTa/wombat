@@ -93,7 +93,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
     function swapTokensForTokensCrossChain(
         address fromToken,
         address toToken,
-        uint256 toChain,
+        uint256 toChain, // wormhole chain ID
         uint256 fromAmount,
         uint256 minimumCreditAmount,
         uint256 minimumToAmount,
@@ -153,7 +153,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
      */
     function swapCreditForTokensCrossChain(
         address toToken,
-        uint256 toChain,
+        uint256 toChain, // wormhole chain ID
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver,
@@ -219,7 +219,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         uint256 fromCreditAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint256 nonce
+        uint256 trackingId
     ) internal returns (uint256 actualToAmount, uint256 haircut) {
         if (fromCreditAmount == 0) revert WOMBAT_ZERO_AMOUNT();
 
@@ -235,7 +235,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         // Check it doesn't exceed maximum in-coming credits
         if (totalCreditBurned > maximumNetBurnedCredit + totalCreditMinted) revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
 
-        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, receiver, nonce);
+        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, receiver, trackingId);
     }
 
     function _swapCreditForTokens(
@@ -321,10 +321,10 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         int256 invariant;
         int256 SL;
         (invariant, SL) = _globalInvariantFunc();
+        // oustanding credit = totalCreditBurned - totalCreditMinted
         int256 creditOffset = (int256(uint256(totalCreditBurned)) - int256(uint256(totalCreditMinted))).wmul(
             int256(WAD + ampFactor)
         );
-        // int256 creditOffset = (int256(uint256(totalCreditBurned)) - int256(uint256(totalCreditMinted)));
         invariant += creditOffset;
         equilCovRatio = uint256(CoreV3.equilCovRatio(invariant, SL, int256(ampFactor)));
         invariantInUint = uint256(invariant);
