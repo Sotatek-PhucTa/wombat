@@ -47,7 +47,7 @@
     "prettier-plugin-solidity": "^1.1.2",
     "random": "^4.1.0",
     "sol2uml": "^2.4.3",
-    "solhint": "^3.3.8",
+    "solhint": "^3.4.0",
     "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.8.2",
     "ts-generator": "^0.1.1",
