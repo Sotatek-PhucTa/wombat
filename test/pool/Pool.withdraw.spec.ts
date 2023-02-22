@@ -291,14 +291,20 @@ describe('Pool - Withdraw', function () {
           parseEther('10')
         )
 
+        const withdrawnAmount = parseUnits('10', 8)
         const expectedAmount = parseEther('9.988002575408403004')
         expect(quotedWithdrawl).to.equal(expectedAmount)
 
         await expectBalanceChange(expectedAmount, owner, token0, async () => {
           const receipt = await withdrawFromOtherAsset(owner, parseEther('10'), token1, token0)
+
           await expect(receipt)
             .to.emit(poolContract, 'Withdraw')
-            .withArgs(owner.address, token0.address, expectedAmount, parseEther('10'), owner.address)
+            .withArgs(owner.address, token1.address, withdrawnAmount, parseEther('10'), owner.address)
+
+          await expect(receipt)
+            .to.emit(poolContract, 'Swap')
+            .withArgs(owner.address, token1.address, token0.address, withdrawnAmount, expectedAmount, owner.address)
         })
       })
 

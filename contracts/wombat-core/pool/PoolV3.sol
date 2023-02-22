@@ -603,7 +603,9 @@ contract PoolV3 is
         toAmount = toAmount.fromWad(toAsset.underlyingTokenDecimals());
         toAsset.transferUnderlyingToken(to, toAmount);
 
-        emit Withdraw(msg.sender, toToken, toAmount, liquidity, to);
+        uint256 fromAmount = fromAmountInWad.fromWad(fromAsset.underlyingTokenDecimals());
+        emit Withdraw(msg.sender, fromToken, fromAmount, liquidity, to);
+        emit Swap(msg.sender, fromToken, toToken, fromAmount, toAmount, to);
     }
 
     /**
