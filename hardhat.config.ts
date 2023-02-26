@@ -17,6 +17,15 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: false,
+      ...(process.env.FORK_MAINNET
+        ? {
+            forking: {
+              // pick one from https://chainlist.org/chain/56
+              url: 'https://bsc-dataseed1.defibit.io',
+              blockNumber: 25997388,
+            },
+          }
+        : {}),
     },
     bsc_testnet: {
       url: 'https://data-seed-prebsc-1-s3.binance.org:8545',
