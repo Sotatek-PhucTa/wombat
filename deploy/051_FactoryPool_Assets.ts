@@ -1,4 +1,3 @@
-import { utils } from 'ethers'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -7,7 +6,7 @@ import { getDeployedContract } from '../utils'
 import { deployAsset } from './031_DynamicPool_Assets'
 import { getFactoryPoolContractName } from './050_FactoryPool'
 
-const contractName = 'FactoryMockAsset'
+const contractName = 'FactoryPoolsAssets'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -23,7 +22,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   for (const poolName of Object.keys(FACTORYPOOL_TOKENS)) {
     // Get Pool Instance
     const poolContractName = getFactoryPoolContractName(poolName)
-    const pool = await getDeployedContract('HighCovRatioFeePool', poolContractName)
+    const pool = await getDeployedContract('HighCovRatioFeePoolV2', poolContractName)
 
     for (const args of Object.values(FACTORYPOOL_TOKENS[poolName])) {
       const tokenName = args[0] as string

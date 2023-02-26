@@ -5,10 +5,6 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {
   WRAPPED_NATIVE_TOKENS_MAP,
   USD_TOKENS_MAP,
-  IUSD_POOL_TOKENS_MAP,
-  CUSD_POOL_TOKENS_MAP,
-  AXLUSDC_POOL_TOKENS_MAP,
-  USDD_POOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   WOM_DYNAMICPOOL_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
@@ -49,10 +45,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     ) {
       const router = await ethers.getContractAt(contractName, deployResult.address)
       await approveMainPool(router, owner)
-      await approveIusdPool(router, owner)
-      await approveCusdPool(router, owner)
-      await approveAxlUsdcPool(router, owner)
-      await approveUsddPool(router, owner)
       await approveSidePool(router, owner)
       await approveFactoryPools(router, owner)
       await approveWomPools(router, owner)
@@ -83,62 +75,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     }
     const mainPoolDeployment = await deployments.get('Pool')
     await approveSpending(router, owner, tokens, mainPoolDeployment.address)
-  }
-
-  async function approveIusdPool(router: Contract, owner: SignerWithAddress) {
-    const tokens = []
-    const TOKENS = IUSD_POOL_TOKENS_MAP[hre.network.name]
-    for (const index in TOKENS) {
-      let address = ''
-      hre.network.name == 'bsc_mainnet'
-        ? (address = TOKENS[index][2] as string)
-        : (address = (await deployments.get(`${TOKENS[index][1]}`)).address as string)
-      tokens.push(address)
-    }
-    const poolDeployment = await deployments.get('IUSDPool')
-    await approveSpending(router, owner, tokens, poolDeployment.address)
-  }
-
-  async function approveCusdPool(router: Contract, owner: SignerWithAddress) {
-    const tokens = []
-    const TOKENS = CUSD_POOL_TOKENS_MAP[hre.network.name]
-    for (const index in TOKENS) {
-      let address = ''
-      hre.network.name == 'bsc_mainnet'
-        ? (address = TOKENS[index][2] as string)
-        : (address = (await deployments.get(`${TOKENS[index][1]}`)).address as string)
-      tokens.push(address)
-    }
-    const poolDeployment = await deployments.get('CUSDPool')
-    await approveSpending(router, owner, tokens, poolDeployment.address)
-  }
-
-  async function approveAxlUsdcPool(router: Contract, owner: SignerWithAddress) {
-    const tokens = []
-    const TOKENS = AXLUSDC_POOL_TOKENS_MAP[hre.network.name]
-    for (const index in TOKENS) {
-      let address = ''
-      hre.network.name == 'bsc_mainnet'
-        ? (address = TOKENS[index][2] as string)
-        : (address = (await deployments.get(`${TOKENS[index][1]}`)).address as string)
-      tokens.push(address)
-    }
-    const poolDeployment = await deployments.get('AxlUsdcPool')
-    await approveSpending(router, owner, tokens, poolDeployment.address)
-  }
-
-  async function approveUsddPool(router: Contract, owner: SignerWithAddress) {
-    const tokens = []
-    const TOKENS = USDD_POOL_TOKENS_MAP[hre.network.name]
-    for (const index in TOKENS) {
-      let address = ''
-      hre.network.name == 'bsc_mainnet'
-        ? (address = TOKENS[index][2] as string)
-        : (address = (await deployments.get(`${TOKENS[index][1]}`)).address as string)
-      tokens.push(address)
-    }
-    const poolDeployment = await deployments.get('USDDPool')
-    await approveSpending(router, owner, tokens, poolDeployment.address)
   }
 
   async function approveSidePool(router: Contract, owner: SignerWithAddress) {

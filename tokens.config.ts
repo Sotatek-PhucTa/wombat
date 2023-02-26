@@ -79,50 +79,6 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   },
 }
 
-export const IUSD_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
-  bsc_mainnet: {
-    IUSD: ['iZUMi Bond USD', 'iUSD', '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', 0], // last item is pool alloc point
-    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
-  },
-  bsc_testnet: {
-    IUSD: ['iZUMi Bond USD', 'iUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
-    BUSD: ['Binance USD', 'BUSD', '18', 0],
-  },
-}
-
-export const CUSD_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
-  bsc_mainnet: {
-    CUSD: ['Coin98 Dollar', 'CUSD', '0xfa4ba88cf97e282c505bea095297786c16070129', 0], // last item is pool alloc point
-    HAY: ['Hay Destablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
-  },
-  bsc_testnet: {
-    CUSD: ['Coin98 Dollar', 'CUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
-    HAY: ['Hay Destablecoin', 'HAY', '18', 0],
-  },
-}
-
-export const USDD_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
-  bsc_mainnet: {
-    USDD: ['Decentralized USD', 'USDD', '0xd17479997F34dd9156Deef8F95A52D81D265be9c', 0], // last item is pool alloc point
-    USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
-  },
-  bsc_testnet: {
-    USDD: ['Decentralized USD', 'USDD', '18', 100], // last item is 0 tokens minted to msg.sender initially
-    USDC: ['USD Coin', 'USDC', '18', 0],
-  },
-}
-
-export const AXLUSDC_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
-  bsc_mainnet: {
-    AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', 0], // last item is pool alloc point
-    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
-  },
-  bsc_testnet: {
-    AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '6', 0], // last item is 0 tokens minted to msg.sender initially
-    BUSD: ['Binance USD', 'BUSD', '18', 0],
-  },
-}
-
 export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
   bsc_mainnet: {
     stables_01: {
@@ -131,12 +87,52 @@ export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
       FRAX: ['Frax', 'FRAX', '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40', 0],
       // MIM: ['Magic Internet Money', 'MIM', '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba', 0], // added at later stage
     },
+    iUSD_Pool: {
+      IUSD: ['iZUMi Bond USD', 'iUSD', '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', 0],
+      BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
+    },
+    CUSD_Pool: {
+      CUSD: ['Coin98 Dollar', 'CUSD', '0xfa4ba88cf97e282c505bea095297786c16070129', 0],
+      HAY: ['Hay Destablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
+    },
+    axlUSDC_Pool: {
+      AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', 0],
+      BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
+    },
+    USDD_Pool: {
+      USDD: ['Decentralized USD', 'USDD', '0xd17479997F34dd9156Deef8F95A52D81D265be9c', 0],
+      USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
+    },
+    BOB_Pool: {
+      BOB: ['BOB', 'BOB', '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', 0],
+      USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
+    },
   },
   bsc_testnet: {
     stables_01: {
       BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
       TUSD: ['TrueUSD', 'TUSD', '18', 0],
       FRAX: ['Frax', 'FRAX', '18', 0],
+    },
+    iUSD_Pool: {
+      IUSD: ['iZUMi Bond USD', 'iUSD', '18', 0],
+      BUSD: ['Binance USD', 'BUSD', '18', 0],
+    },
+    CUSD_Pool: {
+      CUSD: ['Coin98 Dollar', 'CUSD', '18', 0],
+      HAY: ['Hay Destablecoin', 'HAY', '18', 0],
+    },
+    axlUSDC_Pool: {
+      AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '6', 0],
+      BUSD: ['Binance USD', 'BUSD', '18', 0],
+    },
+    USDD_Pool: {
+      USDD: ['Decentralized USD', 'USDD', '18', 0],
+      USDC: ['USD Coin', 'USDC', '18', 0],
+    },
+    BOB_Pool: {
+      BOB: ['BOB', 'BOB', '18', 0],
+      USDC: ['USD Coin', 'USDC', '18', 0],
     },
   },
 }
@@ -484,6 +480,16 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       ...defaultRewarder(),
       lpToken: '0x791b2424df9865994Ad570425278902E2B5D7946',
       rewardToken: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', // axlUSDC
+    },
+    BOBPool_BOB: {
+      ...defaultRewarder(),
+      lpToken: '0x4968E21be7Bb0ced1bd3859d3dB993ad3a05d2E6',
+      rewardToken: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
+    },
+    BOBPool_USDC: {
+      ...defaultRewarder(),
+      lpToken: '0x6b98d2B6ed0131338C7945Db8588DA43323d1b8C',
+      rewardToken: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
     },
   },
   bsc_testnet: {

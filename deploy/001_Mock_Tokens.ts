@@ -3,15 +3,10 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import {
   USD_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
-  IUSD_POOL_TOKENS_MAP,
-  CUSD_POOL_TOKENS_MAP,
-  AXLUSDC_POOL_TOKENS_MAP,
-  USDD_POOL_TOKENS_MAP,
   BNB_DYNAMICPOOL_TOKENS_MAP,
   WOM_DYNAMICPOOL_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
 } from '../tokens.config'
-import { logVerifyCommand } from '../utils'
 
 const contractName = 'MockTokens'
 
@@ -48,27 +43,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         args: USD_SIDEPOOL_TOKENS[index].slice(0, 4),
         skipIfAlreadyDeployed: true,
       })
-    }
-
-    /// Mock USD POOL TOKENS ///
-    const USD_POOL_TOKENS = {
-      ...IUSD_POOL_TOKENS_MAP[hre.network.name],
-      ...CUSD_POOL_TOKENS_MAP[hre.network.name],
-      ...AXLUSDC_POOL_TOKENS_MAP[hre.network.name],
-      ...USDD_POOL_TOKENS_MAP[hre.network.name],
-    }
-
-    for (const index in USD_POOL_TOKENS) {
-      const tokenSymbol = USD_POOL_TOKENS[index][1] as string
-      const deployResult = await deploy(tokenSymbol, {
-        from: deployer,
-        log: true,
-        contract: 'TestERC20',
-        args: USD_POOL_TOKENS[index].slice(0, 4),
-        skipIfAlreadyDeployed: true,
-      })
-
-      logVerifyCommand(hre.network.name, deployResult)
     }
 
     /// Mock BNB DYNAMICPOOL TOKENS ///

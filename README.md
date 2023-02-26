@@ -86,6 +86,8 @@ To verify proxy contracts:
   - Bribe_CUSDPool_HAY => `0x861C5005754f26ab955899721b531B3922fE2320`
   - Bribe_AxlUsdcPool_axlUSDC => `0x27306b37d3C20F8B5297D20715ab173ad47ece80`
   - Bribe_AxlUsdcPool_BUSD => `0x3F9Ec209eBAe56e1401cBa4e064f97a9127E61C8`
+  - Bribe_BOBPool_BOB => `0xbeFB02dC4863Bd4B2803c32d75CA5DfeFa6f6091`
+  - Bribe_BOBPool_USDC => `0x25157762a68FA8061fa800Ee3b53C593967A5c9b`
 
 - Wombat Token
 
@@ -137,6 +139,11 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0x05f727876d7C123B9Bb41507251E2Afd81EAD09A`
   - Asset_USDDPool_USDD (LP-USDD) => `0x24a70c1489d521F5e2D2612474630eFe7C2ba073`
   - Asset_USDDPool_USDC (LP-USDC) => `0x9F9CeA30d242d7f5527Fa900f9fb0F77A98FdA82`
+
+- BOB Pool
+  - Pool Proxy (Main entry) => `0xeA6cDd9e8819BbF7f8791E7D084d9F0a6Afa7892`
+  - Asset_BOB_Pool_BOB (LP-BOB) => `0x4968E21be7Bb0ced1bd3859d3dB993ad3a05d2E6`
+  - Asset_BOB_Pool_USDC (LP-USDC) => `0x6b98d2B6ed0131338C7945Db8588DA43323d1b8C`
 
 - BNBx Pool
 
