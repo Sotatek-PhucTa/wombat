@@ -17,9 +17,6 @@ build
 # Docs
 docs/
 
-# Mainnet Deployment
-.env
-
 # OZ
 .openzeppelin/unknown-*.json
 
