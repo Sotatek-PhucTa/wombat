@@ -272,6 +272,26 @@ export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
   bsc_testnet: {},
 }
 
+export const FRXETH_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+  bsc_mainnet: {
+    WETH: [
+      'Wrapped ETH',
+      'WETH',
+      '0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA',
+      '', //
+      'DynamicAsset',
+    ], // last 2 items are exchange rate oracle, asset type
+    frxETH: [
+      'Frax ETH',
+      'frxETH',
+      '0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e',
+      '', // exchange rate oracle
+      'DynamicAsset',
+    ],
+  },
+  bsc_testnet: {},
+}
+
 export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
   bsc_mainnet: {
     HAY: {
@@ -490,6 +510,21 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       ...defaultRewarder(),
       lpToken: '0x6b98d2B6ed0131338C7945Db8588DA43323d1b8C',
       rewardToken: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
+    },
+    frxETH: {
+      ...defaultRewarder(),
+      lpToken: '0xd67EdEA100AdC2Aa8ae0b5CEe7bF420ee17E5bB9',
+      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
+    },
+    frxETHPool_WETH: {
+      ...defaultRewarder(),
+      lpToken: '0xb268c3181921747379271B9BFfCE8B16311656e3',
+      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
+    },
+    frax: {
+      ...defaultRewarder(),
+      lpToken: '0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB',
+      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
     },
   },
   bsc_testnet: {

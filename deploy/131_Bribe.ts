@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
-import { DeployFunction } from 'hardhat-deploy/types'
+import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BRIBE_MAPS } from '../tokens.config'
 import { confirmTxn, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
@@ -33,7 +33,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       deployments.log(`Bribe_${token} Deployment complete.`)
       if (await isOwner(voter, deployerSigner.address)) {
         const masterWombat = await deployments.get('MasterWombatV3')
-        await addBribe(voter, deployerSigner, masterWombat.address, bribeConfig.lpToken, deployResult.address)
+        await addBribe(
+          voter,
+          deployerSigner,
+          masterWombat.address,
+          bribeConfig.lpToken,
+          deployResult.address,
+          deployments
+        )
         deployments.log(`addBribe for ${bribeConfig.lpToken} complete.`)
       } else {
         deployments.log(
@@ -61,7 +68,8 @@ async function addBribe(
   owner: SignerWithAddress,
   masterWombat: string,
   lpToken: string,
-  bribe: string
+  bribe: string,
+  deployments: DeploymentsExtension
 ) {
   deployments.log('addBribe', bribe)
   try {

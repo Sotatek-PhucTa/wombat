@@ -9,6 +9,7 @@ import {
   WOM_DYNAMICPOOL_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
   BNBX_POOL_TOKENS_MAP,
+  FRXETH_POOL_TOKENS_MAP,
 } from '../tokens.config'
 import { confirmTxn, logVerifyCommand } from '../utils'
 import { getPoolContractName } from './040_WomSidePool'
@@ -49,6 +50,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       await approveFactoryPools(router, owner)
       await approveWomPools(router, owner)
       await approveBnbxPool(router, owner)
+      await approveFrxEthPool(router, owner)
     }
 
     deployments.log(`Deployment complete.`)
@@ -131,6 +133,21 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       deployments.log(`Approving pool tokens for Pool: ${contractName}...`)
       await approveSpending(router, owner, womSidePoolTokens, womSidePoolDeployment.address)
     }
+  }
+
+  // TODO refactor all the approve functions
+  async function approveFrxEthPool(router: Contract, owner: SignerWithAddress) {
+    const frxEthPoolConfig = FRXETH_POOL_TOKENS_MAP[hre.network.name]
+    const frxEthPool = await deployments.get('frxETH_Pool')
+    const tokens = []
+    for (const index in frxEthPoolConfig) {
+      const tokenAddress = frxEthPoolConfig[index][2] as string
+      const tokenSymbol = frxEthPoolConfig[index][1]
+      const asset = await deployments.get(`Asset_frxETH_Pool_${tokenSymbol}`)
+      tokens.push(tokenAddress)
+      tokens.push(asset.address)
+    }
+    await approveSpending(router, owner, tokens, frxEthPool.address)
   }
 
   async function approveBnbxPool(router: Contract, owner: SignerWithAddress) {

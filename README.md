@@ -88,6 +88,9 @@ To verify proxy contracts:
   - Bribe_AxlUsdcPool_BUSD => `0x3F9Ec209eBAe56e1401cBa4e064f97a9127E61C8`
   - Bribe_BOBPool_BOB => `0xbeFB02dC4863Bd4B2803c32d75CA5DfeFa6f6091`
   - Bribe_BOBPool_USDC => `0x25157762a68FA8061fa800Ee3b53C593967A5c9b`
+  - Bribe_frxETH_Pool_frxETH => `0xDfba6A2A516AB5d46f60fE61E023C8B371b20f1D`
+  - Bribe_frxETH_Pool_WETH => `0x18022e971e47575BEB749C8ee675e7b7F4229c51`
+  - Bribe_frax => `0x966c3729366294829911A2fc651DD88378E71C01`
 
 - Wombat Token
 
@@ -156,6 +159,13 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0xB0219A90EF6A24a237bC038f7B7a6eAc5e01edB0`
   - Asset_StkBnbPool_stkBNB => `0x0E202A0bCad2712d1fdeEB94Ec98C58bEeD0679f`
   - Asset_StkBnbPool_WBNB => `0x6C7B407411b3DB90DfA25DA4aA66605438D378CE`
+
+- frxETH Pool
+
+  - Pool Proxy (Main entry) => `0x2Ea772346486972E7690219c190dAdDa40Ac5dA4`
+  - Asset_frxETH_Pool_frxETH => `0xd67EdEA100AdC2Aa8ae0b5CEe7bF420ee17E5bB9`
+  - Asset_frxETH_Pool_WETH => `0xb268c3181921747379271B9BFfCE8B16311656e3`
+
 
 - Wombat Dynamic Pool (Deprecated)
 
