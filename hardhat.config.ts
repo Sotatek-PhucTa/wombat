@@ -17,7 +17,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: false,
-      ...(process.env.FORK_MAINNET
+      ...(process.env.FORK_MAINNET != 'false'
         ? {
             forking: {
               // pick one from https://chainlist.org/chain/56
