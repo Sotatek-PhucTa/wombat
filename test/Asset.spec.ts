@@ -1,10 +1,11 @@
-import { ethers } from 'hardhat'
+import { deployments, ethers } from 'hardhat'
 import chai from 'chai'
 import { parseUnits } from '@ethersproject/units'
 import { Contract, Wallet } from 'ethers'
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { signERC2612Permit } from '../contracts/wombat-peripheral/permit/eth-permit' // https://github.com/dmihal/eth-permit
+import { confirmTxn } from '../utils'
 
 const { expect } = chai
 
@@ -18,32 +19,20 @@ describe('Asset', function () {
   let asset2: Contract
 
   beforeEach(async function () {
-    const [first, ...rest] = await ethers.getSigners()
-    owner = first
-    pool = rest[0]
-    user = rest[1]
-
-    // Get Factories
-    const AssetFactory = await ethers.getContractFactory('Asset')
-    const TestERC20Factory = await ethers.getContractFactory('TestERC20')
+    await deployments.fixture([])
+    ;[owner, pool, user] = await ethers.getSigners()
 
     // Deploy with factories
-    token = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    token2 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8))
-    asset = await AssetFactory.deploy(token.address, 'Binance USD LP', 'BUSD-LP')
-    asset2 = await AssetFactory.deploy(token2.address, 'Venus USD LP', 'vUSDC-LP')
-
-    // wait for transactions to be mined
-    await token.deployTransaction.wait()
-    await asset.deployTransaction.wait()
-    await asset2.deployTransaction.wait()
+    token = await ethers.deployContract('TestERC20', ['Binance USD', 'BUSD', 18, parseUnits('1000000', 18)]) // 1 mil BUSD
+    token2 = await ethers.deployContract('TestERC20', ['Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)])
+    asset = await ethers.deployContract('Asset', [token.address, 'Binance USD LP', 'BUSD-LP'])
+    asset2 = await ethers.deployContract('Asset', [token2.address, 'Venus USD LP', 'vUSDC-LP'])
 
     // set dummy pool address
-    await asset.setPool(pool.address)
-    await asset2.setPool(pool.address)
+    await confirmTxn(asset.setPool(pool.address))
+    await confirmTxn(asset2.setPool(pool.address))
   })
 
-  // TODO: move pool address setup within contract initialization
   describe('[initial deploy]', function () {
     it('Should return correct pool address ', async function () {
       expect(await asset.pool()).to.equal(pool.address)
