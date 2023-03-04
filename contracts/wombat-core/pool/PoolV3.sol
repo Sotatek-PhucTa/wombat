@@ -258,9 +258,8 @@ contract PoolV3 is
     }
 
     function setFee(uint256 lpDividendRatio_, uint256 retentionRatio_) external onlyOwner {
-        unchecked {
-            if (retentionRatio_ + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
-        }
+        if (retentionRatio_ + lpDividendRatio_ > WAD) revert WOMBAT_INVALID_VALUE();
+
         _mintAllFees();
         retentionRatio = retentionRatio_;
         lpDividendRatio = lpDividendRatio_;
@@ -705,16 +704,13 @@ contract PoolV3 is
         (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
         _checkAmount(minimumToAmount, actualToAmount);
 
-        unchecked {
-            _feeCollected[toAsset] += haircut;
-        }
+        _feeCollected[toAsset] += haircut;
 
         fromAsset.addCash(fromAmount);
 
         // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
-        unchecked {
-            toAsset.removeCash(actualToAmount + haircut);
-        }
+
+        toAsset.removeCash(actualToAmount + haircut);
 
         // mint fee is skipped for swap to save gas,
 
@@ -839,12 +835,8 @@ contract PoolV3 is
 
     function tipBucketBalance(address token) public view returns (uint256 balance) {
         IAsset asset = _assetOf(token);
-        unchecked {
-            return
-                asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
-                asset.cash() -
-                _feeCollected[asset];
-        }
+        return
+            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) - asset.cash() - _feeCollected[asset];
     }
 
     /* Utils */
