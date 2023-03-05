@@ -1,10 +1,9 @@
-import { ethers } from 'hardhat'
+import { deployments, ethers } from 'hardhat'
 import { BigNumberish, Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {
   WOM_DYNAMICPOOL_TOKENS_MAP,
-  BNB_DYNAMICPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   USD_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
@@ -45,17 +44,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     await addAsset(voter, owner, masterWombat.address, assetContractAddress)
     await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   }
-
-  // deployments.log('Setting up BNB pool')
-  // const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-  // for (const index in BNB_DYNAMICPOOL_TOKENS) {
-  //   const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
-  //   const tokenAllocPoint = parseEther((BNB_DYNAMICPOOL_TOKENS[index][5] as number).toString())
-  //   const assetContractName = `Asset_DP01_${tokenSymbol}`
-  //   const assetContractAddress = (await deployments.get(assetContractName)).address as string
-  //   await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-  //   await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
-  // }
 
   deployments.log('Setting up wom pool')
   const WOM_DYNAMICPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
