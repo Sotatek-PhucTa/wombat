@@ -11,6 +11,7 @@ import {
   BNBX_POOL_TOKENS_MAP,
   FRXETH_POOL_TOKENS_MAP,
 } from '../tokens.config'
+import { Network } from '../types'
 import { confirmTxn, logVerifyCommand } from '../utils'
 import { getPoolContractName } from './040_WomSidePool'
 import { getFactoryPoolContractName } from './050_FactoryPool'
@@ -31,19 +32,14 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     contract: 'WombatRouter',
     log: true,
-    args: [WRAPPED_NATIVE_TOKENS_MAP[hre.network.name]],
+    args: [WRAPPED_NATIVE_TOKENS_MAP[hre.network.name] || ethers.constants.AddressZero],
     skipIfAlreadyDeployed: true,
     deterministicDeployment: false, // will adopt bridging protocols/ wrapped addresses instead of CREATE2
   })
 
-  if (!deployResult.newlyDeployed) {
-    if (
-      hre.network.name == 'localhost' ||
-      hre.network.name == 'hardhat' ||
-      hre.network.name == 'bsc_testnet' ||
-      hre.network.name == 'bsc_mainnet'
-    ) {
-      const router = await ethers.getContractAt(contractName, deployResult.address)
+  if (deployResult.newlyDeployed) {
+    const router = await ethers.getContractAt(contractName, deployResult.address)
+    if ([Network.BSC_MAINNET, Network.BSC_TESTNET].includes(hre.network.name)) {
       await approveMainPool(router, owner)
       await approveSidePool(router, owner)
       await approveFactoryPools(router, owner)

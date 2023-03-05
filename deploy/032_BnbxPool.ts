@@ -85,3 +85,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
 export default deployFunc
 deployFunc.tags = [contractName]
+deployFunc.dependencies = ['MasterWombatV3']
