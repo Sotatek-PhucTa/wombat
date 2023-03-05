@@ -16,7 +16,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 120. Deploying on: ${hre.network.name}...`)
 
-  for await (const [token, rewarder] of Object.entries(REWARDERS_MAP[hre.network.name])) {
+  for await (const [token, rewarder] of Object.entries(REWARDERS_MAP[hre.network.name] || {})) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const startTimestamp = rewarder?.startTimestamp || getDeadlineFromNow(rewarder.secondsToStart!)
 
     /// Deploy pool
