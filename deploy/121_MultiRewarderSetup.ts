@@ -5,10 +5,11 @@ import { REWARDERS_MAP } from '../tokens.config'
 import { getDeployedContract, isOwner, setRewarder } from '../utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const { deployments } = hre
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
-  for await (const [token, args] of Object.entries(REWARDERS_MAP[hre.network.name])) {
+  for await (const [token, args] of Object.entries(REWARDERS_MAP[hre.network.name] || {})) {
     deployments.log(token)
     const name = `MultiRewarderPerSec_V3_${token}`
     const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
