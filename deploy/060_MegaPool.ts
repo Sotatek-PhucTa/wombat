@@ -5,6 +5,7 @@ import { ethers } from 'hardhat'
 import { DeployOptions, DeployResult, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Asset, MegaPool, MockERC20 } from '../build/typechain'
+import { Network } from '../types'
 import { confirmTxn, getDeadlineFromNow, logVerifyCommand } from '../utils'
 
 const contractName = 'MegaPool'
@@ -22,10 +23,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   deployments.log(`Step 060. Deploying on : ${hre.network.name}...`)
-
-  // Note: For development purpose only. Not production ready
-  if (!['bsc_testnet', 'fuji'].includes(hre.network.name)) throw 'MegaPool is only available in testnet'
-
   const coreV3DeployResult = await deploy('CoreV3', { from: deployer, log: true, skipIfAlreadyDeployed: true })
 
   /// Deploy pool
@@ -147,3 +144,6 @@ async function setUpTestEnv(
 
 export default deployFunc
 deployFunc.tags = [contractName]
+deployFunc.skip = (hre: HardhatRuntimeEnvironment) => {
+  return Network.BSC_TESTNET != hre.network.name
+}

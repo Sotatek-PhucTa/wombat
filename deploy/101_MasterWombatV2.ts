@@ -1,6 +1,8 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { logVerifyCommand } from '../utils'
+import { time } from '@nomicfoundation/hardhat-network-helpers'
+import { parseEther } from 'ethers/lib/utils'
 
 const contractName = 'MasterWombatV2'
 
@@ -11,6 +13,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   deployments.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
   const wombatToken = await deployments.get('WombatToken')
+  const womPerSec = parseEther('2000000').div(30 * 24 * 3600) // 2M WOM/month
+  const latest = await time.latest()
+  const startTimestamp = latest + 300 // T+5min
   const deployResult = await deploy(contractName, {
     from: deployer,
     contract: contractName,
@@ -24,7 +29,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         init: {
           methodName: 'initialize',
           // call setVewom and setVoter later
-          args: [wombatToken.address, ethers.constants.AddressZero, ethers.constants.AddressZero, 375],
+          args: [wombatToken.address, ethers.constants.AddressZero, womPerSec, 375, startTimestamp],
         },
       },
     },

@@ -19,7 +19,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log(`Step 035. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-WBNB, LP-stkBNB
-  const POOL_TOKENS = STKBNB_POOL_TOKENS_MAP[hre.network.name]
+  const POOL_TOKENS = STKBNB_POOL_TOKENS_MAP[hre.network.name] || {}
 
   // Get Pool Instance
   const poolDeployment = await deployments.get(poolContractName)

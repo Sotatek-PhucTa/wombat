@@ -3,6 +3,7 @@ import { DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { MegaPool, WormholeAdaptor } from '../build/typechain'
 import { WORMHOLE_MAPS } from '../tokens.config'
+import { Network } from '../types'
 import { logVerifyCommand } from '../utils'
 
 const contractName = 'WormholeAdaptor'
@@ -16,9 +17,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   deployments.log(`Step 061. Deploying on : ${hre.network.name}...`)
 
   const poolDeployment = await deployments.get('MegaPool')
-
-  // Note: For development purpose only. Not production ready
-  if (!['bsc_testnet', 'fuji'].includes(hre.network.name)) throw 'WormholeAdaptor is only available in testnet'
 
   /// Deploy pool
   const deployResult = await deploy(contractName, {
@@ -68,3 +66,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.dependencies = ['MegaPool']
+deployFunc.skip = (hre: HardhatRuntimeEnvironment) => {
+  return Network.BSC_TESTNET != hre.network.name
+}

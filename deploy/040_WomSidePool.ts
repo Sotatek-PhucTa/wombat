@@ -14,7 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 040. Deploying on : ${hre.network.name}...`)
 
-  const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
+  const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name] || {}
   for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
     const contractName = getPoolContractName(poolName)
 

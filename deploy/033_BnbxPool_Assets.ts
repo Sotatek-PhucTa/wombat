@@ -19,7 +19,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log(`Step 033. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const POOL_TOKENS = BNBX_POOL_TOKENS_MAP[hre.network.name]
+  const POOL_TOKENS = BNBX_POOL_TOKENS_MAP[hre.network.name] || {}
 
   // Get Pool Instance
   const poolDeployment = await deployments.get(poolContractName)
