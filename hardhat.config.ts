@@ -14,19 +14,10 @@ import { Network } from './types'
 dotenv.config()
 
 const config: HardhatUserConfig = {
-  defaultNetwork: 'hardhat',
+  defaultNetwork: Network.HARDHAT,
   networks: {
-    hardhat: {
+    [Network.HARDHAT]: {
       allowUnlimitedContractSize: false,
-      ...(process.env.FORK_MAINNET != 'false'
-        ? {
-            forking: {
-              // pick one from https://chainlist.org/chain/56
-              url: 'https://bsc-dataseed1.defibit.io',
-              blockNumber: 25997388,
-            },
-          }
-        : {}),
     },
     [Network.BSC_TESTNET]: {
       url: 'https://data-seed-prebsc-1-s3.binance.org:8545',
@@ -152,6 +143,13 @@ const config: HardhatUserConfig = {
     runOnCompile: false,
     except: ['/test/*', '/mock/*'],
   },
+}
+
+const network = process.env.FORK_NETWORK || ''
+if (Object.values(Network).includes(network)) {
+  const url = config.networks[network].url
+  config.networks.hardhat.forking = { url }
+  console.log(`Network hardhat is forking ${network}`)
 }
 
 export default config
