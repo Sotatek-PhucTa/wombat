@@ -10,6 +10,7 @@ import 'hardhat-deploy'
 import { HardhatUserConfig } from 'hardhat/config'
 import secrets from './secrets.json' // BSC TESTNET ONLY!
 import './tasks/tasks.index'
+import { Network } from './types'
 dotenv.config()
 
 const config: HardhatUserConfig = {
@@ -27,24 +28,29 @@ const config: HardhatUserConfig = {
           }
         : {}),
     },
-    bsc_testnet: {
+    [Network.BSC_TESTNET]: {
       url: 'https://data-seed-prebsc-1-s3.binance.org:8545',
       chainId: 97,
       gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
     },
-    bsc_mainnet: {
+    [Network.BSC_MAINNET]: {
       url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
       gasPrice: 20000000000,
-      accounts: [secrets.deployer.privateKey], // replace with mainnet wallet private key
+      accounts: [secrets.deployer.privateKey],
     },
-    fuji: {
-      url: 'https://api.avax-test.network/ext/bc/C/rpc',
-      gas: 5000000,
-      gasPrice: 30 * 1000000000,
-      chainId: 43113,
+    [Network.POLYGON_TESTNET]: {
+      url: 'https://rpc-mumbai.maticvigil.com/',
+      chainId: 80001,
+      gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
+    },
+    [Network.POLYGON_MAINNET]: {
+      url: 'https://polygon-rpc.com/',
+      chainId: 137,
+      gasPrice: 20000000000,
+      accounts: [secrets.deployer.privateKey],
     },
   },
   etherscan: {
