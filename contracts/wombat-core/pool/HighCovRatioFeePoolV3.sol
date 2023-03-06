@@ -55,9 +55,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             );
 
             actualToAmount -= highCovRatioFee;
-            unchecked {
-                haircut += highCovRatioFee;
-            }
+            haircut += highCovRatioFee;
         } else {
             // reverse quote
             uint256 toAssetCash = toAsset.cash();
@@ -100,14 +98,12 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
 
         // Note: we might limit the maximum number of rounds if the request is always rejected by the RPC server
         while (low < high) {
-            unchecked {
-                uint256 mid = (low + high) / 2;
-                (quote, ) = _quoteFrom(fromAsset, toAsset, int256(mid * toWadFactor));
-                if (quote >= toAmount) {
-                    high = mid;
-                } else {
-                    low = mid + 1;
-                }
+            uint256 mid = (low + high) / 2;
+            (quote, ) = _quoteFrom(fromAsset, toAsset, int256(mid * toWadFactor));
+            if (quote >= toAmount) {
+                high = mid;
+            } else {
+                low = mid + 1;
             }
         }
         return high * toWadFactor;
