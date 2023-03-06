@@ -432,7 +432,7 @@ contract PoolV3 is
         address to
     ) internal returns (uint256 liquidity) {
         // collect fee before deposit
-        _mintFee(asset);
+        _mintFeeIfNeeded(asset);
 
         uint256 liabilityToMint;
         (liquidity, liabilityToMint, ) = CoreV3.quoteDepositLiquidityInEquil(asset, amount, ampFactor);
@@ -517,7 +517,7 @@ contract PoolV3 is
      */
     function _withdraw(IAsset asset, uint256 liquidity, uint256 minimumAmount) internal returns (uint256 amount) {
         // collect fee before withdraw
-        _mintFee(asset);
+        _mintFeeIfNeeded(asset);
 
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
@@ -716,6 +716,8 @@ contract PoolV3 is
             toAsset.removeCash(actualToAmount + haircut);
         }
 
+        // mint fee is skipped for swap to save gas,
+
         // revert if cov ratio < 1% to avoid precision error
         if (uint256(toAsset.cash()).wdiv(toAsset.liability()) < WAD / 100) revert WOMBAT_FORBIDDEN();
     }
@@ -869,13 +871,22 @@ contract PoolV3 is
         }
     }
 
+    function _mintFeeIfNeeded(IAsset asset) internal {
+        uint256 feeCollected = _feeCollected[asset];
+        if (feeCollected == 0 || feeCollected < mintFeeThreshold) {
+            return;
+        } else {
+            _mintFee(asset);
+        }
+    }
+
     /**
      * @notice Private function to send fee collected to the fee beneficiary
      * @param asset The address of the asset to collect fee
      */
     function _mintFee(IAsset asset) internal {
         uint256 feeCollected = _feeCollected[asset];
-        if (feeCollected == 0 || feeCollected < mintFeeThreshold) {
+        if (feeCollected == 0) {
             // early return
             return;
         }

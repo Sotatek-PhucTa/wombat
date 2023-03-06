@@ -404,6 +404,73 @@ describe('Pool - Fee', function () {
       it('(BUSD -> vUSDC) should respect mintFeeThreshold', async function () {
         await poolContract.connect(owner).setMintFeeThreshold(parseEther('0.05'))
 
+        // first swap
+        await poolContract.connect(user1).swap(
+          token0.address,
+          token1.address,
+          parseEther('100'),
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+
+        // check BUSD post swap positions
+        expect(await asset0.cash()).to.be.equal(parseEther('10100'))
+        expect(await asset0.liability()).to.be.equal(parseEther('10000'))
+        expect(await asset0.underlyingTokenBalance()).to.be.equal(parseEther('10100')) // should always equal cash
+
+        // check vUSDC post swap positions
+        expect(await asset1.cash()).to.be.equal(parseEther('900.569903537643711000'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000'))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8))
+
+        await poolContract
+          .connect(user1)
+          .deposit(token1.address, parseUnits('0.01', 8), 0, user1.address, fiveSecondsSince, false)
+
+        // mint fee threshold not reached
+        expect(await asset1.cash()).to.be.equal(parseEther('900.579903537643711000'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000.010005744258988580'))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.61967558', 8))
+        expect(await poolContract.exchangeRate(token1.address)).to.eq(parseEther('1'))
+
+        // second swap
+        await poolContract.connect(user1).swap(
+          token0.address,
+          token1.address,
+          parseEther('100'),
+          parseUnits('90', 8), // expect at least 90% of ideal quoted amount
+          user1.address,
+          fiveSecondsSince
+        )
+
+        // check balance
+        expect(await asset1.cash()).to.be.equal(parseEther('802.511252990394556831'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000.010005744258988580'))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('802.59025250', 8))
+        expect(await poolContract.exchangeRate(token1.address)).to.eq(parseEther('1'))
+
+        await poolContract
+          .connect(user1)
+          .deposit(token1.address, parseUnits('0.01', 8), 0, user1.address, fiveSecondsSince, false)
+
+        // mint fee threshold reached, cash should increase
+        expect(await asset1.cash()).to.be.equal(parseEther('802.584452589437630573'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000.083411603549830880'))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('802.58445261', 8))
+        expect(await poolContract.exchangeRate(token1.address)).to.eq(parseEther('1.000063377049540840'))
+
+        // cannot further mint fee
+        await poolContract.mintFee(token1.address)
+        expect(await asset1.cash()).to.be.equal(parseEther('802.584452589437630573'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000.083411603549830880'))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('802.58445261', 8))
+        expect(await poolContract.exchangeRate(token1.address)).to.eq(parseEther('1.000063377049540840'))
+      })
+
+      it('(BUSD -> vUSDC) mint fee immediately', async function () {
+        await poolContract.connect(owner).setMintFeeThreshold(parseEther('0.05'))
+
         await poolContract.connect(user1).swap(
           token0.address,
           token1.address,
@@ -426,10 +493,10 @@ describe('Pool - Fee', function () {
         await poolContract.mintFee(token0.address)
         await poolContract.mintFee(token1.address)
 
-        // mint fee threshold not reached
-        expect(await asset1.cash()).to.be.equal(parseEther('900.569903537643711000'))
-        expect(await asset1.liability()).to.be.equal(parseEther('1000'))
-        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8))
+        // should have mint fee immediately
+        expect(await asset1.cash()).to.be.equal(parseEther('900.601721168511665013'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000.031835907300991560'))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60172118', 8))
 
         await poolContract.connect(user1).swap(
           token0.address,
@@ -440,22 +507,13 @@ describe('Pool - Fee', function () {
           fiveSecondsSince
         )
 
-        // check balance
-        expect(await asset1.cash()).to.be.equal(parseEther('802.501275363723973000'))
-        expect(await asset1.liability()).to.be.equal(parseEther('1000'))
-        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('802.58027486', 8))
+        // trigger PoolV3._mintAllFees
+        await poolContract.setFee(0, 0)
 
-        // mint fee
-        await poolContract.mintFee(token0.address)
-        await poolContract.mintFee(token1.address)
-
-        // liability and cash should increase
-        expect(await asset1.cash()).to.be.equal(parseEther('802.564474955607581329'))
-        expect(await asset1.liability()).to.be.equal(parseEther('1000.063377680823085340'))
-        expect(await asset0.balanceOf(user2.address)).to.be.equal(parseEther('0'))
-        expect(await asset1.balanceOf(user2.address)).to.be.equal(parseEther('0'))
-        expect(await token1.balanceOf(user2.address)).to.be.equal(parseUnits('0.01579989', 8))
-        expect((await poolContract.connect(user1).globalEquilCovRatio()).equilCovRatio).to.equal(parseEther('1'))
+        // mint fee immediately
+        expect(await asset1.cash()).to.be.equal(parseEther('802.564403793680869592'))
+        expect(await asset1.liability()).to.be.equal(parseEther('1000.063306318385932860'))
+        expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('802.56440382', 8))
       })
 
       it('works (BUSD -> vUSDC) with haircut fees, dividend and LP dividend', async function () {
