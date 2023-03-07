@@ -5617,12 +5617,12 @@ solhint-plugin-prettier@^0.0.5:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-solhint@^3.0.0, solhint@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/solhint/-/solhint-3.4.0.tgz#a7e4f2d73e679cb197a1ca5279aa7534bd323e4d"
-  integrity sha512-FYEs/LoTxMsWFP/OGsEqR1CBDn3Bn7hrTWsgtjai17MzxITgearIdlo374KKZjjIycu8E2xBcJ+RSWeoBvQmkw==
+solhint@^3.0.0, solhint@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/solhint/-/solhint-3.4.1.tgz#8ea15b21c13d1be0b53fd46d605a24d0b36a0c46"
+  integrity sha512-pzZn2RlZhws1XwvLPVSsxfHrwsteFf5eySOhpAytzXwKQYbTCJV6z8EevYDiSVKMpWrvbKpEtJ055CuEmzp4Xg==
   dependencies:
-    "@solidity-parser/parser" "^0.15.0"
+    "@solidity-parser/parser" "^0.16.0"
     ajv "^6.12.6"
     antlr4 "^4.11.0"
     ast-parents "^0.0.1"
