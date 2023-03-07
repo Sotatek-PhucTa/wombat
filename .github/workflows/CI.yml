@@ -18,7 +18,7 @@ jobs:
             cache
             artifacts
           key: contracts-${{ hashFiles('contracts/**/*.sol') }}-${{ hashFiles('hardhat.config.ts') }}
-      - name: Compile contracts
+      - name: Run hardhat compile
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
           yarn compile
