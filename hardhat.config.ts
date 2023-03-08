@@ -48,6 +48,17 @@ const config: HardhatUserConfig = {
       gas: 5000000,
       gasPrice: 30 * 1000000000,
       chainId: 43113,
+      accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
+    },
+    [Network.ARBITRUM_MAINNET]: {
+      chainId: 42161,
+      url: 'https://arb1.arbitrum.io/rpc',
+      accounts: [secrets.deployer.privateKey],
+    },
+    [Network.ARBITRUM_TESTNET]: {
+      chainId: 421613,
+      url: 'https://goerli-rollup.arbitrum.io/rpc',
+      accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
     },
   },
   etherscan: {

@@ -19,6 +19,8 @@ export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = {
   [Network.POLYGON_MAINNET]: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
   [Network.POLYGON_TESTNET]: '0x4bab602423c8a009ca8c25ef6e3d64367789c8a9',
   [Network.AVALANCHE_TESTNET]: '0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3',
+  [Network.ARBITRUM_MAINNET]: ethers.constants.AddressZero,
+  [Network.ARBITRUM_TESTNET]: ethers.constants.AddressZero,
 }
 
 export interface IRewarder {
@@ -68,6 +70,11 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = {
     TUSD: ['TrueUSD', 'TUSD', '18', 0, 240],
     DAI: ['Dai Stablecoin', 'DAI', '18', 0, 240],
     vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
+  },
+  [Network.ARBITRUM_MAINNET]: {
+    USDC: ['USD Coin', 'USDC', '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'],
+    USDT: ['Tether USD', 'USDT', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'],
+    DAI: ['Dai Stablecoin', 'DAI', '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1'],
   },
 }
 
