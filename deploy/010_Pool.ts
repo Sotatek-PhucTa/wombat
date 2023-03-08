@@ -15,6 +15,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   /// Deploy pool
   const deployResult = await deploy(contractName, {
+    contract: 'PoolV2',
     from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
