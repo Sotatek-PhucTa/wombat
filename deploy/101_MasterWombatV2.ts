@@ -13,7 +13,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   deployments.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
   const wombatToken = await deployments.get('WombatToken')
-  const womPerSec = parseEther('2000000').div(30 * 24 * 3600) // 2M WOM/month
+  const womPerSec = 1 // small amount > 0 to avoid actually sending emission
   const latest = await time.latest()
   const startTimestamp = latest + 300 // T+5min
   const deployResult = await deploy(contractName, {
