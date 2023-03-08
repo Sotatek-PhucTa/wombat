@@ -11,6 +11,7 @@ interface ITokensInfo {
   [token: string]: unknown[]
 }
 
+// TODO: support injectForkNetwork on Record<Network, string>
 export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = {
   [Network.HARDHAT]: ethers.constants.AddressZero,
   [Network.LOCALHOST]: ethers.constants.AddressZero,
@@ -40,7 +41,25 @@ function defaultRewarder(): IRewarder {
   }
 }
 
-export const USD_TOKENS_MAP: ITokens<ITokensInfo> = {
+// inject forkNetwork to hardhat and localhost
+function injectForkNetwork(config: { [network: string]: any }) {
+  const forkNetwork = process.env.FORK_NETWORK || ''
+  // default value in .env
+  if (forkNetwork == 'false') {
+    return config
+  }
+
+  if (!Object.values(Network).includes(forkNetwork)) {
+    throw new Error(`Unrecognized network: ${forkNetwork}`)
+  }
+
+  return Object.assign(config, {
+    [Network.HARDHAT]: config[forkNetwork],
+    [Network.LOCALHOST]: config[forkNetwork],
+  })
+}
+
+export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 220], // last item is pool alloc point
     USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 220],
@@ -76,9 +95,9 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = {
     USDT: ['Tether USD', 'USDT', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'],
     DAI: ['Dai Stablecoin', 'DAI', '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1'],
   },
-}
+})
 
-export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 10], // last item is pool alloc point
     HAY: ['Hay Stablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
@@ -90,9 +109,9 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
     MIM: ['Magic Internet Money', 'MIM', '18', 0],
     HAY: ['Hay Stablecoin', 'HAY', '18', 0],
   },
-}
+})
 
-export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
+export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = injectForkNetwork({
   bsc_mainnet: {
     stables_01: {
       BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 5], // last item is pool alloc point
@@ -148,9 +167,9 @@ export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
       USDC: ['USD Coin', 'USDC', '18', 0],
     },
   },
-}
+})
 
-export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = {
+export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = injectForkNetwork({
   bsc_mainnet: {
     wmxWOMPool: {
       WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
@@ -179,10 +198,10 @@ export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = 
       qWOM: ['Quoll WOM', 'qWOM', '18', 0], // pending
     },
   },
-}
+})
 
 // TODO: refactor this to handle separate BNB pools
-export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   // TODO: re-enable after new BNB pools deploy
   // bsc_mainnet: {
   //   WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic', 10], // last 3 items are exchange rate oracle, asset type, and pool alloc points
@@ -239,9 +258,9 @@ export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = {
       10,
     ],
   },
-}
+})
 
-export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   bsc_mainnet: {
     WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'DynamicAsset'], // last 3 items are exchange rate oracle, asset type, and pool alloc points
     BNBX: [
@@ -263,9 +282,9 @@ export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
       'BnbxAsset',
     ],
   },
-}
+})
 
-export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   bsc_mainnet: {
     WBNB: [
       'Wrapped BNB',
@@ -283,9 +302,9 @@ export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
     ],
   },
   bsc_testnet: {},
-}
+})
 
-export const FRXETH_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
+export const FRXETH_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   bsc_mainnet: {
     WETH: [
       'Wrapped ETH',
@@ -303,9 +322,9 @@ export const FRXETH_POOL_TOKENS_MAP: ITokens<ITokensInfo> = {
     ],
   },
   bsc_testnet: {},
-}
+})
 
-export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
+export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = injectForkNetwork({
   bsc_mainnet: {
     HAY: {
       lpToken: '0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b', // HAY-LP
@@ -424,10 +443,10 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = {
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
     },
   },
-}
+})
 
 // IBribe reuses the interface of IRewarder
-export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
+export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = injectForkNetwork({
   bsc_mainnet: {
     HAY: {
       ...defaultRewarder(),
@@ -559,9 +578,9 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = {
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
     },
   },
-}
+})
 
-export const WORMHOLE_MAPS: ITokens<{ relayer: string; wormholeBridge: string }> = {
+export const WORMHOLE_MAPS: ITokens<{ relayer: string; wormholeBridge: string }> = injectForkNetwork({
   bsc_testnet: {
     relayer: '0xaC9EF19ab4F9a3a265809df0C4eB1E821f43391A',
     wormholeBridge: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
@@ -570,4 +589,4 @@ export const WORMHOLE_MAPS: ITokens<{ relayer: string; wormholeBridge: string }>
     relayer: '0x9Dfd308e2450b26290d926Beea2Bb4F0B8553729',
     wormholeBridge: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
   },
-}
+})
