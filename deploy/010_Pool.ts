@@ -44,27 +44,25 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     deployments.log(`Amplification factor is : ${ampFactor}`)
     deployments.log(`Haircut rate is : ${hairCutRate}`)
 
-    if (hre.network.name == 'bsc_mainnet') {
-      // manually transfer proxyAdmin to multi-sig, do it once and all proxy contracts will follow suit
-      // The owner of the ProxyAdmin can upgrade our contracts
-      // The owner of the pool contract is very powerful!
+    // manually transfer proxyAdmin to multi-sig, do it once and all proxy contracts will follow suit
+    // The owner of the ProxyAdmin can upgrade our contracts
+    // The owner of the pool contract is very powerful!
 
-      // transfer pool contract dev to Gnosis Safe
-      deployments.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
-      // The dev of the pool contract can pause and unpause pools & assets!
-      const setDevTxn = await contract.connect(owner).setDev(multisig)
-      await setDevTxn.wait()
-      deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
+    // transfer pool contract dev to Gnosis Safe
+    deployments.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
+    // The dev of the pool contract can pause and unpause pools & assets!
+    const setDevTxn = await contract.connect(owner).setDev(multisig)
+    await setDevTxn.wait()
+    deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
 
-      /// Admin scripts
-      deployments.log(`setFee to 0 for lpDividendRatio and ${10 ** 18} for retentionRatio...`)
-      const setFeeTxn = await contract.connect(owner).setFee(0, parseEther('1'))
-      await setFeeTxn.wait()
+    /// Admin scripts
+    deployments.log(`setFee to 0 for lpDividendRatio and ${10 ** 18} for retentionRatio...`)
+    const setFeeTxn = await contract.connect(owner).setFee(0, parseEther('1'))
+    await setFeeTxn.wait()
 
-      deployments.log(`setMintFeeThreshold to ${10000 ** 18}...`)
-      const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
-      await setMintFeeThresholdTxn.wait()
-    }
+    deployments.log(`setMintFeeThreshold to ${10000 ** 18}...`)
+    const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
+    await setMintFeeThresholdTxn.wait()
     return deployResult
   } else {
     deployments.log(`${contractName} Contract already deployed.`)

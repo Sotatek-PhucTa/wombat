@@ -57,14 +57,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
       deployments.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
 
-      if (hre.network.name == 'bsc_mainnet') {
-        // transfer asset LP token contract ownership to Gnosis Safe
-        deployments.log(`Transferring ownership of ${tokenAddress} to ${multisig}...`)
-        // The owner of the asset contract can change our pool address and change asset max supply
-        const transferOwnershipTxn = await asset.connect(owner).transferOwnership(multisig)
-        await transferOwnershipTxn.wait()
-        deployments.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
-      }
+      // transfer asset LP token contract ownership to Gnosis Safe
+      deployments.log(`Transferring ownership of ${tokenAddress} to ${multisig}...`)
+      // The owner of the asset contract can change our pool address and change asset max supply
+      const transferOwnershipTxn = await asset.connect(owner).transferOwnership(multisig)
+      await transferOwnershipTxn.wait()
+      deployments.log(`Transferred ownership of ${tokenAddress} to:`, multisig)
 
       logVerifyCommand(hre.network.name, usdAssetDeployResult)
     } else {
