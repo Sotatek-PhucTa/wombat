@@ -61,7 +61,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     logVerifyCommand(hre.network.name, poolDeployResult)
 
     if (DEVELOPMENT_MODE) {
-      await setUpTestEnv(pool as MegaPool, owner, deployer, deploy, hre.network.name)
+      await setUpTestEnv(pool as MegaPool, owner, deployer, deploy, hre.network.name, deployments)
     }
   } else {
     deployments.log(`${contractName} Contract already deployed.`)
@@ -73,7 +73,8 @@ async function setUpTestEnv(
   owner: SignerWithAddress,
   deployer: string,
   deploy: (name: string, options: DeployOptions) => Promise<DeployResult>,
-  network: string
+  network: string,
+  deployments: DeploymentsExtension
 ) {
   const token0Result = await deploy('Binance USD', {
     contract: 'MockERC20',
@@ -145,5 +146,5 @@ async function setUpTestEnv(
 export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.skip = (hre: HardhatRuntimeEnvironment) => {
-  return Network.BSC_TESTNET != hre.network.name
+  return ![Network.BSC_TESTNET, Network.AVALANCHE_TESTNET].includes(hre.network.name)
 }

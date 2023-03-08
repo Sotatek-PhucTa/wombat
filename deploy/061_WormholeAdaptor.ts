@@ -67,5 +67,5 @@ export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.dependencies = ['MegaPool']
 deployFunc.skip = (hre: HardhatRuntimeEnvironment) => {
-  return Network.BSC_TESTNET != hre.network.name
+  return ![Network.BSC_TESTNET, Network.AVALANCHE_TESTNET].includes(hre.network.name)
 }

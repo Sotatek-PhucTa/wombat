@@ -43,6 +43,12 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey],
     },
+    [Network.AVALANCHE_TESTNET]: {
+      url: 'https://api.avax-test.network/ext/bc/C/rpc',
+      gas: 5000000,
+      gasPrice: 30 * 1000000000,
+      chainId: 43113,
+    },
   },
   etherscan: {
     apiKey: {
