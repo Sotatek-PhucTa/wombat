@@ -32,7 +32,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     contract: 'WombatRouter',
     log: true,
-    args: [WRAPPED_NATIVE_TOKENS_MAP[hre.network.name] || ethers.constants.AddressZero],
+    args: [WRAPPED_NATIVE_TOKENS_MAP[hre.network.name]],
     skipIfAlreadyDeployed: true,
     deterministicDeployment: false, // will adopt bridging protocols/ wrapped addresses instead of CREATE2
   })

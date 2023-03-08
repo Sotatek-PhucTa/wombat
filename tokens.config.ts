@@ -1,6 +1,7 @@
 import { BigNumberish } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
+import { Network } from './types'
 
 // starting 4 stables, all 18 decimals
 interface ITokens<T> {
@@ -10,9 +11,14 @@ interface ITokensInfo {
   [token: string]: unknown[]
 }
 
-export const WRAPPED_NATIVE_TOKENS_MAP: { [network: string]: string } = {
-  bsc_mainnet: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-  bsc_testnet: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = {
+  [Network.HARDHAT]: ethers.constants.AddressZero,
+  [Network.LOCALHOST]: ethers.constants.AddressZero,
+  [Network.BSC_MAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+  [Network.BSC_TESTNET]: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+  [Network.POLYGON_MAINNET]: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+  [Network.POLYGON_TESTNET]: '0x4bab602423c8a009ca8c25ef6e3d64367789c8a9',
+  [Network.AVALANCHE_TESTNET]: '0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3',
 }
 
 export interface IRewarder {

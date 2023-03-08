@@ -1,5 +1,6 @@
 export enum Network {
   HARDHAT = 'hardhat',
+  LOCALHOST = 'localhost',
   BSC_MAINNET = 'bsc_mainnet',
   BSC_TESTNET = 'bsc_testnet',
   POLYGON_MAINNET = 'polygon_mainnet',
