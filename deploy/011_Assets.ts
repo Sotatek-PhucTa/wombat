@@ -25,13 +25,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   for (const index in USD_TOKENS) {
     deployments.log('Attemping to deploy Asset contract : ' + USD_TOKENS[index][0])
-    const tokenSymbol = USD_TOKENS[index][1] as string
     const tokenName = USD_TOKENS[index][0] as string
-
-    const tokenAddress: string =
-      hre.network.name == 'bsc_mainnet'
-        ? (USD_TOKENS[index][2] as string)
-        : ((await deployments.get(tokenSymbol)).address as string)
+    const tokenSymbol = USD_TOKENS[index][1] as string
+    const maybeAddress = USD_TOKENS[index][2] as string
+    const tokenAddress = ethers.utils.isAddress(maybeAddress)
+      ? maybeAddress
+      : (await deployments.get(tokenSymbol)).address
     deployments.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
     const name = `Wombat ${tokenName} Asset`
