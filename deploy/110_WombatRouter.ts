@@ -11,7 +11,6 @@ import {
   BNBX_POOL_TOKENS_MAP,
   FRXETH_POOL_TOKENS_MAP,
 } from '../tokens.config'
-import { Network } from '../types'
 import { confirmTxn, logVerifyCommand } from '../utils'
 import { getPoolContractName } from './040_WomSidePool'
 import { getFactoryPoolContractName } from './050_FactoryPool'
@@ -39,15 +38,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   if (deployResult.newlyDeployed) {
     const router = await ethers.getContractAt(contractName, deployResult.address)
-    if ([Network.BSC_MAINNET, Network.BSC_TESTNET].includes(hre.network.name)) {
-      await approveMainPool(router, owner)
-      await approveSidePool(router, owner)
-      await approveFactoryPools(router, owner)
-      await approveWomPools(router, owner)
-      await approveBnbxPool(router, owner)
-      await approveFrxEthPool(router, owner)
-    }
-
+    await approveMainPool(router, owner)
+    await approveSidePool(router, owner)
+    await approveFactoryPools(router, owner)
+    await approveWomPools(router, owner)
+    await approveBnbxPool(router, owner)
+    await approveFrxEthPool(router, owner)
     deployments.log(`Deployment complete.`)
     logVerifyCommand(hre.network.name, deployResult)
   }
@@ -61,6 +57,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     tokenAddresses: string[],
     poolAddress: string
   ) {
+    deployments.log(`Approving spending on ${poolAddress} for ${tokenAddresses}`)
     await confirmTxn(router.connect(owner).approveSpendingByPool(tokenAddresses, poolAddress))
   }
 
@@ -70,7 +67,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     for (const index in TOKENS) {
       tokens.push(TOKENS[index][2] as string)
     }
-    const mainPoolDeployment = await deployments.get('Pool')
+    const mainPoolDeployment = await deployments.getOrNull('Pool')
+    if (!mainPoolDeployment) return
     await approveSpending(router, owner, tokens, mainPoolDeployment.address)
   }
 
@@ -83,7 +81,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       const asset = await deployments.get(`Asset_SP01_${SIDEPOOL_TOKENS[index][1]}`)
       sidepoolAssetsAddress.push(asset.address)
     }
-    const sidePoolDeployment = await deployments.get('SidePool_01')
+    const sidePoolDeployment = await deployments.getOrNull('SidePool_01')
+    if (!sidePoolDeployment) return
     const approveSpendingTxn3 = await router
       .connect(owner)
       .approveSpendingByPool(sidepoolTokens, sidePoolDeployment.address)
@@ -91,14 +90,14 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   async function approveFactoryPools(router: Contract, owner: SignerWithAddress) {
-    const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
+    const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name] || {}
     for (const poolName of Object.keys(FACTORYPOOL_TOKENS)) {
       const factoryPoolTokens = []
       for (const args of Object.values(FACTORYPOOL_TOKENS[poolName])) {
-        let asset = ''
-        hre.network.name == 'bsc_mainnet'
-          ? (asset = args[2] as string)
-          : (asset = (await deployments.get(`${args[1]}`)).address as string)
+        const maybeAddress = args[2] as string
+        const asset = ethers.utils.isAddress(maybeAddress)
+          ? maybeAddress
+          : (await deployments.get(`${args[1]}`)).address
         factoryPoolTokens.push(asset)
       }
       const contractName = getFactoryPoolContractName(poolName)
@@ -111,14 +110,14 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   async function approveWomPools(router: Contract, owner: SignerWithAddress) {
-    const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
+    const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name] || {}
     for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
       const womSidePoolTokens = []
       for (const args of Object.values(WOM_SIDEPOOL_TOKENS[poolName])) {
-        let asset = ''
-        hre.network.name == 'bsc_mainnet'
-          ? (asset = args[2] as string)
-          : (asset = (await deployments.get(`${args[1]}`)).address as string)
+        const maybeAddress = args[2] as string
+        const asset = ethers.utils.isAddress(maybeAddress)
+          ? maybeAddress
+          : (await deployments.get(`${args[1]}`)).address
         womSidePoolTokens.push(asset)
       }
       const contractName = getPoolContractName(poolName)
@@ -132,8 +131,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   // TODO refactor all the approve functions
   async function approveFrxEthPool(router: Contract, owner: SignerWithAddress) {
-    const frxEthPoolConfig = FRXETH_POOL_TOKENS_MAP[hre.network.name]
-    const frxEthPool = await deployments.get('frxETH_Pool')
+    const frxEthPoolConfig = FRXETH_POOL_TOKENS_MAP[hre.network.name] || {}
+    const frxEthPool = await deployments.getOrNull('frxETH_Pool')
+    if (!frxEthPool) return
     const tokens = []
     for (const index in frxEthPoolConfig) {
       const tokenAddress = frxEthPoolConfig[index][2] as string
@@ -146,8 +146,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   async function approveBnbxPool(router: Contract, owner: SignerWithAddress) {
-    const bnbx = BNBX_POOL_TOKENS_MAP[hre.network.name]
-    const bnbxPool = await deployments.get('BnbxPool')
+    const bnbx = BNBX_POOL_TOKENS_MAP[hre.network.name] || {}
+    const bnbxPool = await deployments.getOrNull('BnbxPool')
+    if (!bnbxPool) return
     const tokens = []
     for (const index in bnbx) {
       const tokenAddress = bnbx[index][2] as string

@@ -11,8 +11,7 @@ interface ITokensInfo {
   [token: string]: unknown[]
 }
 
-// TODO: support injectForkNetwork on Record<Network, string>
-export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = {
+export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
   [Network.HARDHAT]: ethers.constants.AddressZero,
   [Network.LOCALHOST]: ethers.constants.AddressZero,
   [Network.BSC_MAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
@@ -22,7 +21,7 @@ export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = {
   [Network.AVALANCHE_TESTNET]: '0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3',
   [Network.ARBITRUM_MAINNET]: ethers.constants.AddressZero,
   [Network.ARBITRUM_TESTNET]: ethers.constants.AddressZero,
-}
+}) as Record<Network, string>
 
 export interface IRewarder {
   lpToken: string
