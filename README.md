@@ -232,6 +232,10 @@ To verify proxy contracts:
   - Asset_P01_USDT (LP-USDT) => `0x85cEBD962861be410a777755dFa06914de6af003`
   - Asset_P01_DAI (LP-DAI) => `0x0Fa7b744F18D8E8c3D61B64b110F25CC27E73055`
 
+- Wombat Router
+
+  - WombatRouter => `0x9da4edBed6068666ea8EF6505C909e1ff8eA5725`
+
 ### BSC testnet deployed contracts:
 
 - BSC Wallet Accounts
