@@ -219,6 +219,19 @@ To verify proxy contracts:
   - MultiRewarderPerSec_V3_stkBnb => `0x28edda710ef4E72bf1389e2ff7d50Ccfa75f95Af`
   - MultiRewarderPerSec_V3_StkBnbPool_WBNB => `0x7Db1B59747430b0F5946e8Cd525CFc41bfD3A1C1`
 
+### Arbitrum mainnet deployed contracts:
+
+- Wombat Proxy Admin
+
+  - Default Proxy Admin (Proxy Admin) => `0x2722FE570Fa9f7fEE1662dEee01F5d76003dE182`
+
+- Wombat Main Pool
+
+  - Pool Proxy (Main entry) => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
+  - Asset_P01_USDC (LP-USDC) => `0x2977b0B54a76c2b56D32cef19f8ea83Cc766cFD9`
+  - Asset_P01_USDT (LP-USDT) => `0x85cEBD962861be410a777755dFa06914de6af003`
+  - Asset_P01_DAI (LP-DAI) => `0x0Fa7b744F18D8E8c3D61B64b110F25CC27E73055`
+
 ### BSC testnet deployed contracts:
 
 - BSC Wallet Accounts
