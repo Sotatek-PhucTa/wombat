@@ -69,7 +69,8 @@ const config: HardhatUserConfig = {
       avalancheFujiTestnet: secrets.snowtrace_api_key,
       avalanche: secrets.snowtrace_api_key,
       // TODO: add polygonscan key for polygon and polygonMumbai
-      // TODO: add arbiscan key for arbitrumOne and arbitrumGoerli
+      arbitrumOne: secrets.arbiscan_api_key,
+      arbitrumGoerli: secrets.arbiscan_api_key,
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [],
