@@ -4,8 +4,8 @@ import { parseUnits } from '@ethersproject/units'
 import { Contract, Wallet } from 'ethers'
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { signERC2612Permit } from '../contracts/wombat-peripheral/permit/eth-permit' // https://github.com/dmihal/eth-permit
-import { confirmTxn } from '../utils'
+import { signERC2612Permit } from '../../contracts/wombat-peripheral/permit/eth-permit' // https://github.com/dmihal/eth-permit
+import { confirmTxn } from '../../utils'
 
 const { expect } = chai
 

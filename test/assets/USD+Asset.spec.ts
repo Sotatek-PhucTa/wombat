@@ -5,8 +5,8 @@ import { ethers } from 'hardhat'
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
-import { PoolV3 } from '../build/typechain'
-import { latest } from './helpers'
+import { PoolV3 } from '../../build/typechain'
+import { latest } from '../helpers'
 
 const { expect } = chai
 
