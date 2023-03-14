@@ -108,8 +108,8 @@ async function setUpTestEnv(
   await confirmTxn(asset0.setPool(pool.address))
   await confirmTxn(asset1.setPool(pool.address))
 
-  await confirmTxn(pool.setMaximumNetMintedCredit(parseEther('100000')))
-  await confirmTxn(pool.setMaximumNetBurnedCredit(parseEther('100000')))
+  await confirmTxn(pool.setMaximumOutboundCredit(parseEther('100000')))
+  await confirmTxn(pool.setMaximumOutboundCredit(parseEther('100000')))
   await confirmTxn(pool.setSwapTokensForCreditEnabled(true))
   await confirmTxn(pool.setSwapCreditForTokensEnabled(true))
 

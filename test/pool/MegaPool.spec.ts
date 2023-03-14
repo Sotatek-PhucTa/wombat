@@ -91,8 +91,8 @@ describe('MegaPool', function () {
     await pool.connect(owner).addAsset(token2.address, asset2.address)
     await pool.connect(owner).addAsset(token3.address, asset3.address)
 
-    await pool.connect(owner).setCrossChainHaircut(parseEther('0.004'))
-    await pool.setMaximumNetMintedCredit(parseEther('100000'))
+    await pool.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
+    await pool.setMaximumOutboundCredit(parseEther('100000'))
     await pool.setSwapTokensForCreditEnabled(true)
     await pool.setSwapCreditForTokensEnabled(true)
     await mockAdaptor.approveToken(0, AddressZero)
@@ -153,7 +153,7 @@ describe('MegaPool', function () {
 
     it('swapCreditForTokens - POOL__CREDIT_NOT_ENOUGH', async function () {
       await mockAdaptor.connect(user1).faucetCredit(parseEther('99.998023754471257485'))
-      await pool.setMaximumNetBurnedCredit(parseEther('200'))
+      await pool.setMaximumInboundCredit(parseEther('200'))
 
       // verify the return value
       await expect(
@@ -203,6 +203,114 @@ describe('MegaPool', function () {
       ).to.be.ok
     })
 
+    it('swapTokensForTokensCrossChain - tokensForCreditHaircut', async function () {
+      // Transfer 100k of stables to user1
+      await token0.connect(owner).transfer(user1.address, parseEther('100000'))
+      // Approve max allowance of tokens from users to pool
+      await token0.connect(user1).approve(pool.address, ethers.constants.MaxUint256)
+      await pool.connect(user1).deposit(token0.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+
+      await pool.setCrossChainHaircut(parseEther('0.004'), parseEther('0.004'))
+      await pool.setFeeTo(owner.address)
+      await pool.setFee(0, 0)
+
+      // verify the return value
+      const result = await pool
+        .connect(user1)
+        .callStatic.swapTokensForTokensCrossChain(
+          token0.address,
+          AddressZero,
+          0,
+          parseEther('100'),
+          parseEther('99'),
+          parseEther('99'),
+          user1.address,
+          0
+        )
+      expect(result.creditAmount).to.eq(parseEther('99.598039455170219560'))
+      expect(result.feeInFromToken).to.eq(parseEther('0.4'))
+
+      // verify quote function
+      const quoteResult = await pool.quoteSwapTokensForCredit(token0.address, parseEther('100'))
+      expect(quoteResult.creditAmount).to.be.equal(result.creditAmount)
+      expect(quoteResult.feeInFromToken).to.be.equal(result.feeInFromToken)
+
+      const balanceBefore = (await token0.balanceOf(user1.address)) as BigNumber
+      const receipt = await pool
+        .connect(user1)
+        .swapTokensForTokensCrossChain(
+          token0.address,
+          AddressZero,
+          0,
+          parseEther('100'),
+          parseEther('99'),
+          parseEther('99'),
+          user1.address,
+          0
+        )
+
+      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      expect(await pool.totalCreditMinted()).to.eq(result.creditAmount)
+
+      expect(await pool.mintFee(token0.address)).to.changeTokenBalance(token0, owner.address, parseEther('0.4'))
+
+      const balanceAfter = (await token0.balanceOf(user1.address)) as BigNumber
+      expect(balanceBefore.sub(balanceAfter)).eq(parseEther('100'))
+
+      expect((await pool.globalEquilCovRatioWithCredit()).equilCovRatio).to.eq(parseEther('1'))
+    })
+
+    it('swapTokensForTokensCrossChain - tokensForCreditHaircut w/ high cov ratio fee', async function () {
+      // Transfer 100k of stables to user1
+      await token0.connect(owner).transfer(user1.address, parseEther('100000'))
+      // Approve max allowance of tokens from users to pool
+      await token0.connect(user1).approve(pool.address, ethers.constants.MaxUint256)
+      await pool.connect(user1).deposit(token0.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+
+      await pool.setCrossChainHaircut(parseEther('0.004'), parseEther('0.004'))
+      await pool.setFeeTo(owner.address)
+      await pool.setFee(0, 0)
+      await pool.setCovRatioFeeParam(parseEther('1'), parseEther('1.5'))
+      // verify the return value
+      const result = await pool
+        .connect(user1)
+        .callStatic.swapTokensForTokensCrossChain(
+          token0.address,
+          AddressZero,
+          0,
+          parseEther('5000'),
+          0,
+          0,
+          user1.address,
+          0
+        )
+      expect(result.creditAmount).to.eq(parseEther('2489.009171408983473053'))
+      expect(result.feeInFromToken).to.eq(parseEther('2510.000000000000000000')) // about 50.2% fee
+
+      // verify quote function
+      const quoteResult = await pool.quoteSwapTokensForCredit(token0.address, parseEther('5000'))
+      expect(quoteResult.creditAmount).to.be.equal(result.creditAmount)
+      expect(quoteResult.feeInFromToken).to.be.equal(result.feeInFromToken)
+
+      const balanceBefore = (await token0.balanceOf(user1.address)) as BigNumber
+      const receipt = await pool
+        .connect(user1)
+        .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, parseEther('5000'), 0, 0, user1.address, 0)
+
+      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      expect(await pool.totalCreditMinted()).to.eq(result.creditAmount)
+
+      const feeTokenBefore = await token0.balanceOf(owner.address)
+      await pool.mintFee(token0.address)
+      const feeTokenAfter = await token0.balanceOf(owner.address)
+      expect(feeTokenAfter.sub(feeTokenBefore)).to.be.equal(parseEther('2510'))
+
+      const balanceAfter = (await token0.balanceOf(user1.address)) as BigNumber
+      expect(balanceBefore.sub(balanceAfter)).eq(parseEther('5000'))
+
+      expect((await pool.globalEquilCovRatioWithCredit()).equilCovRatio).to.eq(parseEther('1'))
+    })
+
     it('swapTokensForTokensCrossChain - respect minimumCreditAmount', async function () {
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000'))
@@ -227,7 +335,7 @@ describe('MegaPool', function () {
     })
 
     it('swapTokensForTokensCrossChain - POOL__REACH_MAXIMUM_MINTED_CREDIT', async function () {
-      await pool.setMaximumNetMintedCredit(0)
+      await pool.setMaximumOutboundCredit(0)
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000'))
       // Approve max allowance of tokens from users to pool
@@ -282,7 +390,7 @@ describe('MegaPool', function () {
           user1.address,
           0
         )
-      await pool.setMaximumNetBurnedCredit(parseEther('1'))
+      await pool.setMaximumInboundCredit(parseEther('1'))
       await mockAdaptor.connect(user1).faucetCredit(parseEther('200'))
 
       // verify the return value
@@ -335,7 +443,7 @@ describe('MegaPool', function () {
           user1.address,
           0
         )
-      await pool.setMaximumNetBurnedCredit(parseEther('1'))
+      await pool.setMaximumInboundCredit(parseEther('1'))
       await mockAdaptor.connect(user1).faucetCredit(parseEther('200'))
       await pool.setAdaptorAddr(user1.address)
 
@@ -433,6 +541,7 @@ describe('MegaPool', function () {
           0
         )
       expect(result.creditAmount).to.eq(parseEther('99.998023754471257485'))
+      expect(result.feeInFromToken).to.eq(parseEther('0'))
 
       // verify quote function
       expect((await pool.quoteSwapTokensForCredit(token0.address, parseEther('100'))).creditAmount).to.be.equal(
@@ -554,7 +663,7 @@ describe('MegaPool', function () {
           user1.address,
           0
         )
-      expect(result.creditAmount).to.eq(parseEther('1496.456497309539826813'))
+      expect(result.creditAmount).to.eq(parseEther('1496.551127801305489021'))
 
       // verify quote function
       expect((await pool.quoteSwapTokensForCredit(token0.address, parseEther('2900'))).creditAmount).to.be.equal(
@@ -580,13 +689,10 @@ describe('MegaPool', function () {
       await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
 
       const creditAfter = (await pool.totalCreditMinted()) as BigNumber
-      expect(creditAfter.sub(creditBefore)).to.eq(parseEther('2896.367414147496437125'))
+      expect(creditAfter.sub(creditBefore)).to.eq(result.creditAmount)
 
       const balanceAfter = (await token0.balanceOf(user1.address)) as BigNumber
       expect(balanceBefore.sub(balanceAfter)).eq(parseEther('2900'))
-
-      // verify high cov ratio fee (`creditBalance`) should be minted to `feeTo`
-      expect(await pool.creditBalance(owner.address)).to.be.equal(parseEther('1399.910916837956610312'))
     })
 
     it.skip('swapCreditForTokensCrossChain', async function () {
@@ -746,7 +852,7 @@ describe('MegaPool', function () {
           user1.address,
           0
         )
-      expect(result.creditAmount).to.eq(parseEther('1496.456497309539826813'))
+      expect(result.creditAmount).to.eq(parseEther('1496.551127801305489021'))
 
       // verify quote function
       expect((await pool.quoteSwapTokensForCredit(token1.address, parseUnits('2900', 6))).creditAmount).to.be.equal(
@@ -772,13 +878,10 @@ describe('MegaPool', function () {
       await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
 
       const creditAfter = (await pool.totalCreditMinted()) as BigNumber
-      expect(creditAfter.sub(creditBefore)).to.eq(parseEther('2896.367414147496437125'))
+      expect(creditAfter.sub(creditBefore)).to.eq(result.creditAmount)
 
       const balanceAfter = (await token1.balanceOf(user1.address)) as BigNumber
       expect(balanceBefore.sub(balanceAfter)).eq(parseUnits('2900', 6))
-
-      // verify high cov ratio fee (`creditBalance`) should be minted to `feeTo`
-      expect(await pool.creditBalance(owner.address)).to.be.equal(parseEther('1399.910916837956610312'))
     })
 
     it.skip('swapCreditForTokensCrossChain', async function () {

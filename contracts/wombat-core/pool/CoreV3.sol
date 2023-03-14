@@ -191,45 +191,56 @@ library CoreV3 {
         } else {
             // exact output swap quote count haircut in the fromAmount
             actualToAmount = idealToAmount;
-            haircut = (uint256(-fromAmount)).wmul(haircutRate);
+            haircut = uint256(-fromAmount).wmul(haircutRate);
         }
     }
 
+    /// @dev reverse quote is not supported
+    /// haircut is calculated in the fromToken when swapping tokens for credit
     function quoteSwapTokensForCredit(
         IAsset fromAsset,
         uint256 fromAmount,
         uint256 ampFactor,
         uint256 scaleFactor,
+        uint256 haircutRate,
         uint256 startCovRatio,
         uint256 endCovRatio
-    ) public view returns (uint256 creditAmount, uint256 haircut) {
+    ) public view returns (uint256 creditAmount, uint256 feeInFromToken) {
+        if (fromAmount == 0) return (0, 0);
+        // haircut
+        feeInFromToken = fromAmount.wmul((haircutRate));
+
+        // high coverage ratio fee
+
         uint256 fromCash = fromAsset.cash();
         uint256 fromLiability = fromAsset.liability();
+        feeInFromToken += highCovRatioFee(
+            fromCash,
+            fromLiability,
+            fromAmount,
+            fromAmount - feeInFromToken, // calculate haircut in the fromAmount (exclude haircut)
+            startCovRatio,
+            endCovRatio
+        );
+
+        fromAmount -= feeInFromToken;
 
         if (scaleFactor != WAD) {
             // apply scale factor on from-amounts
             fromCash = (fromCash * scaleFactor) / 1e18;
             fromLiability = (fromLiability * scaleFactor) / 1e18;
-            fromAmount = (fromAmount * (scaleFactor)) / 1e18;
+            fromAmount = (fromAmount * scaleFactor) / 1e18;
         }
 
-        creditAmount = swapToCreditQuote(int256(fromCash), int256(fromLiability), int256(fromAmount), int256(ampFactor))
-            .toUint256();
-
-        uint256 fee = highCovRatioFee(
-            fromAsset.cash(),
-            fromAsset.liability(),
-            fromAmount,
-            creditAmount,
-            startCovRatio,
-            endCovRatio
+        creditAmount = swapToCreditQuote(
+            int256(fromCash),
+            int256(fromLiability),
+            int256(fromAmount),
+            int256(ampFactor)
         );
-        if (fee > 0) {
-            creditAmount -= fee;
-            haircut += fee;
-        }
     }
 
+    /// @dev reverse quote is not supported
     function quoteSwapCreditForTokens(
         uint256 fromAmount,
         IAsset toAsset,
@@ -237,6 +248,7 @@ library CoreV3 {
         uint256 scaleFactor,
         uint256 haircutRate
     ) public view returns (uint256 actualToAmount, uint256 haircut) {
+        if (fromAmount == 0) return (0, 0);
         uint256 toCash = toAsset.cash();
         uint256 toLiability = toAsset.liability();
 
@@ -250,20 +262,14 @@ library CoreV3 {
             int256(toLiability),
             int256(fromAmount),
             int256(ampFactor)
-        ).toUint256();
+        );
         if (fromAmount > 0 && toCash < idealToAmount) {
             revert CORE_CASH_NOT_ENOUGH();
         }
 
-        if (fromAmount > 0) {
-            // normal quote
-            haircut = idealToAmount.wmul(haircutRate);
-            actualToAmount = idealToAmount - haircut;
-        } else {
-            // exact output swap quote count haircut in the fromAmount
-            actualToAmount = idealToAmount;
-            haircut = fromAmount.wmul(haircutRate);
-        }
+        // normal quote
+        haircut = idealToAmount.wmul(haircutRate);
+        actualToAmount = idealToAmount - haircut;
     }
 
     function equilCovRatio(int256 D, int256 SL, int256 A) public pure returns (int256 er) {
@@ -303,11 +309,7 @@ library CoreV3 {
         int256 b = (Lx * (rx_ - A.wdiv(rx_))) / Ly - D.wdiv(Ly); // flattened _coefficientFunc
         int256 ry_ = _solveQuad(b, A);
         int256 Dy = Ly.wmul(ry_) - Ay;
-        if (Dy < 0) {
-            quote = uint256(-Dy);
-        } else {
-            quote = uint256(Dy);
-        }
+        return Dy.abs();
     }
 
     /**
@@ -377,29 +379,37 @@ library CoreV3 {
         return (-b + l.sqrt(b)).wdiv(A) / 2;
     }
 
-    function swapToCreditQuote(int256 Ax, int256 Lx, int256 Dx, int256 A) public pure returns (int256 quote) {
+    /**
+     * @notice quote swapping from tokens for credit
+     * @dev This function always returns >= 0
+     */
+    function swapToCreditQuote(int256 Ax, int256 Lx, int256 Dx, int256 A) public pure returns (uint256 quote) {
         int256 rx = Ax.wdiv(Lx);
         int256 rx_ = (Ax + Dx).wdiv(Lx);
         int256 x = rx_ - A.wdiv(rx_);
         int256 y = rx - A.wdiv(rx);
 
-        // return Lx.wmul(x - y);
-        return (Lx * (x - y)) / (WAD_I + A);
+        // adjsut credit by 1 / (1 + A)
+        return ((Lx * (x - y)) / (WAD_I + A)).abs();
     }
 
+    /**
+     * @notice quote swapping from credit for tokens
+     * @dev This function always returns >= 0
+     */
     function swapFromCreditQuote(
         int256 Ax,
         int256 Lx,
         int256 delta_credit,
         int256 A
-    ) public pure returns (int256 quote) {
+    ) public pure returns (uint256 quote) {
         int256 rx = Ax.wdiv(Lx);
-        // int256 b = delta_credit.wdiv(Lx) - rx + A.wdiv(rx); // flattened _coefficientFunc
+        // adjsut credit by 1 + A
         int256 b = (delta_credit * (WAD_I + A)) / Lx - rx + A.wdiv(rx); // flattened _coefficientFunc
         int256 rx_ = _solveQuad(b, A);
         int256 Dx = Ax - Lx.wmul(rx_);
 
-        return Dx;
+        return Dx.abs();
     }
 
     function highCovRatioFee(

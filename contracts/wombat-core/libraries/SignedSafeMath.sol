@@ -80,4 +80,12 @@ library SignedSafeMath {
         require(value >= 0, 'value must be positive');
         return uint256(value);
     }
+
+    function abs(int256 value) internal pure returns (uint256) {
+        if (value < 0) {
+            return uint256(-value);
+        } else {
+            return uint256(value);
+        }
+    }
 }

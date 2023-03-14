@@ -66,8 +66,10 @@ describe('FakeMegaPool', function () {
       })
 
       it.skip('satisfies invariant', async function () {
-        // Expected "99999920159742" to be equal 0
-        // toAmount: Expected "999899201677255258" to be greater than 999999201597410000
+        // toAmount
+        // + expected - actual
+        // -999899201677255258
+        // +999899201677250260
         await assertInvariant(owner, usdc, usdt, parseEther('1'))
       })
     })
@@ -122,9 +124,11 @@ describe('FakeMegaPool', function () {
       libraries: { CoreV3: coreV3.address },
     })
     await pool.initialize(parseEther('0.002'), parseEther('0.0001'))
+    await pool.setCrossChainHaircut(0, parseEther('0.0001'))
     await pool.setSwapTokensForCreditEnabled(true)
     await pool.setSwapCreditForTokensEnabled(true)
-    await pool.setMaximumNetMintedCredit(MaxUint128)
+    await pool.setMaximumOutboundCredit(MaxUint128)
+    await pool.setMaximumOutboundCredit(MaxUint128)
     return pool
   }
 })

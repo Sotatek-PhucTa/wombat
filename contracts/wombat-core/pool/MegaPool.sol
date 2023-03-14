@@ -22,17 +22,18 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
      */
 
     IAdaptor public adaptor;
-    bool internal swapCreditForTokensEnabled;
-    bool internal swapTokensForCreditEnabled;
+    bool public swapCreditForTokensEnabled;
+    bool public swapTokensForCreditEnabled;
 
-    uint64 public crossChainHaircut;
+    uint128 public creditForTokensHaircut;
+    uint128 public tokensForCreditHaircut;
 
     uint128 public totalCreditMinted;
     uint128 public totalCreditBurned;
 
     /// @notice the maximum allowed amount of net mint credit. `totalCreditMinted - totalCreditBurned` should be smaller than this value
-    uint128 public maximumNetMintedCredit;
-    uint128 public maximumNetBurnedCredit;
+    uint128 public maximumOutboundCredit; // Upper limit of net minted credit
+    uint128 public maximumInboundCredit; // Upper limit of net burned credit
 
     mapping(address => uint256) public creditBalance;
 
@@ -106,7 +107,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         override
         nonReentrant
         whenNotPaused
-        returns (uint256 creditAmount, uint256 haircut, uint256 trackingId)
+        returns (uint256 creditAmount, uint256 feeInFromToken, uint256 trackingId)
     {
         // Assumption: the adaptor should check `toChain` and `toToken`
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
@@ -116,7 +117,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         IAsset fromAsset = _assetOf(fromToken);
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
 
-        (creditAmount, haircut) = _swapTokensForCredit(
+        (creditAmount, feeInFromToken) = _swapTokensForCredit(
             fromAsset,
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
             minimumCreditAmount
@@ -182,28 +183,29 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         IAsset fromAsset,
         uint256 fromAmount,
         uint256 minimumCreditAmount
-    ) internal returns (uint256 creditAmount, uint256 haircut) {
+    ) internal returns (uint256 creditAmount, uint256 feeInFromToken) {
         // Assume credit has 18 decimals
         if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
         // TODO: implement _quoteFactor for credit
         // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
-        (creditAmount, haircut) = CoreV3.quoteSwapTokensForCredit(
+        (creditAmount, feeInFromToken) = CoreV3.quoteSwapTokensForCredit(
             fromAsset,
             fromAmount,
             ampFactor,
             WAD,
+            tokensForCreditHaircut,
             startCovRatio,
             endCovRatio
         );
 
         _checkAmount(minimumCreditAmount, creditAmount);
 
-        creditBalance[feeTo] += haircut;
-        fromAsset.addCash(fromAmount);
-        totalCreditMinted += _to128(creditAmount + haircut);
+        fromAsset.addCash(fromAmount - feeInFromToken);
+        totalCreditMinted += _to128(creditAmount);
+        _feeCollected[fromAsset] += feeInFromToken; // unlike other swaps, fee is collected in from token
 
         // Check it doesn't exceed maximum out-going credits
-        if (totalCreditMinted > maximumNetMintedCredit + totalCreditBurned) revert POOL__REACH_MAXIMUM_MINTED_CREDIT();
+        if (totalCreditMinted > maximumOutboundCredit + totalCreditBurned) revert POOL__REACH_MAXIMUM_MINTED_CREDIT();
     }
 
     function _beforeSwapCreditForTokens(uint256 fromAmount, address receiver) internal {
@@ -235,7 +237,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         totalCreditBurned += _to128(fromCreditAmount);
 
         // Check it doesn't exceed maximum in-coming credits
-        if (totalCreditBurned > maximumNetBurnedCredit + totalCreditMinted) revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
+        if (totalCreditBurned > maximumInboundCredit + totalCreditMinted) revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
 
         emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, receiver, trackingId);
     }
@@ -248,11 +250,11 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
         // TODO: implement _quoteFactor for credit
         (actualToAmount, haircut) = CoreV3.quoteSwapCreditForTokens(
-            (fromCreditAmount),
+            fromCreditAmount,
             toAsset,
             ampFactor,
             WAD,
-            crossChainHaircut
+            creditForTokensHaircut
         );
 
         _checkAmount(minimumToAmount, actualToAmount);
@@ -281,38 +283,39 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
             toAsset,
             ampFactor,
             WAD,
-            crossChainHaircut
+            creditForTokensHaircut
         );
 
         uint8 toDecimal = toAsset.underlyingTokenDecimals();
         amount = actualToAmount.fromWad(toDecimal);
 
         // Check it doesn't exceed maximum in-coming credits
-        if (totalCreditBurned + fromCreditAmount > maximumNetBurnedCredit + totalCreditMinted)
+        if (totalCreditBurned + fromCreditAmount > maximumInboundCredit + totalCreditMinted)
             revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
     }
 
     function quoteSwapTokensForCredit(
         address fromToken,
         uint256 fromAmount
-    ) external view returns (uint256 creditAmount, uint256 haircut) {
+    ) external view returns (uint256 creditAmount, uint256 feeInFromToken) {
         IAsset fromAsset = _assetOf(fromToken);
 
         // Assume credit has 18 decimals
         if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
         // TODO: implement _quoteFactor for credit
         // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
-        (creditAmount, haircut) = CoreV3.quoteSwapTokensForCredit(
+        (creditAmount, feeInFromToken) = CoreV3.quoteSwapTokensForCredit(
             fromAsset,
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
             ampFactor,
             WAD,
+            tokensForCreditHaircut,
             startCovRatio,
             endCovRatio
         );
 
         // Check it doesn't exceed maximum out-going credits
-        if (totalCreditMinted + creditAmount + haircut > maximumNetMintedCredit + totalCreditBurned)
+        if (totalCreditMinted + creditAmount > maximumOutboundCredit + totalCreditBurned)
             revert POOL__REACH_MAXIMUM_MINTED_CREDIT();
     }
 
@@ -373,20 +376,21 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
         swapCreditForTokensEnabled = enable;
     }
 
-    function setMaximumNetMintedCredit(uint128 _maximumNetMintedCredit) external onlyOwner {
-        maximumNetMintedCredit = _maximumNetMintedCredit;
+    function setMaximumOutboundCredit(uint128 _maximumOutboundCredit) external onlyOwner {
+        maximumOutboundCredit = _maximumOutboundCredit;
     }
 
-    function setMaximumNetBurnedCredit(uint128 _maximumNetBurnedCredit) external onlyOwner {
-        maximumNetBurnedCredit = _maximumNetBurnedCredit;
+    function setMaximumInboundCredit(uint128 _maximumInboundCredit) external onlyOwner {
+        maximumInboundCredit = _maximumInboundCredit;
     }
 
     function setAdaptorAddr(IAdaptor _adaptor) external onlyOwner {
         adaptor = _adaptor;
     }
 
-    function setCrossChainHaircut(uint64 _crossChainHaircut) external onlyOwner {
-        require(_crossChainHaircut < 1e18);
-        crossChainHaircut = _crossChainHaircut;
+    function setCrossChainHaircut(uint128 _tokensForCreditHaircut, uint128 _creditForTokensHaircut) external onlyOwner {
+        require(_creditForTokensHaircut < 1e18 && _tokensForCreditHaircut < 1e18);
+        creditForTokensHaircut = _creditForTokensHaircut;
+        tokensForCreditHaircut = _tokensForCreditHaircut;
     }
 }

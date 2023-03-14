@@ -22,6 +22,7 @@ import '../interfaces/IPool.sol';
  * Change log:
  * - V2: Add `gap` to prevent storage collision for future upgrades
  * - V3: Contract size compression
+ * -     `mintFee` ignores `mintFeeThreshold`
  */
 contract PoolV3 is
     Initializable,
@@ -340,9 +341,7 @@ contract PoolV3 is
     function fillPool(address token, uint256 amount) external {
         _onlyDev();
         IAsset asset = _assetOf(token);
-        uint256 tipBucketBal = asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
-            asset.cash() -
-            _feeCollected[asset];
+        uint256 tipBucketBal = tipBucketBalance(token);
 
         if (amount > tipBucketBal) {
             // revert if there's not enough amount in the tip bucket
@@ -901,6 +900,7 @@ contract PoolV3 is
                 asset.addCash(lpDividend);
             }
         }
+        // remainings are sent to the tipbucket
 
         _feeCollected[asset] = 0;
     }
