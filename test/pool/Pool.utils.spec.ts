@@ -269,13 +269,30 @@ describe('Pool - Utils', function () {
       await poolContract
         .connect(user)
         .swap(token0.address, token1.address, parseEther('50'), parseUnits('45', 8), user.address, fiveSecondsSince)
-
       await poolContract.mintFee(token1.address)
 
       const cashBeforeChange = await asset1.cash()
       await poolContract.connect(owner).fillPool(token1.address, 4e15)
       const cashAfterChange = await asset1.cash()
       expect(cashAfterChange.sub(cashBeforeChange)).to.equal(4e15)
+    })
+
+    it('mint fee return value', async function () {
+      const fiveSecondsSince = (await latest()).add(5)
+
+      await poolContract
+        .connect(user)
+        .deposit(token0.address, parseEther('100'), 0, user.address, fiveSecondsSince, false)
+      await poolContract
+        .connect(user)
+        .deposit(token1.address, parseUnits('100', 8), 0, user.address, fiveSecondsSince, false)
+
+      await poolContract
+        .connect(user)
+        .swap(token0.address, token1.address, parseEther('50'), parseUnits('45', 8), user.address, fiveSecondsSince)
+
+      const feeToMint = await poolContract.callStatic.mintFee(token1.address)
+      expect(feeToMint).to.eq(parseEther('0.004719743051288433'))
     })
   })
 })

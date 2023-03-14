@@ -876,11 +876,11 @@ contract PoolV3 is
      * @notice Private function to send fee collected to the fee beneficiary
      * @param asset The address of the asset to collect fee
      */
-    function _mintFee(IAsset asset) internal {
-        uint256 feeCollected = _feeCollected[asset];
+    function _mintFee(IAsset asset) internal returns (uint256 feeCollected) {
+        feeCollected = _feeCollected[asset];
         if (feeCollected == 0) {
             // early return
-            return;
+            return 0;
         }
         {
             // dividend to veWOM
@@ -916,7 +916,7 @@ contract PoolV3 is
      * @notice Send fee collected to the fee beneficiary
      * @param token The address of the token to collect fee
      */
-    function mintFee(address token) external {
-        _mintFee(_assetOf(token));
+    function mintFee(address token) external returns (uint256 feeCollected) {
+        return _mintFee(_assetOf(token));
     }
 }
