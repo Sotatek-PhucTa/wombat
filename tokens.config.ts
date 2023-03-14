@@ -323,6 +323,13 @@ export const FRXETH_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
       '', // exchange rate oracle
       'DynamicAsset',
     ],
+    ETH: [
+      'Binance-Peg Ethereum Token',
+      'ETH',
+      '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+      '', //
+      'DynamicAsset',
+    ],
   },
   bsc_testnet: {},
 })
@@ -389,6 +396,11 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = injectFork
     StkBnbPool_WBNB: {
       ...defaultRewarder(),
       lpToken: '0x6C7B407411b3DB90DfA25DA4aA66605438D378CE',
+      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+    },
+    frxETH_Pool_ETH: {
+      ...defaultRewarder(),
+      lpToken: '0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E',
       rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
     },
   },
@@ -554,6 +566,11 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = injectForkNet
     frxETHPool_WETH: {
       ...defaultRewarder(),
       lpToken: '0xb268c3181921747379271B9BFfCE8B16311656e3',
+      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
+    },
+    frxETH_Pool_ETH: {
+      ...defaultRewarder(),
+      lpToken: '0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E',
       rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
     },
     frax: {
