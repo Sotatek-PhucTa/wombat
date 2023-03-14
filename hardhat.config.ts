@@ -143,6 +143,7 @@ const config: HardhatUserConfig = {
     deployer: {
       default: 0, // use default for hardhat and localhost
       bsc_testnet: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      avax_testnet: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       bsc_mainnet: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
       [Network.ARBITRUM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
     },

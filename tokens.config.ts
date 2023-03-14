@@ -73,6 +73,10 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
     DAI: ['Dai Stablecoin', 'DAI', '18', 0, 240],
     vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
   },
+  [Network.AVALANCHE_TESTNET]: {
+    BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
+    vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
+  },
   localhost: {
     BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
     USDC: ['USD Coin', 'USDC', '18', 0, 240],
@@ -581,11 +585,19 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = injectForkNet
 
 export const WORMHOLE_MAPS: ITokens<{ relayer: string; wormholeBridge: string }> = injectForkNetwork({
   bsc_testnet: {
-    relayer: '0xaC9EF19ab4F9a3a265809df0C4eB1E821f43391A',
+    relayer: '0xda2592C43f2e10cBBA101464326fb132eFD8cB09',
     wormholeBridge: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
   },
-  fuji: {
-    relayer: '0x9Dfd308e2450b26290d926Beea2Bb4F0B8553729',
+  [Network.AVALANCHE_TESTNET]: {
+    relayer: '0xDDe6b89B7d0AD383FafDe6477f0d300eC4d4033e',
     wormholeBridge: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
+  },
+  [Network.LOCALHOST]: {
+    relayer: '0x0000000000000000000000000000000000000000',
+    wormholeBridge: '0x0000000000000000000000000000000000000000',
+  },
+  [Network.HARDHAT]: {
+    relayer: '0x0000000000000000000000000000000000000000',
+    wormholeBridge: '0x0000000000000000000000000000000000000000',
   },
 })

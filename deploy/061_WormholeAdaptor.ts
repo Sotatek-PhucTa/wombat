@@ -12,7 +12,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments as DeploymentsExtension
   const { deployer, multisig } = await getNamedAccounts()
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   deployments.log(`Step 061. Deploying on : ${hre.network.name}...`)
 
@@ -51,8 +50,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
     // Check setup config values
 
-    // TODO:
-    // await adaptor.approveContract(...)
+    // Manually set up as addresses are available in other networks:
     // await adaptor.approveToken(...)
     // await adaptor.setAdaptorAddress(...)
 
@@ -67,5 +65,7 @@ export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.dependencies = ['MegaPool']
 deployFunc.skip = (hre: HardhatRuntimeEnvironment) => {
-  return ![Network.BSC_TESTNET, Network.AVALANCHE_TESTNET].includes(hre.network.name)
+  return ![Network.BSC_TESTNET, Network.AVALANCHE_TESTNET, Network.LOCALHOST, Network.HARDHAT].includes(
+    hre.network.name as Network
+  )
 }

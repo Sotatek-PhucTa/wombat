@@ -89,6 +89,7 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
      * 2. Notify relayer to bridge credit to the `toChain`;
      * 3. Relayer invoke `completeSwapCreditForTokens` to swap credit for `toToken` in the `toChain`
      * Note: haircut returned here is just high cov ratio fee.
+     * Delivery fee attached to the txn should be done off-chain via `WormholeAdaptor.estimateDeliveryFee` to reduce gas cost
      */
     function swapTokensForTokensCrossChain(
         address fromToken,
@@ -149,7 +150,8 @@ contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
 
     /**
      * @notice Bridge credit and swap it for `toToken` in the `toChain`
-     * Nonce must be non-zero, otherwise wormhole will revert the message
+     * @dev Nonce must be non-zero, otherwise wormhole will revert the message
+     * Delivery fee attached to the txn should be done off-chain via `WormholeAdaptor.estimateDeliveryFee` to reduce gas cost
      */
     function swapCreditForTokensCrossChain(
         address toToken,

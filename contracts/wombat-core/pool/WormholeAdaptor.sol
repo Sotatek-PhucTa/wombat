@@ -2,7 +2,7 @@
 pragma solidity ^0.8.5;
 
 import '../libraries/Adaptor.sol';
-import '../interfaces/ICoreRelayer.sol';
+import '../interfaces/IWormholeRelayer.sol';
 import '../interfaces/IWormhole.sol';
 
 // Relayer testnet deployments: https://book.wormhole.com/reference/contracts.html#relayer-contracts
@@ -17,7 +17,7 @@ contract WormholeAdaptor is Adaptor {
         address receiver;
     }
 
-    ICoreRelayer public relayer;
+    IWormholeRelayer public relayer;
     IWormhole public wormhole;
 
     /// @dev wormhole chainId => adaptor address
@@ -28,7 +28,11 @@ contract WormholeAdaptor is Adaptor {
 
     error ADAPTOR__MESSAGE_ALREADY_DELIVERED(bytes32 _hash);
 
-    function initialize(ICoreRelayer _relayer, IWormhole _wormhole, IMegaPool _megaPool) public virtual initializer {
+    function initialize(
+        IWormholeRelayer _relayer,
+        IWormhole _wormhole,
+        IMegaPool _megaPool
+    ) public virtual initializer {
         relayer = _relayer;
         wormhole = _wormhole;
 
@@ -40,35 +44,30 @@ contract WormholeAdaptor is Adaptor {
      */
 
     /**
-     * @notice A convinience function for redeliver
+     * @notice A convinience function to redeliver
      * @dev Redeliver could actually be invoked permisionless on any of the chain that wormhole supports
+     * Delivery fee attached to the txn should be done off-chain via `WormholeAdaptor.estimateRedeliveryFee` to reduce gas cost
      */
-    function requestRedeliver(
+    function requestResend(
         uint16 sourceChain,
         bytes32 sourceTxHash,
         uint32 sourceNonce,
         uint16 targetChain
     ) external payable {
-        // const redeliveryBudget = relayer.quoteGasReeliveryFee(
-        //     TARGET_CHAIN,
-        //     gasLimit,
-        //     relayer.getDefaultRelayProvider()
-        // );
+        IWormholeRelayer.ResendByTx memory redeliveryRequest = IWormholeRelayer.ResendByTx({
+            sourceChain: sourceChain,
+            sourceTxHash: sourceTxHash,
+            sourceNonce: sourceNonce,
+            targetChain: targetChain,
+            deliveryIndex: uint8(1), // TODO: what is this?
+            multisendIndex: uint8(0),
+            newMaxTransactionFee: msg.value,
+            newReceiverValue: 0,
+            newRelayParameters: relayer.getDefaultRelayParams()
+        });
 
-        // const applicationBudget = relayer.quoteApplicationBudgetFee(targetChain, 0, relayer.getDefaultRelayProvider());
-
-        ICoreRelayer.RedeliveryByTxHashRequest memory redeliveryRequest = ICoreRelayer.RedeliveryByTxHashRequest(
-            sourceChain,
-            sourceTxHash,
-            sourceNonce,
-            targetChain,
-            msg.value - wormhole.messageFee(),
-            0,
-            relayer.getDefaultRelayParams()
-        );
-
-        // computeBudget + applicationBudget + wormholeFee should equal the msg.value
-        relayer.requestRedelivery{value: msg.value}(redeliveryRequest, sourceNonce, relayer.getDefaultRelayProvider());
+        // `maxTransactionFee` should equal to `value`
+        relayer.resend{value: msg.value}(redeliveryRequest, relayer.getDefaultRelayProvider());
     }
 
     /**
@@ -145,7 +144,7 @@ contract WormholeAdaptor is Adaptor {
             200 // consistencyLevel. TODO: confirm the value
         );
 
-        // Gas estimation is done off-chain via `estimateGasDeliveryFee` to reduce gas cost
+        // Delivery fee attached to the txn is done off-chain via `estimateDeliveryFee` to reduce gas cost
         // Unused `computeBudget` is sent to the `refundAddress` (`receiver`).
         // Ref: https://book.wormhole.com/technical/evm/relayer.html#compute-budget-and-refunds
 
@@ -161,21 +160,17 @@ contract WormholeAdaptor is Adaptor {
         // );
 
         require(toChain <= type(uint16).max);
-        ICoreRelayer.DeliveryRequest memory request = ICoreRelayer.DeliveryRequest(
-            uint16(toChain), // targetChain
-            _ethAddrToWormholeAddr(adaptorAddress[uint16(toChain)]), // targetAddress
-            _ethAddrToWormholeAddr(receiver), // refundAddress
-            msg.value - 2 * wormhole.messageFee(), // computeBudget - should be calculate from `quoteEvmDeliveryPrice`
-            0, // applicationBudget - convert to native currency at the target chain
-            relayer.getDefaultRelayParams() // relayParameters
-        );
 
-        // computeBudget + applicationBudget + wormholeFee should equal the msg.value
-        relayer.requestDelivery{value: msg.value - wormhole.messageFee()}(
-            request,
-            nonce,
-            relayer.getDefaultRelayProvider()
-        );
+        IWormholeRelayer.Send memory request = IWormholeRelayer.Send({
+            targetChain: uint16(toChain),
+            targetAddress: relayer.toWormholeFormat(adaptorAddress[uint16(toChain)]),
+            refundAddress: relayer.toWormholeFormat(receiver), // This will be ignored on the target chain if the intent is to perform a forward
+            maxTransactionFee: msg.value - 2 * wormhole.messageFee(),
+            receiverValue: 0,
+            relayParameters: relayer.getDefaultRelayParams()
+        });
+        // `maxTransactionFee + receiverValue + wormholeFee` should equal to `value`
+        relayer.send{value: msg.value - wormhole.messageFee()}(request, nonce, relayer.getDefaultRelayProvider());
     }
 
     /**
@@ -183,36 +178,30 @@ contract WormholeAdaptor is Adaptor {
      */
 
     /**
-     * @notice Estimate the amount of message value required to deliver a message with given `gasLimit` and `targetAmount`
+     * @notice Estimate the amount of message value required to deliver a message with given `gasLimit` and `receiveValue`
      * A buffer should be added to `gasLimit` in case the amount of gas required is higher than the expectation
      * @param toChain wormhole chain ID
      * @param gasLimit gas limit of the callback function on the designated network
-     * @param targetAmount target amount of gas token to receive
+     * @param receiveValue target amount of gas token to receive
      * @dev TODO: Add a mock relayer to test this function
      */
-    function estimateGasDeliveryFee(
+    function estimateDeliveryFee(
         uint16 toChain,
         uint32 gasLimit,
-        uint256 targetAmount
+        uint256 receiveValue
     ) external view returns (uint256 deliveryFee) {
-        IRelayProvider provider = relayer.getDefaultRelayProvider();
+        address provider = relayer.getDefaultRelayProvider();
 
-        // One `wormhole.messageFee()` is included in `quoteGasDeliveryFee`
+        // One `wormhole.messageFee()` is included in `quoteGas`
         return
-            (relayer.quoteGasDeliveryFee(toChain, gasLimit, provider) + wormhole.messageFee()) +
-            relayer.quoteApplicationBudgetFee(toChain, targetAmount, provider);
+            (relayer.quoteGas(toChain, gasLimit, provider) + wormhole.messageFee()) +
+            relayer.quoteReceiverValue(toChain, receiveValue, provider);
     }
 
-    function estimateRedeliveryFee(
-        uint16 toChain,
-        uint32 gasLimit,
-        uint256 targetAmount
-    ) external view returns (uint256 redeliveryFee) {
-        IRelayProvider provider = relayer.getDefaultRelayProvider();
+    function estimateRedeliveryFee(uint16 toChain, uint32 gasLimit) external view returns (uint256 redeliveryFee) {
+        address provider = relayer.getDefaultRelayProvider();
 
-        return
-            relayer.quoteGasRedeliveryFee(toChain, gasLimit, provider) +
-            relayer.quoteApplicationBudgetFee(toChain, targetAmount, provider);
+        return relayer.quoteGasResend(toChain, gasLimit, provider);
     }
 
     function _wormholeAddrToEthAddr(bytes32 addr) internal pure returns (address) {
