@@ -22,7 +22,7 @@
     "@typechain/hardhat": "^6.1.5",
     "@types/lodash": "^4.14.191",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^18.15.2",
+    "@types/node": "^18.15.3",
     "@types/random": "^3.0.1",
     "@types/seedrandom": "^3.0.5",
     "@types/utf8": "^3.0.0",
