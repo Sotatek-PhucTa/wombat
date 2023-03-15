@@ -5,6 +5,7 @@ import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BNB_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
 import { logVerifyCommand } from '../utils'
+import { parseEther } from 'ethers/lib/utils'
 
 const contractName = 'DynamicMockAsset'
 

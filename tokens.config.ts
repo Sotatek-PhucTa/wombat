@@ -142,6 +142,10 @@ export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = inje
       BOB: ['BOB', 'BOB', '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', 0],
       USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
     },
+    USDPlus_Pool: {
+      USDPlus: ['USD+', 'USD+', '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65', 0, 'USDPlus'], // last item is name of the asset contract `XxxAsset`
+      USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
+    },
   },
   bsc_testnet: {
     stables_01: {

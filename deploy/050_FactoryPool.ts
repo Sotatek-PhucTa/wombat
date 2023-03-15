@@ -64,8 +64,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
 
         /// Admin scripts
-        deployments.log(`setFee to 0 for lpDividendRatio and ${10 ** 18} for retentionRatio...`)
-        await confirmTxn(pool.connect(owner).setFee(0, parseEther('1')))
+        deployments.log(`setFee to 0.5 WAD for lpDividendRatio and 0.5 WAD for retentionRatio...`)
+        await confirmTxn(pool.connect(owner).setFee(parseEther('0.5'), parseEther('0.5')))
 
         deployments.log(`setFeeTo to ${multisig}.`)
         await confirmTxn(pool.connect(owner).setFeeTo(multisig))

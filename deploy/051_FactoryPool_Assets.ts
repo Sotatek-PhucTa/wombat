@@ -33,13 +33,20 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
           : ((await deployments.get(tokenSymbol)).address as string)
       deployments.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
 
+      const deployArgs = [tokenName, tokenSymbol, tokenAddress]
+      const assetName = args[4]
+      if (typeof assetName === 'string') {
+        deployArgs.push(undefined as unknown as string)
+        deployArgs.push(assetName)
+      }
+
       await deployAsset(
         hre.network.name,
         deployer,
         multisig,
         owner,
         deployments,
-        [tokenName, tokenSymbol, tokenAddress],
+        deployArgs,
         pool.address,
         pool,
         `Asset_${poolName}_${tokenSymbol}`
