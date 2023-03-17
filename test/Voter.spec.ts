@@ -11,7 +11,7 @@ import {
   ERC20,
   MasterWombatV3,
   MasterWombatV3__factory,
-  MockERC20__factory,
+  TestERC20__factory,
   MockVeWom,
   MockVeWom__factory,
   Voter,
@@ -39,7 +39,7 @@ describe('Voter', async function () {
   let MasterWombat: MasterWombatV3__factory
   let Asset: Asset__factory
   let Bribe: Bribe__factory
-  let MockERC20: MockERC20__factory
+  let TestERC20: TestERC20__factory
 
   let wom: WombatERC20
   let veWom: MockVeWom
@@ -66,7 +66,7 @@ describe('Voter', async function () {
     Voter = (await ethers.getContractFactory('Voter')) as Voter__factory
     Asset = (await ethers.getContractFactory('Asset')) as Asset__factory
     Bribe = (await ethers.getContractFactory('Bribe')) as Bribe__factory
-    MockERC20 = (await ethers.getContractFactory('MockERC20')) as MockERC20__factory
+    TestERC20 = (await ethers.getContractFactory('TestERC20')) as TestERC20__factory
 
     // distribute 2.4M WOM each month
     womPerSec = parseEther('0.9259259259259259')
@@ -99,9 +99,9 @@ describe('Voter', async function () {
     await veWom.connect(users[0]).faucet(parseEther('10000'))
     await veWom.connect(users[1]).faucet(parseEther('10000'))
 
-    token1 = await MockERC20.deploy('USDC Token', 'USDC', 6, 0)
-    token2 = await MockERC20.deploy('USDT Token', 'USDT', 6, 0)
-    token3 = await MockERC20.deploy('DAI Token', 'DAI', 18, 0)
+    token1 = await TestERC20.deploy('USDC Token', 'USDC', 6, 0)
+    token2 = await TestERC20.deploy('USDT Token', 'USDT', 6, 0)
+    token3 = await TestERC20.deploy('DAI Token', 'DAI', 18, 0)
 
     await token1.deployed()
     await token2.deployed()
@@ -1012,7 +1012,7 @@ describe('Voter', async function () {
   describe('Bribe', async function () {
     beforeEach(async function () {
       // prepare bribe
-      bribeToken = await MockERC20.deploy('Partner Token', 'PARTNER', 18, parseEther('1000000'))
+      bribeToken = await TestERC20.deploy('Partner Token', 'PARTNER', 18, parseEther('1000000'))
       const startTime = (await latest()).add(10)
       bribe = await Bribe.deploy(voter.address, lpToken1.address, startTime, bribeToken.address, partnerRewardPerSec)
       await bribeToken.transfer(bribe.address, parseEther('1000000'))
@@ -1063,7 +1063,7 @@ describe('Voter', async function () {
     })
 
     it('claim multiple bribe tokens', async function () {
-      const bribeToken2 = await MockERC20.deploy('Partner Token 2', 'PARTNER', 18, parseEther('1000000'))
+      const bribeToken2 = await TestERC20.deploy('Partner Token 2', 'PARTNER', 18, parseEther('1000000'))
       await bribeToken2.transfer(bribe.address, parseEther('1000000'))
       await bribe.addRewardToken(bribeToken2.address, parseEther('1.23'))
       await voter.connect(users[0]).vote([lpToken1.address], [parseEther('10')])
@@ -1083,7 +1083,7 @@ describe('Voter', async function () {
     })
 
     it('pendingBribes', async function () {
-      const bribeToken2 = await MockERC20.deploy('Partner Token 2', 'PARTNER', 18, parseEther('1000000'))
+      const bribeToken2 = await TestERC20.deploy('Partner Token 2', 'PARTNER', 18, parseEther('1000000'))
       await bribeToken2.transfer(bribe.address, parseEther('1000000'))
       await owner.sendTransaction({ value: parseEther('10'), to: bribe.address })
       await bribe.addRewardToken(bribeToken2.address, parseEther('1.23'))

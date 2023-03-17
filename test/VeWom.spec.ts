@@ -26,7 +26,7 @@ describe('VeWOM', function () {
     this.Whitelist = await ethers.getContractFactory('Whitelist')
     this.Wom = await ethers.getContractFactory('WombatERC20')
     this.VeWom = await ethers.getContractFactory('VeWom')
-    this.MockERC20 = await ethers.getContractFactory('MockERC20')
+    this.TestERC20 = await ethers.getContractFactory('TestERC20')
 
     this.womPerSec = parseEther('0.9259259259259259')
 

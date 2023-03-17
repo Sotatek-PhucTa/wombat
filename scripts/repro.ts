@@ -16,7 +16,7 @@ async function run() {
   const pool = await ethers.getContractAt('Pool', '0x76F3378F13c6e9c5F477d1D9dE2A21151E883D71')
   console.log('Pool', 'A:', prettyPrint(await pool.ampFactor()))
 
-  const merc20 = await ethers.getContractAt('MockERC20', '0x326335BA4e70cb838Ee55dEB18027A6570E5144d')
+  const merc20 = await ethers.getContractAt('TestERC20', '0x326335BA4e70cb838Ee55dEB18027A6570E5144d')
   await merc20.connect(user1).faucet(ethers.utils.parseEther('1234'))
   await merc20.connect(user1).approve(pool.address, ethers.constants.MaxUint256)
 

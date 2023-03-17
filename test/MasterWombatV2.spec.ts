@@ -22,7 +22,7 @@ describe('MasterWombat V2', function () {
 
     this.MasterWombat = await ethers.getContractFactory('MasterWombatV2')
     this.Wom = await ethers.getContractFactory('WombatERC20')
-    this.MockERC20 = await ethers.getContractFactory('MockERC20')
+    this.TestERC20 = await ethers.getContractFactory('TestERC20')
   })
 
   beforeEach(async function () {
@@ -31,16 +31,12 @@ describe('MasterWombat V2', function () {
     this.womPerSec = parseEther('1000000').mul(8).div(10).div(365).div(24).div(3600)
     await this.wom.deployed()
 
-    // deploy mock token - 18 d.p
-    this.mockERC20 = await this.MockERC20.connect(owner).deploy('mock', 'MOCK', 18, parseEther('100')) // b=2
-    await this.mockERC20.deployed()
-
     // vewom - 18 d.p
-    this.vewom = await this.MockERC20.connect(owner).deploy('vewom', 'vewom', 18, parseEther('100')) // b=2
+    this.vewom = await this.TestERC20.connect(owner).deploy('vewom', 'vewom', 18, parseEther('100')) // b=2
     await this.vewom.deployed()
 
     // deploy dommy token - 6 d.p.
-    this.dummyToken = await this.MockERC20.connect(owner).deploy('Dummy', 'DUMMY', 6, parseUnits('100', 6)) // b=2
+    this.dummyToken = await this.TestERC20.connect(owner).deploy('Dummy', 'DUMMY', 6, parseUnits('100', 6)) // b=2
     await this.dummyToken.deployed()
   })
 
@@ -66,13 +62,13 @@ describe('MasterWombat V2', function () {
       await this.wom.connect(owner).transfer(this.mw.address, supply)
       expect(await this.wom.balanceOf(this.mw.address)).to.be.equal(supply)
 
-      this.lp = await this.MockERC20.deploy('LPToken', 'LP', 18, parseEther('10000000000'))
+      this.lp = await this.TestERC20.deploy('LPToken', 'LP', 18, parseEther('10000000000'))
       await this.lp.deployed()
       await this.lp.transfer(owner.address, parseEther('1000'))
       await this.lp.transfer(users[1].address, parseEther('1000'))
       await this.lp.transfer(users[2].address, parseEther('1000'))
 
-      this.lp2 = await this.MockERC20.deploy('LPToken2', 'LP2', 6, parseUnits('10000000000', 6))
+      this.lp2 = await this.TestERC20.deploy('LPToken2', 'LP2', 6, parseUnits('10000000000', 6))
       await this.lp2.deployed()
       await this.lp2.transfer(owner.address, parseUnits('1000', 6))
       await this.lp2.transfer(users[1].address, parseUnits('1000', 6))
@@ -301,16 +297,16 @@ describe('MasterWombat V2', function () {
       expect(await this.wom.balanceOf(this.mw.address)).to.be.equal(supply)
 
       // deploy usdc and the other tokens
-      this.usdc = await this.MockERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      this.usdc = await this.TestERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
       await this.usdc.deployed()
 
-      this.usdt = await this.MockERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      this.usdt = await this.TestERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
       await this.usdt.deployed()
 
-      this.mim = await this.MockERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      this.mim = await this.TestERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
       await this.mim.deployed()
 
-      this.dai = await this.MockERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      this.dai = await this.TestERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
       await this.dai.deployed()
 
       // credit users with usdc
@@ -396,16 +392,16 @@ describe('MasterWombat V2', function () {
       expect(await this.wom.balanceOf(this.mw.address)).to.be.equal(supply)
 
       // deploy usdc and the other tokens
-      this.usdc = await this.MockERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      this.usdc = await this.TestERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
       await this.usdc.deployed()
 
-      this.usdt = await this.MockERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      this.usdt = await this.TestERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
       await this.usdt.deployed()
 
-      this.mim = await this.MockERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      this.mim = await this.TestERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
       await this.mim.deployed()
 
-      this.dai = await this.MockERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      this.dai = await this.TestERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
       await this.dai.deployed()
 
       // credit users with usdc
@@ -469,7 +465,7 @@ describe('MasterWombat V2', function () {
       await this.wom.connect(owner).transfer(this.mw.address, supply)
       expect(await this.wom.balanceOf(this.mw.address)).to.be.equal(supply)
 
-      this.usdt = await this.MockERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      this.usdt = await this.TestERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
       await this.usdt.deployed()
       await this.usdt.transfer(users[1].address, parseUnits('50000000', 6))
       await this.usdt.transfer(users[2].address, parseUnits('50000000', 6))
@@ -477,7 +473,7 @@ describe('MasterWombat V2', function () {
       await this.usdt.connect(users[1]).approve(this.mw.address, parseUnits('50000000', 6))
       await this.usdt.connect(users[2]).approve(this.mw.address, parseUnits('50000000', 6))
 
-      this.usdc = await this.MockERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      this.usdc = await this.TestERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
       await this.usdc.deployed()
       await this.usdc.transfer(users[1].address, parseUnits('50000000', 6))
       await this.usdc.transfer(users[2].address, parseUnits('50000000', 6))
@@ -485,7 +481,7 @@ describe('MasterWombat V2', function () {
       await this.usdc.connect(users[1]).approve(this.mw.address, parseUnits('50000000', 6))
       await this.usdc.connect(users[2]).approve(this.mw.address, parseUnits('50000000', 6))
 
-      this.dai = await this.MockERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      this.dai = await this.TestERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
       await this.dai.deployed()
       await this.dai.transfer(users[1].address, parseEther('40000000'))
       await this.dai.transfer(users[2].address, parseEther('40000000'))
@@ -493,7 +489,7 @@ describe('MasterWombat V2', function () {
       await this.dai.connect(users[1]).approve(this.mw.address, parseUnits('40000000', 18))
       await this.dai.connect(users[2]).approve(this.mw.address, parseUnits('40000000', 18))
 
-      this.mim = await this.MockERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      this.mim = await this.TestERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
       await this.mim.deployed()
       await this.mim.transfer(users[1].address, parseEther('20000000'))
       await this.mim.transfer(users[2].address, parseEther('20000000'))
@@ -610,16 +606,16 @@ describe('MasterWombat V2', function () {
       expect(await this.wom.balanceOf(this.mw.address)).to.be.equal(supply)
 
       // deploy usdc and the other tokens
-      this.usdc = await this.MockERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      this.usdc = await this.TestERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
       await this.usdc.deployed()
 
-      this.usdt = await this.MockERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      this.usdt = await this.TestERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
       await this.usdt.deployed()
 
-      this.mim = await this.MockERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      this.mim = await this.TestERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
       await this.mim.deployed()
 
-      this.dai = await this.MockERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      this.dai = await this.TestERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
       await this.dai.deployed()
 
       // credit users with usdc
@@ -722,16 +718,16 @@ describe('MasterWombat V2', function () {
       expect(await this.wom.balanceOf(this.mw.address)).to.be.equal(supply)
 
       // deploy usdc and the other tokens
-      this.usdc = await this.MockERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      this.usdc = await this.TestERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
       await this.usdc.deployed()
 
-      this.usdt = await this.MockERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      this.usdt = await this.TestERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
       await this.usdt.deployed()
 
-      this.mim = await this.MockERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      this.mim = await this.TestERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
       await this.mim.deployed()
 
-      this.dai = await this.MockERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      this.dai = await this.TestERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
       await this.dai.deployed()
 
       // credit users with usdc
@@ -1005,16 +1001,16 @@ describe('MasterWombat V2', function () {
       expect(await this.wom.balanceOf(this.mw.address)).to.be.equal(supply)
 
       // deploy usdc and the other tokens
-      this.usdc = await this.MockERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
+      this.usdc = await this.TestERC20.deploy('USDC', 'LP-USDC', 6, parseUnits('10000000000', 6))
       await this.usdc.deployed()
 
-      this.usdt = await this.MockERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
+      this.usdt = await this.TestERC20.deploy('USDT', 'LP-USDT', 6, parseUnits('10000000000', 6))
       await this.usdt.deployed()
 
-      this.mim = await this.MockERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
+      this.mim = await this.TestERC20.deploy('MIM', 'LP-MIM', 18, parseEther('10000000000')) // 10 b
       await this.mim.deployed()
 
-      this.dai = await this.MockERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
+      this.dai = await this.TestERC20.deploy('DAI', 'LP-DAI', 18, parseEther('10000000000')) // 10 b
       await this.dai.deployed()
 
       // credit users with usdc

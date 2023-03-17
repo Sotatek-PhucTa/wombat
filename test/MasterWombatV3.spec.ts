@@ -11,7 +11,7 @@ import {
   Asset__factory,
   MasterWombatV3,
   MasterWombatV3__factory,
-  MockERC20__factory,
+  TestERC20__factory,
   MockVeWom,
   MockVeWom__factory,
   Voter,
@@ -34,7 +34,7 @@ describe('MasterWombatV3', async function () {
 
   let Wom: WombatERC20__factory
   let MasterWombat: MasterWombatV3__factory
-  let MockERC20: MockERC20__factory
+  let TestERC20: TestERC20__factory
   let Asset: Asset__factory
   let VeWom: MockVeWom__factory
   let Voter: Voter__factory
@@ -55,7 +55,7 @@ describe('MasterWombatV3', async function () {
 
     MasterWombat = (await ethers.getContractFactory('MasterWombatV3')) as MasterWombatV3__factory
     Wom = (await ethers.getContractFactory('WombatERC20')) as WombatERC20__factory
-    MockERC20 = (await ethers.getContractFactory('MockERC20')) as MockERC20__factory
+    TestERC20 = (await ethers.getContractFactory('TestERC20')) as TestERC20__factory
     Asset = (await ethers.getContractFactory('Asset')) as Asset__factory
     VeWom = (await ethers.getContractFactory('MockVeWom')) as MockVeWom__factory
     Voter = (await ethers.getContractFactory('Voter')) as Voter__factory
@@ -65,7 +65,7 @@ describe('MasterWombatV3', async function () {
   })
 
   const deployAsset = async (name: string, symbol: string, decimal: number, supply: BigNumberish) => {
-    const token = await MockERC20.deploy(name, symbol, decimal, supply)
+    const token = await TestERC20.deploy(name, symbol, decimal, supply)
     await token.deployed()
     const asset = await Asset.deploy(token.address, 'LP-' + name, 'LP-' + symbol)
     await asset.deployed()

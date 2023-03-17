@@ -4,7 +4,7 @@ import { parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import { DeployOptions, DeployResult, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { Asset, MegaPool, MockERC20 } from '../build/typechain'
+import { Asset, MegaPool, TestERC20 } from '../build/typechain'
 import { Network } from '../types'
 import { confirmTxn, getDeadlineFromNow, logVerifyCommand } from '../utils'
 
@@ -95,8 +95,8 @@ async function setUpTestEnv(
   logVerifyCommand(network, asset0Result)
   logVerifyCommand(network, asset1Result)
 
-  const token0 = (await ethers.getContractAt('MockERC20', token0Deployment.address)) as MockERC20
-  const token1 = (await ethers.getContractAt('MockERC20', token1Deployment.address)) as MockERC20
+  const token0 = (await ethers.getContractAt('TestERC20', token0Deployment.address)) as TestERC20
+  const token1 = (await ethers.getContractAt('TestERC20', token1Deployment.address)) as TestERC20
   const asset0 = (await ethers.getContractAt('Asset', asset0Result.address)) as Asset
   const asset1 = (await ethers.getContractAt('Asset', asset1Result.address)) as Asset
 
