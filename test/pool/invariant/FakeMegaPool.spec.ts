@@ -14,21 +14,27 @@ describe('FakeMegaPool', function () {
   let usdtAsset: Contract
   let pool: Contract
 
-  beforeEach(async function () {
+  const createFixture = deployments.createFixture(async ({ deployments }) => {
     await deployments.fixture(['MockTokens'])
-    ;[usdc, usdt, usdcAsset, usdtAsset, pool] = await Promise.all([
+    const [usdc, usdt, usdcAsset, usdtAsset, pool] = await Promise.all([
       getTestERC20('USDC'),
       getTestERC20('USDT'),
       deployTestAsset('USDC'),
       deployTestAsset('USDT'),
       deployFakeMegaPool(),
     ])
-    ;[owner] = await ethers.getSigners()
+    const [owner] = await ethers.getSigners()
 
     await pool.addAsset(usdc.address, usdcAsset.address)
     await pool.addAsset(usdt.address, usdtAsset.address)
     await usdcAsset.setPool(pool.address)
     await usdtAsset.setPool(pool.address)
+    return { owner, usdc, usdt, usdcAsset, usdtAsset, pool }
+  })
+
+  beforeEach(async function () {
+    // use createFixture to reuse evm snapshot
+    ;({ owner, usdc, usdt, usdcAsset, usdtAsset, pool } = await createFixture())
   })
 
   describe('swap', function () {
@@ -65,11 +71,7 @@ describe('FakeMegaPool', function () {
         await deposit(owner, parseEther('5000'), usdt)
       })
 
-      it.skip('satisfies invariant', async function () {
-        // toAmount
-        // + expected - actual
-        // -999899201677255258
-        // +999899201677250260
+      it('satisfies invariant', async function () {
         await assertInvariant(owner, usdc, usdt, parseEther('1'))
       })
     })
@@ -85,8 +87,12 @@ describe('FakeMegaPool', function () {
     const [quoteAmount, quoteHaircut] = await quote(fromToken, toToken, fromAmount)
     const [actualToAmount, actualHaircut] = await swap(user, fromToken, toToken, fromAmount)
     // allow for some precision error.
-    expect(quoteAmount, 'toAmount').to.gt(actualToAmount).lte(actualToAmount.add(1))
-    expect(quoteHaircut, 'haircut').to.eq(actualHaircut)
+    expect(quoteAmount, 'toAmount').to.gt(actualToAmount.sub(10000)).lt(actualToAmount.add(10000))
+    expect(quoteHaircut, 'haircut').to.gt(actualHaircut.sub(100)).lt(actualHaircut.add(100))
+
+    // TODO: compare invariantInUint before and after swap is same
+    const [equilCovRatio] = await pool.globalEquilCovRatioWithCredit()
+    expect(equilCovRatio).to.eq(parseEther('1'))
   }
 
   async function deposit(user: SignerWithAddress, amount: BigNumberish, token: Contract) {

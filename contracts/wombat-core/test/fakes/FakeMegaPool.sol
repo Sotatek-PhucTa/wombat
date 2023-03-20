@@ -24,7 +24,6 @@ contract FakeMegaPool is MegaPool {
         uint256 /*deadline*/
     ) external override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
         IAsset fromAsset = _assetOf(fromToken);
-        IAsset toAsset = _assetOf(toToken);
 
         (uint256 creditAmount, uint256 haircut1) = _swapTokensForCredit(
             fromAsset,
@@ -32,17 +31,10 @@ contract FakeMegaPool is MegaPool {
             0
         );
 
-        uint8 toDecimal = toAsset.underlyingTokenDecimals();
-        (uint256 toAmount, uint256 haircut2) = _swapCreditForTokens(
-            toAsset,
-            creditAmount,
-            minimumToAmount.toWad(toDecimal)
-        );
-        require(toAmount >= minimumToAmount, 'toAmount >= minimumToAmount');
+        uint256 haircut2;
+        (actualToAmount, haircut2) = _doSwapCreditForTokens(toToken, creditAmount, minimumToAmount, to, 0);
 
         haircut = haircut1 + haircut2;
-        actualToAmount = toAmount;
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
-        toAsset.transferUnderlyingToken(to, actualToAmount);
     }
 }
