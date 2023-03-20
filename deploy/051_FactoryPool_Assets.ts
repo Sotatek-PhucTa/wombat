@@ -2,8 +2,9 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { FACTORYPOOL_TOKENS_MAP } from '../tokens.config'
+import { Network } from '../types'
 import { getDeployedContract } from '../utils'
-import { deployAsset } from './031_DynamicPool_Assets'
+import { deployAssetV2 } from '../utils/deploy'
 import { getFactoryPoolContractName } from './050_FactoryPool'
 
 const contractName = 'FactoryPoolsAssets'
@@ -17,39 +18,31 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log(`Step 051. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name] || {}
-
-  for (const poolName of Object.keys(FACTORYPOOL_TOKENS)) {
+  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as unknown as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
     // Get Pool Instance
     const poolContractName = getFactoryPoolContractName(poolName)
     const pool = await getDeployedContract('HighCovRatioFeePoolV2', poolContractName)
 
-    for (const args of Object.values(FACTORYPOOL_TOKENS[poolName])) {
-      const tokenName = args[0] as string
-      const tokenSymbol = args[1] as string
-      const tokenAddress =
-        hre.network.name == 'bsc_mainnet'
-          ? (args[2] as string)
-          : ((await deployments.get(tokenSymbol)).address as string)
-      deployments.log(`Successfully got erc20 token ${tokenSymbol} instance at: ${tokenAddress}`)
-
-      const deployArgs = [tokenName, tokenSymbol, tokenAddress]
-      const assetName = args[4]
-      if (typeof assetName === 'string') {
-        deployArgs.push(undefined as unknown as string)
-        deployArgs.push(assetName)
+    for (const [tokenSymbol, assetInfo] of Object.entries(poolInfo)) {
+      if (tokenSymbol !== assetInfo.tokenSymbol) {
+        // sanity check
+        throw `token symbol should be the same: ${tokenSymbol}, ${assetInfo.tokenSymbol}`
       }
+      const tokenAddress =
+        assetInfo.underlyingTokenAddr ?? ((await deployments.get(assetInfo.tokenSymbol)).address as string)
+      deployments.log(`Successfully got erc20 token ${assetInfo.tokenSymbol} instance at: ${tokenAddress}`)
 
-      await deployAsset(
+      await deployAssetV2(
         hre.network.name,
         deployer,
         multisig,
         owner,
         deployments,
-        deployArgs,
+        Object.assign(assetInfo, { underlyingTokenAddr: tokenAddress }),
         pool.address,
         pool,
-        `Asset_${poolName}_${tokenSymbol}`
+        `Asset_${poolName}_${assetInfo.tokenSymbol}`
       )
     }
   }

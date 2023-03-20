@@ -1,12 +1,18 @@
 import { BigNumberish } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
-import { Network } from './types'
+import { IAssetInfo, Network, NetworkPoolInfo, PartialRecord, PoolInfo, TokenSymbol } from './types'
 
-// starting 4 stables, all 18 decimals
+/**
+ * @deprecated
+ */
 interface ITokens<T> {
   [network: string]: T
 }
+
+/**
+ * @deprecated
+ */
 interface ITokensInfo {
   [token: string]: unknown[]
 }
@@ -55,6 +61,27 @@ function injectForkNetwork(config: { [network: string]: any }) {
   return Object.assign(config, {
     [Network.HARDHAT]: config[forkNetwork],
     [Network.LOCALHOST]: config[forkNetwork],
+  })
+}
+
+/**
+ * inject forkNetwork to hardhat and localhost
+ * - use the new typescript interface
+ */
+function injectForkNetworkV2(config: PartialRecord<Network, NetworkPoolInfo>): PartialRecord<Network, NetworkPoolInfo> {
+  const forkNetwork = process.env.FORK_NETWORK || ''
+  // default value in .env
+  if (forkNetwork == 'false') {
+    return config
+  }
+
+  if (!Object.values(Network).includes(forkNetwork as Network)) {
+    throw new Error(`Unrecognized network: ${forkNetwork}`)
+  }
+
+  return Object.assign(config, {
+    [Network.HARDHAT]: config[forkNetwork as Network],
+    [Network.LOCALHOST]: config[forkNetwork as Network],
   })
 }
 
@@ -114,156 +141,290 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   },
 })
 
-export const FACTORYPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = injectForkNetwork({
+export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetworkV2({
   bsc_mainnet: {
     stables_01: {
-      BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 5], // last item is pool alloc point
-      TUSD: ['TrueUSD', 'TUSD', '0x14016e85a25aeb13065688cafb43044c2ef86784', 0],
-      FRAX: ['Frax', 'FRAX', '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40', 0],
-      // MIM: ['Magic Internet Money', 'MIM', '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba', 0], // added at later stage
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+        allocPoint: 5,
+      },
+      TUSD: {
+        tokenName: 'TrueUSD',
+        tokenSymbol: 'TUSD',
+        underlyingTokenAddr: '0x14016e85a25aeb13065688cafb43044c2ef86784',
+      },
+      FRAX: {
+        tokenName: 'Frax',
+        tokenSymbol: 'FRAX',
+        underlyingTokenAddr: '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40',
+      },
     },
     iUSD_Pool: {
-      IUSD: ['iZUMi Bond USD', 'iUSD', '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', 0],
-      BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
+      iUSD: {
+        tokenName: 'iZUMi Bond USD',
+        tokenSymbol: 'iUSD',
+        underlyingTokenAddr: '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D',
+      },
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+      },
     },
     CUSD_Pool: {
-      CUSD: ['Coin98 Dollar', 'CUSD', '0xfa4ba88cf97e282c505bea095297786c16070129', 0],
-      HAY: ['Hay Destablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
+      CUSD: {
+        tokenName: 'Coin98 Dollar',
+        tokenSymbol: 'CUSD',
+        underlyingTokenAddr: '0xfa4ba88cf97e282c505bea095297786c16070129',
+      },
+      HAY: {
+        tokenName: 'Hay Destablecoin',
+        tokenSymbol: 'HAY',
+        underlyingTokenAddr: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5',
+      },
     },
     axlUSDC_Pool: {
-      AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', 0],
-      BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 0],
+      axlUSDC: {
+        tokenName: 'Axelar Wrapped USDC',
+        tokenSymbol: 'axlUSDC',
+        underlyingTokenAddr: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3',
+      },
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+      },
     },
     USDD_Pool: {
-      USDD: ['Decentralized USD', 'USDD', '0xd17479997F34dd9156Deef8F95A52D81D265be9c', 0],
-      USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
+      USDD: {
+        tokenName: 'Decentralized USD',
+        tokenSymbol: 'USDD',
+        underlyingTokenAddr: '0xd17479997F34dd9156Deef8F95A52D81D265be9c',
+      },
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      },
     },
     BOB_Pool: {
-      BOB: ['BOB', 'BOB', '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', 0],
-      USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
+      BOB: {
+        tokenName: 'BOB',
+        tokenSymbol: 'BOB',
+        underlyingTokenAddr: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B',
+      },
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      },
     },
     USDPlus_Pool: {
-      USDPlus: ['USD+', 'USD+', '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65', 0, 'USDPlus'], // last item is name of the asset contract `XxxAsset`
-      USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 0],
+      'USD+': {
+        tokenName: 'USD+',
+        tokenSymbol: 'USD+',
+        underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+        assetContractName: 'USDPlusAsset',
+      },
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      },
     },
   },
   bsc_testnet: {
     stables_01: {
-      BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
-      TUSD: ['TrueUSD', 'TUSD', '18', 0],
-      FRAX: ['Frax', 'FRAX', '18', 0],
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        decimalForMockToken: 18,
+      },
+      TUSD: {
+        tokenName: 'TrueUSD',
+        tokenSymbol: 'TUSD',
+        decimalForMockToken: 18,
+      },
+      FRAX: {
+        tokenName: 'Frax',
+        tokenSymbol: 'FRAX',
+        decimalForMockToken: 18,
+      },
     },
     iUSD_Pool: {
-      IUSD: ['iZUMi Bond USD', 'iUSD', '18', 0],
-      BUSD: ['Binance USD', 'BUSD', '18', 0],
+      iUSD: {
+        tokenName: 'iZUMi Bond USD',
+        tokenSymbol: 'iUSD',
+        decimalForMockToken: 18,
+      },
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        decimalForMockToken: 18,
+      },
     },
     CUSD_Pool: {
-      CUSD: ['Coin98 Dollar', 'CUSD', '18', 0],
-      HAY: ['Hay Destablecoin', 'HAY', '18', 0],
+      CUSD: {
+        tokenName: 'Coin98 Dollar',
+        tokenSymbol: 'CUSD',
+        decimalForMockToken: 18,
+      },
+      HAY: {
+        tokenName: 'Hay Destablecoin',
+        tokenSymbol: 'HAY',
+        decimalForMockToken: 18,
+      },
     },
     axlUSDC_Pool: {
-      AXLUSDC: ['Axelar Wrapped USDC', 'axlUSDC', '6', 0],
-      BUSD: ['Binance USD', 'BUSD', '18', 0],
+      axlUSDC: {
+        tokenName: 'Axelar Wrapped USDC',
+        tokenSymbol: 'axlUSDC',
+        decimalForMockToken: 6,
+      },
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        decimalForMockToken: 18,
+      },
     },
     USDD_Pool: {
-      USDD: ['Decentralized USD', 'USDD', '18', 0],
-      USDC: ['USD Coin', 'USDC', '18', 0],
+      USDD: {
+        tokenName: 'Decentralized USD',
+        tokenSymbol: 'USDD',
+        decimalForMockToken: 18,
+      },
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        decimalForMockToken: 18,
+      },
     },
     BOB_Pool: {
-      BOB: ['BOB', 'BOB', '18', 0],
-      USDC: ['USD Coin', 'USDC', '18', 0],
+      BOB: {
+        tokenName: 'BOB',
+        tokenSymbol: 'BOB',
+        decimalForMockToken: 18,
+      },
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        decimalForMockToken: 18,
+      },
     },
   },
 })
 
-export const WOM_DYNAMICPOOL_TOKENS_MAP: ITokens<Record<string, ITokensInfo>> = injectForkNetwork({
+export const WOM_SIDEPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetworkV2({
   bsc_mainnet: {
     wmxWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
-      wmxWOM: ['Wombex WOM', 'wmxWom', '0x0415023846Ff1C6016c4d9621de12b24B2402979', 0],
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
+      },
+      wmxWOM: {
+        tokenName: 'Wombex WOM',
+        tokenSymbol: 'wmxWOM',
+        underlyingTokenAddr: '0x0415023846Ff1C6016c4d9621de12b24B2402979',
+      },
     },
     mWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
-      mWOM: ['mWOM', 'mWOM', '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c', 0],
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
+      },
+      mWOM: {
+        tokenName: 'mWOM',
+        tokenSymbol: 'mWOM',
+        underlyingTokenAddr: '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c',
+      },
     },
     qWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', 0], // last item is pool alloc point
-      qWOM: ['Quoll WOM', 'qWOM', '0x0fE34B8aaAf3f522A6088E278936D10F934c0b19', 0],
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
+      },
+      qWOM: {
+        tokenName: 'Quoll WOM',
+        tokenSymbol: 'qWOM',
+        underlyingTokenAddr: '0x0fE34B8aaAf3f522A6088E278936D10F934c0b19',
+      },
     },
   },
   bsc_testnet: {
     wmxWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '18', 0],
-      wmxWOM: ['WMX WOM', 'wmxWOM', '18', 0],
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        decimalForMockToken: 18,
+      },
+      wmxWOM: {
+        tokenName: 'WMX WOM',
+        tokenSymbol: 'wmxWOM',
+        decimalForMockToken: 18,
+      },
     },
     mWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '18', 0],
-      mWOM: ['M WOM', 'mWOM', '18', 0],
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        decimalForMockToken: 18,
+      },
+      mWOM: {
+        tokenName: 'M WOM',
+        tokenSymbol: 'mWOM',
+        decimalForMockToken: 18,
+      },
     },
     qWOMPool: {
-      WOM: ['Wombat Token', 'WOM', '18', 0], // last item is pool alloc point
-      qWOM: ['Quoll WOM', 'qWOM', '18', 0], // pending
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        decimalForMockToken: 18,
+      },
+      qWOM: {
+        tokenName: 'Quoll WOM',
+        tokenSymbol: 'qWOM',
+        decimalForMockToken: 18,
+      },
     },
   },
 })
 
-// TODO: refactor this to handle separate BNB pools
-export const BNB_DYNAMICPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
-  // TODO: re-enable after new BNB pools deploy
-  // bsc_mainnet: {
-  //   WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'Dynamic', 10], // last 3 items are exchange rate oracle, asset type, and pool alloc points
-  //   STKBNB: [
-  //     'Staked BNB',
-  //     'stkBNB',
-  //     '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
-  //     '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8', // exchange rate oracle
-  //     'Stkbnb', // asset type
-  //     10, // pool alloc point
-  //   ], // TBC on mainnet
-  //   BNBX: [
-  //     'Liquid Staking BNB',
-  //     'BNBx',
-  //     '0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275',
-  //     '0x7276241a669489E4BBB76f63d2A43Bfe63080F2F',
-  //     'Bnbx',
-  //     10,
-  //   ],
-  //   ABNBC: [
-  //     'Ankr BNB Reward Bearing Certificate',
-  //     'aBNBc',
-  //     '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
-  //     '0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A',
-  //     'ABnbc',
-  //     10,
-  //   ],
-  // },
-  bsc_testnet: {
-    WBNB: ['Wrapped BNB', 'WBNB', '18', 0, 'Dynamic', 10],
-    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'Dynamic', 10],
-    STKBNB: [
-      'Staked BNB',
-      'stkBNB',
-      '0xF7CE8444b3b1c62e785a25343a8B4764198A81B8',
-      '0x7CdFba1Ee6A8D1e688B4B34A56b62287ce400802',
-      'Stkbnb',
-      10,
-    ],
-    BNBX: [
-      'Liquid Staking BNB',
-      'BNBx',
-      '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
-      '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
-      'Bnbx',
-      10,
-    ],
-    ABNBC: [
-      'Ankr BNB Reward Bearing Certificate',
-      'aBNBc',
-      '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      '0x46de2fbaf41499f298457cd2d9288df4eb1452ab',
-      'ABnbc',
-      10,
-    ],
+export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetworkV2({
+  bsc_mainnet: {
+    frxETH_Pool: {
+      sfrxETH: {
+        tokenName: 'Staked Frax Ether',
+        tokenSymbol: 'sfrxETH',
+        underlyingTokenAddr: '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
+        assetContractName: 'PriceFeedAsset',
+        priceFeed: {
+          priceFeedContract: 'GovernedPriceFeed',
+          deployArgs: [
+            '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
+            parseEther('1.029'), // The initial value could be read from convertToAssets at https://etherscan.io/token/0xac3e018457b222d93114458476f3e3416abbe38f#readContract
+            parseEther('0.01'),
+          ],
+        },
+      },
+      frxETH: {
+        tokenName: 'Frax Ether',
+        tokenSymbol: 'frxETH',
+        underlyingTokenAddr: '0x64048a7eecf3a2f1ba9e144aac3d7db6e58f555e',
+        assetContractName: 'DynamicAsset',
+      },
+      ETH: {
+        tokenName: 'Binance-Peg Ethereum Token',
+        tokenSymbol: 'ETH',
+        underlyingTokenAddr: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+        assetContractName: 'DynamicAsset',
+      },
+    },
   },
 })
 
@@ -306,33 +467,6 @@ export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
       '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
       '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8', // exchange rate oracle
       'StkbnbAsset',
-    ],
-  },
-  bsc_testnet: {},
-})
-
-export const FRXETH_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
-  bsc_mainnet: {
-    WETH: [
-      'Wrapped ETH',
-      'WETH',
-      '0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA',
-      '', //
-      'DynamicAsset',
-    ], // last 2 items are exchange rate oracle, asset type
-    frxETH: [
-      'Frax ETH',
-      'frxETH',
-      '0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e',
-      '', // exchange rate oracle
-      'DynamicAsset',
-    ],
-    ETH: [
-      'Binance-Peg Ethereum Token',
-      'ETH',
-      '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
-      '', //
-      'DynamicAsset',
     ],
   },
   bsc_testnet: {},
@@ -622,3 +756,44 @@ export const WORMHOLE_MAPS: ITokens<{ relayer: string; wormholeBridge: string }>
     wormholeBridge: '0x0000000000000000000000000000000000000000',
   },
 })
+
+/**
+ * Helper Functions
+ */
+
+// Helper functions that upgrade objects to NetworkPoolInfo
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const networkInfoToNewFormat = (networkInfo: Record<string, Record<string, ITokensInfo>>): NetworkPoolInfo => {
+  const result: NetworkPoolInfo = {}
+  for (const [poolName, poolInfo] of Object.entries(networkInfo)) {
+    result[poolName] = poolInfoToNewFormat(poolInfo)
+  }
+  return result
+}
+
+const poolInfoToNewFormat = (poolInfo: Record<string, ITokensInfo>): PoolInfo => {
+  const result: Record<TokenSymbol, IAssetInfo> = {}
+  for (const [pool, tokenInfo] of Object.entries(poolInfo)) {
+    result[pool] = tokensInfoToAssetInfo(tokenInfo)
+  }
+  return result
+}
+
+const tokensInfoToAssetInfo = (tokenInfo: ITokensInfo): IAssetInfo => {
+  if (
+    typeof tokenInfo[0] !== 'string' ||
+    typeof tokenInfo[1] !== 'string' ||
+    typeof tokenInfo[2] !== 'string' ||
+    typeof tokenInfo[3] !== 'number' ||
+    (tokenInfo[4] && typeof tokenInfo[4] !== 'string')
+  ) {
+    throw 'invalid token info'
+  }
+  return {
+    tokenName: tokenInfo[0],
+    tokenSymbol: tokenInfo[1],
+    underlyingTokenAddr: tokenInfo[2],
+    allocPoint: tokenInfo[3] ? tokenInfo[3] : undefined,
+    assetContractName: tokenInfo[4],
+  }
+}

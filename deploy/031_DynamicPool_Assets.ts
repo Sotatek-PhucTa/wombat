@@ -157,3 +157,4 @@ async function addPool(asset: any, owner: any, poolAddress: string) {
 export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.dependencies = ['DynamicPool', 'MockTokens'] // this ensure the Token script above is executed first, so `deployments.get('DynamicPool')` succeeds
+deployFunc.skip = async () => true

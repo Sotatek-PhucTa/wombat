@@ -1,14 +1,13 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { FRXETH_POOL_TOKENS_MAP } from '../tokens.config'
-import { confirmTxn } from '../utils'
-// TODO refactor deployAsset to a util function
-import { deployAsset } from './035_stkBnbPool_Assets'
+import { DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import { Network } from '../types'
+import { confirmTxn, getDeployedContract } from '../utils'
+import { deployAssetV2, getPoolContractName } from '../utils/deploy'
+import { contractNamePrefix } from './036_frxETH_Pool'
 
-const contractName = 'frxETH_Pool_Assets'
-const poolContractName = 'frxETH_Pool'
-const assetContractPrefix = 'Asset_frxETH_Pool_'
+const contractName = 'DynamicPoolsAssets'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -19,34 +18,42 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log(`Step 037. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const POOL_TOKENS = FRXETH_POOL_TOKENS_MAP[hre.network.name] || {}
+  const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(POOL_TOKENS)) {
+    // Get Pool Instance
+    const poolContractName = getPoolContractName(contractNamePrefix, poolName)
+    const pool = await getDeployedContract('DynamicPoolV2', poolContractName)
 
-  // Get Pool Instance
-  const poolDeployment = await deployments.get(poolContractName)
-  const poolAddress = poolDeployment.address
-  const pool = await ethers.getContractAt('DynamicPoolV2', poolAddress)
+    for (const [tokenSymbol, assetInfo] of Object.entries(poolInfo)) {
+      if (tokenSymbol !== assetInfo.tokenSymbol) {
+        // sanity check
+        throw `token symbol should be the same: ${tokenSymbol}, ${assetInfo.tokenSymbol}`
+      }
+      const tokenAddress =
+        assetInfo.underlyingTokenAddr ?? ((await deployments.get(assetInfo.tokenSymbol)).address as string)
+      deployments.log(`Successfully got erc20 token ${assetInfo.tokenSymbol} instance at: ${tokenAddress}`)
 
-  for (const deployArgs of Object.values(POOL_TOKENS)) {
-    await deployAsset(
-      hre.network.name,
-      deployer,
-      multisig,
-      owner,
-      deployments,
-      deployArgs as Array<string>,
-      poolAddress,
-      pool,
-      assetContractPrefix + deployArgs[1]
-    )
+      await deployAssetV2(
+        hre.network.name,
+        deployer,
+        multisig,
+        owner,
+        deployments,
+        Object.assign(assetInfo, { underlyingTokenAddr: tokenAddress }),
+        pool.address,
+        pool,
+        `Asset_${poolName}_${assetInfo.tokenSymbol}`
+      )
+    }
+
+    // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
+    deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
+    // The owner of the pool contract is very powerful!
+    await confirmTxn(pool.connect(owner).transferOwnership(multisig))
+    deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
   }
-
-  // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
-  deployments.log(`Transferring ownership of ${poolAddress} to ${multisig}...`)
-  // The owner of the pool contract is very powerful!
-  await confirmTxn(pool.connect(owner).transferOwnership(multisig))
-  deployments.log(`Transferred ownership of ${poolAddress} to:`, multisig)
 }
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = [poolContractName, 'MockTokens']
+deployFunc.dependencies = ['MockTokens', contractNamePrefix]

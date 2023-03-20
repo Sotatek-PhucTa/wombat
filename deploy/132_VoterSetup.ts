@@ -3,7 +3,8 @@ import { BigNumberish, Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {
-  WOM_DYNAMICPOOL_TOKENS_MAP,
+  WOM_SIDEPOOL_TOKENS_MAP,
+  DYNAMICPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   USD_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
@@ -11,6 +12,8 @@ import {
 import { getDeployedContract, confirmTxn } from '../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
+import { IAssetInfo, Network } from '../types'
+import { getAssetContractName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre
@@ -46,32 +49,42 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 
   deployments.log('Setting up wom pool')
-  const WOM_DYNAMICPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-  for (const pool in WOM_DYNAMICPOOL_TOKENS) {
-    const WOM_POOL_TOKENS = WOM_DYNAMICPOOL_TOKENS[pool]
-    for (const index in WOM_POOL_TOKENS) {
-      const tokenSymbol = WOM_POOL_TOKENS[index][1] as string
-      const tokenAllocPoint = parseEther((WOM_POOL_TOKENS[index][3] as number).toString())
-      const assetContractName = `Asset_${pool}_${tokenSymbol}`
-      const assetContractAddress = (await deployments.get(assetContractName)).address as string
-      await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-      await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
+  const WOM_SIDEPOOL_TOKENS = WOM_SIDEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(WOM_SIDEPOOL_TOKENS)) {
+    for (const [, assetInfo] of Object.entries(poolInfo)) {
+      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
+    }
+  }
+
+  deployments.log('Setting up dynamic pool')
+  const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
+    for (const [, assetInfo] of Object.entries(poolInfo)) {
+      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
   }
 
   deployments.log('Setting up factory pool')
-  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
-  for (const pool in FACTORYPOOL_TOKENS) {
-    const POOL_TOKENS = FACTORYPOOL_TOKENS[pool]
-    for (const index in POOL_TOKENS) {
-      const tokenSymbol = POOL_TOKENS[index][1] as string
-      const tokenAllocPoint = parseEther((POOL_TOKENS[index][3] as number).toString())
-      const assetContractName = `Asset_${pool}_${tokenSymbol}`
-      const assetContractAddress = (await deployments.get(assetContractName)).address as string
-      await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-      await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
+  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
+    for (const [, assetInfo] of Object.entries(poolInfo)) {
+      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
   }
+}
+
+async function setup(
+  poolName: string,
+  assetInfo: IAssetInfo,
+  voter: Contract,
+  owner: SignerWithAddress,
+  masterWombat: Contract,
+  blocksToConfirm: number
+) {
+  const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
+  const assetContractAddress = (await deployments.get(assetContractName)).address as string
+  await addAsset(voter, owner, masterWombat.address, assetContractAddress)
+  await setAllocPoint(voter, owner, assetContractAddress, assetInfo.allocPoint ?? 0, blocksToConfirm)
 }
 
 async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat: string, assetAddress: string) {
@@ -108,5 +121,5 @@ async function setAllocPoint(
 }
 
 export default deployFunc
-deployFunc.dependencies = ['MasterWombatV3', 'Voter']
+deployFunc.dependencies = ['MasterWombatV3', 'Voter', 'Asset']
 deployFunc.tags = ['VoterSetup']

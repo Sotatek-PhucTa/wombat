@@ -142,9 +142,9 @@ const config: HardhatUserConfig = {
   namedAccounts: {
     deployer: {
       default: 0, // use default for hardhat and localhost
-      bsc_testnet: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
-      avax_testnet: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
-      bsc_mainnet: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
+      [Network.BSC_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      [Network.BSC_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
       [Network.ARBITRUM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
     },
     user1: {
@@ -155,8 +155,9 @@ const config: HardhatUserConfig = {
     },
     multisig: {
       default: 0,
-      bsc_testnet: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452', // same as deployer
-      bsc_mainnet: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
+      [Network.BSC_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452', // same as deployer
+      [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
     },
   },
@@ -169,7 +170,7 @@ const config: HardhatUserConfig = {
 }
 
 const network = process.env.FORK_NETWORK || ''
-if (Object.values(Network).includes(network)) {
+if (Object.values(Network).includes(network as Network)) {
   const url = config.networks[network].url
   config.networks.hardhat.forking = { url }
   console.log(`Network hardhat is forking ${network}`)

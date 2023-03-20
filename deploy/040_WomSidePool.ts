@@ -1,8 +1,11 @@
-import { formatEther, parseEther } from '@ethersproject/units'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { WOM_DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import { WOM_SIDEPOOL_TOKENS_MAP } from '../tokens.config'
+import { Network } from '../types'
+import { confirmTxn, logVerifyCommand } from '../utils'
+import { getPoolContractName } from '../utils/deploy'
 
 export const contractNamePrefix = 'WomSidePools'
 
@@ -14,11 +17,11 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 040. Deploying on : ${hre.network.name}...`)
 
-  const WOM_SIDEPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name] || {}
-  for (const poolName of Object.keys(WOM_SIDEPOOL_TOKENS)) {
-    const contractName = getPoolContractName(poolName)
+  /// Deploy side pool (HighCovRatioFeePool)
+  const WOM_SIDEPOOL_TOKENS = WOM_SIDEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName] of Object.entries(WOM_SIDEPOOL_TOKENS)) {
+    const contractName = getPoolContractName(contractNamePrefix, poolName)
 
-    /// Deploy sidepool
     const deployResult = await deploy(contractName, {
       from: deployer,
       log: true,
@@ -37,16 +40,22 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       },
     })
 
-    // Get freshly deployed SidePool contract
-    const contract = await ethers.getContractAt('HighCovRatioFeePool', deployResult.address)
+    // Get freshly deployed HighCovRatioFeePool pool
+    const pool = await ethers.getContractAt('HighCovRatioFeePool', deployResult.address)
     const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
     deployments.log('Contract address:', deployResult.address)
     deployments.log('Implementation address:', implAddr)
 
     if (deployResult.newlyDeployed) {
+      const masterWombatV3Deployment = await deployments.get('MasterWombatV3')
+      if (masterWombatV3Deployment.address) {
+        await confirmTxn(pool.setMasterWombat(masterWombatV3Deployment.address))
+        deployments.log('set master wombat: ', masterWombatV3Deployment.address)
+      }
+
       // Check setup config values
-      const ampFactor = await contract.ampFactor()
-      const hairCutRate = await contract.haircutRate()
+      const ampFactor = await pool.ampFactor()
+      const hairCutRate = await pool.haircutRate()
       deployments.log(`Amplification factor is : ${formatEther(ampFactor)}`)
       deployments.log(`Haircut rate is : ${formatEther(hairCutRate)}`)
 
@@ -58,32 +67,27 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         // transfer pool contract dev to Gnosis Safe
         deployments.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
         // The dev of the pool contract can pause and unpause pools & assets!
-        const setDevTxn = await contract.connect(owner).setDev(multisig)
-        await setDevTxn.wait()
+        await confirmTxn(pool.connect(owner).setDev(multisig))
         deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
 
         /// Admin scripts
-        deployments.log(`setFee to 0 for lpDividendRatio and ${10 ** 18} for retentionRatio...`)
-        const setFeeTxn = await contract.connect(owner).setFee(0, parseEther('1'))
-        await setFeeTxn.wait()
+        deployments.log(`setFee to 0.5 for lpDividendRatio and 0.5 for retentionRatio...`)
+        await confirmTxn(pool.connect(owner).setFee(parseEther('0.5'), parseEther('0.5')))
 
         deployments.log(`setFeeTo to ${multisig}.`)
-        const setFeeToTxn = await contract.connect(owner).setFeeTo(multisig)
-        await setFeeToTxn.wait()
+        await confirmTxn(pool.connect(owner).setFeeTo(multisig))
 
-        deployments.log(`setMintFeeThreshold to ${10000 ** 18}...`)
-        const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
-        await setMintFeeThresholdTxn.wait()
+        deployments.log(`setMintFeeThreshold to 1000...`)
+        await confirmTxn(pool.connect(owner).setMintFeeThreshold(parseEther('1000')))
       }
+
+      logVerifyCommand(hre.network.name, deployResult)
     } else {
       deployments.log(`${contractName} Contract already deployed.`)
     }
   }
 }
 
-export function getPoolContractName(poolName: string) {
-  return contractNamePrefix + '_' + poolName
-}
-
 export default deployFunc
 deployFunc.tags = [contractNamePrefix]
+deployFunc.dependencies = ['MasterWombatV3']

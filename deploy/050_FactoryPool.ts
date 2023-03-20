@@ -4,6 +4,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { FACTORYPOOL_TOKENS_MAP } from '../tokens.config'
 import { confirmTxn, logVerifyCommand } from '../utils'
+import { Network } from '../types'
 
 export const contractNamePrefix = 'FactoryPools'
 
@@ -15,8 +16,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 050. Deploying on : ${hre.network.name}...`)
 
-  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name] || {}
-  for (const poolName of Object.keys(FACTORYPOOL_TOKENS)) {
+  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName] of Object.entries(FACTORYPOOL_TOKENS)) {
     const contractName = getFactoryPoolContractName(poolName)
 
     /// Deploy factory pool
@@ -45,6 +46,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     deployments.log('Implementation address:', implAddr)
 
     if (deployResult.newlyDeployed) {
+      const masterWombatV3Deployment = await deployments.get('MasterWombatV3')
+      if (masterWombatV3Deployment.address) {
+        await confirmTxn(pool.setMasterWombat(masterWombatV3Deployment.address))
+        deployments.log('set master wombat: ', masterWombatV3Deployment.address)
+      }
+
       // Check setup config values
       const ampFactor = await pool.ampFactor()
       const hairCutRate = await pool.haircutRate()
@@ -86,3 +93,4 @@ export function getFactoryPoolContractName(poolName: string) {
 
 export default deployFunc
 deployFunc.tags = [contractNamePrefix]
+deployFunc.dependencies = ['MasterWombatV3']

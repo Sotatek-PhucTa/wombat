@@ -1,16 +1,18 @@
 import { ethers } from 'hardhat'
 import { Contract } from 'ethers'
-import { DeployFunction } from 'hardhat-deploy/types'
+import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {
-  WOM_DYNAMICPOOL_TOKENS_MAP,
-  BNB_DYNAMICPOOL_TOKENS_MAP,
+  WOM_SIDEPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   USD_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
+  DYNAMICPOOL_TOKENS_MAP,
 } from '../tokens.config'
 import { getDeployedContract, confirmTxn } from '../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { Network } from '../types'
+import { getAssetContractName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre
@@ -34,7 +36,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const tokenSymbol = USD_TOKENS[index][1] as string
     const assetContractName = `Asset_P01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
-    await addAsset(masterWombat, owner, assetContractAddress)
+    await addAsset(masterWombat, owner, assetContractAddress, deployments)
   }
 
   deployments.log('Setting up side pool')
@@ -43,44 +45,46 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
     const assetContractName = `Asset_SP01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
-    await addAsset(masterWombat, owner, assetContractAddress)
+    await addAsset(masterWombat, owner, assetContractAddress, deployments)
   }
 
-  // deployments.log('Setting up BNB pool')
-  // const BNB_DYNAMICPOOL_TOKENS = BNB_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-  // for (const index in BNB_DYNAMICPOOL_TOKENS) {
-  //   const tokenSymbol = BNB_DYNAMICPOOL_TOKENS[index][1] as string
-  //   const assetContractName = `Asset_DP01_${tokenSymbol}`
-  //   const assetContractAddress = (await deployments.get(assetContractName)).address as string
-  //   await addAsset(masterWombat, owner, assetContractAddress)
-  // }
-
   deployments.log('Setting up wom pool')
-  const WOM_DYNAMICPOOL_TOKENS = WOM_DYNAMICPOOL_TOKENS_MAP[hre.network.name]
-  for (const pool in WOM_DYNAMICPOOL_TOKENS) {
-    const WOM_POOL_TOKENS = WOM_DYNAMICPOOL_TOKENS[pool]
-    for (const index in WOM_POOL_TOKENS) {
-      const tokenSymbol = WOM_POOL_TOKENS[index][1] as string
-      const assetContractName = `Asset_${pool}_${tokenSymbol}`
+  const WOM_SIDEPOOL_TOKENS = WOM_SIDEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(WOM_SIDEPOOL_TOKENS)) {
+    for (const [, assetInfo] of Object.entries(poolInfo)) {
+      const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
-      await addAsset(masterWombat, owner, assetContractAddress)
+      await addAsset(masterWombat, owner, assetContractAddress, deployments)
+    }
+  }
+
+  deployments.log('Setting up dynamic pool')
+  const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
+    for (const [, assetInfo] of Object.entries(poolInfo)) {
+      const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
+      const assetContractAddress = (await deployments.get(assetContractName)).address as string
+      await addAsset(masterWombat, owner, assetContractAddress, deployments)
     }
   }
 
   deployments.log('Setting up factory pool')
-  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name]
-  for (const pool in FACTORYPOOL_TOKENS) {
-    const POOL_TOKENS = FACTORYPOOL_TOKENS[pool]
-    for (const index in POOL_TOKENS) {
-      const tokenSymbol = POOL_TOKENS[index][1] as string
-      const assetContractName = `Asset_${pool}_${tokenSymbol}`
+  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
+    for (const [, assetInfo] of Object.entries(poolInfo)) {
+      const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
-      await addAsset(masterWombat, owner, assetContractAddress)
+      await addAsset(masterWombat, owner, assetContractAddress, deployments)
     }
   }
 }
 
-async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetAddress: string) {
+async function addAsset(
+  masterWombat: Contract,
+  owner: SignerWithAddress,
+  assetAddress: string,
+  deployments: DeploymentsExtension
+) {
   deployments.log('addAsset', assetAddress)
   try {
     await confirmTxn(masterWombat.connect(owner).add(assetAddress, ethers.constants.AddressZero))

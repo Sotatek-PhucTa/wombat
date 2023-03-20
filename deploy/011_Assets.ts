@@ -120,4 +120,4 @@ async function addPool(asset: any, owner: any, poolAddress: string) {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['Pool'] // this ensure the Token script above is executed first, so `deployments.get('Pool')` succeeds
+deployFunc.dependencies = ['MockTokens', 'Pool'] // this ensure the Token script above is executed first, so `deployments.get('Pool')` succeeds
