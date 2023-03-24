@@ -6,6 +6,16 @@ import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
+import { DeploymentOrAddress } from '../types'
+
+export async function getAddress(deploymentOrAddress: DeploymentOrAddress) {
+  if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
+    return deploymentOrAddress.deploymentOrAddress
+  } else {
+    const deployment = await deployments.get(deploymentOrAddress.deploymentOrAddress)
+    return deployment.address
+  }
+}
 
 export async function getDeployedContract(contract: string, deploymentName = contract): Promise<Contract> {
   const deployment = await deployments.get(deploymentName)

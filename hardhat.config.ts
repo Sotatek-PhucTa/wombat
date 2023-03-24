@@ -173,6 +173,17 @@ const network = process.env.FORK_NETWORK || ''
 if (Object.values(Network).includes(network as Network)) {
   const url = config.networks[network].url
   config.networks.hardhat.forking = { url }
+  // let hardhat reuse existing deployment in the forked network
+  // documentation: https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
+  const external_deployments = [`deployments/${network}`]
+  config.external = {
+    deployments: { [Network.HARDHAT]: external_deployments, [Network.LOCALHOST]: external_deployments },
+  }
+  // override deployer and multisig as well
+  // caveat: localhost won't work without deployer credential
+  // hardhat network bypass the credential check
+  config.namedAccounts.deployer.default = config.namedAccounts.deployer[network]
+  config.namedAccounts.multisig.default = config.namedAccounts.multisig[network]
   console.log(`Network hardhat is forking ${network}`)
 }
 

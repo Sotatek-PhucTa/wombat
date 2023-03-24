@@ -1,4 +1,4 @@
-import { ethers } from 'hardhat'
+import { ethers, getNamedAccounts } from 'hardhat'
 import { Contract } from 'ethers'
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -16,7 +16,8 @@ import { getAssetContractName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+  const { deployer } = await getNamedAccounts()
+  const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 105. Deploying on: ${hre.network.name}...`)
 

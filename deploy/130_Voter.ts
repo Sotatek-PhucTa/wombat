@@ -2,8 +2,10 @@ import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { logVerifyCommand } from '../utils'
+import { getAddress, logVerifyCommand } from '../utils'
 import { parseEther } from 'ethers/lib/utils'
+import { WOMBAT_TOKEN } from '../tokens.config'
+import { Network } from '../types'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -12,7 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 130. Deploying on: ${hre.network.name}...`)
 
-  const wombatToken = await deployments.get('WombatToken')
+  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
   const vewom = await deployments.get('VeWom')
 
   const block = await ethers.provider.getBlock('latest')
@@ -21,7 +23,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   // const epochStart = 1673416500 // Wed, 11 Jan 2023 13:55:00 GMT+8
 
   // Deploy Voter
-  const womPerSec = parseEther('2000000').div(30 * 24 * 3600) // 2M WOM/month
+  const womPerSec = parseEther('1800000').div(30 * 24 * 3600) // 1.8M WOM/month
   const baseAllocation = 750 // 25% left for vote allocation
   const deployResult = await deploy('Voter', {
     from: deployer,
@@ -35,7 +37,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       execute: {
         init: {
           methodName: 'initialize',
-          args: [wombatToken.address, vewom.address, womPerSec, latest, epochStart, baseAllocation],
+          args: [wombatToken, vewom.address, womPerSec, latest, epochStart, baseAllocation],
         },
       },
     },

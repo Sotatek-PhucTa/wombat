@@ -1,7 +1,15 @@
 import { BigNumberish } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
-import { IAssetInfo, Network, NetworkPoolInfo, PartialRecord, PoolInfo, TokenSymbol } from './types'
+import {
+  DeploymentOrAddress,
+  IAssetInfo,
+  Network,
+  NetworkPoolInfo,
+  PartialRecord,
+  PoolInfo,
+  TokenSymbol,
+} from './types'
 
 /**
  * @deprecated
@@ -16,6 +24,15 @@ interface ITokens<T> {
 interface ITokensInfo {
   [token: string]: unknown[]
 }
+
+// To resolve DeploymentOrAddress, use getAddress in utils/index.ts
+export const WOMBAT_TOKEN: PartialRecord<Network, DeploymentOrAddress> = injectForkNetwork({
+  [Network.HARDHAT]: { deploymentOrAddress: 'WombatToken' },
+  [Network.LOCALHOST]: { deploymentOrAddress: 'WombatToken' },
+  [Network.BSC_MAINNET]: { deploymentOrAddress: 'WombatToken' },
+  [Network.BSC_TESTNET]: { deploymentOrAddress: 'WombatToken' },
+  [Network.ARBITRUM_MAINNET]: { deploymentOrAddress: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96' },
+}) as PartialRecord<Network, DeploymentOrAddress>
 
 export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
   [Network.HARDHAT]: ethers.constants.AddressZero,
@@ -121,9 +138,9 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
     vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
   },
   [Network.ARBITRUM_MAINNET]: {
-    USDC: ['USD Coin', 'USDC', '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'],
-    USDT: ['Tether USD', 'USDT', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'],
-    DAI: ['Dai Stablecoin', 'DAI', '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1'],
+    USDC: ['USD Coin', 'USDC', '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8', /*allocPoint=*/ '300'],
+    USDT: ['Tether USD', 'USDT', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9', /*allocPoint=*/ '300'],
+    DAI: ['Dai Stablecoin', 'DAI', '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1', /*allocPoint=*/ '300'],
   },
 })
 

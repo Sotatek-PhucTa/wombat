@@ -12,6 +12,10 @@ export enum Network {
   ARBITRUM_TESTNET = 'arbitrum_testnet',
 }
 
+export interface DeploymentOrAddress {
+  deploymentOrAddress: string
+}
+
 export interface IAssetInfo {
   tokenName: string
   tokenSymbol: string

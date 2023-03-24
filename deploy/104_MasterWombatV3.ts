@@ -1,17 +1,19 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { logVerifyCommand } from '../utils'
+import { WOMBAT_TOKEN } from '../tokens.config'
+import { Network } from '../types'
+import { getAddress, logVerifyCommand } from '../utils'
 
 const contractName = 'MasterWombatV3'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, upgrades } = hre
+  const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
 
   deployments.log(`Step 104. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
-  const wombatToken = await deployments.get('WombatToken')
+  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
   const deployResult = await deploy(contractName, {
     from: deployer,
     contract: contractName,
@@ -25,7 +27,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         init: {
           methodName: 'initialize',
           // call setVewom and setVoter later
-          args: [wombatToken.address, ethers.constants.AddressZero, ethers.constants.AddressZero, 375],
+          args: [wombatToken, ethers.constants.AddressZero, ethers.constants.AddressZero, 375],
         },
       },
     },

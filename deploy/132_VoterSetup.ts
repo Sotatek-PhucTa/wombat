@@ -1,4 +1,4 @@
-import { deployments, ethers } from 'hardhat'
+import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { BigNumberish, Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -17,7 +17,8 @@ import { getAssetContractName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+  const { deployer } = await getNamedAccounts()
+  const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 132. Deploying on: ${hre.network.name}...`)
 
@@ -27,7 +28,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const blocksToConfirm = hre.network.name != 'bsc_mainnet' ? 1 : 2
 
   deployments.log('Setting up main pool')
-  const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
+  const USD_TOKENS = USD_TOKENS_MAP[hre.network.name as Network] || {}
   for (const index in USD_TOKENS) {
     const tokenSymbol = USD_TOKENS[index][1] as string
     const tokenAllocPoint = parseEther((USD_TOKENS[index][3] as number).toString())
@@ -38,7 +39,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 
   deployments.log('Setting up side pool')
-  const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
+  const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const index in USD_SIDEPOOL_TOKENS) {
     const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
     const tokenAllocPoint = parseEther((USD_SIDEPOOL_TOKENS[index][3] as number).toString())
@@ -93,8 +94,9 @@ async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat:
     await confirmTxn(voter.connect(owner).add(masterWombat, assetAddress, ethers.constants.AddressZero))
   } catch (err: any) {
     if (
-      err.error.stack.includes('voter: already added') ||
-      err.error.stack.includes('Voter: gaugeManager is already exist')
+      err.error &&
+      (err.error.stack.includes('voter: already added') ||
+        err.error.stack.includes('Voter: gaugeManager is already exist'))
     ) {
       deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
     } else {
@@ -121,5 +123,5 @@ async function setAllocPoint(
 }
 
 export default deployFunc
-deployFunc.dependencies = ['MasterWombatV3', 'Voter', 'Asset']
+deployFunc.dependencies = ['MasterWombatV3', 'Voter']
 deployFunc.tags = ['VoterSetup']

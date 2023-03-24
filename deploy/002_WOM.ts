@@ -1,6 +1,8 @@
 import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { WOMBAT_TOKEN } from '../tokens.config'
+import { Network } from '../types'
 
 interface IWombatToken {
   [token: string]: unknown[]
@@ -54,3 +56,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 }
 export default deployFunc
 deployFunc.tags = [contractName]
+deployFunc.skip = async (hre: HardhatRuntimeEnvironment) => {
+  // skip if we are not going to resolve from deployment
+  return contractName != WOMBAT_TOKEN[hre.network.name as Network].deploymentOrAddress
+}
