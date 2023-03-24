@@ -12,6 +12,7 @@ import './Asset.sol';
  * @notice Contract presenting an asset in a pool
  * @dev The `USDPlusAdmin` can extract rebasing reward from the contract by calling `skim`
  * Note that there no tip bucket should be stored in this contract, otherwise it will be `skimm`ed. i.e. `lpDividendRatio + retentionRatio = 1 ether`
+ * For V1 contracts, `mintFeeThreshold` needs to be set to 0 additionally
  */
 contract USDPlusAsset is Asset, ReentrancyGuard, AccessControlEnumerable {
     using SafeERC20 for IERC20;

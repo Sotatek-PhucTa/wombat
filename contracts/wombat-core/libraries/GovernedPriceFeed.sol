@@ -16,7 +16,10 @@ contract GovernedPriceFeed is IPriceFeed, Ownable, AccessControl {
     address public immutable token;
 
     /// @notice max deviation allowed for updating oracle in case wrong parameter is supplied
-    uint256 public maxDeviation;
+    uint256 public immutable maxDeviation;
+
+    uint256 public lastUpdate;
+
     uint256 private _price;
 
     event SetLatestPrice(uint256 newPrice);
@@ -44,6 +47,7 @@ contract GovernedPriceFeed is IPriceFeed, Ownable, AccessControl {
             require(_price - _newPrice <= maxDeviation, 'maxDeviation not respected');
         }
         _price = _newPrice;
+        lastUpdate = block.timestamp;
 
         emit SetLatestPrice(_newPrice);
     }

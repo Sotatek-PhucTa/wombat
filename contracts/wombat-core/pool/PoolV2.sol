@@ -457,7 +457,7 @@ contract PoolV2 is
         address to
     ) internal returns (uint256 liquidity) {
         // collect fee before deposit
-        _mintFee(asset);
+        _mintFeeIfNeeded(asset);
 
         uint256 liabilityToMint;
         (liquidity, liabilityToMint, ) = _exactDepositToInEquil(asset, amount);
@@ -568,7 +568,7 @@ contract PoolV2 is
      */
     function _withdraw(IAsset asset, uint256 liquidity, uint256 minimumAmount) internal returns (uint256 amount) {
         // collect fee before withdraw
-        _mintFee(asset);
+        _mintFeeIfNeeded(asset);
 
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
@@ -979,15 +979,24 @@ contract PoolV2 is
         }
     }
 
+    function _mintFeeIfNeeded(IAsset asset) internal {
+        uint256 feeCollected = _feeCollected[asset];
+        if (feeCollected == 0 || feeCollected < mintFeeThreshold) {
+            return;
+        } else {
+            _mintFee(asset);
+        }
+    }
+
     /**
      * @notice Private function to send fee collected to the fee beneficiary
      * @param asset The address of the asset to collect fee
      */
-    function _mintFee(IAsset asset) internal {
-        uint256 feeCollected = _feeCollected[asset];
-        if (feeCollected == 0 || feeCollected < mintFeeThreshold) {
+    function _mintFee(IAsset asset) internal returns (uint256 feeCollected) {
+        feeCollected = _feeCollected[asset];
+        if (feeCollected == 0) {
             // early return
-            return;
+            return 0;
         }
         {
             // dividend to veWOM
@@ -1008,6 +1017,7 @@ contract PoolV2 is
                 asset.addCash(lpDividend);
             }
         }
+        // remainings are sent to the tipbucket
 
         _feeCollected[asset] = 0;
     }
@@ -1023,7 +1033,7 @@ contract PoolV2 is
      * @notice Send fee collected to the fee beneficiary
      * @param token The address of the token to collect fee
      */
-    function mintFee(address token) external {
-        _mintFee(_assetOf(token));
+    function mintFee(address token) external returns (uint256 feeCollected) {
+        return _mintFee(_assetOf(token));
     }
 }

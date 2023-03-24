@@ -29,7 +29,8 @@ describe('USD+ Asset', function () {
     token2 = await ethers.deployContract('TestERC20', ['Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)])
     asset = await ethers.deployContract('USDPlusAsset', [token.address, 'USD+ LP', 'USD+-LP'])
     asset2 = await ethers.deployContract('Asset', [token2.address, 'Venus USD LP', 'vUSDC-LP'])
-    pool = (await ethers.deployContract('PoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
+    // pool = (await ethers.deployContract('PoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
+    pool = (await ethers.deployContract('PoolV2')) as PoolV3
 
     await pool.connect(owner).initialize(parseEther('0.05'), parseEther('0.004'))
     await pool.connect(owner).addAsset(token.address, asset.address)
