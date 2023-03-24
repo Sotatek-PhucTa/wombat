@@ -14,6 +14,7 @@ describe('MasterWombatV3Migration', function () {
   let owner: SignerWithAddress
   let user1: SignerWithAddress
   let masterWombatV3: Contract
+  let vewom: Contract
   let voter: Contract
   let pool: Contract
   let busd: Contract
@@ -22,9 +23,19 @@ describe('MasterWombatV3Migration', function () {
 
   beforeEach(async function () {
     ;[owner, user1] = await ethers.getSigners()
-    await deployments.fixture(['Asset', 'MockTokens', 'MasterWombatV3', 'Pool', 'Voter', 'VoterSetup', 'WombatToken'])
-    ;[masterWombatV3, voter, pool, busd, busdAsset, wom] = await Promise.all([
+    await deployments.fixture([
+      'Asset',
+      'MockTokens',
+      'MasterWombatV3',
+      'Pool',
+      'VeWom',
+      'Voter',
+      'VoterSetup',
+      'WombatToken',
+    ])
+    ;[masterWombatV3, vewom, voter, pool, busd, busdAsset, wom] = await Promise.all([
       getDeployedContract('MasterWombatV3'),
+      getDeployedContract('VeWom'),
       getDeployedContract('Voter'),
       getDeployedContract('Pool'),
       getDeployedContract('TestERC20', 'BUSD'),
@@ -32,8 +43,11 @@ describe('MasterWombatV3Migration', function () {
       getDeployedContract('WombatERC20', 'WombatToken'),
     ])
 
-    await wom.transfer(voter.address, await wom.balanceOf(owner.address))
+    await wom.transfer(voter.address, (await wom.balanceOf(owner.address)).div(2))
+    await wom.transfer(user1.address, await wom.balanceOf(owner.address))
 
+    await masterWombatV3.setVoter(voter.address)
+    await vewom.setVoter(voter.address)
     await voter.setWomPerSec(parseEther('1'))
     await voter.setAllocPoint(busdAsset.address, parseEther('1'))
     expect(await voter.totalAllocPoint()).to.eq(parseEther('1'))
@@ -52,6 +66,7 @@ describe('MasterWombatV3Migration', function () {
 
   describe('Emission', function () {
     const epochInSec = 7 * 24 * 3600
+    const womPerSec = parseEther('1')
     const baseWomPerSec = parseEther('0.75')
     const basePartition = 375
 
@@ -69,8 +84,7 @@ describe('MasterWombatV3Migration', function () {
     })
 
     it('baseWomPerSec = womPerSec * baseAllocation', async function () {
-      const womPerSec = await voter.womPerSec()
-      expect(womPerSec).to.eq(parseEther('1'))
+      expect(await voter.womPerSec()).to.eq(womPerSec)
       const baseAllocation = await voter.baseAllocation()
       expect(baseAllocation).to.eq(750) // 75%
       expect(baseWomPerSec).to.eq(womPerSec.mul(baseAllocation).div(1000))
@@ -89,8 +103,24 @@ describe('MasterWombatV3Migration', function () {
 
       await advanceTimeAndBlock(3600) // T + epoch + 1hour
       await masterWombatV3.multiClaim([0])
-      const reward = parseEther('1012.5') // 506.25 = 1 * 3600 * 0.75 * 0.375
+      const reward = parseEther('1012.5') // 1012.5 = 1 * 3600 * 0.75 * 0.375
       expect(reward).to.eq(baseWomPerSec.mul(3600).mul(basePartition).div(1000))
+      expect(await wom.balanceOf(owner.address)).to.near(reward)
+    })
+
+    it('MasterWombat emits womPerSec after voting in the first epoch', async function () {
+      await wom.connect(user1).transfer(owner.address, parseEther('2'))
+      await wom.approve(vewom.address, ethers.constants.MaxUint256)
+      await vewom.mint(parseEther('2'), 1461)
+      await voter.vote([busdAsset.address], [parseEther('1')])
+      await masterWombatV3.multiClaim([0])
+      await advanceTimeAndBlock(epochInSec) // T + epoch
+      await masterWombatV3.multiClaim([0])
+
+      await advanceTimeAndBlock(3600) // T + epoch + 1hour
+      await masterWombatV3.multiClaim([0])
+      const reward = parseEther('3601.05') // ~= 1 * 3600
+      expect(reward).to.near(womPerSec.mul(3600))
       expect(await wom.balanceOf(owner.address)).to.near(reward)
     })
 
