@@ -32,7 +32,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   await confirmTxn(masterWombat.connect(owner).setVoter(voter.address))
 
   deployments.log('Setting up main pool')
-  const USD_TOKENS = USD_TOKENS_MAP[hre.network.name]
+  const USD_TOKENS = USD_TOKENS_MAP[hre.network.name as Network] || {}
   for (const index in USD_TOKENS) {
     const tokenSymbol = USD_TOKENS[index][1] as string
     const assetContractName = `Asset_P01_${tokenSymbol}`
@@ -41,7 +41,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 
   deployments.log('Setting up side pool')
-  const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name]
+  const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const index in USD_SIDEPOOL_TOKENS) {
     const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
     const assetContractName = `Asset_SP01_${tokenSymbol}`
