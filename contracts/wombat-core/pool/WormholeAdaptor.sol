@@ -20,6 +20,8 @@ contract WormholeAdaptor is Adaptor {
     IWormholeRelayer public relayer;
     IWormhole public wormhole;
 
+    uint8 public consistencyLevel;
+
     /// @dev wormhole chainId => adaptor address
     mapping(uint16 => address) public adaptorAddress;
 
@@ -31,10 +33,12 @@ contract WormholeAdaptor is Adaptor {
     function initialize(
         IWormholeRelayer _relayer,
         IWormhole _wormhole,
-        IMegaPool _megaPool
+        IMegaPool _megaPool,
+        uint8 _consistencyLevel
     ) public virtual initializer {
         relayer = _relayer;
         wormhole = _wormhole;
+        consistencyLevel = _consistencyLevel;
 
         __Adaptor_init(_megaPool);
     }
@@ -141,7 +145,7 @@ contract WormholeAdaptor is Adaptor {
         trackingId = wormhole.publishMessage{value: wormhole.messageFee()}(
             nonce, // nonce
             _encode(toToken, fromAmount, minimumToAmount, receiver), // payload
-            200 // consistencyLevel. TODO: confirm the value
+            consistencyLevel // Consistency level. Use 1 for finalized, and use 15 blocks for BNB chain; Ref: https://book.wormhole.com/wormhole/3_coreLayerContracts.html#consistency-levels
         );
 
         // Delivery fee attached to the txn is done off-chain via `estimateDeliveryFee` to reduce gas cost

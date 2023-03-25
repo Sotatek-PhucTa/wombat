@@ -33,6 +33,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
             WORMHOLE_MAPS[hre.network.name].relayer,
             WORMHOLE_MAPS[hre.network.name].wormholeBridge,
             poolDeployment.address,
+            1, // TODO: use 15 consistancy level for BNB chain
           ],
         },
       },
