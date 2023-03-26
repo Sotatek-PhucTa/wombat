@@ -8,7 +8,7 @@ import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 
 import '../libraries/BytesLib.sol';
 import '../interfaces/IAdaptor.sol';
-import '../interfaces/IMegaPool.sol';
+import '../interfaces/ICrossChainPool.sol';
 
 abstract contract Adaptor is
     IAdaptor,
@@ -19,7 +19,7 @@ abstract contract Adaptor is
 {
     using BytesLib for bytes;
 
-    IMegaPool public megaPool;
+    ICrossChainPool public crossChainPool;
 
     uint256 private _used;
 
@@ -35,11 +35,11 @@ abstract contract Adaptor is
     error ADAPTOR__CONTRACT_NOT_TRUSTED();
     error ADAPTOR__INVALID_TOKEN();
 
-    function __Adaptor_init(IMegaPool _megaPool) internal virtual onlyInitializing {
+    function __Adaptor_init(ICrossChainPool _crossChainPool) internal virtual onlyInitializing {
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
 
-        megaPool = _megaPool;
+        crossChainPool = _crossChainPool;
     }
 
     /**
@@ -53,7 +53,7 @@ abstract contract Adaptor is
         address receiver,
         uint32 nonce
     ) external payable override returns (uint256 trackingId) {
-        require(msg.sender == address(megaPool), 'Adaptor: not authorized');
+        require(msg.sender == address(crossChainPool), 'Adaptor: not authorized');
 
         _isValidToken(toChain, toToken);
         return _bridgeCreditAndSwapForTokens(toToken, toChain, fromAmount, minimumToAmount, receiver, nonce);
@@ -85,15 +85,14 @@ abstract contract Adaptor is
         address receiver,
         uint256 trackingId
     ) internal returns (bool success, uint256 amount) {
-        try megaPool.completeSwapCreditForTokens(toToken, creditAmount, minimumToAmount, receiver, trackingId) returns (
-            uint256 actualToAmount,
-            uint256
-        ) {
+        try
+            crossChainPool.completeSwapCreditForTokens(toToken, creditAmount, minimumToAmount, receiver, trackingId)
+        returns (uint256 actualToAmount, uint256) {
             return (true, actualToAmount);
         } catch (bytes memory reason) {
             // TODO: Investigate how can we decode error message from logs
             emit LogError(emitterChainId, emitterAddress, trackingId, reason);
-            megaPool.mintCredit(creditAmount, receiver, trackingId);
+            crossChainPool.mintCredit(creditAmount, receiver, trackingId);
 
             return (false, creditAmount);
         }

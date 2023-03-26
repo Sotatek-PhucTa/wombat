@@ -9,21 +9,21 @@ import {
   Asset,
   Asset__factory,
   ERC20,
-  MegaPool,
-  MegaPool__factory,
+  CrossChainPool,
+  CrossChainPool__factory,
   MockAdaptor,
   MockAdaptor__factory,
   TestERC20__factory,
 } from '../../build/typechain'
 
-describe('MegaPool', function () {
+describe('CrossChainPool', function () {
   let owner: SignerWithAddress
   let user1: SignerWithAddress
   let AssetFactory: Asset__factory
   let TestERC20Factory: TestERC20__factory
-  let PoolFactory: MegaPool__factory
+  let PoolFactory: CrossChainPool__factory
   let MockAdaptorFactory: MockAdaptor__factory
-  let pool: MegaPool
+  let pool: CrossChainPool
   let mockAdaptor: MockAdaptor
   let token0: ERC20 // BUSD
   let token1: ERC20 // USDC
@@ -53,9 +53,9 @@ describe('MegaPool', function () {
     MockAdaptorFactory = (await ethers.getContractFactory('MockAdaptor')) as MockAdaptor__factory
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
     coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = (await ethers.getContractFactory('MegaPool', {
+    PoolFactory = (await ethers.getContractFactory('CrossChainPool', {
       libraries: { CoreV3: coreV3.address },
-    })) as MegaPool__factory
+    })) as CrossChainPool__factory
   })
 
   beforeEach(async function () {

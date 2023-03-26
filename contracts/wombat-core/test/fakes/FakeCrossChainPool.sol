@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.5;
 
-import '../../pool/MegaPool.sol';
+import '../../pool/CrossChainPool.sol';
 import '../../pool/HighCovRatioFeePoolV3.sol';
 import '../../interfaces/IAdaptor.sol';
-import '../../interfaces/IMegaPool.sol';
+import '../../interfaces/ICrossChainPool.sol';
 
 /**
  * This is a fake Pool that implements swap with swapTokensForCredit and swapCreditForTokens.
  * This lets us verify the behaviour of quoteSwap and swap has not changed in our cross-chain implementation.
  */
-contract FakeMegaPool is MegaPool {
+contract FakeCrossChainPool is CrossChainPool {
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;

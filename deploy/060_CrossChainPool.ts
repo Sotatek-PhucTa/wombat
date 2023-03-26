@@ -4,17 +4,17 @@ import { parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import { DeployOptions, DeployResult, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { Asset, MegaPool, TestERC20 } from '../build/typechain'
+import { Asset, CrossChainPool, TestERC20 } from '../build/typechain'
 import { Network } from '../types'
 import { confirmTxn, getDeadlineFromNow, logVerifyCommand } from '../utils'
 
-const contractName = 'MegaPool'
+const contractName = 'CrossChainPool'
 
 // Note: For development purpose only. Not production ready
 // Sample swaps:
 // - https://testnet.bscscan.com/tx/0xe80a7a90887383e3f201ad73d8a6e46188d66d73d41051123161607d2e696255
 // - https://testnet.bscscan.com/tx/0x46fd8910593dd81ee03994a04efe88456e690108544afb1fe6c78ea4276a228e
-// TODO: At some point, we should refactor this to an asset deploy script and a mega pool set up script.
+// TODO: At some point, we should refactor this to an asset deploy script and a cross chain pool set up script.
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments as DeploymentsExtension
@@ -59,14 +59,14 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     logVerifyCommand(hre.network.name, coreV3DeployResult)
     logVerifyCommand(hre.network.name, poolDeployResult)
 
-    await setUpTestEnv(pool as MegaPool, owner, deployer, deploy, hre.network.name, deployments)
+    await setUpTestEnv(pool as CrossChainPool, owner, deployer, deploy, hre.network.name, deployments)
   } else {
     deployments.log(`${contractName} Contract already deployed.`)
   }
 }
 
 async function setUpTestEnv(
-  pool: MegaPool,
+  pool: CrossChainPool,
   owner: SignerWithAddress,
   deployer: string,
   deploy: (name: string, options: DeployOptions) => Promise<DeployResult>,

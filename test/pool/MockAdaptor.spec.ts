@@ -9,8 +9,8 @@ import {
   Asset,
   Asset__factory,
   ERC20,
-  MegaPool,
-  MegaPool__factory,
+  CrossChainPool,
+  CrossChainPool__factory,
   MockAdaptor,
   MockAdaptor__factory,
   TestERC20__factory,
@@ -21,10 +21,10 @@ describe('MockAdaptor', function () {
   let user1: SignerWithAddress
   let AssetFactory: Asset__factory
   let TestERC20Factory: TestERC20__factory
-  let PoolFactory: MegaPool__factory
+  let PoolFactory: CrossChainPool__factory
   let MockAdaptorFactory: MockAdaptor__factory
-  let pool0: MegaPool
-  let pool1: MegaPool
+  let pool0: CrossChainPool
+  let pool1: CrossChainPool
   let mockAdaptor0: MockAdaptor
   let mockAdaptor1: MockAdaptor
   let token0: ERC20 // BUSD
@@ -54,9 +54,9 @@ describe('MockAdaptor', function () {
     MockAdaptorFactory = (await ethers.getContractFactory('MockAdaptor')) as MockAdaptor__factory
     const CoreV3Factory = await ethers.getContractFactory('CoreV3')
     const coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = (await ethers.getContractFactory('MegaPool', {
+    PoolFactory = (await ethers.getContractFactory('CrossChainPool', {
       libraries: { CoreV3: coreV3.address },
-    })) as MegaPool__factory
+    })) as CrossChainPool__factory
   })
 
   beforeEach(async function () {

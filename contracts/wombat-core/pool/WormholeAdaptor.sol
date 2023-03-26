@@ -10,7 +10,7 @@ import '../interfaces/IWormhole.sol';
 /// @title WormholeAdaptor
 /// @notice `WormholeAdaptor` uses the generic relayer of wormhole to send message across different networks
 contract WormholeAdaptor is Adaptor {
-    struct MegaPoolData {
+    struct CrossChainPoolData {
         uint256 creditAmount;
         address toToken;
         uint256 minimumToAmount;
@@ -33,14 +33,14 @@ contract WormholeAdaptor is Adaptor {
     function initialize(
         IWormholeRelayer _relayer,
         IWormhole _wormhole,
-        IMegaPool _megaPool,
+        ICrossChainPool _crossChainPool,
         uint8 _consistencyLevel
     ) public virtual initializer {
         relayer = _relayer;
         wormhole = _wormhole;
         consistencyLevel = _consistencyLevel;
 
-        __Adaptor_init(_megaPool);
+        __Adaptor_init(_crossChainPool);
     }
 
     /**

@@ -3,7 +3,7 @@ pragma solidity ^0.8.5;
 
 import './HighCovRatioFeePoolV3.sol';
 import '../interfaces/IAdaptor.sol';
-import '../interfaces/IMegaPool.sol';
+import '../interfaces/ICrossChainPool.sol';
 
 /**
  * @title Mega Pool
@@ -12,7 +12,7 @@ import '../interfaces/IMegaPool.sol';
  * @dev TODO: write documents for protection mechanism and implement it
  * Note: All variables are 18 decimals, except from that of parameters of external functions and underlying tokens
  */
-contract MegaPool is HighCovRatioFeePoolV3, IMegaPool {
+contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;

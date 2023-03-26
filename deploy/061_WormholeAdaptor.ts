@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat'
 import { DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { MegaPool, WormholeAdaptor } from '../build/typechain'
+import { CrossChainPool, WormholeAdaptor } from '../build/typechain'
 import { WORMHOLE_MAPS } from '../tokens.config'
 import { Network } from '../types'
 import { logVerifyCommand } from '../utils'
@@ -15,7 +15,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   deployments.log(`Step 061. Deploying on : ${hre.network.name}...`)
 
-  const poolDeployment = await deployments.get('MegaPool')
+  const poolDeployment = await deployments.get('CrossChainPool')
 
   /// Deploy pool
   const deployResult = await deploy(contractName, {
@@ -55,7 +55,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // await adaptor.approveToken(...)
     // await adaptor.setAdaptorAddress(...)
 
-    const pool = (await ethers.getContractAt('MegaPool', poolDeployment.address)) as MegaPool
+    const pool = (await ethers.getContractAt('CrossChainPool', poolDeployment.address)) as CrossChainPool
     await pool.setAdaptorAddr(adaptor.address)
   } else {
     deployments.log(`${contractName} Contract already deployed.`)
@@ -64,7 +64,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['MegaPool']
+deployFunc.dependencies = ['CrossChainPool']
 deployFunc.skip = (hre: HardhatRuntimeEnvironment) => {
   return ![Network.BSC_TESTNET, Network.AVALANCHE_TESTNET, Network.LOCALHOST, Network.HARDHAT].includes(
     hre.network.name as Network

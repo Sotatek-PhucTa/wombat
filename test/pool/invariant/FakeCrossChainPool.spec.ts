@@ -6,7 +6,7 @@ import { deployments, ethers } from 'hardhat'
 import { getTestERC20 } from '../../../utils'
 import { deployTestAsset } from '../../../utils/deploy'
 
-describe('FakeMegaPool', function () {
+describe('FakeCrossChainPool', function () {
   let owner: SignerWithAddress
   let usdc: Contract
   let usdt: Contract
@@ -21,7 +21,7 @@ describe('FakeMegaPool', function () {
       getTestERC20('USDT'),
       deployTestAsset('USDC'),
       deployTestAsset('USDT'),
-      deployFakeMegaPool(),
+      deployFakeCrossChainPool(),
     ])
     const [owner] = await ethers.getSigners()
 
@@ -77,7 +77,7 @@ describe('FakeMegaPool', function () {
     })
   })
 
-  // assert that quote = swap (FakeMegaPool's token->credit->token).
+  // assert that quote = swap (FakeCrossChainPool's token->credit->token).
   async function assertInvariant(
     user: SignerWithAddress,
     fromToken: Contract,
@@ -123,10 +123,10 @@ describe('FakeMegaPool', function () {
     return pool.quotePotentialSwap(fromToken.address, toToken.address, fromAmount)
   }
 
-  async function deployFakeMegaPool() {
+  async function deployFakeCrossChainPool() {
     const MaxUint128: BigNumber = BigNumber.from('0xffffffffffffffffffffffffffffffff')
     const coreV3 = await ethers.deployContract('CoreV3')
-    const pool = await ethers.deployContract('FakeMegaPool', {
+    const pool = await ethers.deployContract('FakeCrossChainPool', {
       libraries: { CoreV3: coreV3.address },
     })
     await pool.initialize(parseEther('0.002'), parseEther('0.0001'))

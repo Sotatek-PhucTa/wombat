@@ -4,7 +4,7 @@ import chai from 'chai'
 
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { MegaPool__factory } from '../../build/typechain'
+import { CrossChainPool__factory } from '../../build/typechain'
 
 const { expect } = chai
 
@@ -45,7 +45,7 @@ describe('Pool - Swap', function () {
     const coreV3 = await CoreV3Factory.deploy()
     PoolFactory = (await ethers.getContractFactory('PoolV3', {
       libraries: { CoreV3: coreV3.address },
-    })) as MegaPool__factory
+    })) as CrossChainPool__factory
 
     // Deploy with factories
     token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD

@@ -9,7 +9,7 @@ import {
   DynamicAsset__factory,
   DynamicPool,
   DynamicPool__factory,
-  MegaPool__factory,
+  CrossChainPool__factory,
   TestERC20,
   TestERC20__factory,
   WETH,
@@ -71,7 +71,7 @@ describe('WombatRouter', function () {
     const coreV3 = await CoreV3Factory.deploy()
     PoolFactory = (await ethers.getContractFactory('PoolV3', {
       libraries: { CoreV3: coreV3.address },
-    })) as MegaPool__factory
+    })) as CrossChainPool__factory
     Router = (await ethers.getContractFactory('WombatRouter')) as WombatRouter__factory
     WBNBFactory = (await ethers.getContractFactory('WETH')) as WETH__factory
     DynamicPoolFactory = (await ethers.getContractFactory('DynamicPoolV3', {

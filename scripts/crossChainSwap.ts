@@ -1,7 +1,7 @@
 import { BigNumberish } from 'ethers'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { deployments, ethers, getNamedAccounts, network } from 'hardhat'
-import { MegaPool, WormholeAdaptor } from '../build/typechain'
+import { CrossChainPool, WormholeAdaptor } from '../build/typechain'
 import { Network } from '../types'
 
 /**
@@ -33,8 +33,8 @@ async function send(
 ) {
   console.log('send...')
   const { deployer } = await getNamedAccounts()
-  const poolAddress = (await deployments.get('MegaPool')).address
-  const pool = (await ethers.getContractAt('MegaPool', poolAddress)) as MegaPool
+  const poolAddress = (await deployments.get('CrossChainPool')).address
+  const pool = (await ethers.getContractAt('CrossChainPool', poolAddress)) as CrossChainPool
 
   const adaptorAddress = (await deployments.get('WormholeAdaptor')).address
   const adaptor = (await ethers.getContractAt('WormholeAdaptor', adaptorAddress)) as WormholeAdaptor

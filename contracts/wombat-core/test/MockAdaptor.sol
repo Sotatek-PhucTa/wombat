@@ -5,7 +5,7 @@ import '../libraries/Adaptor.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 contract MockAdaptor is Adaptor {
-    struct MegaPoolData {
+    struct CrossChainPoolData {
         uint256 creditAmount;
         address toToken;
         uint256 minimumToAmount;
@@ -35,8 +35,8 @@ contract MockAdaptor is Adaptor {
     // fromChain => nonce => processed
     mapping(uint256 => mapping(uint256 => bool)) public messageDelivered;
 
-    function initialize(uint16 _mockChainId, IMegaPool _megaPool) external virtual initializer {
-        __Adaptor_init(_megaPool);
+    function initialize(uint16 _mockChainId, ICrossChainPool _crossChainPool) external virtual initializer {
+        __Adaptor_init(_crossChainPool);
 
         chainId = _mockChainId;
         nonceCounter = 1; // use non-zero value
@@ -50,14 +50,14 @@ contract MockAdaptor is Adaptor {
         address receiver,
         uint32 // nonce: not used
     ) internal override returns (uint256 trackingId) {
-        MegaPoolData memory megaPoolData = MegaPoolData({
+        CrossChainPoolData memory crossChainPoolData = CrossChainPoolData({
             creditAmount: fromAmount,
             toToken: toToken,
             minimumToAmount: minimumToAmount,
             receiver: receiver
         });
 
-        bytes memory data = abi.encode(megaPoolData);
+        bytes memory data = abi.encode(crossChainPoolData);
         DeliverData memory deliverData = DeliverData({deliverAddr: address(0), data: data});
         uint256 nonce = nonceCounter++;
         messages[nonce] = DeliveryRequest({
@@ -86,7 +86,7 @@ contract MockAdaptor is Adaptor {
 
         messageDelivered[fromChain][id] = true;
 
-        MegaPoolData memory data = abi.decode(deliverData.data, (MegaPoolData));
+        CrossChainPoolData memory data = abi.decode(deliverData.data, (CrossChainPoolData));
         return
             _swapCreditForTokens(
                 fromChain,
@@ -100,6 +100,6 @@ contract MockAdaptor is Adaptor {
     }
 
     function faucetCredit(uint256 creditAmount) external {
-        megaPool.mintCredit(creditAmount, msg.sender, 0);
+        crossChainPool.mintCredit(creditAmount, msg.sender, 0);
     }
 }
