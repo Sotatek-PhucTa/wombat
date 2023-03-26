@@ -23,6 +23,7 @@ import '../interfaces/IPool.sol';
  * - V2: Add `gap` to prevent storage collision for future upgrades
  * - V3: Contract size compression
  * -     `mintFee` ignores `mintFeeThreshold`
+ * -     `globalEquilCovRatio` returns int256 `instead` of `uint256`
  */
 contract PoolV3 is
     Initializable,
@@ -433,7 +434,12 @@ contract PoolV3 is
         _mintFeeIfNeeded(asset);
 
         uint256 liabilityToMint;
-        (liquidity, liabilityToMint, ) = CoreV3.quoteDepositLiquidityInEquil(asset, amount, ampFactor);
+        (liquidity, liabilityToMint, ) = CoreV3.quoteDepositLiquidity(
+            asset,
+            amount,
+            ampFactor,
+            _getGlobalEquilCovRatioForDepositWithdrawal()
+        );
 
         _checkLiquidity(liquidity);
         _checkAmount(minimumLiquidity, liquidity);
@@ -497,10 +503,11 @@ contract PoolV3 is
         uint256 amount
     ) external view override returns (uint256 liquidity, uint256 reward) {
         IAsset asset = _assetOf(token);
-        (liquidity, , reward) = CoreV3.quoteDepositLiquidityInEquil(
+        (liquidity, , reward) = CoreV3.quoteDepositLiquidity(
             asset,
             amount.toWad(asset.underlyingTokenDecimals()),
-            ampFactor
+            ampFactor,
+            _getGlobalEquilCovRatioForDepositWithdrawal()
         );
     }
 
@@ -519,7 +526,12 @@ contract PoolV3 is
 
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
-        (amount, liabilityToBurn, ) = CoreV3.quoteWithdrawAmount(asset, liquidity, ampFactor);
+        (amount, liabilityToBurn, ) = CoreV3.quoteWithdrawAmount(
+            asset,
+            liquidity,
+            ampFactor,
+            _getGlobalEquilCovRatioForDepositWithdrawal()
+        );
         _checkAmount(minimumAmount, amount);
 
         asset.burn(address(asset), liquidity);
@@ -620,13 +632,20 @@ contract PoolV3 is
     ) external view override returns (uint256 amount, uint256 fee) {
         _checkLiquidity(liquidity);
         IAsset asset = _assetOf(token);
-        (amount, , fee) = CoreV3.quoteWithdrawAmount(asset, liquidity, ampFactor);
+        (amount, , fee) = CoreV3.quoteWithdrawAmount(
+            asset,
+            liquidity,
+            ampFactor,
+            _getGlobalEquilCovRatioForDepositWithdrawal()
+        );
         amount = amount.fromWad(asset.underlyingTokenDecimals());
     }
 
     /**
      * @notice Quotes potential withdrawal from other asset from the pool
      * @dev To be used by frontend
+     * The startCovRatio and endCovRatio is set to 0, so no high cov ratio fee is charged
+     * This is to be overriden by the HighCovRatioFeePool
      * @param fromToken The corresponding token user holds the LP (Asset) from
      * @param toToken The token wanting to be withdrawn (needs to be well covered)
      * @param liquidity The liquidity (amount of the lp assets) to be withdrawn
@@ -652,7 +671,8 @@ contract PoolV3 is
             scaleFactor,
             haircutRate,
             0,
-            0
+            0,
+            _getGlobalEquilCovRatioForDepositWithdrawal()
         );
 
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
@@ -665,12 +685,13 @@ contract PoolV3 is
      * @notice Return the scale factor that should applied on from-amounts in a swap given
      * the from-asset and the to-asset.
      * @dev not applicable to a plain pool
+     * All tokens are assumed to have the same intrinsic value
+     * To be overriden by DynamicPool
      */
     function _quoteFactor(
         IAsset, // fromAsset
         IAsset // toAsset
     ) internal view virtual returns (uint256) {
-        // virtual function; do nothing
         return 1e18;
     }
 
@@ -681,6 +702,7 @@ contract PoolV3 is
      * @param fromAmount The amount to quote
      * @return actualToAmount The actual amount user would receive
      * @return haircut The haircut that will be applied
+     * To be overriden by HighCovRatioFeePool for reverse-quote
      */
     function _quoteFrom(
         IAsset fromAsset,
@@ -824,12 +846,10 @@ contract PoolV3 is
         return xr = uint256(asset.liability()).wdiv(uint256(asset.totalSupply()));
     }
 
-    function globalEquilCovRatio() external view returns (uint256 equilCovRatio, uint256 invariantInUint) {
-        int256 invariant;
+    function globalEquilCovRatio() public view returns (int256 equilCovRatio, int256 invariant) {
         int256 SL;
         (invariant, SL) = _globalInvariantFunc();
-        equilCovRatio = uint256(CoreV3.equilCovRatio(invariant, SL, int256(ampFactor)));
-        invariantInUint = uint256(invariant);
+        equilCovRatio = CoreV3.equilCovRatio(invariant, SL, int256(ampFactor));
     }
 
     function tipBucketBalance(address token) public view returns (uint256 balance) {
@@ -840,6 +860,9 @@ contract PoolV3 is
 
     /* Utils */
 
+    /**
+     * @dev to be overriden by DynamicPool to weight assets by the price of underlying token
+     */
     function _globalInvariantFunc() internal view virtual returns (int256 D, int256 SL) {
         int256 A = int256(ampFactor);
 
@@ -860,6 +883,13 @@ contract PoolV3 is
             SL += L_i;
             D += L_i.wmul(r_i - A.wdiv(r_i));
         }
+    }
+
+    /**
+     * For stable pools and rather-stable pools, r* is assumed to be 1 to simplify calculation
+     */
+    function _getGlobalEquilCovRatioForDepositWithdrawal() internal view virtual returns (int256 equilCovRatio) {
+        return WAD_I;
     }
 
     function _mintFeeIfNeeded(IAsset asset) internal {
@@ -895,7 +925,12 @@ contract PoolV3 is
             if (lpDividend > 0) {
                 // exact deposit to maintain r* = 1
                 // increase the value of the LP token, i.e. assetsPerShare
-                (, uint256 liabilityToMint, ) = CoreV3.quoteDepositLiquidityInEquil(asset, lpDividend, ampFactor);
+                (, uint256 liabilityToMint, ) = CoreV3.quoteDepositLiquidity(
+                    asset,
+                    lpDividend,
+                    ampFactor,
+                    _getGlobalEquilCovRatioForDepositWithdrawal()
+                );
                 asset.addLiability(liabilityToMint);
                 asset.addCash(lpDividend);
             }

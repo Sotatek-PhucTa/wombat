@@ -116,7 +116,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
         address fromToken,
         address toToken,
         uint256 liquidity
-    ) external view override returns (uint256 finalAmount, uint256 withdrewAmount) {
+    ) external view virtual override returns (uint256 finalAmount, uint256 withdrewAmount) {
         _checkLiquidity(liquidity);
         _checkSameAddress(fromToken, toToken);
 
@@ -131,7 +131,8 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             scaleFactor,
             haircutRate,
             startCovRatio,
-            endCovRatio
+            endCovRatio,
+            _getGlobalEquilCovRatioForDepositWithdrawal()
         );
 
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());

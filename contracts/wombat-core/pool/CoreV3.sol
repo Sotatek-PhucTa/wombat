@@ -34,17 +34,26 @@ library CoreV3 {
     /**
      * This function calculate the exactly amount of liquidity of the deposit. Assumes r* = 1
      */
-    function quoteDepositLiquidityInEquil(
+    function quoteDepositLiquidity(
         IAsset asset,
         uint256 amount,
-        uint256 ampFactor
+        uint256 ampFactor,
+        int256 _equilCovRatio
     ) public view returns (uint256 lpTokenToMint, uint256 liabilityToMint, uint256 reward) {
-        liabilityToMint = exactDepositLiquidityInEquilImpl(
-            int256(amount),
-            int256(uint256(asset.cash())),
-            int256(uint256(asset.liability())),
-            int256(ampFactor)
-        ).toUint256();
+        liabilityToMint = _equilCovRatio == WAD_I
+            ? exactDepositLiquidityInEquilImpl(
+                int256(amount),
+                int256(uint256(asset.cash())),
+                int256(uint256(asset.liability())),
+                int256(ampFactor)
+            ).toUint256()
+            : exactDepositLiquidityImpl(
+                int256(amount),
+                int256(uint256(asset.cash())),
+                int256(uint256(asset.liability())),
+                int256(ampFactor),
+                _equilCovRatio
+            ).toUint256();
 
         if (liabilityToMint >= amount) {
             reward = liabilityToMint - amount;
@@ -62,6 +71,7 @@ library CoreV3 {
      * @notice Calculates fee and liability to burn in case of withdrawal
      * @param asset The asset willing to be withdrawn
      * @param liquidity The liquidity willing to be withdrawn
+     * @param _equilCovRatio global equilibrium coverage ratio
      * @return amount Total amount to be withdrawn from Pool
      * @return liabilityToBurn Total liability to be burned by Pool
      * @return fee
@@ -69,17 +79,26 @@ library CoreV3 {
     function quoteWithdrawAmount(
         IAsset asset,
         uint256 liquidity,
-        uint256 ampFactor
+        uint256 ampFactor,
+        int256 _equilCovRatio
     ) public view returns (uint256 amount, uint256 liabilityToBurn, uint256 fee) {
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
         if (liabilityToBurn == 0) revert CORE_ZERO_LIQUIDITY();
 
-        amount = withdrawalAmountInEquilImpl(
-            -int256(liabilityToBurn),
-            int256(uint256(asset.cash())),
-            int256(uint256(asset.liability())),
-            int256(ampFactor)
-        ).toUint256();
+        amount = _equilCovRatio == WAD_I
+            ? withdrawalAmountInEquilImpl(
+                -int256(liabilityToBurn),
+                int256(uint256(asset.cash())),
+                int256(uint256(asset.liability())),
+                int256(ampFactor)
+            ).toUint256()
+            : withdrawalAmountImpl(
+                -int256(liabilityToBurn),
+                int256(uint256(asset.cash())),
+                int256(uint256(asset.liability())),
+                int256(ampFactor),
+                _equilCovRatio
+            ).toUint256();
 
         if (liabilityToBurn >= amount) {
             fee = liabilityToBurn - amount;
@@ -97,10 +116,11 @@ library CoreV3 {
         uint256 scaleFactor,
         uint256 haircutRate,
         uint256 startCovRatio,
-        uint256 endCovRatio
+        uint256 endCovRatio,
+        int256 _equilCovRatio
     ) public view returns (uint256 finalAmount, uint256 withdrewAmount) {
         // quote withdraw
-        (withdrewAmount, , ) = quoteWithdrawAmount(fromAsset, liquidity, ampFactor);
+        (withdrewAmount, , ) = quoteWithdrawAmount(fromAsset, liquidity, ampFactor, _equilCovRatio);
 
         // quote swap
         uint256 fromCash = fromAsset.cash() - withdrewAmount;
@@ -313,26 +333,22 @@ library CoreV3 {
     }
 
     /**
-     * @return v positive value indicates a reward and negative value indicates a fee
+     * @dev Calculate the withdrawal amount for any r*
      */
-    function depositRewardImpl(
-        int256 D,
-        int256 SL,
+    function withdrawalAmountImpl(
         int256 delta_i,
         int256 A_i,
         int256 L_i,
-        int256 A
-    ) public pure returns (int256 v) {
-        if (L_i == 0) {
-            // early return in case of div of 0
-            return 0;
-        }
-        if (delta_i + SL == 0) {
-            return L_i - A_i;
-        }
-
-        int256 r_i_ = _targetedCovRatio(SL, delta_i, A_i, L_i, D, A);
-        v = A_i + delta_i - (L_i + delta_i).wmul(r_i_);
+        int256 A,
+        int256 _equilCovRatio
+    ) public pure returns (int256 amount) {
+        int256 L_i_ = L_i + delta_i;
+        int256 r_i = A_i.wdiv(L_i);
+        int256 delta_D = delta_i.wmul(_equilCovRatio) - (delta_i * A) / _equilCovRatio; // The only line that is different
+        int256 b = -(L_i.wmul(r_i - A.wdiv(r_i)) + delta_D);
+        int256 c = A.wmul(L_i_.wmul(L_i_));
+        int256 A_i_ = _solveQuad(b, c);
+        amount = A_i - A_i_;
     }
 
     /**
@@ -346,10 +362,45 @@ library CoreV3 {
     ) public pure returns (int256 amount) {
         int256 L_i_ = L_i + delta_i;
         int256 r_i = A_i.wdiv(L_i);
+
         int256 rho = L_i.wmul(r_i - A.wdiv(r_i));
         int256 beta = (rho + delta_i.wmul(WAD_I - A)) / 2;
         int256 A_i_ = beta + (beta * beta + A.wmul(L_i_ * L_i_)).sqrt(beta);
+        // equilvalent to:
+        // int256 delta_D = delta_i.wmul(WAD_I - A);
+        // int256 b = -(L_i.wmul(r_i - A.wdiv(r_i)) + delta_D);
+        // int256 c = A.wmul(L_i_.wmul(L_i_));
+        // int256 A_i_ = _solveQuad(b, c);
+
         amount = A_i - A_i_;
+    }
+
+    /**
+     * @notice return the deposit reward in token amount when target liquidity (LP amount) is known
+     */
+    function exactDepositLiquidityImpl(
+        int256 D_i,
+        int256 A_i,
+        int256 L_i,
+        int256 A,
+        int256 _equilCovRatio
+    ) public pure returns (int256 liquidity) {
+        if (L_i == 0) {
+            // if this is a deposit, there is no reward/fee
+            // if this is a withdrawal, it should have been reverted
+            return D_i;
+        }
+        if (A_i + D_i < 0) {
+            // impossible
+            revert CORE_UNDERFLOW();
+        }
+
+        int256 r_i = A_i.wdiv(L_i);
+        int256 k = D_i + A_i;
+        int256 b = k.wmul(_equilCovRatio) - (k * A) / _equilCovRatio + 2 * A.wmul(L_i); // The only line that is different
+        int256 c = k.wmul(A_i - (A * L_i) / r_i) - k.wmul(k) + A.wmul(L_i).wmul(L_i);
+        int256 l = b * b - 4 * A * c;
+        return (-b + l.sqrt(b)).wdiv(A) / 2;
     }
 
     /**
