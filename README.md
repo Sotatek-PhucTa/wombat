@@ -229,7 +229,7 @@ To verify proxy contracts:
 
 - Wombat Main Pool
 
-  - Pool Proxy (Main entry) => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
+  - Pool Proxy (HighCovRatioFeePoolV2) => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
   - Asset_P01_USDC (LP-USDC) => `0x2977b0B54a76c2b56D32cef19f8ea83Cc766cFD9`
   - Asset_P01_USDT (LP-USDT) => `0x85cEBD962861be410a777755dFa06914de6af003`
   - Asset_P01_DAI (LP-DAI) => `0x0Fa7b744F18D8E8c3D61B64b110F25CC27E73055`
