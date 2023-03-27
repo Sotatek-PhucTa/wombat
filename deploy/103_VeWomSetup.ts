@@ -23,7 +23,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   /// Deploy whitelist
-  const deployResult = await deploy(contractName, {
+  const deployResult = await deploy('Whitelist', {
     from: deployer,
     contract: 'Whitelist',
     log: true,

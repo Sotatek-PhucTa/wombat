@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { WOMBAT_TOKEN } from '../tokens.config'
 import { Network } from '../types'
-import { confirmTxn, getAddress, getDeployedContract, isOwner } from '../utils'
+import { confirmTxn, getAddress, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 
 const contractName = 'VeWom'
 
@@ -42,6 +42,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   deployments.log('Contract address:', deployResult.address)
   deployments.log('Implementation address:', implAddr)
+  logVerifyCommand(hre.network.name, deployResult)
 
   if (deployResult.newlyDeployed) {
     if (await isOwner(masterWombat, owner.address)) {

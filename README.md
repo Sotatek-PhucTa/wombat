@@ -238,6 +238,14 @@ To verify proxy contracts:
 
   - WombatRouter => `0x9da4edBed6068666ea8EF6505C909e1ff8eA5725`
 
+- Wombat Governance
+
+  - Wombat Token => `0x7b5eb3940021ec0e8e463d5dbb4b7b09a89ddf96`
+  - MasterWombatV3 Proxy => `0x62A83C6791A3d7950D823BB71a38e47252b6b6F4`
+  - VeWom Proxy => `0x488B34F704a601DAeEf14135146a3dA79F2d3EFC`
+  - Voter Proxy => `0x3f90a5a47364c0467031fB00246192d40E3D2D9D`
+  - Whitelist => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
+
 ### BSC testnet deployed contracts:
 
 - BSC Wallet Accounts
