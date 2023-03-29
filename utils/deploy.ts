@@ -1,8 +1,8 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
-import { ethers } from 'hardhat'
+import { deployments, ethers } from 'hardhat'
 import { DeploymentsExtension } from 'hardhat-deploy/types'
-import { IAssetInfo, Network } from '../types'
+import { IAssetInfo } from '../types'
 import { confirmTxn, getTestERC20, logVerifyCommand } from '../utils'
 
 export async function deployTestAsset(tokenSymbol: string) {
@@ -25,17 +25,15 @@ export async function deployAssetV2(
   network: string,
   deployer: string,
   multisig: string,
-  owner: SignerWithAddress,
-  deployments: DeploymentsExtension,
   assetInfo: IAssetInfo,
   poolAddress: string,
   pool: Contract,
   contractName: string
 ): Promise<void> {
   const { deploy } = deployments
+  const deployerSigned = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log('Attemping to deploy Asset contract for: ' + assetInfo.tokenName)
-  console.log(assetInfo)
+  deployments.log(`Attemping to deploy Asset contract for: ${assetInfo.tokenName} of pool ${poolAddress}`)
   if (assetInfo.underlyingTokenAddr === undefined) {
     throw 'invalid asset info for ' + assetInfo.tokenName
   }
@@ -64,7 +62,7 @@ export async function deployAssetV2(
     await deployPriceFeed(
       deployer,
       multisig,
-      owner,
+      deployerSigned,
       deployments,
       assetInfo,
       asset,
@@ -74,37 +72,46 @@ export async function deployAssetV2(
 
   // newly-deployed Asset
   if (assetDeployResult.newlyDeployed) {
+    deployments.log('Configuring asset...')
+
     // Remove old and add new Asset to newly-deployed Pool
-    await removeAsset(pool, owner, underlyingTokenAddr)
-    await addAsset(pool, owner, underlyingTokenAddr, address)
+    const underlyingTokens = await pool.getTokens()
+    if (!underlyingTokens.includes(underlyingTokenAddr)) {
+      deployments.log(`Adding new asset for ${contractName}`)
+      await confirmTxn(pool.connect(deployerSigned).addAsset(underlyingTokenAddr, address))
+    } else {
+      deployments.log(`Removing the old asset for ${contractName} and adding new asset`)
+      await confirmTxn(pool.connect(deployerSigned).removeAsset(underlyingTokenAddr))
+      await confirmTxn(pool.connect(deployerSigned).addAsset(underlyingTokenAddr, address))
+    }
 
     // Add pool reference to Asset
-    await addPool(asset, owner, poolAddress)
-
+    await confirmTxn(await asset.connect(deployerSigned).setPool(poolAddress))
     deployments.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
 
     // transfer asset LP token contract ownership to Gnosis Safe
-    deployments.log(`Transferring ownership of asset ${asset.address} to ${multisig}...`)
     // The owner of the asset contract can change our pool address and change asset max supply
-    await confirmTxn(asset.connect(owner).transferOwnership(multisig))
-
+    deployments.log(`Transferring ownership of asset ${asset.address} to ${multisig}...`)
+    await confirmTxn(asset.connect(deployerSigned).transferOwnership(multisig))
     deployments.log(`Transferred ownership of asset ${asset.address} to ${multisig}...`)
 
     logVerifyCommand(network, assetDeployResult)
   } else {
-    // mainnet assets would be added back to existing pool via multisig proposal
-    if (![Network.BSC_MAINNET, Network.ARBITRUM_MAINNET].includes(network as Network)) {
-      // Add new Asset to existing Pool
-      await addAsset(pool, owner, underlyingTokenAddr, address)
+    // Sanity check for already deployed assets
 
-      // check existing asset have latest pool added
-      const existingPoolAddress = await asset.pool()
+    const underlyingTokens = await pool.getTokens()
+    if (!underlyingTokens.includes(underlyingTokenAddr)) {
+      deployments.log(`!! Asset ${contractName} is not in the pool`)
+      // uncomment to add asset
+      // await confirmTxn(pool.connect(owner).addAsset(underlyingTokenAddr, address))
+    }
 
-      if (existingPoolAddress !== poolAddress) {
-        // Add existing asset to newly-deployed Pool
-        deployments.log(`Adding existing Asset_${tokenSymbol} to new pool ${poolAddress}...`)
-        await addPool(asset, owner, poolAddress)
-      }
+    // check existing asset have latest pool address
+    const existingPoolAddress = await asset.pool()
+    if (existingPoolAddress !== poolAddress) {
+      deployments.log(`Should add existing ${contractName} to the pool ${poolAddress}...`)
+      // uncomment to set pool
+      // await confirmTxn(await asset.connect(owner).setPool(poolAddress))
     }
   }
 }
@@ -112,7 +119,7 @@ export async function deployAssetV2(
 export async function deployPriceFeed(
   deployer: string,
   multisig: string,
-  owner: SignerWithAddress,
+  deployerSigned: SignerWithAddress,
   deployments: DeploymentsExtension,
   assetInfo: IAssetInfo,
   asset: Contract,
@@ -120,11 +127,12 @@ export async function deployPriceFeed(
 ) {
   const { deploy } = deployments
 
-  deployments.log('Attemping to deploy price feed for: ' + assetInfo.tokenName)
+  deployments.log(
+    `Attemping to deploy price feed for: ${assetInfo.tokenName} with args ${assetInfo.priceFeed!.deployArgs}`
+  )
   if (!assetInfo.priceFeed) {
     throw `assetInfo.priceFeed for ${assetInfo.tokenName} is full`
   }
-  console.log()
 
   const priceFeedDeployResult = await deploy(contractName, {
     from: deployer,
@@ -135,34 +143,10 @@ export async function deployPriceFeed(
   })
   if (priceFeedDeployResult.newlyDeployed) {
     deployments.log(`Transferring ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
-    await confirmTxn(asset.connect(owner).transferOwnership(multisig))
+    await confirmTxn(asset.connect(deployerSigned).transferOwnership(multisig))
     deployments.log(`Transferring ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
 
     // set price feed for the asset
     await confirmTxn(asset.setPriceFeed(priceFeedDeployResult.address))
-  }
-}
-
-async function removeAsset(pool: any, owner: any, underlyingTokenAddr: string) {
-  try {
-    await confirmTxn(pool.connect(owner).removeAsset(underlyingTokenAddr))
-  } catch (err) {
-    // do nothing as asset already does not exists in pool
-  }
-}
-
-async function addAsset(pool: any, owner: any, underlyingTokenAddr: string, assetAddress: string) {
-  try {
-    await confirmTxn(pool.connect(owner).addAsset(underlyingTokenAddr, assetAddress))
-  } catch (err) {
-    // do nothing as asset already exists in pool
-  }
-}
-
-async function addPool(asset: any, owner: any, poolAddress: string) {
-  try {
-    await confirmTxn(await asset.connect(owner).setPool(poolAddress))
-  } catch (err) {
-    // this should not happen
   }
 }

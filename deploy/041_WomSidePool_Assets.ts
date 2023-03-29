@@ -1,9 +1,10 @@
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { WOM_SIDEPOOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
-import { confirmTxn, getDeployedContract } from '../utils'
+import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr } from '../utils'
 import { deployAssetV2, getPoolContractName } from '../utils/deploy'
 import { contractNamePrefix } from './040_WomSidePool'
 
@@ -12,8 +13,7 @@ const contractName = 'WomSidePoolAssets'
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deployer, multisig } = await getNamedAccounts()
-
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+  const deployerSigned = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 041. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -25,20 +25,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const pool = await getDeployedContract('DynamicPool', poolContractName)
 
     for (const [tokenSymbol, assetInfo] of Object.entries(poolInfo)) {
-      if (tokenSymbol !== assetInfo.tokenSymbol) {
-        // sanity check
-        throw `token symbol should be the same: ${tokenSymbol}, ${assetInfo.tokenSymbol}`
-      }
-      const tokenAddress =
-        assetInfo.underlyingTokenAddr ?? ((await deployments.get(assetInfo.tokenSymbol)).address as string)
-      deployments.log(`Successfully got erc20 token ${assetInfo.tokenSymbol} instance at: ${tokenAddress}`)
+      const tokenAddress = await getUnderlyingTokenAddr(assetInfo)
 
       await deployAssetV2(
         hre.network.name,
         deployer,
         multisig,
-        owner,
-        deployments,
         Object.assign(assetInfo, { underlyingTokenAddr: tokenAddress }),
         pool.address,
         pool,
@@ -49,7 +41,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
     deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
     // The owner of the pool contract is very powerful!
-    await confirmTxn(pool.connect(owner).transferOwnership(multisig))
+    await confirmTxn(pool.connect(deployerSigned).transferOwnership(multisig))
     deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
   }
 }

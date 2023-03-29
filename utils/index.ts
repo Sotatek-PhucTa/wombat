@@ -6,7 +6,7 @@ import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
-import { DeploymentOrAddress } from '../types'
+import { DeploymentOrAddress, IAssetInfo } from '../types'
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress) {
   if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
@@ -24,6 +24,16 @@ export async function getDeployedContract(contract: string, deploymentName = con
 
 export async function getTestERC20(tokenSymbol: string): Promise<Contract> {
   return getDeployedContract('TestERC20', tokenSymbol)
+}
+
+export async function getUnderlyingTokenAddr(assetInfo: IAssetInfo): Promise<string> {
+  const addr = assetInfo.useMockToken
+    ? (await deployments.get(assetInfo.tokenSymbol)).address
+    : assetInfo.underlyingTokenAddr
+  if (addr === undefined) {
+    throw `underlying token is undefined ${assetInfo}`
+  }
+  return addr
 }
 
 export async function confirmTxn(response: Promise<TransactionResponse>, confirms = 1): Promise<TransactionReceipt> {

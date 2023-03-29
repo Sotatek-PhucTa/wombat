@@ -11,7 +11,7 @@ import {
   WRAPPED_NATIVE_TOKENS_MAP,
 } from '../tokens.config'
 import { Network } from '../types'
-import { confirmTxn, logVerifyCommand } from '../utils'
+import { confirmTxn, getUnderlyingTokenAddr, logVerifyCommand } from '../utils'
 import { getFactoryPoolContractName } from './050_FactoryPool'
 
 const contractName = 'WombatRouter'
@@ -97,8 +97,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
       const tokens = []
       for (const [, assetInfo] of Object.entries(poolInfo)) {
-        const underlyingTokenAddr =
-          assetInfo.underlyingTokenAddr ?? (await deployments.get(assetInfo.tokenSymbol)).address
+        const underlyingTokenAddr = await getUnderlyingTokenAddr(assetInfo)
         tokens.push(underlyingTokenAddr)
       }
       const contractName = getFactoryPoolContractName(poolName)
@@ -116,8 +115,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
       const tokens = []
       for (const [, assetInfo] of Object.entries(poolInfo)) {
-        const underlyingTokenAddr =
-          assetInfo.underlyingTokenAddr ?? (await deployments.get(assetInfo.tokenSymbol)).address
+        const underlyingTokenAddr = await getUnderlyingTokenAddr(assetInfo)
         tokens.push(underlyingTokenAddr)
       }
       const contractName = getFactoryPoolContractName(poolName)
@@ -134,8 +132,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
       const tokens = []
       for (const [, assetInfo] of Object.entries(poolInfo)) {
-        const underlyingTokenAddr =
-          assetInfo.underlyingTokenAddr ?? (await deployments.get(assetInfo.tokenSymbol)).address
+        const underlyingTokenAddr = await getUnderlyingTokenAddr(assetInfo)
         tokens.push(underlyingTokenAddr)
       }
       const contractName = getFactoryPoolContractName(poolName)

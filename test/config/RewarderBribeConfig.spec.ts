@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { BRIBE_MAPS, IRewarder, REWARDERS_MAP } from '../../tokens.config'
+import { BRIBE_MAPS, REWARDERS_MAP } from '../../tokens.config'
+import { IRewarder } from '../../types'
 
 describe('RewarderBribeConfig', function () {
   ;['bsc_mainnet', 'bsc_testnet'].map((network) => {

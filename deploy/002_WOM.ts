@@ -58,5 +58,6 @@ export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.skip = async (hre: HardhatRuntimeEnvironment) => {
   // skip if we are not going to resolve from deployment
-  return contractName != WOMBAT_TOKEN[hre.network.name as Network].deploymentOrAddress
+  const deploymentOrAddress = WOMBAT_TOKEN[hre.network.name as Network]?.deploymentOrAddress
+  return deploymentOrAddress && contractName != deploymentOrAddress
 }

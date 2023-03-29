@@ -1,21 +1,20 @@
-import { ethers, getNamedAccounts } from 'hardhat'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
-import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
+import { deployments, ethers, getNamedAccounts } from 'hardhat'
+import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {
-  WOM_SIDEPOOL_TOKENS_MAP,
+  DYNAMICPOOL_TOKENS_MAP,
+  FACTORYPOOL_TOKENS_MAP,
   USD_SIDEPOOL_TOKENS_MAP,
   USD_TOKENS_MAP,
-  FACTORYPOOL_TOKENS_MAP,
-  DYNAMICPOOL_TOKENS_MAP,
+  WOM_SIDEPOOL_TOKENS_MAP,
 } from '../tokens.config'
-import { getDeployedContract, confirmTxn } from '../utils'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Network } from '../types'
+import { confirmTxn, getDeployedContract } from '../utils'
 import { getAssetContractName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments } = hre
   const { deployer } = await getNamedAccounts()
   const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
@@ -37,7 +36,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const tokenSymbol = USD_TOKENS[index][1] as string
     const assetContractName = `Asset_P01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
-    await addAsset(masterWombat, owner, assetContractAddress, deployments)
+    await addAsset(masterWombat, owner, assetContractAddress)
   }
 
   deployments.log('Setting up side pool')
@@ -46,7 +45,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
     const assetContractName = `Asset_SP01_${tokenSymbol}`
     const assetContractAddress = (await deployments.get(assetContractName)).address as string
-    await addAsset(masterWombat, owner, assetContractAddress, deployments)
+    await addAsset(masterWombat, owner, assetContractAddress)
   }
 
   deployments.log('Setting up wom pool')
@@ -55,7 +54,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     for (const [, assetInfo] of Object.entries(poolInfo)) {
       const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
-      await addAsset(masterWombat, owner, assetContractAddress, deployments)
+      await addAsset(masterWombat, owner, assetContractAddress)
     }
   }
 
@@ -65,7 +64,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     for (const [, assetInfo] of Object.entries(poolInfo)) {
       const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
-      await addAsset(masterWombat, owner, assetContractAddress, deployments)
+      await addAsset(masterWombat, owner, assetContractAddress)
     }
   }
 
@@ -75,17 +74,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     for (const [, assetInfo] of Object.entries(poolInfo)) {
       const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
-      await addAsset(masterWombat, owner, assetContractAddress, deployments)
+      await addAsset(masterWombat, owner, assetContractAddress)
     }
   }
 }
 
-async function addAsset(
-  masterWombat: Contract,
-  owner: SignerWithAddress,
-  assetAddress: string,
-  deployments: DeploymentsExtension
-) {
+async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetAddress: string) {
   deployments.log('addAsset', assetAddress)
   try {
     await confirmTxn(masterWombat.connect(owner).add(assetAddress, ethers.constants.AddressZero))

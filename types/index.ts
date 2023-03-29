@@ -16,6 +16,46 @@ export interface DeploymentOrAddress {
   deploymentOrAddress: string
 }
 
+/**
+ * @deprecated use PartialRecord<Network, NetworkPoolInfo>
+ */
+export interface ITokens<T> {
+  [network: string]: T
+}
+
+/**
+ * @deprecated use PoolInfo
+ */
+export interface ITokensInfo {
+  [token: string]: unknown[]
+}
+
+export interface IRewarder {
+  lpToken: string
+  rewardToken: string
+  startTimestamp?: number
+  secondsToStart?: number
+  tokenPerSec: BigNumberish
+}
+
+export interface IMockTokenInfo {
+  tokenName: string
+  tokenSymbol: string
+  decimalForMockToken: number
+}
+
+export interface IWormholeConfig {
+  relayer: string
+  wormholeBridge: string
+  consistencyLevel: number
+}
+
+export interface IWormholeAdaptorConfig {
+  adaptorAddr: string
+  tokens: string[]
+}
+
+// TODO: verify mock tokens exist in MOCK_TOKEN_MAP before deployment
 export interface IAssetInfo {
   tokenName: string
   tokenSymbol: string
@@ -23,7 +63,7 @@ export interface IAssetInfo {
   allocPoint?: BigNumberish // default to be 0
   assetContractName?: string // default using Asset
   oracleAddress?: string
-  decimalForMockToken?: number // to deploy a mock token, this field is required
+  useMockToken?: boolean // to deploy a mock token, this field is required
   priceFeed?: {
     priceFeedContract: string
     deployArgs: unknown[]
@@ -36,5 +76,6 @@ export type PartialRecord<K extends keyof any, T> = {
 
 export type PoolName = string
 export type TokenSymbol = string
-export type PoolInfo = Record<TokenSymbol, IAssetInfo>
+export type TokenMap<T> = Record<TokenSymbol, T>
+export type PoolInfo = TokenMap<IAssetInfo>
 export type NetworkPoolInfo = Record<PoolName, PoolInfo>

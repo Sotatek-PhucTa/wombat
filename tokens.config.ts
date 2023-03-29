@@ -1,29 +1,22 @@
-import { BigNumberish } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import {
   DeploymentOrAddress,
   IAssetInfo,
+  IMockTokenInfo,
+  IRewarder,
+  ITokens,
+  ITokensInfo,
+  IWormholeAdaptorConfig,
+  IWormholeConfig,
   Network,
   NetworkPoolInfo,
   PartialRecord,
   PoolInfo,
+  PoolName,
+  TokenMap,
   TokenSymbol,
 } from './types'
-
-/**
- * @deprecated
- */
-interface ITokens<T> {
-  [network: string]: T
-}
-
-/**
- * @deprecated
- */
-interface ITokensInfo {
-  [token: string]: unknown[]
-}
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: PartialRecord<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -42,50 +35,19 @@ export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetw
   [Network.POLYGON_MAINNET]: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
   [Network.POLYGON_TESTNET]: '0x4bab602423c8a009ca8c25ef6e3d64367789c8a9',
   [Network.AVALANCHE_TESTNET]: '0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3',
-  [Network.ARBITRUM_MAINNET]: ethers.constants.AddressZero,
-  [Network.ARBITRUM_TESTNET]: ethers.constants.AddressZero,
+  [Network.ARBITRUM_MAINNET]: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+  [Network.ARBITRUM_TESTNET]: '0xDa01302C86ECcd5bc94c1086777acF3c3Af7EF63',
 }) as Record<Network, string>
 
-export interface IRewarder {
-  lpToken: string
-  rewardToken: string
-  startTimestamp?: number
-  secondsToStart?: number
-  tokenPerSec: BigNumberish
-}
-
-function defaultRewarder(): IRewarder {
+function defaultRewarder() {
   return {
-    lpToken: ethers.constants.AddressZero,
-    rewardToken: ethers.constants.AddressZero,
     secondsToStart: 60,
-    tokenPerSec: parseEther('0'),
+    tokenPerSec: 0,
   }
 }
 
 // inject forkNetwork to hardhat and localhost
-function injectForkNetwork(config: { [network: string]: any }) {
-  const forkNetwork = process.env.FORK_NETWORK || ''
-  // default value in .env
-  if (forkNetwork == 'false') {
-    return config
-  }
-
-  if (!Object.values(Network).includes(forkNetwork)) {
-    throw new Error(`Unrecognized network: ${forkNetwork}`)
-  }
-
-  return Object.assign(config, {
-    [Network.HARDHAT]: config[forkNetwork],
-    [Network.LOCALHOST]: config[forkNetwork],
-  })
-}
-
-/**
- * inject forkNetwork to hardhat and localhost
- * - use the new typescript interface
- */
-function injectForkNetworkV2(config: PartialRecord<Network, NetworkPoolInfo>): PartialRecord<Network, NetworkPoolInfo> {
+function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<Network, T> {
   const forkNetwork = process.env.FORK_NETWORK || ''
   // default value in .env
   if (forkNetwork == 'false') {
@@ -102,7 +64,7 @@ function injectForkNetworkV2(config: PartialRecord<Network, NetworkPoolInfo>): P
   })
 }
 
-export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
+export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 220], // last item is pool alloc point
     USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 220],
@@ -144,7 +106,7 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   },
 })
 
-export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
+export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
   bsc_mainnet: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 10], // last item is pool alloc point
     HAY: ['Hay Stablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
@@ -158,7 +120,84 @@ export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   },
 })
 
-export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetworkV2({
+export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = injectForkNetwork<
+  TokenMap<IMockTokenInfo>
+>({
+  bsc_testnet: {
+    BUSD: {
+      tokenName: 'Binance USD',
+      tokenSymbol: 'BUSD',
+      decimalForMockToken: 18,
+    },
+    TUSD: {
+      tokenName: 'TrueUSD',
+      tokenSymbol: 'TUSD',
+      decimalForMockToken: 18,
+    },
+    FRAX: {
+      tokenName: 'Frax',
+      tokenSymbol: 'FRAX',
+      decimalForMockToken: 18,
+    },
+    iUSD: {
+      tokenName: 'iZUMi Bond USD',
+      tokenSymbol: 'iUSD',
+      decimalForMockToken: 18,
+    },
+    CUSD: {
+      tokenName: 'Coin98 Dollar',
+      tokenSymbol: 'CUSD',
+      decimalForMockToken: 18,
+    },
+    HAY: {
+      tokenName: 'Hay Destablecoin',
+      tokenSymbol: 'HAY',
+      decimalForMockToken: 18,
+    },
+    axlUSDC: {
+      tokenName: 'Axelar Wrapped USDC',
+      tokenSymbol: 'axlUSDC',
+      decimalForMockToken: 6,
+    },
+    USDD: {
+      tokenName: 'Decentralized USD',
+      tokenSymbol: 'USDD',
+      decimalForMockToken: 18,
+    },
+    USDC: {
+      tokenName: 'USD Coin',
+      tokenSymbol: 'USDC',
+      decimalForMockToken: 18,
+    },
+    BOB: {
+      tokenName: 'BOB',
+      tokenSymbol: 'BOB',
+      decimalForMockToken: 18,
+    },
+    WOM: {
+      tokenName: 'Wombat Token',
+      tokenSymbol: 'WOM',
+      decimalForMockToken: 18,
+    },
+    wmxWOM: {
+      tokenName: 'WMX WOM',
+      tokenSymbol: 'wmxWOM',
+      decimalForMockToken: 18,
+    },
+    mWOM: {
+      tokenName: 'M WOM',
+      tokenSymbol: 'mWOM',
+      decimalForMockToken: 18,
+    },
+    qWOM: {
+      tokenName: 'Quoll WOM',
+      tokenSymbol: 'qWOM',
+      decimalForMockToken: 18,
+    },
+  },
+})
+
+export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
   bsc_mainnet: {
     stables_01: {
       BUSD: {
@@ -257,83 +296,84 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       BUSD: {
         tokenName: 'Binance USD',
         tokenSymbol: 'BUSD',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       TUSD: {
         tokenName: 'TrueUSD',
         tokenSymbol: 'TUSD',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       FRAX: {
         tokenName: 'Frax',
         tokenSymbol: 'FRAX',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
     iUSD_Pool: {
       iUSD: {
         tokenName: 'iZUMi Bond USD',
         tokenSymbol: 'iUSD',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       BUSD: {
         tokenName: 'Binance USD',
         tokenSymbol: 'BUSD',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
     CUSD_Pool: {
       CUSD: {
         tokenName: 'Coin98 Dollar',
         tokenSymbol: 'CUSD',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       HAY: {
         tokenName: 'Hay Destablecoin',
         tokenSymbol: 'HAY',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
     axlUSDC_Pool: {
       axlUSDC: {
         tokenName: 'Axelar Wrapped USDC',
         tokenSymbol: 'axlUSDC',
-        decimalForMockToken: 6,
+        useMockToken: true,
       },
       BUSD: {
         tokenName: 'Binance USD',
         tokenSymbol: 'BUSD',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
     USDD_Pool: {
       USDD: {
         tokenName: 'Decentralized USD',
         tokenSymbol: 'USDD',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       USDC: {
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
     BOB_Pool: {
       BOB: {
         tokenName: 'BOB',
         tokenSymbol: 'BOB',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       USDC: {
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
   },
 })
 
-export const WOM_SIDEPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetworkV2({
+// TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
+export const WOM_SIDEPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
   bsc_mainnet: {
     wmxWOMPool: {
       WOM: {
@@ -377,42 +417,42 @@ export const WOM_SIDEPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = 
       WOM: {
         tokenName: 'Wombat Token',
         tokenSymbol: 'WOM',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       wmxWOM: {
         tokenName: 'WMX WOM',
         tokenSymbol: 'wmxWOM',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
     mWOMPool: {
       WOM: {
         tokenName: 'Wombat Token',
         tokenSymbol: 'WOM',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       mWOM: {
         tokenName: 'M WOM',
         tokenSymbol: 'mWOM',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
     qWOMPool: {
       WOM: {
         tokenName: 'Wombat Token',
         tokenSymbol: 'WOM',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
       qWOM: {
         tokenName: 'Quoll WOM',
         tokenSymbol: 'qWOM',
-        decimalForMockToken: 18,
+        useMockToken: true,
       },
     },
   },
 })
 
-export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetworkV2({
+export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
   bsc_mainnet: {
     frxETH_Pool: {
       sfrxETH: {
@@ -445,7 +485,8 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
   },
 })
 
-export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
+// TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
+export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
   bsc_mainnet: {
     WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'DynamicAsset'], // last 3 items are exchange rate oracle, asset type, and pool alloc points
     BNBX: [
@@ -469,7 +510,8 @@ export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   },
 })
 
-export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
+// TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
+export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
   bsc_mainnet: {
     WBNB: [
       'Wrapped BNB',
@@ -489,7 +531,7 @@ export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork({
   bsc_testnet: {},
 })
 
-export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = injectForkNetwork({
+export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
   bsc_mainnet: {
     HAY: {
       lpToken: '0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b', // HAY-LP
@@ -616,7 +658,7 @@ export const REWARDERS_MAP: ITokens<{ [token: string]: IRewarder }> = injectFork
 })
 
 // IBribe reuses the interface of IRewarder
-export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = injectForkNetwork({
+export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
   bsc_mainnet: {
     HAY: {
       ...defaultRewarder(),
@@ -755,22 +797,67 @@ export const BRIBE_MAPS: ITokens<{ [token: string]: IRewarder }> = injectForkNet
   },
 })
 
-export const WORMHOLE_MAPS: ITokens<{ relayer: string; wormholeBridge: string }> = injectForkNetwork({
-  bsc_testnet: {
+export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = injectForkNetwork<IWormholeConfig>({
+  [Network.BSC_TESTNET]: {
     relayer: '0xda2592C43f2e10cBBA101464326fb132eFD8cB09',
     wormholeBridge: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
+    consistencyLevel: 15,
   },
   [Network.AVALANCHE_TESTNET]: {
     relayer: '0xDDe6b89B7d0AD383FafDe6477f0d300eC4d4033e',
     wormholeBridge: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
+    consistencyLevel: 1,
   },
   [Network.LOCALHOST]: {
     relayer: '0x0000000000000000000000000000000000000000',
     wormholeBridge: '0x0000000000000000000000000000000000000000',
+    consistencyLevel: 1,
   },
   [Network.HARDHAT]: {
     relayer: '0x0000000000000000000000000000000000000000',
     wormholeBridge: '0x0000000000000000000000000000000000000000',
+    consistencyLevel: 1,
+  },
+})
+
+export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
+  [Network.BSC_TESTNET]: {
+    stablecoinPool: {
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        useMockToken: true,
+      },
+      vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+    },
+  },
+  [Network.AVALANCHE_TESTNET]: {
+    stablecoinPool: {
+      BUSD: {
+        tokenName: 'Binance USD',
+        tokenSymbol: 'BUSD',
+        useMockToken: true,
+      },
+      vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+    },
+  },
+})
+
+export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
+  Network,
+  Record<PoolName, IWormholeAdaptorConfig>
+> = injectForkNetwork<Record<PoolName, IWormholeAdaptorConfig>>({
+  [Network.BSC_TESTNET]: {
+    stablecoinPool: {
+      adaptorAddr: '0xebD34D7d249686d7Cfb391dd18A220773e72feDb',
+      tokens: ['0x326335BA4e70cb838Ee55dEB18027A6570E5144d', '0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8'], // BUSD, vUSDC
+    },
+  },
+  [Network.AVALANCHE_TESTNET]: {
+    stablecoinPool: {
+      adaptorAddr: '0x0683e2c4d6e26274bd0574D09bfb8CE25e4dFA85',
+      tokens: ['0x921ee0bdBB71065DCC15d201Cc99F63d71224b87', '0x8Cfa834ebBE803294020b08c521aA4637cB3dC1A'], // BUSD, vUSDC
+    },
   },
 })
 

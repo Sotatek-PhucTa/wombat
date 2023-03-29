@@ -1,139 +1,103 @@
 import { parseEther } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { parseUnits } from 'ethers/lib/utils'
-import { ethers } from 'hardhat'
-import { DeployOptions, DeployResult, DeploymentsExtension } from 'hardhat-deploy/types'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { Asset, CrossChainPool, TestERC20 } from '../build/typechain'
+import { Contract } from 'ethers'
+import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardhat'
+import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
-import { confirmTxn, getDeadlineFromNow, logVerifyCommand } from '../utils'
+import { confirmTxn, getDeployedContract, logVerifyCommand } from '../utils'
+import { getPoolContractName } from '../utils/deploy'
 
-const contractName = 'CrossChainPool'
+export const contractNamePrefix = 'CrossChainPool'
 
-// Note: For development purpose only. Not production ready
-// Sample swaps:
-// - https://testnet.bscscan.com/tx/0xe80a7a90887383e3f201ad73d8a6e46188d66d73d41051123161607d2e696255
-// - https://testnet.bscscan.com/tx/0x46fd8910593dd81ee03994a04efe88456e690108544afb1fe6c78ea4276a228e
-// TODO: At some point, we should refactor this to an asset deploy script and a cross chain pool set up script.
-const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, upgrades } = hre
-  const { deploy } = deployments as DeploymentsExtension
+const deployFunc = async function () {
+  const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
-
-  deployments.log(`Step 060. Deploying on : ${hre.network.name}...`)
-  const coreV3DeployResult = await deploy('CoreV3', { from: deployer, log: true, skipIfAlreadyDeployed: true })
+  const deployerSigned = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const coreV3Deployment = await getDeployedContract('CoreV3')
+  deployments.log(`Step 060. Deploying on : ${network.name}...`)
 
   /// Deploy pool
-  const poolDeployResult = await deploy(contractName, {
-    from: deployer,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    libraries: { CoreV3: coreV3DeployResult.address },
-    proxy: {
-      owner: multisig, // change to Gnosis Safe after all admin scripts are done
-      proxyContract: 'OptimizedTransparentProxy',
-      viaAdminContract: 'DefaultProxyAdmin',
-      execute: {
-        init: {
-          methodName: 'initialize',
-          args: [parseEther('0.002'), parseEther('0.004')], // [A, haircut => 40bps]
+  const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network.name as Network] || {}
+  for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
+    const contractName = getPoolContractName(contractNamePrefix, poolName)
+    const deployResult = await deploy(contractName, {
+      from: deployer,
+      log: true,
+      contract: 'CrossChainPool',
+      skipIfAlreadyDeployed: true,
+      libraries: { CoreV3: coreV3Deployment.address },
+      proxy: {
+        owner: multisig, // change to Gnosis Safe after all admin scripts are done
+        proxyContract: 'OptimizedTransparentProxy',
+        viaAdminContract: 'DefaultProxyAdmin',
+        execute: {
+          init: {
+            methodName: 'initialize',
+            args: [parseEther('0.002'), parseEther('0.004')], // [A, haircut => 40bps]
+          },
         },
       },
-    },
-  })
+    })
 
-  // Get freshly deployed Pool pool
-  const pool = await ethers.getContractAt(contractName, poolDeployResult.address)
-  const implAddr = await upgrades.erc1967.getImplementationAddress(poolDeployResult.address)
-  deployments.log('Contract address:', poolDeployResult.address)
-  deployments.log('Implementation address:', implAddr)
+    // Get freshly deployed Pool pool
+    const pool = await ethers.getContractAt(contractNamePrefix, deployResult.address)
+    const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
+    deployments.log('Contract address:', deployResult.address)
+    deployments.log('Implementation address:', implAddr)
 
-  if (poolDeployResult.newlyDeployed) {
-    // Check setup config values
-    const ampFactor = await pool.ampFactor()
-    const hairCutRate = await pool.haircutRate()
-    deployments.log(`Amplification factor is : ${ampFactor}`)
-    deployments.log(`Haircut rate is : ${hairCutRate}`)
+    if (deployResult.newlyDeployed) {
+      await setUpPool(deployerSigned, pool, multisig)
+      await configureCrossChainPool(deployerSigned, pool)
 
-    logVerifyCommand(hre.network.name, coreV3DeployResult)
-    logVerifyCommand(hre.network.name, poolDeployResult)
-
-    await setUpTestEnv(pool as CrossChainPool, owner, deployer, deploy, hre.network.name, deployments)
-  } else {
-    deployments.log(`${contractName} Contract already deployed.`)
+      logVerifyCommand(network.name, deployResult)
+    } else {
+      deployments.log(`${contractNamePrefix} Contract already deployed.`)
+    }
   }
 }
 
-async function setUpTestEnv(
-  pool: CrossChainPool,
-  owner: SignerWithAddress,
-  deployer: string,
-  deploy: (name: string, options: DeployOptions) => Promise<DeployResult>,
-  network: string,
-  deployments: DeploymentsExtension
-) {
-  const token0Deployment = await deployments.get('BUSD')
-  const token1Deployment = await deployments.get('vUSDC')
+async function setUpPool(deployerSigned: SignerWithAddress, pool: Contract, multisig: string) {
+  const masterWombatV3Deployment = await deployments.getOrNull('MasterWombatV3')
+  if (masterWombatV3Deployment?.address) {
+    deployments.log('Setting master wombat: ', masterWombatV3Deployment.address)
+    await confirmTxn(pool.connect(deployerSigned).setMasterWombat(masterWombatV3Deployment.address))
+  }
+  await confirmTxn(pool.connect(deployerSigned).setCovRatioFeeParam(parseEther('2'), parseEther('3')))
+  // Check setup config values
+  const ampFactor = await pool.ampFactor()
+  const hairCutRate = await pool.haircutRate()
+  deployments.log(`Amplification factor is : ${ampFactor}`)
+  deployments.log(`Haircut rate is : ${hairCutRate}`)
 
-  deployments.log('deploying assets...')
-  const asset0Result = await deploy('Mock BUSD Asset', {
-    contract: 'Asset',
-    from: deployer,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    args: [token0Deployment.address, 'Mock Binance USD LP', 'Mock BUSD-LP'],
-  })
-  const asset1Result = await deploy('Mock vUSDC Asset', {
-    contract: 'Asset',
-    from: deployer,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    args: [token1Deployment.address, 'Mock Venus USDC LP', 'Mock vUSDC-LP'],
-  })
+  // transfer pool contract dev to Gnosis Safe
+  deployments.log(`Transferring dev of ${pool.address} to ${multisig}...`)
+  // The dev of the pool contract can pause and unpause pools & assets!
+  await confirmTxn(pool.connect(deployerSigned).setDev(multisig))
+  deployments.log(`Transferred dev of ${pool.address} to:`, multisig)
 
-  logVerifyCommand(network, asset0Result)
-  logVerifyCommand(network, asset1Result)
+  /// Admin scripts
+  deployments.log(`setFee to 0.5 for lpDividendRatio and 0.5 for retentionRatio...`)
+  await confirmTxn(pool.connect(deployerSigned).setFee(parseEther('0.5'), parseEther('0.5')))
 
-  const token0 = (await ethers.getContractAt('TestERC20', token0Deployment.address)) as TestERC20
-  const token1 = (await ethers.getContractAt('TestERC20', token1Deployment.address)) as TestERC20
-  const asset0 = (await ethers.getContractAt('Asset', asset0Result.address)) as Asset
-  const asset1 = (await ethers.getContractAt('Asset', asset1Result.address)) as Asset
+  deployments.log(`setFeeTo to ${multisig}.`)
+  await confirmTxn(pool.connect(deployerSigned).setFeeTo(multisig))
 
-  // set up pool
-  deployments.log('setting up pool...')
-  await confirmTxn(pool.connect(owner).addAsset(token0Deployment.address, asset0Result.address))
-  await confirmTxn(pool.connect(owner).addAsset(token1Deployment.address, asset1Result.address))
-
-  await confirmTxn(asset0.setPool(pool.address))
-  await confirmTxn(asset1.setPool(pool.address))
-
-  await confirmTxn(pool.setMaximumOutboundCredit(parseEther('100000')))
-  await confirmTxn(pool.setMaximumOutboundCredit(parseEther('100000')))
-  await confirmTxn(pool.setSwapTokensForCreditEnabled(true))
-  await confirmTxn(pool.setSwapCreditForTokensEnabled(true))
-
-  await confirmTxn(token0.faucet(parseEther('10000000')))
-  await confirmTxn(token1.faucet(parseUnits('10000000', 8)))
-
-  // approve & deposit tokens
-  deployments.log('approve tokens...')
-  await confirmTxn(token0.approve(pool.address, parseEther('10000000')))
-  await confirmTxn(token1.approve(pool.address, parseEther('10000000')))
-  deployments.log('deposit tokens...')
-  await confirmTxn(
-    pool.deposit(token0Deployment.address, parseEther('10000'), 0, owner.address, getDeadlineFromNow(3600), false)
-  )
-  await confirmTxn(
-    pool.deposit(token1Deployment.address, parseUnits('10000', 8), 0, owner.address, getDeadlineFromNow(3600), false)
-  )
+  deployments.log(`setMintFeeThreshold to 1000 ...`)
+  await confirmTxn(pool.connect(deployerSigned).setMintFeeThreshold(parseEther('1000')))
 }
+
+async function configureCrossChainPool(deployerSigned: SignerWithAddress, pool: Contract) {
+  deployments.log('configure cross chain pool...')
+  await confirmTxn(pool.connect(deployerSigned).setMaximumOutboundCredit(parseEther('100000')))
+  await confirmTxn(pool.connect(deployerSigned).setMaximumOutboundCredit(parseEther('100000')))
+
+  await confirmTxn(pool.connect(deployerSigned).setSwapTokensForCreditEnabled(true))
+  await confirmTxn(pool.connect(deployerSigned).setSwapCreditForTokensEnabled(true))
+}
+// Sample swaps:
+// - https://testnet.bscscan.com/tx/0xe80a7a90887383e3f201ad73d8a6e46188d66d73d41051123161607d2e696255
+// - https://testnet.bscscan.com/tx/0x46fd8910593dd81ee03994a04efe88456e690108544afb1fe6c78ea4276a228e
 
 export default deployFunc
-deployFunc.tags = [contractName]
-deployFunc.skip = (hre: HardhatRuntimeEnvironment) => {
-  return ![Network.BSC_TESTNET, Network.AVALANCHE_TESTNET, Network.LOCALHOST, Network.HARDHAT].includes(
-    hre.network.name as Network
-  )
-}
-deployFunc.dependencies = ['MockTokens']
+deployFunc.tags = [contractNamePrefix]
+deployFunc.dependencies = ['MockTokens', 'CoreV3']

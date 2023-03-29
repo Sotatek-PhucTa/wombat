@@ -15,7 +15,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   deployments.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
-  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
+  const wombatToken = await getAddress(
+    WOMBAT_TOKEN[hre.network.name as Network] ?? { deploymentOrAddress: 'WombatToken' }
+  )
   const masterWombat = await getDeployedContract('MasterWombatV3')
 
   // deterministicDeployment is used only for implementation but not the proxy contract
