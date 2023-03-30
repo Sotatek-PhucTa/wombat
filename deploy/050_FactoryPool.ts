@@ -1,10 +1,11 @@
 import { formatEther, parseEther } from '@ethersproject/units'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { FACTORYPOOL_TOKENS_MAP } from '../tokens.config'
-import { confirmTxn, logVerifyCommand } from '../utils'
 import { Network } from '../types'
+import { confirmTxn, logVerifyCommand } from '../utils'
 
 export const contractNamePrefix = 'FactoryPools'
 
@@ -12,6 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
 
   deployments.log(`Step 050. Deploying on : ${hre.network.name}...`)
@@ -48,7 +50,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     if (deployResult.newlyDeployed) {
       const masterWombatV3Deployment = await deployments.get('MasterWombatV3')
       if (masterWombatV3Deployment.address) {
-        await confirmTxn(pool.setMasterWombat(masterWombatV3Deployment.address))
+        await confirmTxn(pool.connect(deployerSigner).setMasterWombat(masterWombatV3Deployment.address))
         deployments.log('set master wombat: ', masterWombatV3Deployment.address)
       }
 

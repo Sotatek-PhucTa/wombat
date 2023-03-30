@@ -12,7 +12,7 @@ export const contractNamePrefix = 'CrossChainPool'
 const deployFunc = async function () {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
-  const deployerSigned = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const coreV3Deployment = await getDeployedContract('CoreV3')
   deployments.log(`Step 060. Deploying on : ${network.name}...`)
 
@@ -46,8 +46,8 @@ const deployFunc = async function () {
     deployments.log('Implementation address:', implAddr)
 
     if (deployResult.newlyDeployed) {
-      await setUpPool(deployerSigned, pool, multisig)
-      await configureCrossChainPool(deployerSigned, pool)
+      await setUpPool(deployerSigner, pool, multisig)
+      await configureCrossChainPool(deployerSigner, pool)
 
       logVerifyCommand(network.name, deployResult)
     } else {
@@ -56,13 +56,13 @@ const deployFunc = async function () {
   }
 }
 
-async function setUpPool(deployerSigned: SignerWithAddress, pool: Contract, multisig: string) {
+async function setUpPool(deployerSigner: SignerWithAddress, pool: Contract, multisig: string) {
   const masterWombatV3Deployment = await deployments.getOrNull('MasterWombatV3')
   if (masterWombatV3Deployment?.address) {
     deployments.log('Setting master wombat: ', masterWombatV3Deployment.address)
-    await confirmTxn(pool.connect(deployerSigned).setMasterWombat(masterWombatV3Deployment.address))
+    await confirmTxn(pool.connect(deployerSigner).setMasterWombat(masterWombatV3Deployment.address))
   }
-  await confirmTxn(pool.connect(deployerSigned).setCovRatioFeeParam(parseEther('2'), parseEther('3')))
+  await confirmTxn(pool.connect(deployerSigner).setCovRatioFeeParam(parseEther('2'), parseEther('3')))
   // Check setup config values
   const ampFactor = await pool.ampFactor()
   const hairCutRate = await pool.haircutRate()
@@ -72,27 +72,27 @@ async function setUpPool(deployerSigned: SignerWithAddress, pool: Contract, mult
   // transfer pool contract dev to Gnosis Safe
   deployments.log(`Transferring dev of ${pool.address} to ${multisig}...`)
   // The dev of the pool contract can pause and unpause pools & assets!
-  await confirmTxn(pool.connect(deployerSigned).setDev(multisig))
+  await confirmTxn(pool.connect(deployerSigner).setDev(multisig))
   deployments.log(`Transferred dev of ${pool.address} to:`, multisig)
 
   /// Admin scripts
   deployments.log(`setFee to 0.5 for lpDividendRatio and 0.5 for retentionRatio...`)
-  await confirmTxn(pool.connect(deployerSigned).setFee(parseEther('0.5'), parseEther('0.5')))
+  await confirmTxn(pool.connect(deployerSigner).setFee(parseEther('0.5'), parseEther('0.5')))
 
   deployments.log(`setFeeTo to ${multisig}.`)
-  await confirmTxn(pool.connect(deployerSigned).setFeeTo(multisig))
+  await confirmTxn(pool.connect(deployerSigner).setFeeTo(multisig))
 
   deployments.log(`setMintFeeThreshold to 1000 ...`)
-  await confirmTxn(pool.connect(deployerSigned).setMintFeeThreshold(parseEther('1000')))
+  await confirmTxn(pool.connect(deployerSigner).setMintFeeThreshold(parseEther('1000')))
 }
 
-async function configureCrossChainPool(deployerSigned: SignerWithAddress, pool: Contract) {
+async function configureCrossChainPool(deployerSigner: SignerWithAddress, pool: Contract) {
   deployments.log('configure cross chain pool...')
-  await confirmTxn(pool.connect(deployerSigned).setMaximumOutboundCredit(parseEther('100000')))
-  await confirmTxn(pool.connect(deployerSigned).setMaximumOutboundCredit(parseEther('100000')))
+  await confirmTxn(pool.connect(deployerSigner).setMaximumOutboundCredit(parseEther('100000')))
+  await confirmTxn(pool.connect(deployerSigner).setMaximumOutboundCredit(parseEther('100000')))
 
-  await confirmTxn(pool.connect(deployerSigned).setSwapTokensForCreditEnabled(true))
-  await confirmTxn(pool.connect(deployerSigned).setSwapCreditForTokensEnabled(true))
+  await confirmTxn(pool.connect(deployerSigner).setSwapTokensForCreditEnabled(true))
+  await confirmTxn(pool.connect(deployerSigner).setSwapCreditForTokensEnabled(true))
 }
 // Sample swaps:
 // - https://testnet.bscscan.com/tx/0xe80a7a90887383e3f201ad73d8a6e46188d66d73d41051123161607d2e696255

@@ -15,7 +15,7 @@ const contractName = 'CrossChainPoolAssets'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
-  const deployerSigned = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 061. Deploying on : ${hre.network.name}...`)
 
@@ -46,7 +46,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
     deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
     // The owner of the pool contract is very powerful!
-    await confirmTxn(pool.connect(deployerSigned).transferOwnership(multisig))
+    await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
     deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
   }
 }

@@ -198,7 +198,7 @@ export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = 
 })
 
 export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
-  bsc_mainnet: {
+  [Network.BSC_MAINNET]: {
     stables_01: {
       BUSD: {
         tokenName: 'Binance USD',
@@ -284,6 +284,13 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
         assetContractName: 'USDPlusAsset',
       },
+      // TODO: add after USDT+ deployment
+      // 'USDT+': {
+      //   tokenName: 'USDT+',
+      //   tokenSymbol: 'USDT+',
+      //   underlyingTokenAddr: '',
+      //   assetContractName: '',
+      // },
       USDC: {
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',
@@ -291,7 +298,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       },
     },
   },
-  bsc_testnet: {
+  [Network.BSC_TESTNET]: {
     stables_01: {
       BUSD: {
         tokenName: 'Binance USD',
@@ -367,6 +374,64 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',
         useMockToken: true,
+      },
+    },
+  },
+  [Network.ARBITRUM_MAINNET]: {
+    USDPlus_Pool: {
+      'USD+': {
+        tokenName: 'USD+',
+        tokenSymbol: 'USD+',
+        underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+        assetContractName: 'USDPlusAsset',
+      },
+      // TODO: add after DAI+ is deployed on Arbitrum
+      // 'DAI+': {
+      //   tokenName: 'DAI+',
+      //   tokenSymbol: 'DAI+',
+      //   underlyingTokenAddr: '',
+      //   assetContractName: '',
+      // },
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      },
+    },
+    MIM_Pool: {
+      MIM: {
+        tokenName: 'Magic Internet Money',
+        tokenSymbol: 'MIM',
+        underlyingTokenAddr: '0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A',
+      },
+      USDT: {
+        tokenName: 'Tether USD',
+        tokenSymbol: 'USDT',
+        underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      },
+    },
+    FRAX_Pool: {
+      FRAX: {
+        tokenName: 'Frax',
+        tokenSymbol: 'FRAX',
+        underlyingTokenAddr: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+      },
+      USDT: {
+        tokenName: 'Tether USD',
+        tokenSymbol: 'USDT',
+        underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      },
+    },
+    BOB_Pool: {
+      BOB: {
+        tokenName: 'BOB',
+        tokenSymbol: 'BOB',
+        underlyingTokenAddr: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B',
+      },
+      USDT: {
+        tokenName: 'Tether USD',
+        tokenSymbol: 'USDT',
+        underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
       },
     },
   },

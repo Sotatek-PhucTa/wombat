@@ -31,7 +31,7 @@ export async function deployAssetV2(
   contractName: string
 ): Promise<void> {
   const { deploy } = deployments
-  const deployerSigned = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Attemping to deploy Asset contract for: ${assetInfo.tokenName} of pool ${poolAddress}`)
   if (assetInfo.underlyingTokenAddr === undefined) {
@@ -62,7 +62,7 @@ export async function deployAssetV2(
     await deployPriceFeed(
       deployer,
       multisig,
-      deployerSigned,
+      deployerSigner,
       deployments,
       assetInfo,
       asset,
@@ -78,21 +78,21 @@ export async function deployAssetV2(
     const underlyingTokens = await pool.getTokens()
     if (!underlyingTokens.includes(underlyingTokenAddr)) {
       deployments.log(`Adding new asset for ${contractName}`)
-      await confirmTxn(pool.connect(deployerSigned).addAsset(underlyingTokenAddr, address))
+      await confirmTxn(pool.connect(deployerSigner).addAsset(underlyingTokenAddr, address))
     } else {
       deployments.log(`Removing the old asset for ${contractName} and adding new asset`)
-      await confirmTxn(pool.connect(deployerSigned).removeAsset(underlyingTokenAddr))
-      await confirmTxn(pool.connect(deployerSigned).addAsset(underlyingTokenAddr, address))
+      await confirmTxn(pool.connect(deployerSigner).removeAsset(underlyingTokenAddr))
+      await confirmTxn(pool.connect(deployerSigner).addAsset(underlyingTokenAddr, address))
     }
 
     // Add pool reference to Asset
-    await confirmTxn(await asset.connect(deployerSigned).setPool(poolAddress))
+    await confirmTxn(await asset.connect(deployerSigner).setPool(poolAddress))
     deployments.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
 
     // transfer asset LP token contract ownership to Gnosis Safe
     // The owner of the asset contract can change our pool address and change asset max supply
     deployments.log(`Transferring ownership of asset ${asset.address} to ${multisig}...`)
-    await confirmTxn(asset.connect(deployerSigned).transferOwnership(multisig))
+    await confirmTxn(asset.connect(deployerSigner).transferOwnership(multisig))
     deployments.log(`Transferred ownership of asset ${asset.address} to ${multisig}...`)
 
     logVerifyCommand(network, assetDeployResult)
@@ -119,7 +119,7 @@ export async function deployAssetV2(
 export async function deployPriceFeed(
   deployer: string,
   multisig: string,
-  deployerSigned: SignerWithAddress,
+  deployerSigner: SignerWithAddress,
   deployments: DeploymentsExtension,
   assetInfo: IAssetInfo,
   asset: Contract,
@@ -143,7 +143,7 @@ export async function deployPriceFeed(
   })
   if (priceFeedDeployResult.newlyDeployed) {
     deployments.log(`Transferring ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
-    await confirmTxn(asset.connect(deployerSigned).transferOwnership(multisig))
+    await confirmTxn(asset.connect(deployerSigner).transferOwnership(multisig))
     deployments.log(`Transferring ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
 
     // set price feed for the asset

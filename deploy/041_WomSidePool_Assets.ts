@@ -13,7 +13,7 @@ const contractName = 'WomSidePoolAssets'
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deployer, multisig } = await getNamedAccounts()
-  const deployerSigned = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 041. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -41,7 +41,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
     deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
     // The owner of the pool contract is very powerful!
-    await confirmTxn(pool.connect(deployerSigned).transferOwnership(multisig))
+    await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
     deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
   }
 }
