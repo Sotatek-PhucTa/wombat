@@ -1,4 +1,5 @@
-import { BigNumberish } from 'ethers'
+import { assert } from 'chai'
+import { BigNumberish, ethers } from 'ethers'
 
 export enum Network {
   HARDHAT = 'hardhat',
@@ -16,6 +17,20 @@ export interface DeploymentOrAddress {
   deploymentOrAddress: string
 }
 
+export function Deployment(deployment: string): DeploymentOrAddress {
+  return { deploymentOrAddress: deployment }
+}
+
+export function Address(address: string): DeploymentOrAddress {
+  assert(ethers.utils.isAddress(address), `Invalid address: ${address}`)
+  return { deploymentOrAddress: address }
+}
+
+// Use for error checking
+export function Unknown(): DeploymentOrAddress {
+  return { deploymentOrAddress: 'unknown' }
+}
+
 /**
  * @deprecated use PartialRecord<Network, NetworkPoolInfo>
  */
@@ -31,7 +46,7 @@ export interface ITokensInfo {
 }
 
 export interface IRewarder {
-  lpToken: string
+  lpToken: DeploymentOrAddress
   rewardToken: string
   startTimestamp?: number
   secondsToStart?: number

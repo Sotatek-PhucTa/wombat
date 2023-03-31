@@ -4,7 +4,8 @@ import { Contract } from 'ethers'
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BRIBE_MAPS } from '../tokens.config'
-import { confirmTxn, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { Network } from '../types'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -16,7 +17,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   // Deploy all Bribe
   const voter = await getDeployedContract('Voter')
-  for await (const [token, bribeConfig] of Object.entries(BRIBE_MAPS[hre.network.name] || {})) {
+  for await (const [token, bribeConfig] of Object.entries(BRIBE_MAPS[hre.network.name as Network] || {})) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
     const name = `Bribe_${token}`
@@ -37,7 +38,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
           voter,
           deployerSigner,
           masterWombat.address,
-          bribeConfig.lpToken,
+          await getAddress(bribeConfig.lpToken),
           deployResult.address,
           deployments
         )
