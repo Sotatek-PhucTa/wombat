@@ -282,14 +282,14 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         tokenName: 'USD+',
         tokenSymbol: 'USD+',
         underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
-        assetContractName: 'USDPlusAsset',
+        assetContractName: 'SkimmableAsset',
       },
       // TODO: add after USDT+ deployment
       // 'USDT+': {
       //   tokenName: 'USDT+',
       //   tokenSymbol: 'USDT+',
       //   underlyingTokenAddr: '',
-      //   assetContractName: '',
+      //   assetContractName: 'SkimmableAsset',
       // },
       USDC: {
         tokenName: 'USD Coin',
@@ -383,15 +383,14 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         tokenName: 'USD+',
         tokenSymbol: 'USD+',
         underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
-        assetContractName: 'USDPlusAsset',
+        assetContractName: 'SkimmableAsset',
       },
-      // TODO: add after DAI+ is deployed on Arbitrum
-      // 'DAI+': {
-      //   tokenName: 'DAI+',
-      //   tokenSymbol: 'DAI+',
-      //   underlyingTokenAddr: '',
-      //   assetContractName: '',
-      // },
+      'DAI+': {
+        tokenName: 'DAI+',
+        tokenSymbol: 'DAI+',
+        underlyingTokenAddr: '0xeb8E93A0c7504Bffd8A8fFa56CD754c63aAeBFe8',
+        assetContractName: 'SkimmableAsset',
+      },
       USDC: {
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',

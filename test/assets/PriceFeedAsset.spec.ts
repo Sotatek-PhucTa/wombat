@@ -1,16 +1,15 @@
 import { parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
-import { Asset, GovernedPriceFeed, PoolV3, PriceFedAsset, TestERC20 } from '../../build/typechain'
+import { Asset, GovernedPriceFeed, PoolV3, PriceFeedAsset, TestERC20 } from '../../build/typechain'
 import { latest } from '../helpers'
 
 const { expect } = chai
 
-describe('USD+ Asset', function () {
+describe('Price Feed Asset', function () {
   let owner: SignerWithAddress
   let rest: SignerWithAddress[]
   let user: SignerWithAddress
@@ -18,7 +17,7 @@ describe('USD+ Asset', function () {
   let token: TestERC20
   let token2: TestERC20
   let asset: Asset
-  let asset2: PriceFedAsset
+  let asset2: PriceFeedAsset
   let priceFeed: GovernedPriceFeed
 
   beforeEach(async function () {
@@ -38,7 +37,7 @@ describe('USD+ Asset', function () {
       token2.address,
       'sfrxETH LP',
       'sfrxETH LP',
-    ])) as PriceFedAsset
+    ])) as PriceFeedAsset
     pool = (await ethers.deployContract('DynamicPoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
 
     await pool.initialize(parseEther('0.05'), parseEther('0.004'))

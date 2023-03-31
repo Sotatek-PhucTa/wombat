@@ -10,7 +10,7 @@ import { latest } from '../helpers'
 
 const { expect } = chai
 
-describe('USD+ Asset', function () {
+describe('SkimmableAsset Asset', function () {
   let owner: SignerWithAddress
   let rest: SignerWithAddress[]
   let user: SignerWithAddress
@@ -27,10 +27,9 @@ describe('USD+ Asset', function () {
     const coreV3 = await ethers.deployContract('CoreV3')
     token = await ethers.deployContract('TestERC20', ['USD+', 'USD+ Token', 6, parseUnits('10000000', 8)])
     token2 = await ethers.deployContract('TestERC20', ['Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)])
-    asset = await ethers.deployContract('USDPlusAsset', [token.address, 'USD+ LP', 'USD+-LP'])
+    asset = await ethers.deployContract('SkimmableAsset', [token.address, 'USD+ LP', 'USD+-LP'])
     asset2 = await ethers.deployContract('Asset', [token2.address, 'Venus USD LP', 'vUSDC-LP'])
-    // pool = (await ethers.deployContract('PoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
-    pool = (await ethers.deployContract('PoolV2')) as PoolV3
+    pool = (await ethers.deployContract('PoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
 
     await pool.connect(owner).initialize(parseEther('0.05'), parseEther('0.004'))
     await pool.connect(owner).addAsset(token.address, asset.address)
@@ -39,7 +38,7 @@ describe('USD+ Asset', function () {
     // set dummy pool address
     await asset.setPool(pool.address)
     await asset2.setPool(pool.address)
-    await asset.addUSDPlusAdmin(owner.address)
+    await asset.addSkimAdmin(owner.address)
 
     await token.connect(owner).transfer(user.address, parseUnits('100000', 6))
     await token2.connect(owner).transfer(user.address, parseUnits('100000', 8))

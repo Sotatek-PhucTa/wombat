@@ -8,16 +8,16 @@ import '../libraries/DSMath.sol';
 import './Asset.sol';
 
 /**
- * @title USD+ Asset
+ * @title Skimmable Asset
  * @notice Contract presenting an asset in a pool
- * @dev The `USDPlusAdmin` can extract rebasing reward from the contract by calling `skim`
+ * @dev The `SkimAdmin` can extract rebasing reward from the contract by calling `skim`
  * Note that there no tip bucket should be stored in this contract, otherwise it will be `skimm`ed. i.e. `lpDividendRatio + retentionRatio = 1 ether`
- * For V1 contracts, `mintFeeThreshold` needs to be set to 0 additionally
+ * For V1 contracts, `mintFeeThreshold` needs to be set to 0 since `mintFee` checks `mintFeeThreshold`
  */
-contract USDPlusAsset is Asset, ReentrancyGuard, AccessControlEnumerable {
+contract SkimmableAsset is Asset, ReentrancyGuard, AccessControlEnumerable {
     using SafeERC20 for IERC20;
 
-    bytes32 public constant ROLE_USDPlusAdmin = keccak256('USD+Admin');
+    bytes32 public constant ROLE_SkimAdmin = keccak256('SkimAdmin');
 
     /// @notice An event thats emitted when Skim
     event Skim(uint256 amount, address to);
@@ -30,20 +30,20 @@ contract USDPlusAsset is Asset, ReentrancyGuard, AccessControlEnumerable {
         string memory symbol_
     ) Asset(underlyingToken_, name_, symbol_) {}
 
-    function addUSDPlusAdmin(address _admin) external onlyOwner {
-        _grantRole(ROLE_USDPlusAdmin, _admin);
+    function addSkimAdmin(address _admin) external onlyOwner {
+        _grantRole(ROLE_SkimAdmin, _admin);
     }
 
-    function removeUSDPlusAdmin(address _admin) external onlyOwner {
-        _revokeRole(ROLE_USDPlusAdmin, _admin);
+    function removeSkimAdmin(address _admin) external onlyOwner {
+        _revokeRole(ROLE_SkimAdmin, _admin);
     }
 
     function skim(address _to) external nonReentrant returns (uint256 amount) {
-        require(hasRole(ROLE_USDPlusAdmin, msg.sender), 'not authorized');
+        require(hasRole(ROLE_SkimAdmin, msg.sender), 'not authorized');
 
         IPool(pool).mintFee(underlyingToken); // mint fee to LP before skim such that haircut is not skimmed
         amount = _quoteSkimAmount();
-        IERC20(underlyingToken).safeTransfer(_to, amount); // `safeTransfer` is not needed for USD+
+        IERC20(underlyingToken).safeTransfer(_to, amount);
 
         emit Skim(amount, _to);
     }
