@@ -20,6 +20,7 @@ import {
   TokenSymbol,
   Unknown,
 } from './types'
+import { Token } from './types/token'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -50,6 +51,9 @@ function defaultRewarder() {
   return {
     secondsToStart: 60,
     tokenPerSec: 0,
+    // Must set either one
+    rewardToken: ethers.constants.AddressZero,
+    rewardTokens: [],
   }
 }
 
@@ -868,46 +872,45 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     },
   },
   [Network.ARBITRUM_MAINNET]: {
-    // TODO: update token addresses before deployment.
     USDPlus_Pool_USDPlus: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_USDPlus_Pool_USD+'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.USDPlus],
     },
     USDPlus_Pool_USDC: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_USDPlus_Pool_USDC'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.USDPlus],
     },
     MIM_Pool_MIM: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_MIM_Pool_MIM'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.MIM],
     },
     MIM_Pool_USDT: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_MIM_Pool_USDT'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.MIM],
     },
     FRAX_Pool_FRAX: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_FRAX_Pool_FRAX'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.FXS],
     },
     FRAX_Pool_USDT: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_FRAX_Pool_USDT'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.FXS],
     },
     BOB_Pool_BOB: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_BOB_Pool_BOB'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.BOB],
     },
     BOB_Pool_USDT: {
       ...defaultRewarder(),
       lpToken: Deployment('Asset_BOB_Pool_USDT'),
-      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+      rewardTokens: [Token.BOB],
     },
   },
 })

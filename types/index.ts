@@ -1,5 +1,6 @@
 import { assert } from 'chai'
 import { BigNumberish, ethers } from 'ethers'
+import { Token } from './token'
 
 export enum Network {
   HARDHAT = 'hardhat',
@@ -47,7 +48,9 @@ export interface ITokensInfo {
 
 export interface IRewarder {
   lpToken: DeploymentOrAddress
+  // TODO: migrate rewardToken to rewardTokens
   rewardToken: string
+  rewardTokens: Token[]
   startTimestamp?: number
   secondsToStart?: number
   tokenPerSec: BigNumberish
