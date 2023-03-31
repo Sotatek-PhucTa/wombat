@@ -1,4 +1,5 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { assert } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -20,8 +21,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
-
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+  const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 110. Deploying on : ${hre.network.name}...`)
 
@@ -36,28 +36,39 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   })
 
   if (deployResult.newlyDeployed) {
-    const router = await ethers.getContractAt(contractName, deployResult.address)
-    await approveMainPool(router, owner)
-    await approveSidePool(router, owner)
-    await approveFactoryPools(router, owner)
-    await approveDynamicPools(router, owner)
-    await approveBnbxPool(router, owner)
-    await approveWomSidePools(router, owner)
     deployments.log(`Deployment complete.`)
     logVerifyCommand(hre.network.name, deployResult)
   }
 
+  const router = await ethers.getContractAt(contractName, deployResult.address)
+  await approveMainPool(router, owner)
+  await approveSidePool(router, owner)
+  await approveFactoryPools(router, owner)
+  await approveDynamicPools(router, owner)
+  await approveBnbxPool(router, owner)
+  await approveWomSidePools(router, owner)
+
   return deployResult
 
-  // TODO: skip approval if already approved
   async function approveSpending(
     router: Contract,
     owner: SignerWithAddress,
     tokenAddresses: string[],
     poolAddress: string
   ) {
-    deployments.log(`Approving spending on ${poolAddress} for ${tokenAddresses}`)
-    await confirmTxn(router.connect(owner).approveSpendingByPool(tokenAddresses, poolAddress))
+    assert(tokenAddresses.length > 0)
+    // We only sample the last token here. This is a heuristics that changes are append to config. We already verified
+    // tokenAddresses exist. So at(-1) can't be null, but linter is stupid.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const erc20 = await ethers.getContractAt('ERC20', tokenAddresses.at(-1)!)
+    if (erc20.allowance(router.address, poolAddress) > 0) {
+      deployments.log(
+        `Skip approving spending on ${poolAddress} since it is already approved for token ${tokenAddresses[0]}`
+      )
+    } else {
+      deployments.log(`Approving spending on ${poolAddress} for ${tokenAddresses}`)
+      await confirmTxn(router.connect(owner).approveSpendingByPool(tokenAddresses, poolAddress))
+    }
   }
 
   async function approveMainPool(router: Contract, owner: SignerWithAddress) {
