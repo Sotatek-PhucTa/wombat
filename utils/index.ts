@@ -6,10 +6,12 @@ import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
-import { DeploymentOrAddress, IAssetInfo } from '../types'
+import { DeploymentOrAddress, IAssetInfo, Unknown } from '../types'
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress) {
-  if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
+  if (deploymentOrAddress.deploymentOrAddress == Unknown().deploymentOrAddress) {
+    throw new Error('Cannot resolve unknown address')
+  } else if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
     return deploymentOrAddress.deploymentOrAddress
   } else {
     const deployment = await deployments.get(deploymentOrAddress.deploymentOrAddress)

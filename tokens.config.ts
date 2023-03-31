@@ -18,16 +18,21 @@ import {
   PoolName,
   TokenMap,
   TokenSymbol,
+  Unknown,
 } from './types'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
-export const WOMBAT_TOKEN: PartialRecord<Network, DeploymentOrAddress> = injectForkNetwork({
-  [Network.HARDHAT]: { deploymentOrAddress: 'WombatToken' },
-  [Network.LOCALHOST]: { deploymentOrAddress: 'WombatToken' },
-  [Network.BSC_MAINNET]: { deploymentOrAddress: 'WombatToken' },
-  [Network.BSC_TESTNET]: { deploymentOrAddress: 'WombatToken' },
-  [Network.ARBITRUM_MAINNET]: { deploymentOrAddress: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96' },
-}) as PartialRecord<Network, DeploymentOrAddress>
+export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
+  [Network.HARDHAT]: Deployment('WombatToken'),
+  [Network.LOCALHOST]: Deployment('WombatToken'),
+  [Network.BSC_MAINNET]: Deployment('WombatToken'),
+  [Network.BSC_TESTNET]: Deployment('WombatToken'),
+  [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
+  [Network.ARBITRUM_TESTNET]: Unknown(),
+  [Network.POLYGON_MAINNET]: Unknown(),
+  [Network.POLYGON_TESTNET]: Unknown(),
+  [Network.AVALANCHE_TESTNET]: Address('0xa15E4544D141aa98C4581a1EA10Eb9048c3b3382'),
+}) as Record<Network, DeploymentOrAddress>
 
 export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
   [Network.HARDHAT]: ethers.constants.AddressZero,

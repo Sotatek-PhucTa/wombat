@@ -22,7 +22,7 @@ export function Deployment(deployment: string): DeploymentOrAddress {
 }
 
 export function Address(address: string): DeploymentOrAddress {
-  assert(ethers.utils.isAddress(address), `Invalid address: ${address}`)
+  assert(ethers.utils.isAddress(address))
   return { deploymentOrAddress: address }
 }
 

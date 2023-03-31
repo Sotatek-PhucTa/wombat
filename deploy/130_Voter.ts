@@ -14,9 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 130. Deploying on: ${hre.network.name}...`)
 
-  const wombatToken = await getAddress(
-    WOMBAT_TOKEN[hre.network.name as Network] ?? { deploymentOrAddress: 'WombatToken' }
-  )
+  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
   const vewom = await deployments.get('VeWom')
 
   const block = await ethers.provider.getBlock('latest')

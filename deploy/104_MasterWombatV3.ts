@@ -13,9 +13,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   deployments.log(`Step 104. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
-  const wombatToken = await getAddress(
-    WOMBAT_TOKEN[hre.network.name as Network] ?? { deploymentOrAddress: 'WombatToken' }
-  )
+  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
   const deployResult = await deploy(contractName, {
     from: deployer,
     contract: contractName,
