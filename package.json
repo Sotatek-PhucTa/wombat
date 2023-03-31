@@ -54,7 +54,7 @@
     "ts-node": "^10.9.1",
     "tsimportlib": "^0.0.3",
     "typechain": "^8.1.1",
-    "typescript": "^5.0.2",
+    "typescript": "^5.0.3",
     "utf8": "^3.0.0"
   },
   "scripts": {
