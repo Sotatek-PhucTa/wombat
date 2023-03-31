@@ -26,12 +26,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     /// Mock USD TOKENS ///
     const USD_TOKENS = USD_TOKENS_MAP[hre.network.name] || {}
     for (const index in USD_TOKENS) {
+      const args = USD_TOKENS[index].slice(0, 4)
       const tokenSymbol = USD_TOKENS[index][1] as string
+      deployments.log(`Deploying ${tokenSymbol} with args: ${args}`)
       const deployment = await deploy(tokenSymbol, {
         from: deployer,
         log: true,
         contract: 'TestERC20',
-        args: USD_TOKENS[index].slice(0, 4),
+        args: args,
         skipIfAlreadyDeployed: true,
       })
 
