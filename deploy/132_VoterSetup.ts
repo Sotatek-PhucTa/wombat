@@ -93,11 +93,7 @@ async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat:
   try {
     await confirmTxn(voter.connect(owner).add(masterWombat, assetAddress, ethers.constants.AddressZero))
   } catch (err: any) {
-    if (
-      err.error &&
-      (err.error.stack.includes('voter: already added') ||
-        err.error.stack.includes('Voter: gaugeManager is already exist'))
-    ) {
+    if (err.message.includes('voter: already added') || err.message.includes('Voter: gaugeManager is already exist')) {
       deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
     } else {
       deployments.log('Failed to add asset', assetAddress, 'due to', err)
