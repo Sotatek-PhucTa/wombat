@@ -6,6 +6,9 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BRIBE_MAPS } from '../tokens.config'
 import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 import { Network } from '../types'
+import { getTokenAddress } from '../types/token'
+import { assert } from 'chai'
+import { parseEther } from 'ethers/lib/utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -22,17 +25,30 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
     const name = `Bribe_${token}`
     const lpTokenAddress = await getAddress(bribeConfig.lpToken)
+    const rewardTokens =
+      bribeConfig.rewardToken != ethers.constants.AddressZero
+        ? [bribeConfig.rewardToken]
+        : await Promise.all(bribeConfig.rewardTokens.map((t) => getTokenAddress(t)))
+    assert(rewardTokens.length > 0, `Empty rewardTokens for bribe at ${token}`)
     const deployResult = await deploy(name, {
       from: deployer,
       contract: 'Bribe',
       log: true,
       skipIfAlreadyDeployed: true,
-      args: [voter.address, lpTokenAddress, startTimestamp, bribeConfig.rewardToken, bribeConfig.tokenPerSec],
+      args: [voter.address, lpTokenAddress, startTimestamp, rewardTokens[0], bribeConfig.tokenPerSec],
     })
 
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
-      deployments.log(`Bribe_${token} Deployment complete.`)
+      if (rewardTokens.length > 1) {
+        deployments.log(`${name} adding all rewardTokens`)
+        const bribe = await getDeployedContract('Bribe', name)
+        for (const address of rewardTokens) {
+          await confirmTxn(bribe.connect(deployerSigner).addRewardToken(address, bribeConfig.tokenPerSec))
+        }
+      }
+
+      deployments.log(`${name} Deployment complete.`)
       if (await isOwner(voter, deployerSigner.address)) {
         const masterWombat = await deployments.get('MasterWombatV3')
         await addBribe(voter, deployerSigner, masterWombat.address, lpTokenAddress, deployResult.address, deployments)
