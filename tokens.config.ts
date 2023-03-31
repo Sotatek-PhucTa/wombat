@@ -2,6 +2,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import {
   Address,
+  Deployment,
   DeploymentOrAddress,
   IAssetInfo,
   IMockTokenInfo,
@@ -858,6 +859,49 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       ...defaultRewarder(),
       lpToken: Address('0xB9207cc7bEaFb74773Cd08C869d6F6f890105564'),
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+    },
+  },
+  [Network.ARBITRUM_MAINNET]: {
+    // TODO: update token addresses before deployment.
+    USDPlus_Pool_USDPlus: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_USDPlus_Pool_USD+'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+    },
+    USDPlus_Pool_USDC: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_USDPlus_Pool_USDC'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+    },
+    MIM_Pool_MIM: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_MIM_Pool_MIM'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+    },
+    MIM_Pool_USDT: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_MIM_Pool_USDT'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+    },
+    FRAX_Pool_FRAX: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_FRAX_Pool_FRAX'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+    },
+    FRAX_Pool_USDT: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_FRAX_Pool_USDT'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+    },
+    BOB_Pool_BOB: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_BOB_Pool_BOB'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
+    },
+    BOB_Pool_USDT: {
+      ...defaultRewarder(),
+      lpToken: Deployment('Asset_BOB_Pool_USDT'),
+      rewardToken: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96', // WOM
     },
   },
 })

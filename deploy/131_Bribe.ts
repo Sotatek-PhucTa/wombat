@@ -21,12 +21,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
     const name = `Bribe_${token}`
+    const lpTokenAddress = await getAddress(bribeConfig.lpToken)
     const deployResult = await deploy(name, {
       from: deployer,
       contract: 'Bribe',
       log: true,
       skipIfAlreadyDeployed: true,
-      args: [voter.address, bribeConfig.lpToken, startTimestamp, bribeConfig.rewardToken, bribeConfig.tokenPerSec],
+      args: [voter.address, lpTokenAddress, startTimestamp, bribeConfig.rewardToken, bribeConfig.tokenPerSec],
     })
 
     // Add new Bribe to Voter. Skip if not owner.
@@ -34,15 +35,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       deployments.log(`Bribe_${token} Deployment complete.`)
       if (await isOwner(voter, deployerSigner.address)) {
         const masterWombat = await deployments.get('MasterWombatV3')
-        await addBribe(
-          voter,
-          deployerSigner,
-          masterWombat.address,
-          await getAddress(bribeConfig.lpToken),
-          deployResult.address,
-          deployments
-        )
-        deployments.log(`addBribe for ${bribeConfig.lpToken} complete.`)
+        await addBribe(voter, deployerSigner, masterWombat.address, lpTokenAddress, deployResult.address, deployments)
+        deployments.log(`addBribe for ${lpTokenAddress} complete.`)
       } else {
         deployments.log(
           `User ${deployerSigner.address} does not own Voter. Please call add/setBribe in multi-sig. Bribe: ${deployResult.address}. LP: ${bribeConfig.lpToken}.`
