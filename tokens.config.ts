@@ -279,6 +279,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
       },
     },
+    // Skim admin: 0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e
     USDPlus_Pool: {
       'USD+': {
         tokenName: 'USD+',
@@ -286,13 +287,12 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
         assetContractName: 'SkimmableAsset',
       },
-      // TODO: add after USDT+ deployment
-      // 'USDT+': {
-      //   tokenName: 'USDT+',
-      //   tokenSymbol: 'USDT+',
-      //   underlyingTokenAddr: '',
-      //   assetContractName: 'SkimmableAsset',
-      // },
+      'USDT+': {
+        tokenName: 'USDT+',
+        tokenSymbol: 'USDT+',
+        underlyingTokenAddr: '0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C',
+        assetContractName: 'SkimmableAsset',
+      },
       USDC: {
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',
