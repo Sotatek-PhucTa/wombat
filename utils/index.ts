@@ -8,10 +8,8 @@ import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
 import { DeploymentOrAddress, IAssetInfo, Unknown } from '../types'
 
-export async function getAddress(deploymentOrAddress: DeploymentOrAddress) {
-  if (deploymentOrAddress.deploymentOrAddress == Unknown().deploymentOrAddress) {
-    throw new Error('Cannot resolve unknown address')
-  } else if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
+export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Promise<string> {
+  if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
     return deploymentOrAddress.deploymentOrAddress
   } else {
     const deployment = await deployments.get(deploymentOrAddress.deploymentOrAddress)
