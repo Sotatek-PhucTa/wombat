@@ -879,46 +879,30 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     },
   },
   [Network.ARBITRUM_MAINNET]: {
-    USDPlus_Pool_USDPlus: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_USDPlus_Pool_USD+'),
+    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USD+', {
       rewardTokens: [Token.USDPlus],
-    },
-    USDPlus_Pool_USDC: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_USDPlus_Pool_USDC'),
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
       rewardTokens: [Token.USDPlus],
-    },
-    MIM_Pool_MIM: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_MIM_Pool_MIM'),
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_MIM', {
       rewardTokens: [Token.MIM],
-    },
-    MIM_Pool_USDT: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_MIM_Pool_USDT'),
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_USDT', {
       rewardTokens: [Token.MIM],
-    },
-    FRAX_Pool_FRAX: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_FRAX_Pool_FRAX'),
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_FRAX', {
       rewardTokens: [Token.FXS],
-    },
-    FRAX_Pool_USDT: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_FRAX_Pool_USDT'),
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USDT', {
       rewardTokens: [Token.FXS],
-    },
-    BOB_Pool_BOB: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_BOB_Pool_BOB'),
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_BOB', {
       rewardTokens: [Token.BOB],
-    },
-    BOB_Pool_USDT: {
-      ...defaultRewarder(),
-      lpToken: Deployment('Asset_BOB_Pool_USDT'),
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_USDT', {
       rewardTokens: [Token.BOB],
-    },
+    }),
   },
 })
 
@@ -1024,5 +1008,15 @@ const tokensInfoToAssetInfo = (tokenInfo: ITokensInfo): IAssetInfo => {
     underlyingTokenAddr: tokenInfo[2],
     allocPoint: tokenInfo[3] ? tokenInfo[3] : undefined,
     assetContractName: tokenInfo[4],
+  }
+}
+
+function createBribeConfigFromDeployedAsset(deploymentName: string, config: Partial<IRewarder>): TokenMap<IRewarder> {
+  return {
+    [deploymentName]: {
+      ...defaultRewarder(),
+      lpToken: Deployment(deploymentName),
+      ...config,
+    },
   }
 }
