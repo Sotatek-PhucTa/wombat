@@ -19,7 +19,7 @@ export enum Token {
 
 export async function getTokenAddress(token: Token): Promise<string> {
   const network = await getNetwork()
-  const deploymentOrAddress = registry[token][network]
+  const deploymentOrAddress = tokenRegistry[token][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for token ${Token[token]} in network ${network}`)
   } else {
@@ -28,7 +28,7 @@ export async function getTokenAddress(token: Token): Promise<string> {
 }
 
 // registry of token address. Used by getTokenAddress only. Do not export.
-const registry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> = {
+const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> = {
   [Token.BOB]: {
     // https://www.coingecko.com/en/coins/bob
     [Network.BSC_MAINNET]: Address('0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B'),
