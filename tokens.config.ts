@@ -610,42 +610,49 @@ export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<IT
 export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
   bsc_mainnet: {
     HAY: {
+      ...defaultRewarder(),
       lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // HAY-LP
       rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.005708'),
     },
     wmxWom: {
+      ...defaultRewarder(),
       lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'), // wmxWOM-LP
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.027'),
     },
     wmxWOMPool_WOM: {
+      ...defaultRewarder(),
       lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'), // WOM-LP
       rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.0116'),
     },
     mWOM: {
+      ...defaultRewarder(),
       lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'), // mWOM-LP TBD
       rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.375'),
     },
     mWOMPool_WOM: {
+      ...defaultRewarder(),
       lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'), // mWOMPool_WOM-LP TBD
       rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.075'),
     },
     qWOM: {
+      ...defaultRewarder(),
       lpToken: Address('0x87073ba87517E7ca981AaE3636754bCA95C120E4'),
       rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.13'),
     },
     qWOMPool_WOM: {
+      ...defaultRewarder(),
       lpToken: Address('0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8'),
       rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
