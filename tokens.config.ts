@@ -279,8 +279,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
       },
     },
-    // Skim admin: 0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e
     USDPlus_Pool: {
+      // Skim admin: 0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e
       'USD+': {
         tokenName: 'USD+',
         tokenSymbol: 'USD+',
@@ -380,6 +380,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
     },
   },
   [Network.ARBITRUM_MAINNET]: {
+    // Skim admin: 0x145F2a1aa70098031629606d856591dA0C717554
     USDPlus_Pool: {
       'USD+': {
         tokenName: 'USD+',
