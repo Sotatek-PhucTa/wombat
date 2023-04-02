@@ -6,7 +6,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { BRIBE_MAPS } from '../tokens.config'
 import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 import { Network } from '../types'
-import { getTokenAddress } from '../types/token'
+import { getTokenAddress } from '../types/addresses/token'
 import { assert } from 'chai'
 import { parseEther } from 'ethers/lib/utils'
 

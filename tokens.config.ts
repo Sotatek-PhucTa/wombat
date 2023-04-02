@@ -20,7 +20,7 @@ import {
   TokenSymbol,
   Unknown,
 } from './types'
-import { Token } from './types/token'
+import { Token } from './types/addresses/token'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({

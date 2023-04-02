@@ -1,6 +1,6 @@
 import { assert } from 'chai'
 import { BigNumberish, ethers } from 'ethers'
-import { Token } from './token'
+import { Token } from './addresses/token'
 
 export enum Network {
   HARDHAT = 'hardhat',

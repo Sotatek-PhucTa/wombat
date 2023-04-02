@@ -1,6 +1,6 @@
-import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '.'
-import { getNetwork } from './network'
-import { getAddress } from '../utils'
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '..'
+import { getNetwork } from '../network'
+import { getAddress } from '../../utils'
 
 // style note: sort alphabetically.
 export enum Token {
