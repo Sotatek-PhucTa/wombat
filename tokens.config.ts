@@ -308,6 +308,18 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
       },
     },
+    MIM_Pool: {
+      MIM: {
+        tokenName: 'Magic Internet Money',
+        tokenSymbol: 'MIM',
+        underlyingTokenAddr: '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba',
+      },
+      USDT: {
+        tokenName: 'Tether USD',
+        tokenSymbol: 'USDT',
+        underlyingTokenAddr: '0x55d398326f99059fF775485246999027B3197955',
+      },
+    },
   },
   [Network.BSC_TESTNET]: {
     stables_01: {
