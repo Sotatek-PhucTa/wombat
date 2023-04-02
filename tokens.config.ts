@@ -288,26 +288,26 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
       },
     },
-    USDPlus_Pool: {
-      // Skim admin: 0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e
-      'USD+': {
-        tokenName: 'USD+',
-        tokenSymbol: 'USD+',
-        underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
-        assetContractName: 'SkimmableAsset',
-      },
-      'USDT+': {
-        tokenName: 'USDT+',
-        tokenSymbol: 'USDT+',
-        underlyingTokenAddr: '0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C',
-        assetContractName: 'SkimmableAsset',
-      },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
-      },
-    },
+    // USDPlus_Pool: {
+    //   // Skim admin: 0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e
+    //   'USD+': {
+    //     tokenName: 'USD+',
+    //     tokenSymbol: 'USD+',
+    //     underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+    //     assetContractName: 'SkimmableAsset',
+    //   },
+    //   'USDT+': {
+    //     tokenName: 'USDT+',
+    //     tokenSymbol: 'USDT+',
+    //     underlyingTokenAddr: '0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C',
+    //     assetContractName: 'SkimmableAsset',
+    //   },
+    //   USDC: {
+    //     tokenName: 'USD Coin',
+    //     tokenSymbol: 'USDC',
+    //     underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+    //   },
+    // },
     MIM_Pool: {
       MIM: {
         tokenName: 'Magic Internet Money',
