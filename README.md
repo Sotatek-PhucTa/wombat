@@ -199,6 +199,8 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0xb8b1b72a9b9BA90E2539348fEC1Ad6b265F9F684`
   - Asset_MIM_Pool_MIM (LP-MIM) => `0xA45C0ABeef67C363364E0e73832df9986aBa3800`
   - Asset_MIM_Pool_USDT (LP-USDT) => `0x61e338828ABBdD7bddAd918BB3Cd1F09d4345752`
+  - Bribe_Asset_MIM_Pool_MIM => `0x09Da8826fdC3c5211A9B128d1f4Fb61CE86705f9`
+  - Bribe_Asset_MIM_Pool_USDT => `0xACEB589012edbBEe4CE7b4E89B916700B43419CA`
 
 - Wombat Rewarders
 
