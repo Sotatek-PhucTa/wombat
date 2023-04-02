@@ -16,6 +16,7 @@ export enum Token {
   USDTPlus,
   WMX,
   WOM,
+  wmxWOM,
 }
 
 export async function getTokenAddress(token: Token): Promise<string> {
@@ -84,5 +85,11 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.WOM]: {
     [Network.HARDHAT]: Deployment('WombatToken'),
+  },
+  [Token.wmxWOM]: {
+    // https://bscscan.com/address/0x0415023846Ff1C6016c4d9621de12b24B2402979
+    [Network.BSC_MAINNET]: Address('0x0415023846Ff1C6016c4d9621de12b24B2402979'),
+    // https://arbiscan.io/address/0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24
+    [Network.ARBITRUM_MAINNET]: Address('0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24'),
   },
 }
