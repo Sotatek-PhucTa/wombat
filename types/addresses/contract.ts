@@ -6,6 +6,7 @@ import { getAddress } from '../../utils'
 // style note: sort alphabetically.
 export enum Contract {
   SkimAdmin,
+  WombexVeWomProxy,
 }
 
 export async function getContractAddress(contract: Contract): Promise<string> {
@@ -23,5 +24,9 @@ const contractRegistry: Record<Contract, PartialRecord<Network, DeploymentOrAddr
   [Contract.SkimAdmin]: {
     [Network.BSC_MAINNET]: Address('0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e'),
     [Network.ARBITRUM_MAINNET]: Address('0x145F2a1aa70098031629606d856591dA0C717554'),
+  },
+  [Contract.WombexVeWomProxy]: {
+    // https://arbiscan.io/address/0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1
+    [Network.ARBITRUM_MAINNET]: Address('0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1'),
   },
 }
