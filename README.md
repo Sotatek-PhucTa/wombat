@@ -194,6 +194,12 @@ To verify proxy contracts:
   - Asset_qWOMPool_qWOM (LP-qWOM) => `0x87073ba87517E7ca981AaE3636754bCA95C120E4`
   - Asset_qWOMPool_WOM (LP-WOM) => `0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8`
 
+- MIM Pool
+
+  - Pool Proxy (Main entry) => `0xb8b1b72a9b9BA90E2539348fEC1Ad6b265F9F684`
+  - Asset_MIM_Pool_MIM (LP-MIM) => `0xA45C0ABeef67C363364E0e73832df9986aBa3800`
+  - Asset_MIM_Pool_USDT (LP-USDT) => `0x61e338828ABBdD7bddAd918BB3Cd1F09d4345752`
+
 - Wombat Rewarders
 
   - MultiRewarderPerSec_V3_HAY => `0x7903289B0122f3F4E0fF532D1D8A300D19bFd46f`
