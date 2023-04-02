@@ -4,7 +4,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { FACTORYPOOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
-import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr } from '../utils'
+import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, isOwner } from '../utils'
 import { deployAssetV2 } from '../utils/deploy'
 import { getFactoryPoolContractName } from './050_FactoryPool'
 
@@ -39,10 +39,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     }
 
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
-    deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
     // The owner of the pool contract is very powerful!
-    await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
-    deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
+    if (await isOwner(pool, deployer)) {
+      deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
+      await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
+      deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
+    }
   }
 }
 
