@@ -220,7 +220,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       TUSD: {
         tokenName: 'TrueUSD',
         tokenSymbol: 'TUSD',
-        underlyingTokenAddr: '0x14016e85a25aeb13065688cafb43044c2ef86784',
+        underlyingTokenAddr: '0x14016E85a25aeb13065688cAFB43044C2ef86784',
       },
       FRAX: {
         tokenName: 'Frax',
@@ -244,7 +244,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       CUSD: {
         tokenName: 'Coin98 Dollar',
         tokenSymbol: 'CUSD',
-        underlyingTokenAddr: '0xfa4ba88cf97e282c505bea095297786c16070129',
+        underlyingTokenAddr: '0xFa4BA88Cf97e282c505BEa095297786c16070129',
       },
       HAY: {
         tokenName: 'Hay Destablecoin',
@@ -273,7 +273,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       USDC: {
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+        underlyingTokenAddr: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
       },
     },
     BOB_Pool: {
@@ -285,7 +285,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       USDC: {
         tokenName: 'USD Coin',
         tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+        underlyingTokenAddr: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
       },
     },
     // USDPlus_Pool: {
