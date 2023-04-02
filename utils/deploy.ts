@@ -101,7 +101,7 @@ export async function deployAssetV2(
 
     const underlyingTokens = await pool.getTokens()
     if (!underlyingTokens.includes(underlyingTokenAddr)) {
-      deployments.log(`!! Asset ${contractName} is not in the pool`)
+      deployments.log(`!! Asset ${contractName} is not in the pool ${underlyingTokens}`)
       // uncomment to add asset
       // await confirmTxn(pool.connect(owner).addAsset(underlyingTokenAddr, address))
     }
