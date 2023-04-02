@@ -9,6 +9,7 @@ export enum Token {
   MGP,
   MIM,
   QUO,
+  SPELL,
   USDC,
   USDPlus,
   USDT,
@@ -45,11 +46,17 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.MIM]: {
     // https://www.coingecko.com/en/coins/magic-internet-money
+    [Network.BSC_MAINNET]: Address('0xfe19f0b51438fd612f6fd59c1dbb3ea319f433ba'),
     [Network.ARBITRUM_MAINNET]: Address('0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a'),
   },
   [Token.QUO]: {
     // https://www.coingecko.com/en/coins/quoll-finance
     [Network.BSC_MAINNET]: Address('0x08b450e4a48c04cdf6db2bd4cf24057f7b9563ff'),
+  },
+  [Token.SPELL]: {
+    // https://www.coingecko.com/en/coins/spell-token
+    [Network.BSC_MAINNET]: Address('0x9Fe28D11ce29E340B7124C493F59607cbAB9ce48'),
+    [Network.ARBITRUM_MAINNET]: Address('0x3e6648c5a70a150a88bce65f4ad4d506fe15d2af'),
   },
   [Token.USDC]: {
     // https://www.coingecko.com/en/coins/usd-coin
