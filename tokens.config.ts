@@ -870,6 +870,12 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       lpToken: Address('0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB'),
       rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
     },
+    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_MIM', {
+      rewardTokens: [Token.SPELL],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_USDT', {
+      rewardTokens: [Token.SPELL],
+    }),
   },
   bsc_testnet: {
     BUSD: {
