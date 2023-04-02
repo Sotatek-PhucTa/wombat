@@ -40,10 +40,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
     // The owner of the pool contract is very powerful!
-    if (await isOwner(pool, deployer)) {
+    if (await isOwner(pool, multisig)) {
+      deployments.log('Pool is already owned by multisig')
+    } else if (await isOwner(pool, deployer)) {
       deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
       await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
-      deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
+    } else {
+      throw new Error(`Unknown owner: ${await pool.owner()} who is not multisig nor deployer`)
     }
   }
 }
