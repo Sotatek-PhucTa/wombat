@@ -61,7 +61,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // tokenAddresses exist. So at(-1) can't be null, but linter is stupid.
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const erc20 = await ethers.getContractAt('ERC20', tokenAddresses.at(-1)!)
-    if (erc20.allowance(router.address, poolAddress) > 0) {
+    if ((await erc20.allowance(router.address, poolAddress)) > 0) {
       deployments.log(
         `Skip approving spending on ${poolAddress} since it is already approved for token ${tokenAddresses[0]}`
       )
