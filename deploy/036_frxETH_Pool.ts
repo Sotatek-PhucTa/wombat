@@ -6,6 +6,7 @@ import { DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
 import { confirmTxn, logVerifyCommand } from '../utils'
 import { getPoolContractName } from '../utils/deploy'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 export const contractNamePrefix = 'DynamicPools'
 
@@ -13,7 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+  const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 036. Deploying on : ${hre.network.name}...`)
 
@@ -49,37 +50,35 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     if (deployResult.newlyDeployed) {
       const masterWombatV3Deployment = await deployments.get('MasterWombatV3')
       if (masterWombatV3Deployment.address) {
-        await confirmTxn(pool.setMasterWombat(masterWombatV3Deployment.address))
+        await confirmTxn(pool.connect(owner).setMasterWombat(masterWombatV3Deployment.address))
         deployments.log('set master wombat: ', masterWombatV3Deployment.address)
       }
-      await confirmTxn(pool.setCovRatioFeeParam(parseEther('1.2'), parseEther('1.5')))
+      await confirmTxn(pool.connect(owner).setCovRatioFeeParam(parseEther('1.2'), parseEther('1.5')))
       // Check setup config values
       const ampFactor = await pool.ampFactor()
       const hairCutRate = await pool.haircutRate()
       deployments.log(`Amplification factor is : ${formatEther(ampFactor)}`)
       deployments.log(`Haircut rate is : ${formatEther(hairCutRate)}`)
 
-      if (hre.network.name == 'bsc_mainnet') {
-        // manually transfer proxyAdmin to multi-sig, do it once and all proxy contracts will follow suit
-        // The owner of the ProxyAdmin can upgrade our contracts
-        // The owner of the pool contract is very powerful!
+      // manually transfer proxyAdmin to multi-sig, do it once and all proxy contracts will follow suit
+      // The owner of the ProxyAdmin can upgrade our contracts
+      // The owner of the pool contract is very powerful!
 
-        // transfer pool contract dev to Gnosis Safe
-        deployments.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
-        // The dev of the pool contract can pause and unpause pools & assets!
-        await confirmTxn(pool.connect(owner).setDev(multisig))
-        deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
+      // transfer pool contract dev to Gnosis Safe
+      deployments.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
+      // The dev of the pool contract can pause and unpause pools & assets!
+      await confirmTxn(pool.connect(owner).setDev(multisig))
+      deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
 
-        /// Admin scripts
-        deployments.log(`setFee to 0.5 for lpDividendRatio and 0.5 for retentionRatio...`)
-        await confirmTxn(pool.connect(owner).setFee(parseEther('0.5'), parseEther('0.5')))
+      /// Admin scripts
+      deployments.log(`setFee to 0.5 for lpDividendRatio and 0.5 for retentionRatio...`)
+      await confirmTxn(pool.connect(owner).setFee(parseEther('0.5'), parseEther('0.5')))
 
-        deployments.log(`setFeeTo to ${multisig}.`)
-        await confirmTxn(pool.connect(owner).setFeeTo(multisig))
+      deployments.log(`setFeeTo to ${multisig}.`)
+      await confirmTxn(pool.connect(owner).setFeeTo(multisig))
 
-        deployments.log(`setMintFeeThreshold to 0.01 ...`)
-        await confirmTxn(pool.connect(owner).setMintFeeThreshold(parseEther('0.01')))
-      }
+      deployments.log(`setMintFeeThreshold to 0.01 ...`)
+      await confirmTxn(pool.connect(owner).setMintFeeThreshold(parseEther('0.01')))
 
       logVerifyCommand(hre.network.name, deployResult)
     } else {

@@ -483,7 +483,6 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       },
     },
   },
-  // TODO: add frxETH-WETH pool
 })
 
 // TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`

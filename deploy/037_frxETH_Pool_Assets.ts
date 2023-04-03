@@ -24,7 +24,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const poolContractName = getPoolContractName(contractNamePrefix, poolName)
     const pool = await getDeployedContract('DynamicPoolV2', poolContractName)
 
-    for (const [tokenSymbol, assetInfo] of Object.entries(poolInfo)) {
+    for (const [, assetInfo] of Object.entries(poolInfo)) {
       const tokenAddress = await getUnderlyingTokenAddr(assetInfo)
 
       await deployAssetV2(
@@ -48,4 +48,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['MockTokens', contractNamePrefix]
+deployFunc.dependencies = [contractNamePrefix]
