@@ -128,8 +128,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       for (const [, assetInfo] of Object.entries(poolInfo)) {
         const underlyingTokenAddr = await getUnderlyingTokenAddr(assetInfo)
         tokens.push(underlyingTokenAddr)
+        // approve LP so native token's withdraw/withdrawFromOtherAsset can be used. Examples:
+        // To support add/remove BNB, approve LP-BNB
+        // To support remove LP-BNBx as BNB, approve LP-BNBx
+        const asset = await deployments.get(`Asset_${poolName}_${assetInfo.tokenSymbol}`)
+        tokens.push(asset.address)
       }
-      const contractName = getFactoryPoolContractName(poolName)
+      const contractName = `DynamicPools_${poolName}`
       const poolDeployment = await deployments.get(contractName)
 
       // approve by poolName
