@@ -5,6 +5,7 @@ import { getAddress } from '../../utils'
 // Enum of external contract that are not tokens.
 // style note: sort alphabetically.
 export enum ExternalContract {
+  MagpieVeWomProxy,
   SkimAdmin,
   WombexVeWomProxy,
 }
@@ -21,6 +22,10 @@ export async function getContractAddress(contract: ExternalContract): Promise<st
 
 // registry of contract address. Used by getContractAddress only. Do not export.
 const contractRegistry: Record<ExternalContract, PartialRecord<Network, DeploymentOrAddress>> = {
+  [ExternalContract.MagpieVeWomProxy]: {
+    // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
+    [Network.ARBITRUM_MAINNET]: Address('0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc'),
+  },
   [ExternalContract.SkimAdmin]: {
     [Network.BSC_MAINNET]: Address('0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e'),
     [Network.ARBITRUM_MAINNET]: Address('0x145F2a1aa70098031629606d856591dA0C717554'),
