@@ -42,7 +42,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       if (rewardTokens.length > 1) {
         deployments.log(`${name} adding all rewardTokens`)
         const bribe = await getDeployedContract('Bribe', name)
-        for (const address of rewardTokens) {
+        for (const address of rewardTokens.slice(1)) {
           await confirmTxn(bribe.connect(deployerSigner).addRewardToken(address, bribeConfig.tokenPerSec))
         }
       }

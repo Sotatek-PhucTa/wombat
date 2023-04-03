@@ -8,6 +8,7 @@ export enum Token {
   FXS,
   MGP,
   MIM,
+  QI,
   QUO,
   SPELL,
   USDC,
@@ -53,6 +54,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xfe19f0b51438fd612f6fd59c1dbb3ea319f433ba'),
     [Network.ARBITRUM_MAINNET]: Address('0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a'),
   },
+  [Token.QI]: {
+    // https://docs.mai.finance/functions/smart-contract-addresses
+    [Network.ARBITRUM_MAINNET]: Address('0xb9c8f0d3254007ee4b98970b94544e473cd610ec'),
+  },
   [Token.QUO]: {
     // https://www.coingecko.com/en/coins/quoll-finance
     [Network.BSC_MAINNET]: Address('0x08b450e4a48c04cdf6db2bd4cf24057f7b9563ff'),
@@ -92,6 +97,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.WOM]: {
     [Network.HARDHAT]: Deployment('WombatToken'),
+    [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
   },
   [Token.frxETH]: {
     // https://arbiscan.io/token/0x178412e79c25968a32e89b11f63b33f733770c2a

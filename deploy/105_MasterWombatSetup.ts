@@ -84,7 +84,7 @@ async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetA
   try {
     await confirmTxn(masterWombat.connect(owner).add(assetAddress, ethers.constants.AddressZero))
   } catch (err: any) {
-    if (err.error.stack.includes('add: LP already added')) {
+    if (err.message.includes('add: LP already added')) {
       deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
     } else {
       deployments.log('Failed to add asset', assetAddress, 'due to', err)

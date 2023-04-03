@@ -307,6 +307,17 @@ To verify proxy contracts:
   - Bribe_Asset_frxETH_Pool_frxETH => `0x96412caB79c3A4c5cACD8b6fbFbEa36F4cA3791a`
   - Bribe_Asset_frxETH_Pool_WETH => `0x4f7f9B195eAE3Bd3D933fA9708c9B7ADbFb52ac2`
 
+- FRAX Pool
+  - Pool Proxy (HighCovRatioFeePoolV2) => `0x4a8686df475D4c44324210FFA3Fc1DEA705296e0`
+  - Asset_FRAX_Pool_FRAX => `0xf4B72e9a18E4b7C65165E437c57ff6b6202E4505`
+  - Asset_FRAX_Pool_MAI => `0x51880CEE87bF2F5ffb1AbC84E20889771b025D0A`
+  - Asset_FRAX_Pool_USD+ => `0xF9C2356a21B60c0c4DDF2397f828dd158f82a274`
+  - Asset_FRAX_Pool_USDC => `0x502a88FFCeb9363BEFD1B1c78265FC3ac8ABd3a2`
+  - Bribe_Asset_FRAX_Pool_FRAX => `0xe3c747896C76aEE3f4c18F34A36eE58b425B8E17`
+  - Bribe_Asset_FRAX_Pool_MAI => `0x7b604147a84b5968815347c1D73fCDA2235b7C64`
+  - Bribe_Asset_FRAX_Pool_USD+ => `0xd6d42c18099D2b92b4ffA721E62aea484Cd5D82d`
+  - MultiRewarderPerSec_V3_Asset_FRAX_Pool_USDC => `0xa9a08133af8241e36193b57E4dFE43D147Cd23cC`
+
 ### BSC testnet deployed contracts:
 
 - BSC Wallet Accounts

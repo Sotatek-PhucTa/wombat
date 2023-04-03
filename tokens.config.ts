@@ -433,19 +433,29 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
       },
     },
-    // TODO: FRAX/MAI/USD+/USDC
-    // FRAX_Pool: {
-    //   FRAX: {
-    //     tokenName: 'Frax',
-    //     tokenSymbol: 'FRAX',
-    //     underlyingTokenAddr: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
-    //   },
-    //   USDT: {
-    //     tokenName: 'Tether USD',
-    //     tokenSymbol: 'USDT',
-    //     underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-    //   },
-    // },
+    FRAX_Pool: {
+      FRAX: {
+        tokenName: 'Frax',
+        tokenSymbol: 'FRAX',
+        underlyingTokenAddr: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+      },
+      MAI: {
+        tokenName: 'Mai Stablecoin',
+        tokenSymbol: 'MAI',
+        underlyingTokenAddr: '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d',
+      },
+      'USD+': {
+        tokenName: 'USD+',
+        tokenSymbol: 'USD+',
+        underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+        assetContractName: 'SkimmableAsset',
+      },
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      },
+    },
     BOB_Pool: {
       BOB: {
         tokenName: 'BOB',
@@ -791,6 +801,11 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
     },
   },
+  [Network.ARBITRUM_MAINNET]: {
+    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USDC', {
+      rewardTokens: [Token.WOM],
+    }),
+  },
 })
 
 // IBribe reuses the interface of IRewarder
@@ -962,13 +977,15 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_USDT', {
       rewardTokens: [Token.SPELL],
     }),
-    // TODO: frax pool set up
-    // ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_FRAX', {
-    //   rewardTokens: [Token.FXS],
-    // }),
-    // ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USDT', {
-    //   rewardTokens: [Token.FXS],
-    // }),
+    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_FRAX', {
+      rewardTokens: [Token.FXS],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_MAI', {
+      rewardTokens: [Token.QI],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USD+', {
+      rewardTokens: [Token.USDPlus],
+    }),
     ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_BOB', {
       rewardTokens: [Token.BOB],
     }),
