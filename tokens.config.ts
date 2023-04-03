@@ -987,6 +987,12 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_WOM', {
       rewardTokens: [Token.WMX],
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_frxETH', {
+      rewardTokens: [Token.FXS],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_WETH', {
+      rewardTokens: [Token.FXS],
+    }),
   },
 })
 
