@@ -604,7 +604,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0x178412e79c25968a32e89b11f63b33f733770c2a',
         assetContractName: 'DynamicAsset',
       },
-      ETH: {
+      WETH: {
         tokenName: 'Wrapped Ether',
         tokenSymbol: 'WETH',
         underlyingTokenAddr: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
