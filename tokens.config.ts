@@ -433,31 +433,57 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
       },
     },
-    FRAX_Pool: {
-      FRAX: {
-        tokenName: 'Frax',
-        tokenSymbol: 'FRAX',
-        underlyingTokenAddr: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
-      },
-      USDT: {
-        tokenName: 'Tether USD',
-        tokenSymbol: 'USDT',
-        underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-      },
-    },
+    // TODO: FRAX/MAI/USD+/USDC
+    // FRAX_Pool: {
+    //   FRAX: {
+    //     tokenName: 'Frax',
+    //     tokenSymbol: 'FRAX',
+    //     underlyingTokenAddr: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+    //   },
+    //   USDT: {
+    //     tokenName: 'Tether USD',
+    //     tokenSymbol: 'USDT',
+    //     underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    //   },
+    // },
     BOB_Pool: {
       BOB: {
         tokenName: 'BOB',
         tokenSymbol: 'BOB',
         underlyingTokenAddr: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B',
       },
-      USDT: {
-        tokenName: 'Tether USD',
-        tokenSymbol: 'USDT',
-        underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      USDC: {
+        tokenName: 'USD Coin',
+        tokenSymbol: 'USDC',
+        underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      },
+    },
+    mWOM_Pool: {
+      mWOM: {
+        tokenName: 'mWOM',
+        tokenSymbol: 'mWOM',
+        underlyingTokenAddr: '0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876',
+      },
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
+      },
+    },
+    wmxWOM_Pool: {
+      wmxWOM: {
+        tokenName: 'Wombex WOM',
+        tokenSymbol: 'wmxWOM',
+        underlyingTokenAddr: '0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24',
+      },
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
       },
     },
   },
+  // TODO: add frxETH-WETH pool
 })
 
 // TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
@@ -909,26 +935,42 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USD+', {
       rewardTokens: [Token.USDPlus],
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_DAI+', {
+      rewardTokens: [Token.USDPlus],
+    }),
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
       rewardTokens: [Token.USDPlus],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_MIM', {
-      rewardTokens: [Token.MIM],
+      rewardTokens: [Token.SPELL],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_USDT', {
-      rewardTokens: [Token.MIM],
+      rewardTokens: [Token.SPELL],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_FRAX', {
-      rewardTokens: [Token.FXS],
-    }),
-    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USDT', {
-      rewardTokens: [Token.FXS],
-    }),
+    // TODO: frax pool set up
+    // ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_FRAX', {
+    //   rewardTokens: [Token.FXS],
+    // }),
+    // ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USDT', {
+    //   rewardTokens: [Token.FXS],
+    // }),
     ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_BOB', {
       rewardTokens: [Token.BOB],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_USDT', {
+    ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_USDC', {
       rewardTokens: [Token.BOB],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_mWOM', {
+      rewardTokens: [Token.MGP, Token.USDC],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_WOM', {
+      rewardTokens: [Token.MGP, Token.USDC],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
+      rewardTokens: [Token.WMX],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_WOM', {
+      rewardTokens: [Token.WMX],
     }),
   },
 })

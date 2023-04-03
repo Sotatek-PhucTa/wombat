@@ -8,7 +8,6 @@ import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwne
 import { Network } from '../types'
 import { getTokenAddress } from '../types/addresses/token'
 import { assert } from 'chai'
-import { parseEther } from 'ethers/lib/utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
