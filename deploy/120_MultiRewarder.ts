@@ -44,9 +44,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     if (deployResult.newlyDeployed) {
       /// Add remaining reward tokens
       if (rewardTokens.length > 1) {
-        deployments.log(`${name} adding all rewardTokens`)
         const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
         for (const address of rewardTokens.slice(1)) {
+          deployments.log(`${name} adding rewardToken: ${address}`)
           await confirmTxn(rewarder.connect(owner).addRewardToken(address, rewarderConfig.tokenPerSec))
         }
       }

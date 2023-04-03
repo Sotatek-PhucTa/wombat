@@ -290,8 +290,8 @@ To verify proxy contracts:
   - Pool Proxy (HighCovRatioFeePoolV2) => `0x90eCddEC4E4116E30769A4e1EA52c319aca338B6`
   - Asset_mWOM_Pool_mWOM (LP-mWOM) => `0xDdDC78F940E012CfC1Ad04DE2Ca089eb94900145`
   - Asset_mWOM_Pool_WOM (LP-WOM) => `0x59d8DCA660b71Ba97a16f781A40809a0fC350769`
-  - Bribe_Asset_mWOM_Pool_mWOM => `0xD2592e66Aed59674Fea2d23Ffa66853Be8e95835`
-  - Bribe_Asset_mWOM_Pool_WOM => `0xa2cBE329659fFAB7AB70fe90Ac58070e78aD2F40`
+  - Bribe_Asset_mWOM_Pool_mWOM => `0x259ccd824d4162f41D8BB52e56B15445a21a33Ee`
+  - Bribe_Asset_mWOM_Pool_WOM => `0x096f99AF43B96e87659668A5f9397FeC724D7B24`
 
 - wmxWom Pool
   - Pool Proxy (HighCovRatioFeePoolV2) => `0xEE9b42b40852a53c7361F527e638B485D49750cD`

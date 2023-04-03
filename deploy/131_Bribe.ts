@@ -40,9 +40,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
       if (rewardTokens.length > 1) {
-        deployments.log(`${name} adding all rewardTokens`)
         const bribe = await getDeployedContract('Bribe', name)
         for (const address of rewardTokens.slice(1)) {
+          deployments.log(`${name} adding rewardToken: ${address}`)
           await confirmTxn(bribe.connect(deployerSigner).addRewardToken(address, bribeConfig.tokenPerSec))
         }
       }
@@ -81,11 +81,11 @@ async function addBribe(
   bribe: string,
   deployments: DeploymentsExtension
 ) {
-  deployments.log('addBribe', bribe)
+  deployments.log('addBribe', bribe, lpToken)
   try {
     await confirmTxn(voter.connect(owner).add(masterWombat, lpToken, bribe))
   } catch (err: any) {
-    if (err.error.stack.includes('voter: already added')) {
+    if (err.message.includes('voter: already added')) {
       deployments.log(`Set bribe ${bribe} since it is already added`)
       await confirmTxn(voter.connect(owner).setBribe(lpToken, bribe))
     } else {
