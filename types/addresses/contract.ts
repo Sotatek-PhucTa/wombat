@@ -6,6 +6,7 @@ import { getAddress } from '../../utils'
 // style note: sort alphabetically.
 export enum ExternalContract {
   MagpieVeWomProxy,
+  QuollVeWomProxy,
   SkimAdmin,
   WombexVeWomProxy,
 }
@@ -25,6 +26,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
     [Network.ARBITRUM_MAINNET]: Address('0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc'),
+  },
+  [ExternalContract.QuollVeWomProxy]: {
+    [Network.ARBITRUM_MAINNET]: Address('0x277Cd4b508aFbb75d182870409bBf610AFab5c7b'),
   },
   [ExternalContract.SkimAdmin]: {
     [Network.BSC_MAINNET]: Address('0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e'),

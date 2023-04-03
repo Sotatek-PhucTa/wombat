@@ -492,6 +492,18 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
         underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
       },
     },
+    qWOM_Pool: {
+      qWOM: {
+        tokenName: 'Quoll WOM',
+        tokenSymbol: 'qWOM',
+        underlyingTokenAddr: '0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e',
+      },
+      WOM: {
+        tokenName: 'Wombat Token',
+        tokenSymbol: 'WOM',
+        underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
+      },
+    },
   },
 })
 
@@ -1009,6 +1021,12 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     }),
     ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_WETH', {
       rewardTokens: [Token.FXS],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_qWOM', {
+      rewardTokens: [Token.QUO],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_WOM', {
+      rewardTokens: [Token.QUO],
     }),
   },
 })

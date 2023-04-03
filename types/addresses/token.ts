@@ -20,6 +20,7 @@ export enum Token {
   WOM,
   frxETH,
   mWOM,
+  qWOM,
   wmxWOM,
 }
 
@@ -61,6 +62,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.QUO]: {
     // https://www.coingecko.com/en/coins/quoll-finance
     [Network.BSC_MAINNET]: Address('0x08b450e4a48c04cdf6db2bd4cf24057f7b9563ff'),
+    [Network.ARBITRUM_MAINNET]: Address('0xf00D8790A76ee5A5Dbc10eaCac39151aa2af0331'),
   },
   [Token.SPELL]: {
     // https://www.coingecko.com/en/coins/spell-token
@@ -108,6 +110,12 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c'),
     // https://arbiscan.io/address/0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876
     [Network.ARBITRUM_MAINNET]: Address('0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876'),
+  },
+  [Token.qWOM]: {
+    // https://bscscan.com/address/0x0fE34B8aaAf3f522A6088E278936D10F934c0b19
+    [Network.BSC_MAINNET]: Address('0x0fE34B8aaAf3f522A6088E278936D10F934c0b19'),
+    // https://arbiscan.io/address/0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e
+    [Network.ARBITRUM_MAINNET]: Address('0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e'),
   },
   [Token.wmxWOM]: {
     // https://bscscan.com/address/0x0415023846Ff1C6016c4d9621de12b24B2402979
