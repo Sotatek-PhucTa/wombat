@@ -16,6 +16,7 @@ export enum Token {
   USDTPlus,
   WMX,
   WOM,
+  mWOM,
   wmxWOM,
 }
 
@@ -85,6 +86,12 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.WOM]: {
     [Network.HARDHAT]: Deployment('WombatToken'),
+  },
+  [Token.mWOM]: {
+    // https://bscscan.com/address/0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c
+    [Network.BSC_MAINNET]: Address('0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c'),
+    // https://arbiscan.io/address/0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876
+    [Network.ARBITRUM_MAINNET]: Address('0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876'),
   },
   [Token.wmxWOM]: {
     // https://bscscan.com/address/0x0415023846Ff1C6016c4d9621de12b24B2402979
