@@ -14,8 +14,10 @@ export enum Token {
   USDPlus,
   USDT,
   USDTPlus,
+  WETH,
   WMX,
   WOM,
+  frxETH,
   mWOM,
   wmxWOM,
 }
@@ -79,6 +81,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://bscscan.com/address/0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C
     [Network.BSC_MAINNET]: Address('0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C'),
   },
+  [Token.WETH]: {
+    // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
+    [Network.ARBITRUM_MAINNET]: Address('0x82af49447d8a07e3bd95bd0d56f35241523fbab1'),
+  },
   [Token.WMX]: {
     // https://www.coingecko.com/en/coins/wombex
     [Network.BSC_MAINNET]: Address('0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD'),
@@ -86,6 +92,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.WOM]: {
     [Network.HARDHAT]: Deployment('WombatToken'),
+  },
+  [Token.frxETH]: {
+    // https://arbiscan.io/token/0x178412e79c25968a32e89b11f63b33f733770c2a
+    [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63b33f733770c2a'),
   },
   [Token.mWOM]: {
     // https://bscscan.com/address/0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c

@@ -597,6 +597,22 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = i
       },
     },
   },
+  [Network.ARBITRUM_MAINNET]: {
+    frxETH_Pool: {
+      frxETH: {
+        tokenName: 'Frax Ether',
+        tokenSymbol: 'frxETH',
+        underlyingTokenAddr: '0x178412e79c25968a32e89b11f63b33f733770c2a',
+        assetContractName: 'DynamicAsset',
+      },
+      ETH: {
+        tokenName: 'Wrapped Ether',
+        tokenSymbol: 'WETH',
+        underlyingTokenAddr: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+        assetContractName: 'DynamicAsset',
+      },
+    },
+  },
 })
 
 // TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
