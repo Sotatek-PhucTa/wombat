@@ -258,7 +258,6 @@ To verify proxy contracts:
   - Whitelist => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
 
 - Main Pool
-
   - Pool Proxy (HighCovRatioFeePoolV2) => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
   - Asset_P01_USDC (LP-USDC) => `0x2977b0B54a76c2b56D32cef19f8ea83Cc766cFD9`
   - Asset_P01_USDT (LP-USDT) => `0x85cEBD962861be410a777755dFa06914de6af003`
@@ -300,6 +299,13 @@ To verify proxy contracts:
   - Asset_wmxWOM_Pool_WOM (LP-WOM) => `0xB1Ad5C2573867E8157deD08d065fc761d606C3D9`
   - Bribe_Asset_wmxWOM_Pool_wmxWOM => `0x3324303607b0Fbc2f59E045612eE34C08C7AE41e`
   - Bribe_Asset_wmxWOM_Pool_WOM => `0x6f70C8832a8661113b935453835f20b0C46ae695`
+
+- frxETH Pool
+  - Pool Proxy (DynamicPoolV2) => `0x20D7ee728900848752FA280fAD51aF40c47302f1`
+  - Asset_frxETH_Pool_frxETH (LP-frxETH) => `0x6966553568634F4225330D559a8783DE7649C7D3`
+  - Asset_frxETH_Pool_WETH (LP-WETH) => `0xe62880CC6872c9E9Fb1DDd73f400850fdaBE798D`
+  - Bribe_Asset_frxETH_Pool_frxETH => `0x96412caB79c3A4c5cACD8b6fbFbEa36F4cA3791a`
+  - Bribe_Asset_frxETH_Pool_WETH => `0x4f7f9B195eAE3Bd3D933fA9708c9B7ADbFb52ac2`
 
 ### BSC testnet deployed contracts:
 
