@@ -31,8 +31,8 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.ARBITRUM_MAINNET]: Address('0x277Cd4b508aFbb75d182870409bBf610AFab5c7b'),
   },
   [ExternalContract.SkimAdmin]: {
-    [Network.BSC_MAINNET]: Address('0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e'),
-    [Network.ARBITRUM_MAINNET]: Address('0x145F2a1aa70098031629606d856591dA0C717554'),
+    [Network.BSC_MAINNET]: Address('0xa772b0BA6042b9416a619f6638dcfEaC4a8B31fF'),
+    [Network.ARBITRUM_MAINNET]: Address('0x3ca375b8107cB2c7f520cA87b2DeF8dC5040aeb4'),
   },
   [ExternalContract.WombexVeWomProxy]: {
     // https://arbiscan.io/address/0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1
