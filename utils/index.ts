@@ -134,12 +134,19 @@ export async function printBribeBalances() {
       const contract = await getDeployedContract('Bribe', name)
       const balances = await contract.balances()
       const tokens = await contract.rewardTokens()
+      const decimals = await Promise.all(
+        tokens.map(async (address: string) => {
+          const token = await ethers.getContractAt('ERC20', address)
+          return token.decimals()
+        })
+      )
       return {
         rewarder: name,
         rewarderAddress: contract.address,
         lpToken: await contract.lpToken(),
         balances: balances.map((balance: BigNumber) => formatEther(balance)),
         rewardTokens: tokens,
+        decimals,
       }
     })
   )
