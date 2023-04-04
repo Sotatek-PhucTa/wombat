@@ -6,7 +6,7 @@ import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
-import { DeploymentOrAddress, IAssetInfo, Unknown } from '../types'
+import { DeploymentOrAddress, IAssetInfo } from '../types'
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Promise<string> {
   if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
@@ -126,6 +126,25 @@ export async function printMultiRewarderV3Balances() {
   )
 }
 
+export async function printBribeBalances() {
+  const names = Object.keys(await deployments.all()).filter((name) => name.includes('Bribe'))
+
+  return Promise.all(
+    names.map(async (name) => {
+      const contract = await getDeployedContract('Bribe', name)
+      const balances = await contract.balances()
+      const tokens = await contract.rewardTokens()
+      return {
+        rewarder: name,
+        rewarderAddress: contract.address,
+        lpToken: await contract.lpToken(),
+        balances: balances.map((balance: BigNumber) => formatEther(balance)),
+        rewardTokens: tokens,
+      }
+    })
+  )
+}
+
 function printBigNumber(num: BigNumber) {
   return num.div(1e12).toNumber() / 1e6
 }
@@ -161,4 +180,17 @@ export async function validateUpgrade(oldContract: string, newContract: string, 
 
 export function getDeadlineFromNow(secondSince: string | number): number {
   return Math.round(Date.now() / 1000) + Number(secondSince)
+}
+
+// Print governance param of a pool. This includes:
+// feeTo, lpDividendRatio, retentionRatio, and mintFeeThreshold.
+export async function printPoolGovernanceParam(address: string) {
+  const pool = await ethers.getContractAt('Pool', address)
+  const table = {
+    feeTo: await pool.feeTo(),
+    lpDividendRatio: printBigNumber(await pool.lpDividendRatio()),
+    retentionRatio: printBigNumber(await pool.retentionRatio()),
+    mintFeeThreshold: printBigNumber(await pool.mintFeeThreshold()),
+  }
+  console.table(table)
 }
