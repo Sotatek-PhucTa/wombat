@@ -424,7 +424,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       // Skim admin: 0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e
       setting: {
         ...defaultFactoryPoolConfig,
-        mintFeeThreshold: BigNumber.from(0),
+        mintFeeThreshold: parseEther('10'),
         retentionRatio: BigNumber.from(0),
       },
       assets: {
