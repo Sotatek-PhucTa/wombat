@@ -1,8 +1,8 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
-import { deployments, ethers } from 'hardhat'
-import { DeploymentsExtension } from 'hardhat-deploy/types'
-import { IAssetInfo } from '../types'
+import { formatEther } from 'ethers/lib/utils'
+import { deployments, ethers, network, upgrades } from 'hardhat'
+import { DeploymentResult, IAssetInfo, IPoolConfig, PoolInfo } from '../types'
 import { confirmTxn, getTestERC20, logVerifyCommand } from '../utils'
 
 export async function deployTestAsset(tokenSymbol: string) {
@@ -10,12 +10,94 @@ export async function deployTestAsset(tokenSymbol: string) {
   return ethers.deployContract('Asset', [erc20.address, `${tokenSymbol} Asset`, `LP-${tokenSymbol}`])
 }
 
-export function getPoolContractName(contractNamePrefix: string, poolName: string) {
+export function getPoolDeploymentName(contractNamePrefix: string, poolName: string) {
+  if (contractNamePrefix === '') return poolName
+
   return contractNamePrefix + '_' + poolName
 }
 
 export function getAssetContractName(poolName: string, tokenSymbol: string) {
   return `Asset_${poolName}_${tokenSymbol}`
+}
+
+/**
+ * Deploy a base pool contract. The caller should handle the pool specific setup.
+ */
+export async function deployBasePool(
+  poolContract: string,
+  poolName: string,
+  pooInfo: PoolInfo<IPoolConfig>,
+  deployer: string,
+  multisig: string
+): Promise<DeploymentResult> {
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const { deploy } = deployments
+  const setting = pooInfo.setting
+  const contractName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)
+
+  const deployResult = await deploy(contractName, {
+    from: deployer,
+    log: true,
+    contract: poolContract,
+    skipIfAlreadyDeployed: true,
+    proxy: {
+      owner: multisig,
+      proxyContract: 'OptimizedTransparentProxy',
+      viaAdminContract: 'DefaultProxyAdmin',
+      execute: {
+        init: {
+          methodName: 'initialize',
+          args: [setting.ampFactor, setting.haircut],
+        },
+      },
+    },
+  })
+
+  // Get freshly deployed pool contract
+  const pool = await ethers.getContractAt(poolContract, deployResult.address)
+  const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
+  deployments.log('Contract address:', deployResult.address)
+  deployments.log('Implementation address:', implAddr)
+
+  if (deployResult.newlyDeployed) {
+    const masterWombatV3Deployment = await deployments.get('MasterWombatV3')
+    if (masterWombatV3Deployment.address) {
+      deployments.log('Setting master wombat: ', masterWombatV3Deployment.address)
+      await confirmTxn(pool.connect(deployerSigner).setMasterWombat(masterWombatV3Deployment.address))
+    }
+
+    // Check setup config values
+    const ampFactor = await pool.ampFactor()
+    const hairCutRate = await pool.haircutRate()
+    deployments.log(`Amplification factor is : ${formatEther(ampFactor)}`)
+    deployments.log(`Haircut rate is : ${formatEther(hairCutRate)}`)
+
+    // transfer pool contract dev to Gnosis Safe
+    deployments.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
+    // The dev of the pool contract can pause and unpause pools & assets!
+    await confirmTxn(pool.connect(deployerSigner).setDev(multisig))
+    deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
+
+    // Admin scripts
+    deployments.log(
+      `setFee to ${formatEther(setting.lpDividendRatio)} for lpDividendRatio and ${
+        setting.retentionRatio
+      } for retentionRatio...`
+    )
+    await confirmTxn(pool.connect(deployerSigner).setFee(setting.lpDividendRatio, setting.retentionRatio))
+
+    deployments.log(`setFeeTo to ${multisig}.`)
+    await confirmTxn(pool.connect(deployerSigner).setFeeTo(multisig))
+
+    deployments.log(`setMintFeeThreshold to ${formatEther(setting.mintFeeThreshold)}...`)
+    await confirmTxn(pool.connect(deployerSigner).setMintFeeThreshold(setting.mintFeeThreshold))
+
+    logVerifyCommand(network.name, deployResult)
+  } else {
+    deployments.log(`${contractName} Contract already deployed.`)
+  }
+
+  return { deployResult, contract: pool }
 }
 
 /**
@@ -29,7 +111,7 @@ export async function deployAssetV2(
   poolAddress: string,
   pool: Contract,
   contractName: string
-): Promise<void> {
+): Promise<DeploymentResult> {
   const { deploy } = deployments
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
@@ -48,22 +130,20 @@ export async function deployAssetV2(
   const args: string[] = [underlyingTokenAddr, name, symbol]
   if (oracleAddress) args.push(oracleAddress)
 
-  const assetDeployResult = await deploy(contractName, {
+  const deployResult = await deploy(contractName, {
     from: deployer,
     contract: assetContractName,
     log: true,
     args: args,
     skipIfAlreadyDeployed: true,
   })
-  const address = assetDeployResult.address
+  const address = deployResult.address
   const asset = await ethers.getContractAt(assetContractName, address)
 
   if (assetContractName === 'PriceFeedAsset') {
     await deployPriceFeed(
       deployer,
       multisig,
-      deployerSigner,
-      deployments,
       assetInfo,
       asset,
       `PriceFeed_${contractName}_${assetInfo.priceFeed?.priceFeedContract}`
@@ -71,7 +151,7 @@ export async function deployAssetV2(
   }
 
   // newly-deployed Asset
-  if (assetDeployResult.newlyDeployed) {
+  if (deployResult.newlyDeployed) {
     deployments.log('Configuring asset...')
 
     // Remove old and add new Asset to newly-deployed Pool
@@ -95,7 +175,7 @@ export async function deployAssetV2(
     await confirmTxn(asset.connect(deployerSigner).transferOwnership(multisig))
     deployments.log(`Transferred ownership of asset ${asset.address} to ${multisig}...`)
 
-    logVerifyCommand(network, assetDeployResult)
+    logVerifyCommand(network, deployResult)
   } else {
     // Sanity check for already deployed assets
 
@@ -114,17 +194,18 @@ export async function deployAssetV2(
       // await confirmTxn(await asset.connect(owner).setPool(poolAddress))
     }
   }
+
+  return { deployResult, contract: asset }
 }
 
 export async function deployPriceFeed(
   deployer: string,
   multisig: string,
-  deployerSigner: SignerWithAddress,
-  deployments: DeploymentsExtension,
   assetInfo: IAssetInfo,
   asset: Contract,
   contractName: string
 ) {
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const { deploy } = deployments
 
   deployments.log(
@@ -144,9 +225,10 @@ export async function deployPriceFeed(
   if (priceFeedDeployResult.newlyDeployed) {
     deployments.log(`Transferring ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
     await confirmTxn(asset.connect(deployerSigner).transferOwnership(multisig))
-    deployments.log(`Transferring ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
+    deployments.log(`Transferred ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
 
     // set price feed for the asset
-    await confirmTxn(asset.setPriceFeed(priceFeedDeployResult.address))
+    console.log(await asset.owner(), deployerSigner.address)
+    await confirmTxn(asset.connect(deployerSigner).setPriceFeed(priceFeedDeployResult.address))
   }
 }

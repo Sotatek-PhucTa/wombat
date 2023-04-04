@@ -2,29 +2,28 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import { FACTORYPOOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
-import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr } from '../utils'
-import { deployAssetV2, getPoolContractName } from '../utils/deploy'
-import { contractNamePrefix } from './036_frxETH_Pool'
+import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, isOwner } from '../utils'
+import { deployAssetV2, getPoolDeploymentName } from '../utils/deploy'
 
-const contractName = 'DynamicPoolsAssets'
+const contractName = 'HighCovRatioFeePoolAssets'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deployer, multisig } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 037. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 021. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const POOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as unknown as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(POOL_TOKENS)) {
-    // Get Pool Instance
-    const poolContractName = getPoolContractName(contractNamePrefix, poolName)
-    const pool = await getDeployedContract('DynamicPoolV2', poolContractName)
+    const setting = poolInfo.setting
+    const poolContractName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)
+    const pool = await getDeployedContract('HighCovRatioFeePoolV2', poolContractName)
 
-    for (const [, assetInfo] of Object.entries(poolInfo)) {
+    for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       const tokenAddress = await getUnderlyingTokenAddr(assetInfo)
 
       await deployAssetV2(
@@ -39,13 +38,18 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     }
 
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
-    deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
     // The owner of the pool contract is very powerful!
-    await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
-    deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
+    if (await isOwner(pool, multisig)) {
+      deployments.log('Pool is already owned by multisig')
+    } else if (await isOwner(pool, deployer)) {
+      deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
+      await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
+    } else {
+      throw new Error(`Unknown owner: ${await pool.owner()} who is not multisig nor deployer`)
+    }
   }
 }
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = [contractNamePrefix]
+deployFunc.dependencies = ['MockTokens', 'HighCovRatioFeePool']

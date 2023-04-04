@@ -1,7 +1,7 @@
 import { deployments, getNamedAccounts } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { MOCK_TOKEN_MAP, USD_SIDEPOOL_TOKENS_MAP, USD_TOKENS_MAP } from '../tokens.config'
+import { MOCK_TOKEN_MAP, USD_TOKENS_MAP } from '../tokens.config'
 import { IMockTokenInfo, Network } from '../types'
 import { logVerifyCommand } from '../utils'
 
@@ -34,21 +34,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         log: true,
         contract: 'TestERC20',
         args: args,
-        skipIfAlreadyDeployed: true,
-      })
-
-      logVerifyCommand(hre.network.name, deployment)
-    }
-
-    /// Mock USD SIDEPOOL TOKENS ///
-    const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name] || {}
-    for (const index in USD_SIDEPOOL_TOKENS) {
-      const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
-      const deployment = await deploy(tokenSymbol, {
-        from: deployer,
-        log: true,
-        contract: 'TestERC20',
-        args: USD_SIDEPOOL_TOKENS[index].slice(0, 4),
         skipIfAlreadyDeployed: true,
       })
 

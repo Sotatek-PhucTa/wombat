@@ -1,10 +1,11 @@
+import { BigNumber } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import {
   Address,
   Deployment,
   DeploymentOrAddress,
-  IAssetInfo,
+  IHighCovRatioFeePoolConfig,
   IMockTokenInfo,
   IRewarder,
   ITokens,
@@ -14,10 +15,8 @@ import {
   Network,
   NetworkPoolInfo,
   PartialRecord,
-  PoolInfo,
   PoolName,
   TokenMap,
-  TokenSymbol,
   Unknown,
 } from './types'
 import { Token } from './types/addresses/token'
@@ -57,6 +56,44 @@ function defaultRewarder() {
   }
 }
 
+const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
+  ampFactor: parseEther('0.005'),
+  haircut: parseEther('0.0004'),
+  mintFeeThreshold: parseEther('10'),
+  startCovRatio: parseEther('1.5'),
+  endCovRatio: parseEther('1.8'),
+  lpDividendRatio: parseEther('0.5'),
+  retentionRatio: parseEther('0.5'),
+  deploymentNamePrefix: 'FactoryPools',
+}
+
+const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
+  ...defaultFactoryPoolConfig,
+  ampFactor: parseEther('0.1'),
+  haircut: parseEther('0.0025'),
+  mintFeeThreshold: parseEther('55.5555555556'),
+  deploymentNamePrefix: 'WomSidePools',
+}
+
+const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
+  ...defaultFactoryPoolConfig,
+  ampFactor: parseEther('0.02'),
+  haircut: parseEther('0.001'),
+  mintFeeThreshold: parseEther('0.01'),
+  deploymentNamePrefix: 'DynamicPools',
+}
+
+const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
+  ampFactor: parseEther('0.005'),
+  haircut: parseEther('0.0004'),
+  mintFeeThreshold: parseEther('10'),
+  startCovRatio: parseEther('1.5'),
+  endCovRatio: parseEther('1.8'),
+  lpDividendRatio: parseEther('0.5'),
+  retentionRatio: parseEther('0.5'),
+  deploymentNamePrefix: 'CrossChainPool',
+}
+
 // inject forkNetwork to hardhat and localhost
 function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<Network, T> {
   const forkNetwork = process.env.FORK_NETWORK || ''
@@ -76,13 +113,13 @@ function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<
 }
 
 export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
-  bsc_mainnet: {
+  [Network.BSC_MAINNET]: {
     BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 220], // last item is pool alloc point
     USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 220],
     USDT: ['Tether USD', 'USDT', '0x55d398326f99059ff775485246999027b3197955', 220],
     DAI: ['Dai Stablecoin', 'DAI', '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3', 75],
   },
-  bsc_testnet: {
+  [Network.BSC_TESTNET]: {
     BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
     USDC: ['USD Coin', 'USDC', '18', 0, 240],
     USDT: ['Tether USD', 'USDT', '18', 0, 240],
@@ -94,7 +131,7 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInf
     BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
     vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
   },
-  localhost: {
+  [Network.LOCALHOST]: {
     BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
     USDC: ['USD Coin', 'USDC', '18', 0, 240],
     USDT: ['Tether USD', 'USDT', '18', 0, 240],
@@ -102,7 +139,7 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInf
     DAI: ['Dai Stablecoin', 'DAI', '18', 0, 240],
     vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
   },
-  hardhat: {
+  [Network.HARDHAT]: {
     BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
     USDC: ['USD Coin', 'USDC', '18', 0, 240],
     USDT: ['Tether USD', 'USDT', '18', 0, 240],
@@ -117,28 +154,34 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInf
   },
 })
 
-export const USD_SIDEPOOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
-  bsc_mainnet: {
-    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 10], // last item is pool alloc point
-    HAY: ['Hay Stablecoin', 'HAY', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 0],
-  },
-  bsc_testnet: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0], // last item is 0 tokens minted to msg.sender initially
-    TUSD: ['TrueUSD', 'TUSD', '18', 0],
-    FRAX: ['Frax', 'FRAX', '18', 0],
-    MIM: ['Magic Internet Money', 'MIM', '18', 0],
-    HAY: ['Hay Stablecoin', 'HAY', '18', 0],
-  },
-})
-
 export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = injectForkNetwork<
   TokenMap<IMockTokenInfo>
 >({
-  bsc_testnet: {
+  [Network.BSC_TESTNET]: {
     BUSD: {
       tokenName: 'Binance USD',
       tokenSymbol: 'BUSD',
       decimalForMockToken: 18,
+    },
+    USDC: {
+      tokenName: 'USD Coin',
+      tokenSymbol: 'USDC',
+      decimalForMockToken: 18,
+    },
+    USDT: {
+      tokenName: 'Tether USD',
+      tokenSymbol: 'USDT',
+      decimalForMockToken: 18,
+    },
+    DAI: {
+      tokenName: 'Dai Stablecoin',
+      tokenSymbol: 'DAI',
+      decimalForMockToken: 18,
+    },
+    vUSDC: {
+      tokenName: 'Venus USDC',
+      tokenSymbol: 'vUSDC',
+      decimalForMockToken: 8,
     },
     TUSD: {
       tokenName: 'TrueUSD',
@@ -160,6 +203,11 @@ export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = 
       tokenSymbol: 'CUSD',
       decimalForMockToken: 18,
     },
+    MIM: {
+      tokenName: 'Magic Internet Money',
+      tokenSymbol: 'MIM',
+      decimalForMockToken: 18,
+    },
     HAY: {
       tokenName: 'Hay Destablecoin',
       tokenSymbol: 'HAY',
@@ -173,11 +221,6 @@ export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = 
     USDD: {
       tokenName: 'Decentralized USD',
       tokenSymbol: 'USDD',
-      decimalForMockToken: 18,
-    },
-    USDC: {
-      tokenName: 'USD Coin',
-      tokenSymbol: 'USDC',
       decimalForMockToken: 18,
     },
     BOB: {
@@ -206,480 +249,717 @@ export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = 
       decimalForMockToken: 18,
     },
   },
+  [Network.LOCALHOST]: {
+    BUSD: {
+      tokenName: 'Binance USD',
+      tokenSymbol: 'BUSD',
+      decimalForMockToken: 18,
+    },
+    USDC: {
+      tokenName: 'USD Coin',
+      tokenSymbol: 'USDC',
+      decimalForMockToken: 18,
+    },
+    USDT: {
+      tokenName: 'Tether USD',
+      tokenSymbol: 'USDT',
+      decimalForMockToken: 18,
+    },
+    DAI: {
+      tokenName: 'Dai Stablecoin',
+      tokenSymbol: 'DAI',
+      decimalForMockToken: 18,
+    },
+    vUSDC: {
+      tokenName: 'Venus USDC',
+      tokenSymbol: 'vUSDC',
+      decimalForMockToken: 8,
+    },
+  },
 })
 
-export const FACTORYPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
+export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
+  Network,
+  NetworkPoolInfo<IHighCovRatioFeePoolConfig>
+> = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
   [Network.BSC_MAINNET]: {
     stables_01: {
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
-        allocPoint: 5,
+      setting: {
+        ...defaultFactoryPoolConfig,
+        haircut: parseEther('0.0003'),
+        mintFeeThreshold: parseEther('0.6'),
       },
-      TUSD: {
-        tokenName: 'TrueUSD',
-        tokenSymbol: 'TUSD',
-        underlyingTokenAddr: '0x14016E85a25aeb13065688cAFB43044C2ef86784',
+      assets: {
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+          allocPoint: 5,
+        },
+        TUSD: {
+          tokenName: 'TrueUSD',
+          tokenSymbol: 'TUSD',
+          underlyingTokenAddr: '0x14016E85a25aeb13065688cAFB43044C2ef86784',
+        },
+        FRAX: {
+          tokenName: 'Frax',
+          tokenSymbol: 'FRAX',
+          underlyingTokenAddr: '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40',
+        },
       },
-      FRAX: {
-        tokenName: 'Frax',
-        tokenSymbol: 'FRAX',
-        underlyingTokenAddr: '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40',
+    },
+    SidePool_01: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+        haircut: parseEther('0.0002'),
+        deploymentNamePrefix: '',
+        mintFeeThreshold: parseEther('0.45'),
+      },
+      assets: {
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+          allocPoint: 10,
+        },
+        HAY: {
+          tokenName: 'Hay Stablecoin',
+          tokenSymbol: 'HAY',
+          underlyingTokenAddr: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5',
+          allocPoint: 0,
+        },
       },
     },
     iUSD_Pool: {
-      iUSD: {
-        tokenName: 'iZUMi Bond USD',
-        tokenSymbol: 'iUSD',
-        underlyingTokenAddr: '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        mintFeeThreshold: parseEther('0.25'),
       },
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+      assets: {
+        iUSD: {
+          tokenName: 'iZUMi Bond USD',
+          tokenSymbol: 'iUSD',
+          underlyingTokenAddr: '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D',
+        },
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+        },
       },
     },
     CUSD_Pool: {
-      CUSD: {
-        tokenName: 'Coin98 Dollar',
-        tokenSymbol: 'CUSD',
-        underlyingTokenAddr: '0xFa4BA88Cf97e282c505BEa095297786c16070129',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        mintFeeThreshold: parseEther('0.25'),
       },
-      HAY: {
-        tokenName: 'Hay Destablecoin',
-        tokenSymbol: 'HAY',
-        underlyingTokenAddr: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5',
+      assets: {
+        CUSD: {
+          tokenName: 'Coin98 Dollar',
+          tokenSymbol: 'CUSD',
+          underlyingTokenAddr: '0xFa4BA88Cf97e282c505BEa095297786c16070129',
+        },
+        HAY: {
+          tokenName: 'Hay Destablecoin',
+          tokenSymbol: 'HAY',
+          underlyingTokenAddr: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5',
+        },
       },
     },
     axlUSDC_Pool: {
-      axlUSDC: {
-        tokenName: 'Axelar Wrapped USDC',
-        tokenSymbol: 'axlUSDC',
-        underlyingTokenAddr: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        mintFeeThreshold: parseEther('1'),
       },
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+      assets: {
+        axlUSDC: {
+          tokenName: 'Axelar Wrapped USDC',
+          tokenSymbol: 'axlUSDC',
+          underlyingTokenAddr: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3',
+        },
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          underlyingTokenAddr: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+        },
       },
     },
     USDD_Pool: {
-      USDD: {
-        tokenName: 'Decentralized USD',
-        tokenSymbol: 'USDD',
-        underlyingTokenAddr: '0xd17479997F34dd9156Deef8F95A52D81D265be9c',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        mintFeeThreshold: parseEther('0.02'),
       },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+      assets: {
+        USDD: {
+          tokenName: 'Decentralized USD',
+          tokenSymbol: 'USDD',
+          underlyingTokenAddr: '0xd17479997F34dd9156Deef8F95A52D81D265be9c',
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          underlyingTokenAddr: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+        },
       },
     },
     BOB_Pool: {
-      BOB: {
-        tokenName: 'BOB',
-        tokenSymbol: 'BOB',
-        underlyingTokenAddr: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        mintFeeThreshold: parseEther('0.2'),
       },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+      assets: {
+        BOB: {
+          tokenName: 'BOB',
+          tokenSymbol: 'BOB',
+          underlyingTokenAddr: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B',
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          underlyingTokenAddr: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+        },
       },
     },
     USDPlus_Pool: {
       // Skim admin: 0xD9fCDFFEd5cA34Ef21661Ec6Fe3AEb742db6331e
-      'USD+': {
-        tokenName: 'USD+',
-        tokenSymbol: 'USD+',
-        underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
-        assetContractName: 'SkimmableAsset',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        mintFeeThreshold: BigNumber.from(0),
+        retentionRatio: BigNumber.from(0),
       },
-      'USDT+': {
-        tokenName: 'USDT+',
-        tokenSymbol: 'USDT+',
-        underlyingTokenAddr: '0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C',
-        assetContractName: 'SkimmableAsset',
-      },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      assets: {
+        'USD+': {
+          tokenName: 'USD+',
+          tokenSymbol: 'USD+',
+          underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+          assetContractName: 'SkimmableAsset',
+        },
+        'USDT+': {
+          tokenName: 'USDT+',
+          tokenSymbol: 'USDT+',
+          underlyingTokenAddr: '0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C',
+          assetContractName: 'SkimmableAsset',
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          underlyingTokenAddr: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+        },
       },
     },
     MIM_Pool: {
-      MIM: {
-        tokenName: 'Magic Internet Money',
-        tokenSymbol: 'MIM',
-        underlyingTokenAddr: '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        mintFeeThreshold: parseEther('10'),
       },
-      USDT: {
-        tokenName: 'Tether USD',
-        tokenSymbol: 'USDT',
-        underlyingTokenAddr: '0x55d398326f99059fF775485246999027B3197955',
+      assets: {
+        MIM: {
+          tokenName: 'Magic Internet Money',
+          tokenSymbol: 'MIM',
+          underlyingTokenAddr: '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba',
+        },
+        USDT: {
+          tokenName: 'Tether USD',
+          tokenSymbol: 'USDT',
+          underlyingTokenAddr: '0x55d398326f99059fF775485246999027B3197955',
+        },
+      },
+    },
+    wmxWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig,
+      },
+      assets: {
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
+        },
+        wmxWOM: {
+          tokenName: 'Wombex WOM',
+          tokenSymbol: 'wmxWOM',
+          underlyingTokenAddr: '0x0415023846Ff1C6016c4d9621de12b24B2402979',
+        },
+      },
+    },
+    mWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig,
+      },
+      assets: {
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
+        },
+        mWOM: {
+          tokenName: 'mWOM',
+          tokenSymbol: 'mWOM',
+          underlyingTokenAddr: '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c',
+        },
+      },
+    },
+    qWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig,
+      },
+      assets: {
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
+        },
+        qWOM: {
+          tokenName: 'Quoll WOM',
+          tokenSymbol: 'qWOM',
+          underlyingTokenAddr: '0x0fE34B8aaAf3f522A6088E278936D10F934c0b19',
+        },
       },
     },
   },
   [Network.BSC_TESTNET]: {
     stables_01: {
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        useMockToken: true,
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      TUSD: {
-        tokenName: 'TrueUSD',
-        tokenSymbol: 'TUSD',
-        useMockToken: true,
+      assets: {
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          useMockToken: true,
+        },
+        TUSD: {
+          tokenName: 'TrueUSD',
+          tokenSymbol: 'TUSD',
+          useMockToken: true,
+        },
+        FRAX: {
+          tokenName: 'Frax',
+          tokenSymbol: 'FRAX',
+          useMockToken: true,
+        },
       },
-      FRAX: {
-        tokenName: 'Frax',
-        tokenSymbol: 'FRAX',
-        useMockToken: true,
+    },
+    SidePool_01: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+        haircut: parseEther('0.0003'),
+        deploymentNamePrefix: '',
+      },
+      assets: {
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          useMockToken: true,
+          allocPoint: 10,
+        },
+        TUSD: {
+          tokenName: 'TrueUSD',
+          tokenSymbol: 'TUSD',
+          useMockToken: true,
+        },
+        FRAX: {
+          tokenName: 'Frax',
+          tokenSymbol: 'FRAX',
+          useMockToken: true,
+        },
+        MIM: {
+          tokenName: 'Magic Internet Money',
+          tokenSymbol: 'MIM',
+          useMockToken: true,
+        },
+        HAY: {
+          tokenName: 'Hay Stablecoin',
+          tokenSymbol: 'HAY',
+          useMockToken: true,
+        },
       },
     },
     iUSD_Pool: {
-      iUSD: {
-        tokenName: 'iZUMi Bond USD',
-        tokenSymbol: 'iUSD',
-        useMockToken: true,
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        useMockToken: true,
+      assets: {
+        iUSD: {
+          tokenName: 'iZUMi Bond USD',
+          tokenSymbol: 'iUSD',
+          useMockToken: true,
+        },
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          useMockToken: true,
+        },
       },
     },
     CUSD_Pool: {
-      CUSD: {
-        tokenName: 'Coin98 Dollar',
-        tokenSymbol: 'CUSD',
-        useMockToken: true,
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      HAY: {
-        tokenName: 'Hay Destablecoin',
-        tokenSymbol: 'HAY',
-        useMockToken: true,
+      assets: {
+        CUSD: {
+          tokenName: 'Coin98 Dollar',
+          tokenSymbol: 'CUSD',
+          useMockToken: true,
+        },
+        HAY: {
+          tokenName: 'Hay Destablecoin',
+          tokenSymbol: 'HAY',
+          useMockToken: true,
+        },
       },
     },
     axlUSDC_Pool: {
-      axlUSDC: {
-        tokenName: 'Axelar Wrapped USDC',
-        tokenSymbol: 'axlUSDC',
-        useMockToken: true,
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        useMockToken: true,
+      assets: {
+        axlUSDC: {
+          tokenName: 'Axelar Wrapped USDC',
+          tokenSymbol: 'axlUSDC',
+          useMockToken: true,
+        },
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          useMockToken: true,
+        },
       },
     },
     USDD_Pool: {
-      USDD: {
-        tokenName: 'Decentralized USD',
-        tokenSymbol: 'USDD',
-        useMockToken: true,
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        useMockToken: true,
+      assets: {
+        USDD: {
+          tokenName: 'Decentralized USD',
+          tokenSymbol: 'USDD',
+          useMockToken: true,
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          useMockToken: true,
+        },
       },
     },
     BOB_Pool: {
-      BOB: {
-        tokenName: 'BOB',
-        tokenSymbol: 'BOB',
-        useMockToken: true,
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        useMockToken: true,
+      assets: {
+        BOB: {
+          tokenName: 'BOB',
+          tokenSymbol: 'BOB',
+          useMockToken: true,
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          useMockToken: true,
+        },
+      },
+    },
+    wmxWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig,
+      },
+      assets: {
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          useMockToken: true,
+        },
+        wmxWOM: {
+          tokenName: 'WMX WOM',
+          tokenSymbol: 'wmxWOM',
+          useMockToken: true,
+        },
+      },
+    },
+    mWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig,
+      },
+      assets: {
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          useMockToken: true,
+        },
+        mWOM: {
+          tokenName: 'M WOM',
+          tokenSymbol: 'mWOM',
+          useMockToken: true,
+        },
+      },
+    },
+    qWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig,
+      },
+      assets: {
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          useMockToken: true,
+        },
+        qWOM: {
+          tokenName: 'Quoll WOM',
+          tokenSymbol: 'qWOM',
+          useMockToken: true,
+        },
       },
     },
   },
   [Network.ARBITRUM_MAINNET]: {
-    // Skim admin: 0x145F2a1aa70098031629606d856591dA0C717554
     USDPlus_Pool: {
-      'USD+': {
-        tokenName: 'USD+',
-        tokenSymbol: 'USD+',
-        underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
-        assetContractName: 'SkimmableAsset',
+      // Skim admin: 0x145F2a1aa70098031629606d856591dA0C717554
+      setting: {
+        ...defaultFactoryPoolConfig,
+        retentionRatio: BigNumber.from(0),
       },
-      'DAI+': {
-        tokenName: 'DAI+',
-        tokenSymbol: 'DAI+',
-        underlyingTokenAddr: '0xeb8E93A0c7504Bffd8A8fFa56CD754c63aAeBFe8',
-        assetContractName: 'SkimmableAsset',
-      },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      assets: {
+        'USD+': {
+          tokenName: 'USD+',
+          tokenSymbol: 'USD+',
+          underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+          assetContractName: 'SkimmableAsset',
+        },
+        'DAI+': {
+          tokenName: 'DAI+',
+          tokenSymbol: 'DAI+',
+          underlyingTokenAddr: '0xeb8E93A0c7504Bffd8A8fFa56CD754c63aAeBFe8',
+          assetContractName: 'SkimmableAsset',
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        },
       },
     },
     MIM_Pool: {
-      MIM: {
-        tokenName: 'Magic Internet Money',
-        tokenSymbol: 'MIM',
-        underlyingTokenAddr: '0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A',
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      USDT: {
-        tokenName: 'Tether USD',
-        tokenSymbol: 'USDT',
-        underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      assets: {
+        MIM: {
+          tokenName: 'Magic Internet Money',
+          tokenSymbol: 'MIM',
+          underlyingTokenAddr: '0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A',
+        },
+        USDT: {
+          tokenName: 'Tether USD',
+          tokenSymbol: 'USDT',
+          underlyingTokenAddr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+        },
       },
     },
     FRAX_Pool: {
-      FRAX: {
-        tokenName: 'Frax',
-        tokenSymbol: 'FRAX',
-        underlyingTokenAddr: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+      setting: {
+        ...defaultFactoryPoolConfig,
+        retentionRatio: BigNumber.from(0),
       },
-      MAI: {
-        tokenName: 'Mai Stablecoin',
-        tokenSymbol: 'MAI',
-        underlyingTokenAddr: '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d',
-      },
-      'USD+': {
-        tokenName: 'USD+',
-        tokenSymbol: 'USD+',
-        underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
-        assetContractName: 'SkimmableAsset',
-      },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      assets: {
+        FRAX: {
+          tokenName: 'Frax',
+          tokenSymbol: 'FRAX',
+          underlyingTokenAddr: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+        },
+        MAI: {
+          tokenName: 'Mai Stablecoin',
+          tokenSymbol: 'MAI',
+          underlyingTokenAddr: '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d',
+        },
+        'USD+': {
+          tokenName: 'USD+',
+          tokenSymbol: 'USD+',
+          underlyingTokenAddr: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+          assetContractName: 'SkimmableAsset',
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        },
       },
     },
     BOB_Pool: {
-      BOB: {
-        tokenName: 'BOB',
-        tokenSymbol: 'BOB',
-        underlyingTokenAddr: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B',
+      setting: {
+        ...defaultFactoryPoolConfig,
       },
-      USDC: {
-        tokenName: 'USD Coin',
-        tokenSymbol: 'USDC',
-        underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      assets: {
+        BOB: {
+          tokenName: 'BOB',
+          tokenSymbol: 'BOB',
+          underlyingTokenAddr: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B',
+        },
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          underlyingTokenAddr: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        },
       },
     },
     mWOM_Pool: {
-      mWOM: {
-        tokenName: 'mWOM',
-        tokenSymbol: 'mWOM',
-        underlyingTokenAddr: '0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876',
+      setting: {
+        ...defaultWomPoolConfig,
       },
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
+      assets: {
+        mWOM: {
+          tokenName: 'mWOM',
+          tokenSymbol: 'mWOM',
+          underlyingTokenAddr: '0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876',
+        },
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
+        },
       },
     },
     wmxWOM_Pool: {
-      wmxWOM: {
-        tokenName: 'Wombex WOM',
-        tokenSymbol: 'wmxWOM',
-        underlyingTokenAddr: '0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24',
+      setting: {
+        ...defaultWomPoolConfig,
       },
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
+      assets: {
+        wmxWOM: {
+          tokenName: 'Wombex WOM',
+          tokenSymbol: 'wmxWOM',
+          underlyingTokenAddr: '0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24',
+        },
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
+        },
       },
     },
     qWOM_Pool: {
-      qWOM: {
-        tokenName: 'Quoll WOM',
-        tokenSymbol: 'qWOM',
-        underlyingTokenAddr: '0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e',
+      setting: {
+        ...defaultWomPoolConfig,
       },
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
-      },
-    },
-  },
-})
-
-// TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
-export const WOM_SIDEPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
-  bsc_mainnet: {
-    wmxWOMPool: {
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
-      },
-      wmxWOM: {
-        tokenName: 'Wombex WOM',
-        tokenSymbol: 'wmxWOM',
-        underlyingTokenAddr: '0x0415023846Ff1C6016c4d9621de12b24B2402979',
-      },
-    },
-    mWOMPool: {
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
-      },
-      mWOM: {
-        tokenName: 'mWOM',
-        tokenSymbol: 'mWOM',
-        underlyingTokenAddr: '0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c',
-      },
-    },
-    qWOMPool: {
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        underlyingTokenAddr: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1',
-      },
-      qWOM: {
-        tokenName: 'Quoll WOM',
-        tokenSymbol: 'qWOM',
-        underlyingTokenAddr: '0x0fE34B8aaAf3f522A6088E278936D10F934c0b19',
-      },
-    },
-  },
-  bsc_testnet: {
-    wmxWOMPool: {
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        useMockToken: true,
-      },
-      wmxWOM: {
-        tokenName: 'WMX WOM',
-        tokenSymbol: 'wmxWOM',
-        useMockToken: true,
-      },
-    },
-    mWOMPool: {
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        useMockToken: true,
-      },
-      mWOM: {
-        tokenName: 'M WOM',
-        tokenSymbol: 'mWOM',
-        useMockToken: true,
-      },
-    },
-    qWOMPool: {
-      WOM: {
-        tokenName: 'Wombat Token',
-        tokenSymbol: 'WOM',
-        useMockToken: true,
-      },
-      qWOM: {
-        tokenName: 'Quoll WOM',
-        tokenSymbol: 'qWOM',
-        useMockToken: true,
-      },
-    },
-  },
-})
-
-export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
-  bsc_mainnet: {
-    frxETH_Pool: {
-      sfrxETH: {
-        tokenName: 'Staked Frax Ether',
-        tokenSymbol: 'sfrxETH',
-        underlyingTokenAddr: '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
-        assetContractName: 'PriceFeedAsset',
-        priceFeed: {
-          priceFeedContract: 'GovernedPriceFeed',
-          deployArgs: [
-            '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
-            parseEther('1.029'), // The initial value could be read from convertToAssets at https://etherscan.io/token/0xac3e018457b222d93114458476f3e3416abbe38f#readContract
-            parseEther('0.01'),
-          ],
+      assets: {
+        qWOM: {
+          tokenName: 'Quoll WOM',
+          tokenSymbol: 'qWOM',
+          underlyingTokenAddr: '0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e',
+        },
+        WOM: {
+          tokenName: 'Wombat Token',
+          tokenSymbol: 'WOM',
+          underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
         },
       },
-      frxETH: {
-        tokenName: 'Frax Ether',
-        tokenSymbol: 'frxETH',
-        underlyingTokenAddr: '0x64048a7eecf3a2f1ba9e144aac3d7db6e58f555e',
-        assetContractName: 'DynamicAsset',
+    },
+  },
+})
+
+export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
+  Network,
+  NetworkPoolInfo<IHighCovRatioFeePoolConfig>
+> = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
+  bsc_mainnet: {
+    frxETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
       },
-      ETH: {
-        tokenName: 'Binance-Peg Ethereum Token',
-        tokenSymbol: 'ETH',
-        underlyingTokenAddr: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
-        assetContractName: 'DynamicAsset',
+      assets: {
+        sfrxETH: {
+          tokenName: 'Staked Frax Ether',
+          tokenSymbol: 'sfrxETH',
+          underlyingTokenAddr: '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            priceFeedContract: 'GovernedPriceFeed',
+            deployArgs: [
+              '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
+              parseEther('1.029'), // The initial value could be read from convertToAssets at https://etherscan.io/token/0xac3e018457b222d93114458476f3e3416abbe38f#readContract
+              parseEther('0.01'),
+            ],
+          },
+        },
+        frxETH: {
+          tokenName: 'Frax Ether',
+          tokenSymbol: 'frxETH',
+          underlyingTokenAddr: '0x64048a7eecf3a2f1ba9e144aac3d7db6e58f555e',
+          assetContractName: 'DynamicAsset',
+        },
+        ETH: {
+          tokenName: 'Binance-Peg Ethereum Token',
+          tokenSymbol: 'ETH',
+          underlyingTokenAddr: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+          assetContractName: 'DynamicAsset',
+        },
+      },
+    },
+    BnbxPool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        mintFeeThreshold: parseEther('0.00666666666'),
+        deploymentNamePrefix: '',
+      },
+      assets: {
+        WBNB: {
+          tokenName: 'Wrapped BNB',
+          tokenSymbol: 'WBNB',
+          underlyingTokenAddr: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+          assetContractName: 'DynamicAsset',
+        },
+        BNBx: {
+          tokenName: 'Liquid Staking BNB',
+          tokenSymbol: 'BNBx',
+          underlyingTokenAddr: '0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275',
+          oracleAddress: '0x7276241a669489E4BBB76f63d2A43Bfe63080F2F',
+          assetContractName: 'BnbxAsset',
+        },
+      },
+    },
+    StkBnbPool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        mintFeeThreshold: parseEther('0.00333333333'),
+        deploymentNamePrefix: '',
+      },
+      assets: {
+        WBNB: {
+          tokenName: 'Wrapped BNB',
+          tokenSymbol: 'WBNB',
+          underlyingTokenAddr: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+          assetContractName: 'DynamicAsset',
+        },
+        Stkbnb: {
+          tokenName: 'Staked BNB',
+          tokenSymbol: 'Stkbnb',
+          underlyingTokenAddr: '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
+          oracleAddress: '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8',
+          assetContractName: 'StkbnbAsset',
+        },
       },
     },
   },
   [Network.ARBITRUM_MAINNET]: {
     frxETH_Pool: {
-      frxETH: {
-        tokenName: 'Frax Ether',
-        tokenSymbol: 'frxETH',
-        underlyingTokenAddr: '0x178412e79c25968a32e89b11f63b33f733770c2a',
-        assetContractName: 'DynamicAsset',
+      setting: {
+        ...defaultDynamicPoolConfig,
       },
-      WETH: {
-        tokenName: 'Wrapped Ether',
-        tokenSymbol: 'WETH',
-        underlyingTokenAddr: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-        assetContractName: 'DynamicAsset',
+      assets: {
+        frxETH: {
+          tokenName: 'Frax Ether',
+          tokenSymbol: 'frxETH',
+          underlyingTokenAddr: '0x178412e79c25968a32e89b11f63b33f733770c2a',
+          assetContractName: 'DynamicAsset',
+        },
+        WETH: {
+          tokenName: 'Wrapped Ether',
+          tokenSymbol: 'WETH',
+          underlyingTokenAddr: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+          assetContractName: 'DynamicAsset',
+        },
       },
     },
   },
-})
-
-// TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
-export const BNBX_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
-  bsc_mainnet: {
-    WBNB: ['Wrapped BNB', 'WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '', 'DynamicAsset'], // last 3 items are exchange rate oracle, asset type, and pool alloc points
-    BNBX: [
-      'Liquid Staking BNB',
-      'BNBx',
-      '0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275',
-      '0x7276241a669489E4BBB76f63d2A43Bfe63080F2F',
-      'BnbxAsset',
-    ],
-  },
-  bsc_testnet: {
-    WBNB: ['Wrapped BNB', 'WBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'DynamicAsset'],
-    TWBNB: ['Testnet Wrapped BNB', 'TWBNB', '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', '', 'DynamicAsset'],
-    BNBX: [
-      'Liquid Staking BNB',
-      'BNBx',
-      '0x3ECB02c703C815e9cFFd8d9437B7A2F93638d7Cb',
-      '0xDAdcae6bF110c0e70E5624bCdcCBe206f92A2Df9',
-      'BnbxAsset',
-    ],
-  },
-})
-
-// TODO: merge this config into `DYNAMICPOOL_TOKENS_MAP`
-export const STKBNB_POOL_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
-  bsc_mainnet: {
-    WBNB: [
-      'Wrapped BNB',
-      'WBNB',
-      '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-      '', //
-      'DynamicAsset',
-    ], // last 2 items are exchange rate oracle, asset type
-    BNBX: [
-      'Staked BNB',
-      'stkBNB',
-      '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
-      '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8', // exchange rate oracle
-      'StkbnbAsset',
-    ],
-  },
-  bsc_testnet: {},
 })
 
 export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
@@ -1054,25 +1334,38 @@ export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = inj
   },
 })
 
-export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<Network, NetworkPoolInfo> = injectForkNetwork<NetworkPoolInfo>({
+export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
+  Network,
+  NetworkPoolInfo<IHighCovRatioFeePoolConfig>
+> = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
   [Network.BSC_TESTNET]: {
     stablecoinPool: {
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        useMockToken: true,
+      setting: {
+        ...defaultCrossChainPoolConfig,
       },
-      vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+      assets: {
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          useMockToken: true,
+        },
+        vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+      },
     },
   },
   [Network.AVALANCHE_TESTNET]: {
     stablecoinPool: {
-      BUSD: {
-        tokenName: 'Binance USD',
-        tokenSymbol: 'BUSD',
-        useMockToken: true,
+      setting: {
+        ...defaultCrossChainPoolConfig,
       },
-      vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+      assets: {
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          useMockToken: true,
+        },
+        vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+      },
     },
   },
 })
@@ -1098,43 +1391,6 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
 /**
  * Helper Functions
  */
-
-// Helper functions that upgrade objects to NetworkPoolInfo
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const networkInfoToNewFormat = (networkInfo: Record<string, Record<string, ITokensInfo>>): NetworkPoolInfo => {
-  const result: NetworkPoolInfo = {}
-  for (const [poolName, poolInfo] of Object.entries(networkInfo)) {
-    result[poolName] = poolInfoToNewFormat(poolInfo)
-  }
-  return result
-}
-
-const poolInfoToNewFormat = (poolInfo: Record<string, ITokensInfo>): PoolInfo => {
-  const result: Record<TokenSymbol, IAssetInfo> = {}
-  for (const [pool, tokenInfo] of Object.entries(poolInfo)) {
-    result[pool] = tokensInfoToAssetInfo(tokenInfo)
-  }
-  return result
-}
-
-const tokensInfoToAssetInfo = (tokenInfo: ITokensInfo): IAssetInfo => {
-  if (
-    typeof tokenInfo[0] !== 'string' ||
-    typeof tokenInfo[1] !== 'string' ||
-    typeof tokenInfo[2] !== 'string' ||
-    typeof tokenInfo[3] !== 'number' ||
-    (tokenInfo[4] && typeof tokenInfo[4] !== 'string')
-  ) {
-    throw 'invalid token info'
-  }
-  return {
-    tokenName: tokenInfo[0],
-    tokenSymbol: tokenInfo[1],
-    underlyingTokenAddr: tokenInfo[2],
-    allocPoint: tokenInfo[3] ? tokenInfo[3] : undefined,
-    assetContractName: tokenInfo[4],
-  }
-}
 
 function createBribeConfigFromDeployedAsset(deploymentName: string, config: Partial<IRewarder>): TokenMap<IRewarder> {
   return {

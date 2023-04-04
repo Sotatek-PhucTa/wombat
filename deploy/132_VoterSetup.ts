@@ -2,13 +2,7 @@ import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { BigNumberish, Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import {
-  WOM_SIDEPOOL_TOKENS_MAP,
-  DYNAMICPOOL_TOKENS_MAP,
-  USD_SIDEPOOL_TOKENS_MAP,
-  USD_TOKENS_MAP,
-  FACTORYPOOL_TOKENS_MAP,
-} from '../tokens.config'
+import { DYNAMICPOOL_TOKENS_MAP, USD_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../tokens.config'
 import { getDeployedContract, confirmTxn } from '../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
@@ -37,30 +31,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     await addAsset(voter, owner, masterWombat.address, assetContractAddress)
     await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
   }
-
-  deployments.log('Setting up side pool')
-  const USD_SIDEPOOL_TOKENS = USD_SIDEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
-  for (const index in USD_SIDEPOOL_TOKENS) {
-    const tokenSymbol = USD_SIDEPOOL_TOKENS[index][1] as string
-    const tokenAllocPoint = parseEther((USD_SIDEPOOL_TOKENS[index][3] as number).toString())
-    const assetContractName = `Asset_SP01_${tokenSymbol}`
-    const assetContractAddress = (await deployments.get(assetContractName)).address as string
-    await addAsset(voter, owner, masterWombat.address, assetContractAddress)
-    await setAllocPoint(voter, owner, assetContractAddress, tokenAllocPoint, blocksToConfirm)
-  }
-
-  deployments.log('Setting up wom pool')
-  const WOM_SIDEPOOL_TOKENS = WOM_SIDEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
-  for (const [poolName, poolInfo] of Object.entries(WOM_SIDEPOOL_TOKENS)) {
-    for (const [, assetInfo] of Object.entries(poolInfo)) {
-      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
-    }
-  }
-
   deployments.log('Setting up dynamic pool')
   const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
-    for (const [, assetInfo] of Object.entries(poolInfo)) {
+    for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
   }
@@ -68,7 +42,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log('Setting up factory pool')
   const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
-    for (const [, assetInfo] of Object.entries(poolInfo)) {
+    for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
   }

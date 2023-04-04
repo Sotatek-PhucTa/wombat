@@ -3,7 +3,7 @@ import { WormholeAdaptor } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP, WORMHOLE_CONFIG_MAPS } from '../tokens.config'
 import { Network } from '../types'
 import { getDeployedContract, logVerifyCommand } from '../utils'
-import { getPoolContractName } from '../utils/deploy'
+import { getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 
 const contractName = 'WormholeAdaptor'
@@ -24,7 +24,7 @@ const deployFunc = async function () {
 
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network.name as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
-    const poolContractName = getPoolContractName(contractNamePrefix, poolName)
+    const poolContractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const pool = await getDeployedContract('CrossChainPool', poolContractName)
 
     const deployResult = await deploy(contractName + '_' + poolName, {

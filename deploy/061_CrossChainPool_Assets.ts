@@ -8,7 +8,7 @@ import { TestERC20 } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
 import { confirmTxn, getDeadlineFromNow, getDeployedContract, getUnderlyingTokenAddr } from '../utils'
-import { deployAssetV2, getPoolContractName } from '../utils/deploy'
+import { deployAssetV2, getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 
 const contractName = 'CrossChainPoolAssets'
@@ -22,10 +22,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   /// Deploy pool
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
-    const poolContractName = getPoolContractName(contractNamePrefix, poolName)
+    const poolContractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const pool = await getDeployedContract('CrossChainPool', poolContractName)
 
-    for (const [tokenSymbol, assetInfo] of Object.entries(poolInfo)) {
+    for (const [tokenSymbol, assetInfo] of Object.entries(poolInfo.assets)) {
       const tokenAddress = await getUnderlyingTokenAddr(assetInfo)
 
       await deployAssetV2(

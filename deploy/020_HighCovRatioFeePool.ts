@@ -3,24 +3,24 @@ import { formatEther } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { DYNAMICPOOL_TOKENS_MAP } from '../tokens.config'
+import { FACTORYPOOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
 import { confirmTxn } from '../utils'
 import { deployBasePool } from '../utils/deploy'
 
-export const contractName = 'DynamicPool'
+const contractName = 'HighCovRatioFeePool'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deployer, multisig } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 030. Deploying on : ${hre.network.name}...`)
+  deployments.log(`Step 020. Deploying on : ${hre.network.name}...`)
 
-  const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const POOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, pooInfo] of Object.entries(POOL_TOKENS)) {
     const { contract: pool, deployResult } = await deployBasePool(
-      'DynamicPoolV2',
+      'HighCovRatioFeePoolV2',
       poolName,
       pooInfo,
       deployer,

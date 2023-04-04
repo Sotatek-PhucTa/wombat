@@ -1,6 +1,7 @@
 import { assert } from 'chai'
-import { BigNumberish, ethers } from 'ethers'
+import { BigNumber, BigNumberish, Contract, ethers } from 'ethers'
 import { Token } from './addresses/token'
+import { DeployResult } from 'hardhat-deploy/types'
 
 export enum Network {
   HARDHAT = 'hardhat',
@@ -16,6 +17,11 @@ export enum Network {
 
 export interface DeploymentOrAddress {
   deploymentOrAddress: string
+}
+
+export interface DeploymentResult {
+  deployResult: DeployResult
+  contract: Contract
 }
 
 export function Deployment(deployment: string): DeploymentOrAddress {
@@ -73,6 +79,20 @@ export interface IWormholeAdaptorConfig {
   tokens: string[]
 }
 
+export interface IPoolConfig {
+  ampFactor: BigNumber
+  haircut: BigNumber
+  mintFeeThreshold: BigNumber
+  lpDividendRatio: BigNumber
+  retentionRatio: BigNumber
+  deploymentNamePrefix: string
+}
+
+export interface IHighCovRatioFeePoolConfig extends IPoolConfig {
+  startCovRatio: BigNumber
+  endCovRatio: BigNumber
+}
+
 // TODO: verify mock tokens exist in MOCK_TOKEN_MAP before deployment
 export interface IAssetInfo {
   tokenName: string
@@ -91,9 +111,11 @@ export interface IAssetInfo {
 export type PartialRecord<K extends keyof any, T> = {
   [P in K]?: T
 }
-
 export type PoolName = string
 export type TokenSymbol = string
 export type TokenMap<T> = Record<TokenSymbol, T>
-export type PoolInfo = TokenMap<IAssetInfo>
-export type NetworkPoolInfo = Record<PoolName, PoolInfo>
+export interface PoolInfo<T extends IPoolConfig> {
+  setting: T
+  assets: TokenMap<IAssetInfo>
+}
+export type NetworkPoolInfo<T extends IPoolConfig> = Record<PoolName, PoolInfo<T>>

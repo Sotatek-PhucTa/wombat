@@ -5,7 +5,7 @@ import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardha
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../tokens.config'
 import { Network } from '../types'
 import { confirmTxn, getDeployedContract, logVerifyCommand } from '../utils'
-import { getPoolContractName } from '../utils/deploy'
+import { getPoolDeploymentName } from '../utils/deploy'
 
 export const contractNamePrefix = 'CrossChainPool'
 
@@ -19,7 +19,7 @@ const deployFunc = async function () {
   /// Deploy pool
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network.name as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
-    const contractName = getPoolContractName(contractNamePrefix, poolName)
+    const contractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const deployResult = await deploy(contractName, {
       from: deployer,
       log: true,

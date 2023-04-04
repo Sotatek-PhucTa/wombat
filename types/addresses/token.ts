@@ -1,6 +1,6 @@
 import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '..'
-import { getNetwork } from '../network'
 import { getAddress } from '../../utils'
+import { getCurrentNetwork } from '../network'
 
 // style note: sort alphabetically.
 export enum Token {
@@ -25,7 +25,7 @@ export enum Token {
 }
 
 export async function getTokenAddress(token: Token): Promise<string> {
-  const network = await getNetwork()
+  const network = await getCurrentNetwork()
   const deploymentOrAddress = tokenRegistry[token][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for token ${Token[token]} in network ${network}`)
