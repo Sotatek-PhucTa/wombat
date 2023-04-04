@@ -21,6 +21,7 @@ export enum Token {
   frxETH,
   mWOM,
   qWOM,
+  vUSDC,
   wmxWOM,
 }
 
@@ -116,6 +117,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x0fE34B8aaAf3f522A6088E278936D10F934c0b19'),
     // https://arbiscan.io/address/0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e
     [Network.ARBITRUM_MAINNET]: Address('0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e'),
+  },
+  [Token.vUSDC]: {
+    [Network.HARDHAT]: Deployment('vUSDC'),
   },
   [Token.wmxWOM]: {
     // https://bscscan.com/address/0x0415023846Ff1C6016c4d9621de12b24B2402979
