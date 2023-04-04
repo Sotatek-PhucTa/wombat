@@ -22,7 +22,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       deployments.log(`setRewarder for ${name} (${rewarder.address}) complete.`)
     } else {
       deployments.log(
-        `User ${owner.address} does not own MasterWombat. Please call setRewarder in multi-sig. Rewarder: ${rewarder.address}. LP: ${rewarderConfig.lpToken}.`
+        `User ${owner.address} does not own MasterWombat. Please call setRewarder in multi-sig. Rewarder: ${rewarder.address}. LP: ${lpTokenAddress}.`
       )
     }
   }

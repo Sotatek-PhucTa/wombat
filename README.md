@@ -271,6 +271,7 @@ To verify proxy contracts:
   - Bribe_Asset_USDPlus_Pool_USD+ => `0x7c9B170e41C551DfF2c03bE68222180074bC11ad`
   - Bribe_Asset_USDPlus_Pool_DAI+ => `0x8F5e6fD62B4385E74E35D2B93034DbBc353B62dE`
   - Bribe_Asset_USDPlus_Pool_USDC => `0x153E4B01E13a8102ae9958650F11f413b7b17252`
+  - MultiRewarderPerSec_V3_Asset_USDPlus_Pool_USDC => `0x72b46b8bfF10B0A48d97C47Ed53d03Ca9EeCB2Ef`
 
 - MIM Pool
   - Pool Proxy (HighCovRatioFeePoolV2) => `0x29eeB257a2A6eCDE2984aCeDF80A1B687f18eC91`

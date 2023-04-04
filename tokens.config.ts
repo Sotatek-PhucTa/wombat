@@ -1097,6 +1097,9 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
     ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USDC', {
       rewardTokens: [Token.WOM],
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
+      rewardTokens: [Token.WOM],
+    }),
   },
 })
 
