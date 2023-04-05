@@ -8,8 +8,26 @@ import './DynamicPoolV3.sol';
  * @notice Manages deposits, withdrawals and swaps for volatile pool with external oracle
  */
 contract VolatilePool is DynamicPoolV3 {
+    /// @notice Whether to cap the global equilibrium coverage ratio at 1 for deposit and withdrawal
+    bool shouldCapEquilCovRatio;
+
+    uint256[50] private _gap;
+
+    function initialize(uint256 ampFactor_, uint256 haircutRate_) public override {
+        super.initialize(ampFactor_, haircutRate_);
+        shouldCapEquilCovRatio = true;
+    }
+
+    function setShouldCapEquilCovRatio(bool shouldCapEquilCovRatio_) external onlyOwner {
+        shouldCapEquilCovRatio = shouldCapEquilCovRatio_;
+    }
+
     function _getGlobalEquilCovRatioForDepositWithdrawal() internal view override returns (int256 equilCovRatio) {
         (equilCovRatio, ) = globalEquilCovRatio();
+        if (equilCovRatio > WAD_I && shouldCapEquilCovRatio) {
+            // Cap r* at 1 for deposit and withdrawal
+            equilCovRatio = WAD_I;
+        }
     }
 
     // TODO: override `withdraw` to charge withdrawal fees

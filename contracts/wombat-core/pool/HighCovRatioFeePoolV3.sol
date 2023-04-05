@@ -21,7 +21,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
 
     error WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
 
-    function initialize(uint256 ampFactor_, uint256 haircutRate_) public override {
+    function initialize(uint256 ampFactor_, uint256 haircutRate_) public virtual override {
         super.initialize(ampFactor_, haircutRate_);
         startCovRatio = 15e17;
         endCovRatio = 18e17;
