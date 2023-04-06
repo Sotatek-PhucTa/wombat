@@ -1,6 +1,6 @@
-import { Address, DeploymentOrAddress, Network, PartialRecord } from '../types'
-import { getNetwork } from '../types/network'
-import { getAddress } from '../utils'
+import { Address, DeploymentOrAddress, Network, PartialRecord } from '..'
+import { getCurrentNetwork } from '../network'
+import { getAddress } from '../../utils'
 
 // Enum of external contract that are not tokens.
 // style note: sort alphabetically.
@@ -12,7 +12,7 @@ export enum ExternalContract {
 }
 
 export async function getContractAddress(contract: ExternalContract): Promise<string> {
-  const network = await getNetwork()
+  const network = await getCurrentNetwork()
   const deploymentOrAddress = contractRegistry[contract][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for contract ${ExternalContract[contract]} in network ${network}`)
