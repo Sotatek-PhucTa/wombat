@@ -48,9 +48,9 @@ export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetw
 
 function defaultRewarder() {
   return {
-    secondsToStart: 60,
-    tokenPerSec: 0,
     rewardTokens: [],
+    secondsToStart: 60,
+    tokenPerSec: [0n],
   }
 }
 
@@ -967,49 +967,49 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // HAY-LP
       rewardTokens: [Token.HAY],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
-      tokenPerSec: parseEther('0.005708'),
+      tokenPerSec: [parseEther('0.005708').toBigInt()],
     },
     wmxWom: {
       ...defaultRewarder(),
       lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'), // wmxWOM-LP
       rewardTokens: [Token.WMX],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
-      tokenPerSec: parseEther('0.027'),
+      tokenPerSec: [parseEther('0.027').toBigInt()],
     },
     wmxWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'), // WOM-LP
       rewardTokens: [Token.WMX],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
-      tokenPerSec: parseEther('0.0116'),
+      tokenPerSec: [parseEther('0.0116').toBigInt()],
     },
     mWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'), // mWOM-LP TBD
       rewardTokens: [Token.MGP],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
-      tokenPerSec: parseEther('0.375'),
+      tokenPerSec: [parseEther('0.375').toBigInt()],
     },
     mWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'), // mWOMPool_WOM-LP TBD
       rewardTokens: [Token.MGP],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
-      tokenPerSec: parseEther('0.075'),
+      tokenPerSec: [parseEther('0.075').toBigInt()],
     },
     qWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x87073ba87517E7ca981AaE3636754bCA95C120E4'),
       rewardTokens: [Token.QUO],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
-      tokenPerSec: parseEther('0.13'),
+      tokenPerSec: [parseEther('0.13').toBigInt()],
     },
     qWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8'),
       rewardTokens: [Token.QUO],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
-      tokenPerSec: parseEther('0.1'),
+      tokenPerSec: [parseEther('0.1').toBigInt()],
     },
     BNBx: {
       ...defaultRewarder(),
@@ -1042,43 +1042,43 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       ...defaultRewarder(),
       lpToken: Address('0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'),
       rewardTokens: [Token.RT1],
-      tokenPerSec: parseEther('0.1'),
+      tokenPerSec: [parseEther('0.1').toBigInt()],
     },
     USDC: {
       ...defaultRewarder(),
       lpToken: Address('0x61ABD791773a7E583aD439F558C6c0F157707e7b'),
       rewardTokens: [Token.RT2],
-      tokenPerSec: parseUnits('0.035', 8),
+      tokenPerSec: [parseUnits('0.035', 8).toBigInt()],
     },
     FRAX_BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44'),
       rewardTokens: [Token.testFRAX],
-      tokenPerSec: parseUnits('0.035', 8),
+      tokenPerSec: [parseUnits('0.035', 8).toBigInt()],
     },
     FRAX: {
       ...defaultRewarder(),
       lpToken: Address('0xc5f2B1df25B9Bfc61444b002121330bEa9460F3e'),
       rewardTokens: [Token.testFRAX],
-      tokenPerSec: parseUnits('0.035', 8),
+      tokenPerSec: [parseUnits('0.035', 8).toBigInt()],
     },
     wWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x505b0159871F86Ae0F4512BB52dB5030E31E2459'),
       rewardTokens: [Token.RT1],
-      tokenPerSec: parseUnits('0.00035', 18),
+      tokenPerSec: [parseUnits('0.00035', 18).toBigInt()],
     },
     qWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x22056C9F7e8033BBea9F32b903a0ECF8a7Ea0bC7'),
       rewardTokens: [Token.QUO],
-      tokenPerSec: parseUnits('0.09', 18),
+      tokenPerSec: [parseUnits('0.09', 18).toBigInt()],
     },
     qWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0x82e5314DfdA9aD1a7F594B7D0b5D6b13459f4826'),
       rewardTokens: [Token.QUO],
-      tokenPerSec: parseUnits('0.14', 18),
+      tokenPerSec: [parseUnits('0.14', 18).toBigInt()],
     },
     BNBx: {
       ...defaultRewarder(),
@@ -1240,13 +1240,13 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       ...defaultRewarder(),
       lpToken: Address('0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'),
       rewardTokens: [Token.RT1],
-      tokenPerSec: parseEther('0.1'),
+      tokenPerSec: [parseEther('0.1').toBigInt()],
     },
     FRAX_BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44'),
       rewardTokens: [Token.RT1],
-      tokenPerSec: parseEther('0.1'),
+      tokenPerSec: [parseEther('0.1').toBigInt()],
     },
     BNBx: {
       ...defaultRewarder(),
@@ -1287,9 +1287,11 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     }),
     ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_mWOM', {
       rewardTokens: [Token.MGP, Token.USDC],
+      tokenPerSec: [0n, 0n],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_WOM', {
       rewardTokens: [Token.MGP, Token.USDC],
+      tokenPerSec: [0n, 0n],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
       rewardTokens: [Token.WMX],

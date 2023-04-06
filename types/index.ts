@@ -57,8 +57,7 @@ export interface IRewarder {
   rewardTokens: Token[]
   startTimestamp?: number
   secondsToStart?: number
-  // TODO: migrate tokenPerSec to array
-  tokenPerSec: BigNumberish
+  tokenPerSec: bigint[]
 }
 
 export interface IMockTokenInfo {

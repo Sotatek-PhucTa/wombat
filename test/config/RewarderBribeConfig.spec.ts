@@ -16,6 +16,7 @@ describe('RewarderBribeConfig', function () {
     for (const rewarder of Object.values(config)) {
       expect(rewarder.rewardTokens.length > 0).to.be.true
       expect(rewarder.secondsToStart || rewarder.startTimestamp).to.exist
+      expect(rewarder.tokenPerSec.length).to.eql(rewarder.rewardTokens.length)
     }
   }
 })
