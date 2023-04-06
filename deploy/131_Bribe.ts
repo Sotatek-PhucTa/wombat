@@ -31,17 +31,17 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       contract: 'Bribe',
       log: true,
       skipIfAlreadyDeployed: true,
-      args: [voter.address, lpTokenAddress, startTimestamp, rewardTokens[0], bribeConfig.tokenPerSec],
+      args: [voter.address, lpTokenAddress, startTimestamp, rewardTokens[0], bribeConfig.tokenPerSec[0]],
     })
 
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
-      if (rewardTokens.length > 1) {
+      /// Add remaining reward tokens
+      for (let i = 0; i < rewardTokens.length; i++) {
         const bribe = await getDeployedContract('Bribe', name)
-        for (const address of rewardTokens.slice(1)) {
-          deployments.log(`${name} adding rewardToken: ${address}`)
-          await confirmTxn(bribe.connect(deployerSigner).addRewardToken(address, bribeConfig.tokenPerSec))
-        }
+        const address = rewardTokens[i]
+        deployments.log(`${name} adding rewardToken: ${address}`)
+        await confirmTxn(bribe.connect(deployerSigner).addRewardToken(address, bribeConfig.tokenPerSec[i]))
       }
 
       deployments.log(`${name} Deployment complete.`)
