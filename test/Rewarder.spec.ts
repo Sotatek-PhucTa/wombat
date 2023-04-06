@@ -28,8 +28,8 @@ describe('[Rewarder]', function () {
     expect(await vUSDC.decimals()).to.eq(vUSDCDecimals)
 
     // Note: rewarder use master's LP balance as total share
-    USDC.faucet(parseUSDC('1'))
-    USDC.transfer(master.address, parseUSDC('1'))
+    await USDC.faucet(parseUSDC('1'))
+    await USDC.transfer(master.address, parseUSDC('1'))
   })
 
   describe('vUSDC (8 decimal)', function () {
@@ -42,6 +42,31 @@ describe('[Rewarder]', function () {
       await time.increase(3600) // T+1h
       const [rewards] = await vUSDCRewarder.pendingTokens(user.address)
       expect(rewards).to.eql(parseVUSDC('3600'))
+    })
+
+    it('does not work with small shares', async function () {
+      const vUSDCRewarder = await deployRewarder({
+        rewardToken: vUSDC.address,
+        tokenPerSec: parseVUSDC('1'),
+      })
+      await USDC.faucet(parseUSDC('999999'))
+      await USDC.transfer(master.address, parseUSDC('999999'))
+      expect(await USDC.balanceOf(master.address)).to.eql(parseUSDC('1000000'))
+
+      await master.onReward(vUSDCRewarder.address, user.address, /*lpAmount=*/ parseEther('1'))
+      await time.increase(3600) // T+1h
+      {
+        const [rewards] = await vUSDCRewarder.pendingTokens(user.address)
+        // Technically, we should get 0.0036 = (3600 * 1 * 1 / 100000). However, we lose precision.
+        expect(rewards).to.eql(parseVUSDC('0'))
+      }
+
+      await time.increase((7 * 24 - 1) * 3600) // T+7d
+      {
+        const [rewards] = await vUSDCRewarder.pendingTokens(user.address)
+        // (7 * 24 * 3600 * 1 * 1 / 1000000) = 0.6048
+        expect(rewards).to.eql(parseVUSDC('0.6'))
+      }
     })
   })
 
