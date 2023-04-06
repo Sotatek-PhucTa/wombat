@@ -102,4 +102,20 @@ contract MockAdaptor is Adaptor {
     function faucetCredit(uint256 creditAmount) external {
         crossChainPool.mintCredit(creditAmount, msg.sender, 0);
     }
+
+    function encode(
+        address toToken,
+        uint256 creditAmount,
+        uint256 minimumToAmount,
+        address receiver
+    ) external pure returns (bytes memory) {
+        return _encode(toToken, creditAmount, minimumToAmount, receiver);
+    }
+
+    function decode(
+        bytes memory encoded
+    ) external pure returns (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) {
+        return _decode(encoded);
+    }
+
 }

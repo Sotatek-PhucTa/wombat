@@ -474,4 +474,13 @@ describe('MockAdaptor', function () {
       expect(balanceAfter.sub(balanceBefore)).eq(parseUnits('99.6', 8))
     })
   })
+
+  it('can encode/decode correctly', async function () {
+    const encoded = await mockAdaptor0.encode(user1.address, parseEther('1234'), parseUnits('123', 8), owner.address)
+    const { toToken, creditAmount, minimumToAmount, receiver } = await mockAdaptor0.decode(encoded)
+    expect(toToken).to.eql(user1.address)
+    expect(creditAmount).to.eql(parseEther('1234'))
+    expect(minimumToAmount).to.eql(parseUnits('123', 8))
+    expect(receiver).to.eql(owner.address)
+  })
 })

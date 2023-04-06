@@ -6,7 +6,6 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 
-import '../libraries/BytesLib.sol';
 import '../interfaces/IAdaptor.sol';
 import '../interfaces/ICrossChainPool.sol';
 
@@ -17,8 +16,6 @@ abstract contract Adaptor is
     ReentrancyGuardUpgradeable,
     PausableUpgradeable
 {
-    using BytesLib for bytes;
-
     ICrossChainPool public crossChainPool;
 
     uint256 private _used;
@@ -98,20 +95,19 @@ abstract contract Adaptor is
         }
     }
 
-    // TODO: test encode & decode
     function _encode(
         address toToken,
         uint256 creditAmount,
         uint256 minimumToAmount,
         address receiver
     ) internal pure returns (bytes memory) {
-        return abi.encodePacked(toToken, creditAmount, minimumToAmount, receiver);
+        return abi.encode(toToken, creditAmount, minimumToAmount, receiver);
     }
 
     function _decode(
         bytes memory encoded
     ) internal pure returns (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) {
-        return (encoded.toAddress(0), encoded.toUint256(20), encoded.toUint256(52), encoded.toAddress(84));
+        (toToken, creditAmount, minimumToAmount, receiver) = abi.decode(encoded, (address, uint256, uint256, address));
     }
 
     /**
