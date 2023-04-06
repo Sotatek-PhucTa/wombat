@@ -50,8 +50,6 @@ function defaultRewarder() {
   return {
     secondsToStart: 60,
     tokenPerSec: 0,
-    // Must set either one
-    rewardToken: ethers.constants.AddressZero,
     rewardTokens: [],
   }
 }
@@ -967,130 +965,130 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
     HAY: {
       ...defaultRewarder(),
       lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // HAY-LP
-      rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
+      rewardTokens: [Token.HAY],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.005708'),
     },
     wmxWom: {
       ...defaultRewarder(),
       lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'), // wmxWOM-LP
-      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      rewardTokens: [Token.WMX],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.027'),
     },
     wmxWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'), // WOM-LP
-      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      rewardTokens: [Token.WMX],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.0116'),
     },
     mWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'), // mWOM-LP TBD
-      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      rewardTokens: [Token.MGP],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.375'),
     },
     mWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'), // mWOMPool_WOM-LP TBD
-      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      rewardTokens: [Token.MGP],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.075'),
     },
     qWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x87073ba87517E7ca981AaE3636754bCA95C120E4'),
-      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
+      rewardTokens: [Token.QUO],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.13'),
     },
     qWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8'),
-      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF',
+      rewardTokens: [Token.QUO],
       startTimestamp: 1674021600, // 01/18/2023 2pm HKT
       tokenPerSec: parseEther('0.1'),
     },
     BNBx: {
       ...defaultRewarder(),
       lpToken: Address('0x16B37225889A038FAD42efdED462821224A509A7'),
-      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      rewardTokens: [Token.WOM],
     },
     BnbxPool_WBNB: {
       ...defaultRewarder(),
       lpToken: Address('0x0321D1D769cc1e81Ba21a157992b635363740f86'),
-      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      rewardTokens: [Token.WOM],
     },
     stkBnb: {
       ...defaultRewarder(),
       lpToken: Address('0x0E202A0bCad2712d1fdeEB94Ec98C58bEeD0679f'),
-      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      rewardTokens: [Token.WOM],
     },
     StkBnbPool_WBNB: {
       ...defaultRewarder(),
       lpToken: Address('0x6C7B407411b3DB90DfA25DA4aA66605438D378CE'),
-      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      rewardTokens: [Token.WOM],
     },
     frxETH_Pool_ETH: {
       ...defaultRewarder(),
       lpToken: Address('0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E'),
-      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      rewardTokens: [Token.WOM],
     },
   },
   bsc_testnet: {
     BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'),
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc',
+      rewardTokens: [Token.RT1],
       tokenPerSec: parseEther('0.1'),
     },
     USDC: {
       ...defaultRewarder(),
       lpToken: Address('0x61ABD791773a7E583aD439F558C6c0F157707e7b'),
-      rewardToken: '0x615f8656b763ff4a6a82b3cbbd54d392834df13f',
+      rewardTokens: [Token.RT2],
       tokenPerSec: parseUnits('0.035', 8),
     },
     FRAX_BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44'),
-      rewardToken: '0xa5c67cD016df71f9CDCfd9e76A749a1DDca6209d',
+      rewardTokens: [Token.testFRAX],
       tokenPerSec: parseUnits('0.035', 8),
     },
     FRAX: {
       ...defaultRewarder(),
       lpToken: Address('0xc5f2B1df25B9Bfc61444b002121330bEa9460F3e'),
-      rewardToken: '0xa5c67cD016df71f9CDCfd9e76A749a1DDca6209d',
+      rewardTokens: [Token.testFRAX],
       tokenPerSec: parseUnits('0.035', 8),
     },
     wWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x505b0159871F86Ae0F4512BB52dB5030E31E2459'),
-      rewardToken: '0x9bbc325eb7a7367be610bce614c91ef7f29c69dc',
+      rewardTokens: [Token.RT1],
       tokenPerSec: parseUnits('0.00035', 18),
     },
     qWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x22056C9F7e8033BBea9F32b903a0ECF8a7Ea0bC7'),
-      rewardToken: '0x458c742849d041723efadd9a31153233de442b9b',
+      rewardTokens: [Token.QUO],
       tokenPerSec: parseUnits('0.09', 18),
     },
     qWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0x82e5314DfdA9aD1a7F594B7D0b5D6b13459f4826'),
-      rewardToken: '0x458c742849d041723efadd9a31153233de442b9b',
+      rewardTokens: [Token.QUO],
       tokenPerSec: parseUnits('0.14', 18),
     },
     BNBx: {
       ...defaultRewarder(),
       lpToken: Address('0xB9207cc7bEaFb74773Cd08C869d6F6f890105564'),
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      rewardTokens: [Token.RT1],
     },
     BnbxPool_WBNB: {
       ...defaultRewarder(),
       lpToken: Address('0xC0aFB4E0f2A11E2a74F168904F47178865b728ba'),
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      rewardTokens: [Token.RT1],
     },
   },
   [Network.ARBITRUM_MAINNET]: {
@@ -1109,117 +1107,117 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     HAY: {
       ...defaultRewarder(),
       lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // LP-HAY
-      rewardToken: '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', // HAY
+      rewardTokens: [Token.HAY],
     },
     BNBx: {
       ...defaultRewarder(),
       lpToken: Address('0x16B37225889A038FAD42efdED462821224A509A7'), // LP-BNBx
-      rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
+      rewardTokens: [Token.SD],
     },
     BnbxPool_WBNB: {
       ...defaultRewarder(),
       lpToken: Address('0x0321D1D769cc1e81Ba21a157992b635363740f86'), // LP-BnbxPool_WBNB pid: 16
-      rewardToken: '0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8', // SD
+      rewardTokens: [Token.SD],
     },
     stkBnb: {
       ...defaultRewarder(),
       lpToken: Address('0x0E202A0bCad2712d1fdeEB94Ec98C58bEeD0679f'),
-      rewardToken: '0x4C882ec256823eE773B25b414d36F92ef58a7c0C', // pSTAKE
+      rewardTokens: [Token.PSTAKE],
     },
     StkBnbPool_WBNB: {
       ...defaultRewarder(),
       lpToken: Address('0x6C7B407411b3DB90DfA25DA4aA66605438D378CE'),
-      rewardToken: '0x4C882ec256823eE773B25b414d36F92ef58a7c0C', // pSTAKE
+      rewardTokens: [Token.PSTAKE],
     },
     wmxWom: {
       ...defaultRewarder(),
       lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'), // LP-wmxWOM pid:7
-      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      rewardTokens: [Token.WMX],
     },
     wmxWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'), // LP-WOM pid:6
-      rewardToken: '0xa75d9ca2a0a1D547409D82e1B06618EC284A2CeD', // WMX
+      rewardTokens: [Token.WMX],
     },
     mWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'), // LP-mWOM pid:9
-      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      rewardTokens: [Token.MGP],
     },
     mWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'), // LP-mWOMPool_WOM pid:8
-      rewardToken: '0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa', // MGP
+      rewardTokens: [Token.MGP],
     },
     qWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x87073ba87517E7ca981AaE3636754bCA95C120E4'), // LP-qWOM pid:11
-      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF', // QUO
+      rewardTokens: [Token.QUO],
     },
     qWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8'), // LP-qWOMPool_WOM pid:10
-      rewardToken: '0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF', // QUO
+      rewardTokens: [Token.QUO],
     },
     IUSDPool_iUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x3A29dF144bB54A8bF3d20357c116befa7adE962d'),
-      rewardToken: '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', // iUSD
+      rewardTokens: [Token.iUSD],
     },
     IUSDPool_BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x7Ff1AEc17ea060BBcB7dF6b8723F6Ea7fc905E8F'),
-      rewardToken: '0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D', // iUSD
+      rewardTokens: [Token.iUSD],
     },
     CUSDPool_CUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x3ac762C607ed6Dba156cBcF11efF96340e86b490'),
-      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      rewardTokens: [Token.WOM],
     },
     CUSDPool_HAY: {
       ...defaultRewarder(),
       lpToken: Address('0xa6eF6C45EbFDBc13f6D032fbDFeC9b389C1603E5'),
-      rewardToken: '0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1', // WOM
+      rewardTokens: [Token.WOM],
     },
     AxlUsdcPool_axlUSDC: {
       ...defaultRewarder(),
       lpToken: Address('0x77F645Ee0c6d47380A942B04B8151fD542927391'),
-      rewardToken: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', // axlUSDC
+      rewardTokens: [Token.axlUSDC],
     },
     AxlUsdcPool_BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x791b2424df9865994Ad570425278902E2B5D7946'),
-      rewardToken: '0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3', // axlUSDC
+      rewardTokens: [Token.axlUSDC],
     },
     BOBPool_BOB: {
       ...defaultRewarder(),
       lpToken: Address('0x4968E21be7Bb0ced1bd3859d3dB993ad3a05d2E6'),
-      rewardToken: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
+      rewardTokens: [Token.BOB],
     },
     BOBPool_USDC: {
       ...defaultRewarder(),
       lpToken: Address('0x6b98d2B6ed0131338C7945Db8588DA43323d1b8C'),
-      rewardToken: '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
+      rewardTokens: [Token.BOB],
     },
     frxETH: {
       ...defaultRewarder(),
       lpToken: Address('0xd67EdEA100AdC2Aa8ae0b5CEe7bF420ee17E5bB9'),
-      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
+      rewardTokens: [Token.FXS],
     },
     frxETHPool_WETH: {
       ...defaultRewarder(),
       lpToken: Address('0xb268c3181921747379271B9BFfCE8B16311656e3'),
-      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
+      rewardTokens: [Token.FXS],
     },
     frxETH_Pool_ETH: {
       ...defaultRewarder(),
       lpToken: Address('0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E'),
-      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
+      rewardTokens: [Token.FXS],
     },
     frax: {
       ...defaultRewarder(),
       lpToken: Address('0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB'),
-      rewardToken: '0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE', // FXS
+      rewardTokens: [Token.FXS],
     },
     ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_MIM', {
       rewardTokens: [Token.SPELL],
@@ -1241,19 +1239,19 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'),
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      rewardTokens: [Token.RT1],
       tokenPerSec: parseEther('0.1'),
     },
     FRAX_BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44'),
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      rewardTokens: [Token.RT1],
       tokenPerSec: parseEther('0.1'),
     },
     BNBx: {
       ...defaultRewarder(),
       lpToken: Address('0xB9207cc7bEaFb74773Cd08C869d6F6f890105564'),
-      rewardToken: '0x9bbC325Eb7a7367bE610bCe614C91EF7F29c69dc', // RT1
+      rewardTokens: [Token.RT1],
     },
   },
   [Network.ARBITRUM_MAINNET]: {

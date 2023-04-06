@@ -54,11 +54,10 @@ export interface ITokensInfo {
 
 export interface IRewarder {
   lpToken: DeploymentOrAddress
-  // TODO: migrate rewardToken to rewardTokens
-  rewardToken: string
   rewardTokens: Token[]
   startTimestamp?: number
   secondsToStart?: number
+  // TODO: migrate tokenPerSec to array
   tokenPerSec: BigNumberish
 }
 

@@ -26,10 +26,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     /// Deploy rewarder
     const name = `MultiRewarderPerSec_V3_${token}`
     const lpTokenAddress = await getAddress(rewarderConfig.lpToken)
-    const rewardTokens =
-      rewarderConfig.rewardToken != ethers.constants.AddressZero
-        ? [rewarderConfig.rewardToken]
-        : await Promise.all(rewarderConfig.rewardTokens.map((t) => getTokenAddress(t)))
+    const rewardTokens = await Promise.all(rewarderConfig.rewardTokens.map((t) => getTokenAddress(t)))
     assert(rewardTokens.length > 0, `Empty rewardTokens for rewarder at ${token}`)
     const deployResult = await deploy(name, {
       from: deployer,

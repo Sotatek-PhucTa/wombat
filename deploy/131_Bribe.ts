@@ -24,10 +24,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
     const name = `Bribe_${token}`
     const lpTokenAddress = await getAddress(bribeConfig.lpToken)
-    const rewardTokens =
-      bribeConfig.rewardToken != ethers.constants.AddressZero
-        ? [bribeConfig.rewardToken]
-        : await Promise.all(bribeConfig.rewardTokens.map((t) => getTokenAddress(t)))
+    const rewardTokens = await Promise.all(bribeConfig.rewardTokens.map((t) => getTokenAddress(t)))
     assert(rewardTokens.length > 0, `Empty rewardTokens for bribe at ${token}`)
     const deployResult = await deploy(name, {
       from: deployer,

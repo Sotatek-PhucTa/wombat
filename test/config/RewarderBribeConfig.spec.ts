@@ -1,7 +1,6 @@
 import { expect } from 'chai'
 import { BRIBE_MAPS, REWARDERS_MAP } from '../../tokens.config'
 import { IRewarder, Network, TokenMap } from '../../types'
-import { ethers } from 'hardhat'
 
 describe('RewarderBribeConfig', function () {
   Object.values(Network).map((network) => {
@@ -15,7 +14,7 @@ describe('RewarderBribeConfig', function () {
 
   function verify(config: TokenMap<IRewarder>) {
     for (const rewarder of Object.values(config)) {
-      expect(rewarder.rewardToken != ethers.constants.AddressZero || rewarder.rewardTokens.length > 0).to.be.true
+      expect(rewarder.rewardTokens.length > 0).to.be.true
       expect(rewarder.secondsToStart || rewarder.startTimestamp).to.exist
     }
   }
