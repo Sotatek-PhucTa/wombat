@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { WOMBAT_TOKEN } from '../tokens.config'
+import { WOMBAT_TOKEN } from '../config/tokens.config'
 import { Network } from '../types'
 import { confirmTxn, getAddress, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 

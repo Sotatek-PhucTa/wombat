@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getAddress, logVerifyCommand } from '../utils'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
-import { WOMBAT_TOKEN } from '../tokens.config'
+import { WOMBAT_TOKEN } from '../config/tokens.config'
 import { Network } from '../types'
 
 const contractName = 'MasterWombatV2'

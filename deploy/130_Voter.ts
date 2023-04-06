@@ -4,7 +4,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getAddress, logVerifyCommand } from '../utils'
 import { parseEther } from 'ethers/lib/utils'
-import { WOMBAT_TOKEN } from '../tokens.config'
+import { WOMBAT_TOKEN } from '../config/tokens.config'
 import { Network } from '../types'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {

@@ -9,7 +9,7 @@ import {
   FACTORYPOOL_TOKENS_MAP,
   USD_TOKENS_MAP,
   WRAPPED_NATIVE_TOKENS_MAP,
-} from '../tokens.config'
+} from '../config/tokens.config'
 import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
 import { confirmTxn, getUnderlyingTokenAddr, logVerifyCommand } from '../utils'
 import { getPoolDeploymentName } from '../utils/deploy'

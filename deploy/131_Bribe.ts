@@ -3,10 +3,10 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { BRIBE_MAPS } from '../tokens.config'
+import { BRIBE_MAPS } from '../config/tokens.config'
 import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 import { Network } from '../types'
-import { getTokenAddress } from '../types/addresses/token'
+import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {

@@ -18,8 +18,8 @@ import {
   PoolName,
   TokenMap,
   Unknown,
-} from './types'
-import { Token } from './types/addresses/token'
+} from '../types'
+import { Token } from './token'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({

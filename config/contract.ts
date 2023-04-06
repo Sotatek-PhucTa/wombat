@@ -1,6 +1,6 @@
-import { Address, DeploymentOrAddress, Network, PartialRecord } from '..'
-import { getNetwork } from '../network'
-import { getAddress } from '../../utils'
+import { Address, DeploymentOrAddress, Network, PartialRecord } from '../types'
+import { getNetwork } from '../types/network'
+import { getAddress } from '../utils'
 
 // Enum of external contract that are not tokens.
 // style note: sort alphabetically.

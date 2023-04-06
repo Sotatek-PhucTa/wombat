@@ -1,7 +1,7 @@
 import { deployments, getNamedAccounts } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { MOCK_TOKEN_MAP, USD_TOKENS_MAP } from '../tokens.config'
+import { MOCK_TOKEN_MAP, USD_TOKENS_MAP } from '../config/tokens.config'
 import { IMockTokenInfo, Network } from '../types'
 import { logVerifyCommand } from '../utils'
 

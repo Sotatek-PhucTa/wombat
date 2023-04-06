@@ -4,7 +4,7 @@ import {
   DYNAMICPOOL_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
   MOCK_TOKEN_MAP,
-} from '../../tokens.config'
+} from '../../config/tokens.config'
 import { Network } from '../../types'
 
 describe('Token Config', function () {

@@ -1,6 +1,6 @@
 import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardhat'
 import { WormholeAdaptor } from '../build/typechain'
-import { CROSS_CHAIN_POOL_TOKENS_MAP, WORMHOLE_CONFIG_MAPS } from '../tokens.config'
+import { CROSS_CHAIN_POOL_TOKENS_MAP, WORMHOLE_CONFIG_MAPS } from '../config/tokens.config'
 import { Network } from '../types'
 import { getDeployedContract, logVerifyCommand } from '../utils'
 import { getPoolDeploymentName } from '../utils/deploy'

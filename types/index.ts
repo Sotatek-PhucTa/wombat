@@ -1,6 +1,6 @@
 import { assert } from 'chai'
 import { BigNumber, BigNumberish, Contract, ethers } from 'ethers'
-import { Token } from './addresses/token'
+import { Token } from '../config/token'
 import { DeployResult } from 'hardhat-deploy/types'
 
 export enum Network {

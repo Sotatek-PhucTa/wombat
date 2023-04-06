@@ -1,10 +1,10 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { REWARDERS_MAP } from '../tokens.config'
+import { REWARDERS_MAP } from '../config/tokens.config'
 import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, logVerifyCommand } from '../utils'
 import { Network } from '../types'
-import { getTokenAddress } from '../types/addresses/token'
+import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
 
 const contractName = 'MultiRewarderPerSec'

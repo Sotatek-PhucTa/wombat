@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { deployments, getNamedAccounts } from 'hardhat'
 import { HighCovRatioFeePoolV3 } from '../../build/typechain'
-import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../../tokens.config'
+import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../../config/tokens.config'
 import { getCurrentNetwork } from '../../types/network'
 import { getDeployedContract } from '../../utils'
 import { getPoolDeploymentName } from '../../utils/deploy'
