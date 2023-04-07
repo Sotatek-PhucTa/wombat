@@ -865,7 +865,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
   Network,
   NetworkPoolInfo<IHighCovRatioFeePoolConfig>
 > = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
-  bsc_mainnet: {
+  [Network.BSC_MAINNET]: {
     frxETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
@@ -940,6 +940,28 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           underlyingTokenAddr: '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
           oracleAddress: '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8',
           assetContractName: 'StkbnbAsset',
+        },
+      },
+    },
+    AnkrBNBPool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        mintFeeThreshold: parseEther('0.00333333333'),
+        deploymentNamePrefix: '',
+      },
+      assets: {
+        WBNB: {
+          tokenName: 'Wrapped BNB',
+          tokenSymbol: 'WBNB',
+          underlyingToken: Token.WBNB,
+          assetContractName: 'DynamicAsset',
+        },
+        ankrBNB: {
+          tokenName: 'Ankr Staked BNB',
+          tokenSymbol: 'ankrBNB',
+          underlyingToken: Token.ankrBNB,
+          oracleAddress: '0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827', // TODO: find oracle
+          assetContractName: 'ABnbcAsset',
         },
       },
     },

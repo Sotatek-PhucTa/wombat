@@ -4,6 +4,7 @@ import { getCurrentNetwork } from '../types/network'
 
 // style note: sort alphabetically.
 export enum Token {
+  ANKR,
   BOB,
   FXS,
   HAY,
@@ -20,9 +21,11 @@ export enum Token {
   USDPlus,
   USDT,
   USDTPlus,
+  WBNB,
   WETH,
   WMX,
   WOM,
+  ankrBNB,
   frxETH,
   iUSD,
   mWOM,
@@ -45,6 +48,10 @@ export async function getTokenAddress(token: Token): Promise<string> {
 
 // registry of token address. Used by getTokenAddress only. Do not export.
 const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> = {
+  [Token.ANKR]: {
+    // https://www.coingecko.com/en/coins/ankr-network
+    [Network.BSC_MAINNET]: Address('0xf307910a4c7bbc79691fd374889b36d8531b08e3'),
+  },
   [Token.BOB]: {
     // https://www.coingecko.com/en/coins/bob
     [Network.BSC_MAINNET]: Address('0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B'),
@@ -118,6 +125,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://bscscan.com/address/0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C
     [Network.BSC_MAINNET]: Address('0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C'),
   },
+  [Token.WBNB]: {
+    // https://www.coingecko.com/en/coins/wbnb
+    [Network.BSC_MAINNET]: Address('0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'),
+  },
   [Token.WETH]: {
     // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
     [Network.ARBITRUM_MAINNET]: Address('0x82af49447d8a07e3bd95bd0d56f35241523fbab1'),
@@ -131,6 +142,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/wombat-exchange
     [Network.HARDHAT]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
+  },
+  [Token.ankrBNB]: {
+    // https://bscscan.com/address/0x52f24a5e03aee338da5fd9df68d2b6fae1178827
+    [Network.BSC_MAINNET]: Address('0x52f24a5e03aee338da5fd9df68d2b6fae1178827'),
   },
   [Token.frxETH]: {
     // https://arbiscan.io/token/0x178412e79c25968a32e89b11f63b33f733770c2a
