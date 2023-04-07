@@ -934,9 +934,9 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           underlyingTokenAddr: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
           assetContractName: 'DynamicAsset',
         },
-        Stkbnb: {
+        stkBNB: {
           tokenName: 'Staked BNB',
-          tokenSymbol: 'Stkbnb',
+          tokenSymbol: 'stkBNB',
           underlyingTokenAddr: '0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16',
           oracleAddress: '0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8',
           assetContractName: 'StkbnbAsset',
