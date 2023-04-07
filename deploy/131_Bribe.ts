@@ -57,11 +57,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       }
 
       const bribe = await getDeployedContract('Bribe', name)
-      deployments.log(`Transferring operator of ${deployResult.address} to ${deployer}...`)
+      const operator = await getContractAddressOrDefault(bribeConfig.operator, deployer)
+      deployments.log(`Transferring operator of ${deployResult.address} to ${operator}...`)
       // The operator of the rewarder contract can set and update reward rates
-      await confirmTxn(
-        bribe.connect(deployerSigner).setOperator(await getContractAddressOrDefault(bribeConfig.operator, deployer))
-      )
+      await confirmTxn(bribe.connect(deployerSigner).setOperator(operator))
       deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the rewarder contract can add new reward tokens and withdraw them
       await confirmTxn(bribe.connect(deployerSigner).transferOwnership(multisig))
