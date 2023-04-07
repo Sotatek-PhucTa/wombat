@@ -1269,11 +1269,13 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     }),
     ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR],
+      // TODO: configure tokenPerSec
       startTimestamp: atEpochStart('2023-04-12T05:55Z'),
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR],
+      // TODO: configure tokenPerSec
       startTimestamp: atEpochStart('2023-04-12T05:55Z'),
       operator: ExternalContract.AnkrBribeOperator,
     }),
