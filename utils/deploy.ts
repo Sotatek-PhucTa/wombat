@@ -3,7 +3,7 @@ import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import { deployments, ethers, network, upgrades } from 'hardhat'
 import { DeploymentResult, IAssetInfo, IPoolConfig, PoolInfo } from '../types'
-import { confirmTxn, getDeployedContract, getTestERC20, logVerifyCommand } from '../utils'
+import { confirmTxn, getDeployedContract, getTestERC20, isOwner, logVerifyCommand } from '../utils'
 import { getTokenAddress } from '../config/token'
 
 export async function deployTestAsset(tokenSymbol: string) {
@@ -160,8 +160,14 @@ export async function deployAssetV2(
     // Remove old and add new Asset to newly-deployed Pool
     const underlyingTokens = await pool.getTokens()
     if (!underlyingTokens.includes(underlyingTokenAddr)) {
-      deployments.log(`Adding new asset for ${deploymentName}`)
-      await confirmTxn(pool.connect(deployerSigner).addAsset(underlyingTokenAddr, address))
+      if (await isOwner(pool, deployer)) {
+        deployments.log(`Adding ${deploymentName} to pool ${pool.address}`)
+        await confirmTxn(pool.connect(deployerSigner).addAsset(underlyingTokenAddr, address))
+      } else {
+        deployments.log(
+          `Deployer is not owner of pool. Please propose multisig to add asset at ${address} to pool at ${pool.address}`
+        )
+      }
     } else {
       deployments.log(`Removing the old asset for ${deploymentName} and adding new asset`)
       await confirmTxn(pool.connect(deployerSigner).removeAsset(underlyingTokenAddr))
