@@ -21,6 +21,7 @@ import {
 } from '../types'
 import { Token } from './token'
 import { ExternalContract } from './contract'
+import { atEpochStart } from './epoch'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -1268,10 +1269,12 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     }),
     ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR],
+      startTimestamp: atEpochStart('2023-04-12T05:55Z'),
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR],
+      startTimestamp: atEpochStart('2023-04-12T05:55Z'),
       operator: ExternalContract.AnkrBribeOperator,
     }),
   },
