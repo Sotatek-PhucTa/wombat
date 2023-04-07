@@ -20,6 +20,7 @@ import {
   Unknown,
 } from '../types'
 import { Token } from './token'
+import { ExternalContract } from './contract'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -46,11 +47,13 @@ export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetw
   [Network.ARBITRUM_TESTNET]: '0xDa01302C86ECcd5bc94c1086777acF3c3Af7EF63',
 }) as Record<Network, string>
 
-function defaultRewarder() {
+function defaultRewarder(): IRewarder {
   return {
-    rewardTokens: [],
+    lpToken: Unknown(),
     secondsToStart: 60,
-    tokenPerSec: [0n],
+    // Use empty reward token here as we expect config to override it.
+    rewardTokens: [],
+    tokenPerSec: [0],
   }
 }
 
@@ -1132,7 +1135,7 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
 
 // IBribe reuses the interface of IRewarder
 export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
-  bsc_mainnet: {
+  [Network.BSC_MAINNET]: {
     HAY: {
       ...defaultRewarder(),
       lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // LP-HAY
@@ -1262,6 +1265,14 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     }),
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
       rewardTokens: [Token.USDPlus],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_WBNB', {
+      rewardTokens: [Token.ANKR],
+      operator: ExternalContract.AnkrBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
+      rewardTokens: [Token.ANKR],
+      operator: ExternalContract.AnkrBribeOperator,
     }),
   },
   bsc_testnet: {

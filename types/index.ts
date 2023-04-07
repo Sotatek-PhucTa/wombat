@@ -1,7 +1,8 @@
 import { assert } from 'chai'
 import { BigNumber, BigNumberish, Contract, ethers } from 'ethers'
-import { Token } from '../config/token'
 import { DeployResult } from 'hardhat-deploy/types'
+import { ExternalContract } from '../config/contract'
+import { Token } from '../config/token'
 
 export enum Network {
   HARDHAT = 'hardhat',
@@ -57,7 +58,10 @@ export interface IRewarder {
   rewardTokens: Token[]
   startTimestamp?: number
   secondsToStart?: number
-  tokenPerSec: bigint[]
+  // ether6 uses bigint. However, hardhat-deploy uses JSON.stringify which does not know how to serialize bigint.
+  // see https://github.com/wighawag/hardhat-deploy/issues/439
+  tokenPerSec: BigNumberish[]
+  operator?: ExternalContract
 }
 
 export interface IMockTokenInfo {

@@ -8,6 +8,7 @@ import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwne
 import { Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
+import { getContractAddressOrDefault } from '../config/contract'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -58,7 +59,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const bribe = await getDeployedContract('Bribe', name)
       deployments.log(`Transferring operator of ${deployResult.address} to ${deployer}...`)
       // The operator of the rewarder contract can set and update reward rates
-      await confirmTxn(bribe.connect(deployerSigner).setOperator(deployer))
+      await confirmTxn(
+        bribe.connect(deployerSigner).setOperator(await getContractAddressOrDefault(bribeConfig.operator, deployer))
+      )
       deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the rewarder contract can add new reward tokens and withdraw them
       await confirmTxn(bribe.connect(deployerSigner).transferOwnership(multisig))

@@ -22,6 +22,17 @@ export async function getContractAddress(contract: ExternalContract): Promise<st
   }
 }
 
+export async function getContractAddressOrDefault(
+  contract: ExternalContract | undefined,
+  defaultValue: string
+): Promise<string> {
+  if (contract === undefined) {
+    return defaultValue
+  } else {
+    return getContractAddress(contract)
+  }
+}
+
 // registry of contract address. Used by getContractAddress only. Do not export.
 const contractRegistry: Record<ExternalContract, PartialRecord<Network, DeploymentOrAddress>> = {
   [ExternalContract.AnkrBribeOperator]: {

@@ -59,6 +59,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share
+    [Network.BSC_MAINNET]: Address('0xe48a3d7d0bc88d552f730b62c006bc925eadb9ee'),
     [Network.ARBITRUM_MAINNET]: Address('0x9d2f299715d94d8a7e6f5eaa8e654e8c74a988a7'),
   },
   [Token.HAY]: {
@@ -141,6 +142,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.WOM]: {
     // https://www.coingecko.com/en/coins/wombat-exchange
     [Network.HARDHAT]: Deployment('WombatToken'),
+    [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
   },
   [Token.ankrBNB]: {
