@@ -3,7 +3,7 @@ import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import { deployments, ethers, network, upgrades } from 'hardhat'
 import { DeploymentResult, IAssetInfo, IPoolConfig, PoolInfo } from '../types'
-import { confirmTxn, getTestERC20, logVerifyCommand } from '../utils'
+import { confirmTxn, getDeployedContract, getTestERC20, logVerifyCommand } from '../utils'
 import { getTokenAddress } from '../config/token'
 
 export async function deployTestAsset(tokenSymbol: string) {
@@ -111,7 +111,7 @@ export async function deployAssetV2(
   assetInfo: IAssetInfo,
   poolAddress: string,
   pool: Contract,
-  contractName: string
+  deploymentName: string
 ): Promise<DeploymentResult> {
   const { deploy } = deployments
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
@@ -133,7 +133,7 @@ export async function deployAssetV2(
   const args: string[] = [underlyingTokenAddr, name, symbol]
   if (oracleAddress) args.push(oracleAddress)
 
-  const deployResult = await deploy(contractName, {
+  const deployResult = await deploy(deploymentName, {
     from: deployer,
     contract: assetContractName,
     log: true,
@@ -149,7 +149,7 @@ export async function deployAssetV2(
       multisig,
       assetInfo,
       asset,
-      `PriceFeed_${contractName}_${assetInfo.priceFeed?.priceFeedContract}`
+      `PriceFeed_${deploymentName}_${assetInfo.priceFeed?.priceFeedContract}`
     )
   }
 
@@ -160,10 +160,10 @@ export async function deployAssetV2(
     // Remove old and add new Asset to newly-deployed Pool
     const underlyingTokens = await pool.getTokens()
     if (!underlyingTokens.includes(underlyingTokenAddr)) {
-      deployments.log(`Adding new asset for ${contractName}`)
+      deployments.log(`Adding new asset for ${deploymentName}`)
       await confirmTxn(pool.connect(deployerSigner).addAsset(underlyingTokenAddr, address))
     } else {
-      deployments.log(`Removing the old asset for ${contractName} and adding new asset`)
+      deployments.log(`Removing the old asset for ${deploymentName} and adding new asset`)
       await confirmTxn(pool.connect(deployerSigner).removeAsset(underlyingTokenAddr))
       await confirmTxn(pool.connect(deployerSigner).addAsset(underlyingTokenAddr, address))
     }
@@ -184,7 +184,7 @@ export async function deployAssetV2(
 
     const underlyingTokens = await pool.getTokens()
     if (!underlyingTokens.includes(underlyingTokenAddr)) {
-      deployments.log(`!! Asset ${contractName} is not in the pool ${underlyingTokens}`)
+      deployments.log(`!! Asset ${deploymentName} is not in the pool ${underlyingTokens}`)
       // uncomment to add asset
       // await confirmTxn(pool.connect(owner).addAsset(underlyingTokenAddr, address))
     }
@@ -192,7 +192,7 @@ export async function deployAssetV2(
     // check existing asset have latest pool address
     const existingPoolAddress = await asset.pool()
     if (existingPoolAddress !== poolAddress) {
-      deployments.log(`Should add existing ${contractName} to the pool ${poolAddress}...`)
+      deployments.log(`Should add existing ${deploymentName} to the pool ${poolAddress}...`)
       // uncomment to set pool
       // await confirmTxn(await asset.connect(owner).setPool(poolAddress))
     }
@@ -206,32 +206,33 @@ export async function deployPriceFeed(
   multisig: string,
   assetInfo: IAssetInfo,
   asset: Contract,
-  contractName: string
+  deploymentName: string
 ) {
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const { deploy } = deployments
 
   deployments.log(
-    `Attemping to deploy price feed for: ${assetInfo.tokenName} with args ${assetInfo.priceFeed!.deployArgs}`
+    `Attemping to deploy price feed for: ${assetInfo.tokenName} with args ${assetInfo.priceFeed?.deployArgs}`
   )
   if (!assetInfo.priceFeed) {
     throw `assetInfo.priceFeed for ${assetInfo.tokenName} is full`
   }
 
-  const priceFeedDeployResult = await deploy(contractName, {
+  const deployResult = await deploy(deploymentName, {
     from: deployer,
-    contract: assetInfo.priceFeed!.priceFeedContract,
+    contract: assetInfo.priceFeed?.priceFeedContract,
     log: true,
-    args: assetInfo.priceFeed!.deployArgs,
+    args: assetInfo.priceFeed?.deployArgs,
     skipIfAlreadyDeployed: true,
   })
-  if (priceFeedDeployResult.newlyDeployed) {
-    deployments.log(`Transferring ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
-    await confirmTxn(asset.connect(deployerSigner).transferOwnership(multisig))
-    deployments.log(`Transferred ownership of price feed ${priceFeedDeployResult.address} to ${multisig}...`)
+  if (deployResult.newlyDeployed) {
+    const priceFeed = await getDeployedContract(assetInfo.priceFeed?.priceFeedContract, deploymentName)
 
-    // set price feed for the asset
-    console.log(await asset.owner(), deployerSigner.address)
-    await confirmTxn(asset.connect(deployerSigner).setPriceFeed(priceFeedDeployResult.address))
+    deployments.log(`Transferring ownership of price feed ${deployResult.address} to ${multisig}...`)
+    await confirmTxn(priceFeed.connect(deployerSigner).transferOwnership(multisig))
+    deployments.log(`Transferred ownership of price feed ${deployResult.address} to ${multisig}...`)
+
+    deployments.log('Setting price feed for asset...')
+    await confirmTxn(asset.connect(deployerSigner).setPriceFeed(deployResult.address))
   }
 }
