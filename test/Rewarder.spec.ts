@@ -7,7 +7,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { expect } from 'chai'
 
 describe('[Rewarder]', function () {
-  const vUSDCDecimals = 8
+  const axlUSDCDecimals = 6
   const USDCDecimals = 18
   const maxTokenPerSec = parseEther('10000')
 
@@ -15,7 +15,7 @@ describe('[Rewarder]', function () {
   let user: SignerWithAddress
   let master: Contract
   let USDC: Contract
-  let vUSDC: Contract
+  let axlUSDC: Contract
 
   beforeEach(async function () {
     await deployments.fixture(['MockTokens'])
@@ -25,56 +25,63 @@ describe('[Rewarder]', function () {
     USDC = await getTestERC20('USDC')
     expect(await USDC.decimals()).to.eq(USDCDecimals)
 
-    vUSDC = await getTestERC20('vUSDC')
-    expect(await vUSDC.decimals()).to.eq(vUSDCDecimals)
+    axlUSDC = await getTestERC20('axlUSDC')
+    expect(await axlUSDC.decimals()).to.eq(axlUSDCDecimals)
 
     // Note: rewarder use master's LP balance as total share
     await topUp(master.address, parseUSDC('1'))
   })
 
-  describe('vUSDC (8 decimal)', function () {
-    it('rewards 1 vUSDC/s', async function () {
+  describe('axlUSDC (6 decimal)', function () {
+    it('rewards 1 axlUSDC/s', async function () {
       const rewarder = await deployRewarder({
-        rewardToken: vUSDC.address,
-        tokenPerSec: parseVUSDC('1'),
+        rewardToken: axlUSDC.address,
+        tokenPerSec: parseAxlUSDC('1'),
       })
       await master.onReward(rewarder.address, user.address, /*lpAmount=*/ parseEther('1'))
       await time.increase(3600) // T+1h
       const [rewards] = await rewarder.pendingTokens(user.address)
-      expect(rewards).to.eql(parseVUSDC('3600'))
+      expect(rewards).to.eql(parseAxlUSDC('3600'))
     })
 
     it('works with small shares', async function () {
       const rewarder = await deployRewarder({
-        rewardToken: vUSDC.address,
-        tokenPerSec: parseVUSDC('1'),
+        rewardToken: axlUSDC.address,
+        tokenPerSec: parseAxlUSDC('1'),
       })
       await topUpTo(master.address, parseUSDC('1000000'))
       expect(await USDC.balanceOf(master.address)).to.eql(parseUSDC('1000000'))
 
       await master.onReward(rewarder.address, user.address, /*lpAmount=*/ parseEther('1'))
-      await time.increase(3600) // T+1h
+      const now = await time.latest()
+      await time.increaseTo(now + 1) // T+1s
       {
         const [rewards] = await rewarder.pendingTokens(user.address)
-        expect(rewards).to.eql(parseVUSDC('0.0036'))
+        expect(rewards).to.eql(parseAxlUSDC('0.000001'))
       }
 
-      await time.increase((7 * 24 - 1) * 3600) // T+7d
+      await time.increaseTo(now + 3600) // T+1h
       {
         const [rewards] = await rewarder.pendingTokens(user.address)
-        expect(rewards).to.eql(parseVUSDC('0.6048'))
+        expect(rewards).to.eql(parseAxlUSDC('0.0036'))
+      }
+
+      await time.increaseTo(now + 7 * 24 * 3600) // T+7d
+      {
+        const [rewards] = await rewarder.pendingTokens(user.address)
+        expect(rewards).to.eql(parseAxlUSDC('0.6048'))
       }
     })
 
     it('does not overflow at max reward rate for one month', async function () {
       const rewarder = await deployRewarder({
-        rewardToken: vUSDC.address,
+        rewardToken: axlUSDC.address,
         tokenPerSec: maxTokenPerSec,
       })
       await master.onReward(rewarder.address, user.address, /*lpAmount=*/ parseEther('1'))
       await time.increase(30 * 24 * 3600) // T+30d
       const [rewards] = await rewarder.pendingTokens(user.address)
-      expect(rewards).to.eql(parseVUSDC('259200000000000000000'))
+      expect(rewards).to.eql(parseAxlUSDC('25920000000000000000000'))
       expect(rewards).to.eql(maxTokenPerSec.mul(30 * 24 * 3600))
     })
   })
@@ -134,7 +141,7 @@ describe('[Rewarder]', function () {
     return parseUnits(value, USDCDecimals)
   }
 
-  function parseVUSDC(value: string) {
-    return parseUnits(value, vUSDCDecimals)
+  function parseAxlUSDC(value: string) {
+    return parseUnits(value, axlUSDCDecimals)
   }
 })

@@ -155,6 +155,13 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInf
 export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = injectForkNetwork<
   TokenMap<IMockTokenInfo>
 >({
+  [Network.HARDHAT]: {
+    axlUSDC: {
+      tokenName: 'Axelar Wrapped USDC',
+      tokenSymbol: 'axlUSDC',
+      decimalForMockToken: 6,
+    },
+  },
   [Network.BSC_TESTNET]: {
     BUSD: {
       tokenName: 'Binance USD',

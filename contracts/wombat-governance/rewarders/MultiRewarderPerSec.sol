@@ -22,7 +22,7 @@ import '../interfaces/IMultiRewarder.sol';
 contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    uint256 internal constant ACC_TOKEN_PRECISION = 1e18;
+    uint256 public constant ACC_TOKEN_PRECISION = 1e18;
     IERC20 public immutable lpToken;
     address public immutable master;
 
