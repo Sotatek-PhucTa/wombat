@@ -888,13 +888,13 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         frxETH: {
           tokenName: 'Frax Ether',
           tokenSymbol: 'frxETH',
-          underlyingTokenAddr: '0x64048a7eecf3a2f1ba9e144aac3d7db6e58f555e',
+          underlyingTokenAddr: '0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e',
           assetContractName: 'DynamicAsset',
         },
         ETH: {
           tokenName: 'Binance-Peg Ethereum Token',
           tokenSymbol: 'ETH',
-          underlyingTokenAddr: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+          underlyingTokenAddr: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
           assetContractName: 'DynamicAsset',
         },
       },
