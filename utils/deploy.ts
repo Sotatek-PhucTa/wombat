@@ -4,6 +4,7 @@ import { formatEther } from 'ethers/lib/utils'
 import { deployments, ethers, network, upgrades } from 'hardhat'
 import { DeploymentResult, IAssetInfo, IPoolConfig, PoolInfo } from '../types'
 import { confirmTxn, getTestERC20, logVerifyCommand } from '../utils'
+import { getTokenAddress } from '../config/token'
 
 export async function deployTestAsset(tokenSymbol: string) {
   const erc20 = await getTestERC20(tokenSymbol)
@@ -116,16 +117,18 @@ export async function deployAssetV2(
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Attemping to deploy Asset contract for: ${assetInfo.tokenName} of pool ${poolAddress}`)
-  if (assetInfo.underlyingTokenAddr === undefined) {
-    throw 'invalid asset info for ' + assetInfo.tokenName
-  }
   const tokenName = assetInfo.tokenName
   const tokenSymbol = assetInfo.tokenSymbol
-  const underlyingTokenAddr = assetInfo.underlyingTokenAddr
+  const underlyingTokenAddr = assetInfo.underlyingToken
+    ? await getTokenAddress(assetInfo.underlyingToken)
+    : assetInfo.underlyingTokenAddr
   const oracleAddress = assetInfo.oracleAddress
   const assetContractName = assetInfo.assetContractName ?? 'Asset'
   const name = `Wombat ${tokenName} Asset`
   const symbol = `LP-${tokenSymbol}`
+  if (underlyingTokenAddr == undefined) {
+    throw 'invalid asset info for ' + assetInfo.tokenName
+  }
 
   const args: string[] = [underlyingTokenAddr, name, symbol]
   if (oracleAddress) args.push(oracleAddress)
