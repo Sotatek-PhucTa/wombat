@@ -1,6 +1,10 @@
 const first_epoch = 1673416500 // 2023-01-11T05:55:00.000Z
 const epoch_duration = 7 * 24 * 3600 // 7 days
 
+export enum Epochs {
+  Apr12 = atEpochStart('2023-04-12T05:55Z'),
+}
+
 // Utility to create timestamp in seconds at the start of the epoch given by the iso string
 // e.g. atEpochStart('2023-04-12T05:55:00Z') => 1681278900
 // REQUIRES: isoString is exactly at the second an epoch starts.
