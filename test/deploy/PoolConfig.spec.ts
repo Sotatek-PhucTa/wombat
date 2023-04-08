@@ -9,9 +9,9 @@ import { getPoolDeploymentName } from '../../utils/deploy'
 describe('Verify Pool Config', function () {
   let deployer: string
   let multisig: string
+
   beforeEach(async function () {
-    await deployments.fixture(['HighCovRatioFeePool'])
-    ;({ deployer, multisig } = await getNamedAccounts())
+    await deployments.fixture([])
   })
 
   describe('HighCovRatioFeePool', async function () {
@@ -19,6 +19,8 @@ describe('Verify Pool Config', function () {
 
     Object.entries(POOL_TOKENS).forEach(([poolName, poolInfo]) => {
       it(`verify config for ${poolName}`, async function () {
+        ;({ deployer, multisig } = await getNamedAccounts()) // for some reason it doesn't work unelss I put it here
+
         const setting = poolInfo.setting
         const poolDeploymentName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)
         const pool = (await getDeployedContract('HighCovRatioFeePoolV3', poolDeploymentName)) as HighCovRatioFeePoolV3
@@ -28,6 +30,8 @@ describe('Verify Pool Config', function () {
         expect(await pool.lpDividendRatio()).to.eq(setting.lpDividendRatio, 'lp dividend ratio not equal')
         expect(await pool.retentionRatio()).to.eq(setting.retentionRatio, 'retention ratio not equal')
         expect(await pool.mintFeeThreshold()).to.eq(setting.mintFeeThreshold, 'mint fee threshold not equal')
+        expect(await pool.owner()).to.equal(multisig, 'owner not equal')
+        expect(await pool.dev()).to.equal(multisig, 'dev not equal')
       })
     })
   })
@@ -46,6 +50,8 @@ describe('Verify Pool Config', function () {
         expect(await pool.lpDividendRatio()).to.eq(setting.lpDividendRatio, 'lp dividend ratio not equal')
         expect(await pool.retentionRatio()).to.eq(setting.retentionRatio, 'retention ratio not equal')
         expect(await pool.mintFeeThreshold()).to.eq(setting.mintFeeThreshold, 'mint fee threshold not equal')
+        expect(await pool.owner()).to.equal(multisig, 'owner not equal')
+        expect(await pool.dev()).to.equal(multisig, 'dev not equal')
       })
     })
     // }
@@ -65,6 +71,8 @@ describe('Verify Pool Config', function () {
         expect(await pool.lpDividendRatio()).to.eq(setting.lpDividendRatio, 'lp dividend ratio not equal')
         expect(await pool.retentionRatio()).to.eq(setting.retentionRatio, 'retention ratio not equal')
         expect(await pool.mintFeeThreshold()).to.eq(setting.mintFeeThreshold, 'mint fee threshold not equal')
+        expect(await pool.owner()).to.equal(multisig, 'owner not equal')
+        expect(await pool.dev()).to.equal(multisig, 'dev not equal')
       })
     })
     // }
