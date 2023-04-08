@@ -946,7 +946,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     AnkrBNBPool: {
       setting: {
         ...defaultDynamicPoolConfig,
-        mintFeeThreshold: parseEther('0.00333333333'),
+        mintFeeThreshold: parseEther('0.03'),
         deploymentNamePrefix: '',
       },
       assets: {
@@ -960,7 +960,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           tokenName: 'Ankr Staked BNB',
           tokenSymbol: 'ankrBNB',
           underlyingToken: Token.ankrBNB,
-          oracleAddress: '0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827', // TODO: find oracle
+          oracleAddress: '0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827',
           assetContractName: 'ABnbcAsset',
         },
       },
