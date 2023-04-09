@@ -212,6 +212,11 @@ To verify proxy contracts:
   - Bribe_Asset_USDPlus_Pool_USDT+ => `0x51AbD2A24d225C80108252fb73AEd819f1Ef52Bd`
   - Bribe_Asset_USDPlus_Pool_USDC => `0xCd69ca1e4dA21F65896A8d2e4ea625FF5B19E8Fe`
 
+- AnkrBNB Pool
+  - Pool Proxy (DynamicPoolV2) => `0x6F1c689235580341562cdc3304E923cC8fad5bFa`
+  - Asset_AnkrBNBPool_WBNB => `0x0e99fBfD04c255124A168c6Ae68CcE3c7dCC5760`
+  - Asset_AnkrBNBPool_ankrBNB => `0xB6D83F199b361403BDa2c44712a77F55E7f8855f`
+
 - Wombat Rewarders
 
   - MultiRewarderPerSec_V3_HAY => `0x7903289B0122f3F4E0fF532D1D8A300D19bFd46f`
