@@ -875,20 +875,20 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ...defaultDynamicPoolConfig,
       },
       assets: {
-        sfrxETH: {
-          tokenName: 'Staked Frax Ether',
-          tokenSymbol: 'sfrxETH',
-          underlyingTokenAddr: '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
-          assetContractName: 'PriceFeedAsset',
-          priceFeed: {
-            priceFeedContract: 'GovernedPriceFeed',
-            deployArgs: [
-              '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
-              parseEther('1.029'), // The initial value could be read from convertToAssets at https://etherscan.io/token/0xac3e018457b222d93114458476f3e3416abbe38f#readContract
-              parseEther('0.01'),
-            ],
-          },
-        },
+        // sfrxETH: {
+        //   tokenName: 'Staked Frax Ether',
+        //   tokenSymbol: 'sfrxETH',
+        //   underlyingTokenAddr: '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
+        //   assetContractName: 'PriceFeedAsset',
+        //   priceFeed: {
+        //     priceFeedContract: 'GovernedPriceFeed',
+        //     deployArgs: [
+        //       '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
+        //       parseEther('1.029'), // The initial value could be read from convertToAssets at https://etherscan.io/token/0xac3e018457b222d93114458476f3e3416abbe38f#readContract
+        //       parseEther('0.01'),
+        //     ],
+        //   },
+        // },
         frxETH: {
           tokenName: 'Frax Ether',
           tokenSymbol: 'frxETH',
