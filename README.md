@@ -216,6 +216,8 @@ To verify proxy contracts:
   - Pool Proxy (DynamicPoolV2) => `0x6F1c689235580341562cdc3304E923cC8fad5bFa`
   - Asset_AnkrBNBPool_WBNB => `0x0e99fBfD04c255124A168c6Ae68CcE3c7dCC5760`
   - Asset_AnkrBNBPool_ankrBNB => `0xB6D83F199b361403BDa2c44712a77F55E7f8855f`
+  - Bribe_Asset_AnkrBNBPool_WBNB => `0x048DC3bA13406bCC8226CE62385261894F118047`
+  - Bribe_Asset_AnkrBNBPool_ankrBNB => `0x32816B1d037F6b058D3b5c76EEe497F769376DBb`
 
 - Wombat Rewarders
 
