@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { assert } from 'chai'
 import { Contract } from 'ethers'
-import { deployments, ethers, network } from 'hardhat'
+import { deployments, ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {
   CROSS_CHAIN_POOL_TOKENS_MAP,
@@ -11,8 +11,8 @@ import {
   WRAPPED_NATIVE_TOKENS_MAP,
 } from '../config/tokens.config'
 import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
-import { confirmTxn, getUnderlyingTokenAddr, logVerifyCommand } from '../utils'
-import { getPoolDeploymentName } from '../utils/deploy'
+import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, logVerifyCommand } from '../utils'
+import { getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 
 const contractName = 'WombatRouter'
 
@@ -64,12 +64,18 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 }
 
 async function approveForPools(router: Contract, poolConfigs: NetworkPoolInfo<IPoolConfig>, owner: SignerWithAddress) {
-  const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[network.name as Network] || {}
-  for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
+  for (const [poolName, poolInfo] of Object.entries(poolConfigs)) {
     const tokens = []
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       const underlyingTokenAddr = await getUnderlyingTokenAddr(assetInfo)
       tokens.push(underlyingTokenAddr)
+      if (poolInfo.setting.supportNativeToken) {
+        // approve LP so native token's withdraw/withdrawFromOtherAsset can be used. Examples:
+        // To support add/remove BNB, approve LP-BNB
+        // To support remove LP-BNBx as BNB, approve LP-BNBx
+        const asset = await getDeployedContract('Asset', getAssetDeploymentName(poolName, assetInfo.tokenSymbol))
+        tokens.push(asset.address)
+      }
     }
     const contractName = getPoolDeploymentName(poolInfo.setting.deploymentNamePrefix, poolName)
     const poolDeployment = await deployments.get(contractName)

@@ -67,6 +67,7 @@ const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
   lpDividendRatio: parseEther('0.5'),
   retentionRatio: parseEther('0.5'),
   deploymentNamePrefix: 'FactoryPools',
+  supportNativeToken: false,
 }
 
 const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
@@ -94,6 +95,7 @@ const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
   lpDividendRatio: parseEther('0.5'),
   retentionRatio: parseEther('0.5'),
   deploymentNamePrefix: 'CrossChainPool',
+  supportNativeToken: false,
 }
 
 // inject forkNetwork to hardhat and localhost
@@ -908,6 +910,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ...defaultDynamicPoolConfig,
         mintFeeThreshold: parseEther('0.00666666666'),
         deploymentNamePrefix: '',
+        supportNativeToken: true,
       },
       assets: {
         WBNB: {
@@ -930,6 +933,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ...defaultDynamicPoolConfig,
         mintFeeThreshold: parseEther('0.00333333333'),
         deploymentNamePrefix: '',
+        supportNativeToken: true,
       },
       assets: {
         WBNB: {
@@ -952,6 +956,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ...defaultDynamicPoolConfig,
         mintFeeThreshold: parseEther('0.03'),
         deploymentNamePrefix: '',
+        supportNativeToken: true,
       },
       assets: {
         WBNB: {
@@ -974,6 +979,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     frxETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        supportNativeToken: true,
       },
       assets: {
         frxETH: {

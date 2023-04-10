@@ -6,7 +6,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP, USD_TOKENS_MAP } from '../config/tokens.config'
 import { Network } from '../types'
 import { confirmTxn, getDeployedContract } from '../utils'
-import { getAssetContractName } from '../utils/deploy'
+import { getAssetDeploymentName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
@@ -37,7 +37,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
-      const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
+      const assetContractName = getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
       await addAsset(masterWombat, owner, assetContractAddress)
     }
@@ -47,7 +47,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
-      const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
+      const assetContractName = getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
       const assetContractAddress = (await deployments.get(assetContractName)).address as string
       await addAsset(masterWombat, owner, assetContractAddress)
     }

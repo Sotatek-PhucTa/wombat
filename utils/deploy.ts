@@ -17,7 +17,7 @@ export function getPoolDeploymentName(contractNamePrefix: string, poolName: stri
   return contractNamePrefix + '_' + poolName
 }
 
-export function getAssetContractName(poolName: string, tokenSymbol: string) {
+export function getAssetDeploymentName(poolName: string, tokenSymbol: string) {
   return `Asset_${poolName}_${tokenSymbol}`
 }
 

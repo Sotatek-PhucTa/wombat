@@ -5,7 +5,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { FACTORYPOOL_TOKENS_MAP } from '../config/tokens.config'
 import { Network } from '../types'
 import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, isOwner } from '../utils'
-import { deployAssetV2, getPoolDeploymentName } from '../utils/deploy'
+import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 
 const contractName = 'HighCovRatioFeePoolAssets'
 
@@ -33,7 +33,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         Object.assign(assetInfo, { underlyingTokenAddr: tokenAddress }),
         pool.address,
         pool,
-        `Asset_${poolName}_${assetInfo.tokenSymbol}`
+        getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
       )
     }
 

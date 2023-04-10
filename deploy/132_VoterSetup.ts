@@ -7,7 +7,7 @@ import { getDeployedContract, confirmTxn } from '../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
 import { IAssetInfo, Network } from '../types'
-import { getAssetContractName } from '../utils/deploy'
+import { getAssetDeploymentName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre
@@ -56,7 +56,7 @@ async function setup(
   masterWombat: Contract,
   blocksToConfirm: number
 ) {
-  const assetContractName = getAssetContractName(poolName, assetInfo.tokenSymbol)
+  const assetContractName = getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
   const assetContractAddress = (await deployments.get(assetContractName)).address as string
   await addAsset(voter, owner, masterWombat.address, assetContractAddress)
   await setAllocPoint(voter, owner, assetContractAddress, assetInfo.allocPoint ?? 0, blocksToConfirm)

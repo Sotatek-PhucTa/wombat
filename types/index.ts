@@ -88,6 +88,7 @@ export interface IPoolConfig {
   lpDividendRatio: BigNumber
   retentionRatio: BigNumber
   deploymentNamePrefix: string
+  supportNativeToken: boolean
 }
 
 export interface IHighCovRatioFeePoolConfig extends IPoolConfig {
