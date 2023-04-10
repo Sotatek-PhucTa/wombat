@@ -813,7 +813,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         },
       },
     },
-    mWOMPool: {
+    mWOM_Pool: {
       setting: {
         ...defaultWomPoolConfig,
       },
@@ -830,7 +830,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         },
       },
     },
-    wmxWOMPool: {
+    wmxWOM_Pool: {
       setting: {
         ...defaultWomPoolConfig,
       },
@@ -847,7 +847,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         },
       },
     },
-    qWOMPool: {
+    qWOM_Pool: {
       setting: {
         ...defaultWomPoolConfig,
       },
