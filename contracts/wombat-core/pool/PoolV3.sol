@@ -12,7 +12,7 @@ import './CoreV3.sol';
 import '../interfaces/IAsset.sol';
 import './PausableAssets.sol';
 import '../../wombat-governance/interfaces/IMasterWombat.sol';
-import '../interfaces/IPoolV3.sol';
+import '../interfaces/IPool.sol';
 
 /**
  * @title Pool V3
@@ -27,7 +27,7 @@ import '../interfaces/IPoolV3.sol';
  */
 contract PoolV3 is
     Initializable,
-    IPoolV3,
+    IPool,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
@@ -80,7 +80,6 @@ contract PoolV3 is
     // Slots reserved for future use
     uint128 internal _used1; // Remember to initialize before use.
     uint128 internal _used2; // Remember to initialize before use.
-    uint256 public withdrawalHaircutRate;
     uint256[49] private gap;
 
     /* Events */
@@ -115,7 +114,6 @@ contract PoolV3 is
     event SetFee(uint256 lpDividendRatio, uint256 retentionRatio);
     event SetAmpFactor(uint256 value);
     event SetHaircutRate(uint256 value);
-    event SetWithdrawalHaircutRate(uint256 value);
 
     event FillPool(address token, uint256 amount);
     event TransferTipBucket(address token, uint256 amount, address to);
@@ -259,12 +257,6 @@ contract PoolV3 is
         if (haircutRate_ > WAD) revert WOMBAT_INVALID_VALUE(); // haircutRate_ should not be set bigger than 1
         haircutRate = haircutRate_;
         emit SetHaircutRate(haircutRate_);
-    }
-
-    function setWithdrawalHaircutRate(uint256 withdrawalHaircutRate_) external onlyOwner {
-        if (withdrawalHaircutRate_ > WAD) revert WOMBAT_INVALID_VALUE();
-        withdrawalHaircutRate = withdrawalHaircutRate_;
-        emit SetWithdrawalHaircutRate(withdrawalHaircutRate_);
     }
 
     function setFee(uint256 lpDividendRatio_, uint256 retentionRatio_) external onlyOwner {
@@ -442,7 +434,7 @@ contract PoolV3 is
         _mintFeeIfNeeded(asset);
 
         uint256 liabilityToMint;
-        (liquidity, liabilityToMint) = CoreV3.quoteDepositLiquidity(
+        (liquidity, liabilityToMint, ) = CoreV3.quoteDepositLiquidity(
             asset,
             amount,
             ampFactor,
@@ -509,16 +501,14 @@ contract PoolV3 is
     function quotePotentialDeposit(
         address token,
         uint256 amount
-    ) external view override returns (uint256 liquidity, int256 reward) {
+    ) external view override returns (uint256 liquidity, uint256 reward) {
         IAsset asset = _assetOf(token);
-        uint8 decimals = asset.underlyingTokenDecimals();
-        (liquidity, ) = CoreV3.quoteDepositLiquidity(
+        (liquidity, , reward) = CoreV3.quoteDepositLiquidity(
             asset,
-            amount.toWad(decimals),
+            amount.toWad(asset.underlyingTokenDecimals()),
             ampFactor,
             _getGlobalEquilCovRatioForDepositWithdrawal()
         );
-        reward = int256(liquidity) - int256(amount.toWad(decimals)); // TODO: The value is incorrect fix this or remove this value
     }
 
     /* Withdraw */
@@ -530,36 +520,27 @@ contract PoolV3 is
      * @param minimumAmount The minimum amount that will be accepted by user
      * @return amount The total amount withdrawn
      */
-    function _withdraw(
-        IAsset asset,
-        uint256 liquidity,
-        uint256 minimumAmount
-    ) internal returns (uint256 amount, uint256 withdrawalHaircut) {
+    function _withdraw(IAsset asset, uint256 liquidity, uint256 minimumAmount) internal returns (uint256 amount) {
         // collect fee before withdraw
         _mintFeeIfNeeded(asset);
 
         // calculate liabilityToBurn and Fee
         uint256 liabilityToBurn;
-        (amount, liabilityToBurn, withdrawalHaircut) = CoreV3.quoteWithdrawAmount(
+        (amount, liabilityToBurn, ) = CoreV3.quoteWithdrawAmount(
             asset,
             liquidity,
             ampFactor,
-            _getGlobalEquilCovRatioForDepositWithdrawal(),
-            withdrawalHaircutRate
+            _getGlobalEquilCovRatioForDepositWithdrawal()
         );
         _checkAmount(minimumAmount, amount);
 
         asset.burn(address(asset), liquidity);
-        asset.removeCash(amount + withdrawalHaircut);
+        asset.removeCash(amount);
         asset.removeLiability(liabilityToBurn);
 
         // revert if cov ratio < 1% to avoid precision error
         if (asset.liability() > 0 && uint256(asset.cash()).wdiv(asset.liability()) < WAD / 100)
             revert WOMBAT_FORBIDDEN();
-
-        if (withdrawalHaircut > 0) {
-            _feeCollected[asset] += withdrawalHaircut;
-        }
     }
 
     /**
@@ -586,8 +567,7 @@ contract PoolV3 is
         // request lp token from user
         IERC20(asset).safeTransferFrom(address(msg.sender), address(asset), liquidity);
         uint8 decimals = asset.underlyingTokenDecimals();
-        (amount, ) = _withdraw(asset, liquidity, minimumAmount.toWad(decimals));
-        amount = amount.fromWad(decimals);
+        amount = _withdraw(asset, liquidity, minimumAmount.toWad(decimals)).fromWad(decimals);
         asset.transferUnderlyingToken(to, amount);
 
         emit Withdraw(msg.sender, token, amount, liquidity, to);
@@ -622,7 +602,7 @@ contract PoolV3 is
         IAsset toAsset = _assetOf(toToken);
 
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
-        (uint256 fromAmountInWad, ) = _withdraw(fromAsset, liquidity, 0);
+        uint256 fromAmountInWad = _withdraw(fromAsset, liquidity, 0);
         (toAmount, ) = _swap(
             fromAsset,
             toAsset,
@@ -645,26 +625,20 @@ contract PoolV3 is
      * @param liquidity The liquidity (amount of lp assets) to be withdrawn
      * @return amount The potential amount user would receive
      * @return fee The fee that would be applied
-     * @return withdrawalHaircut
      */
     function quotePotentialWithdraw(
         address token,
         uint256 liquidity
-    ) external view override returns (uint256 amount, int256 fee, uint256 withdrawalHaircut) {
+    ) external view override returns (uint256 amount, uint256 fee) {
         _checkLiquidity(liquidity);
         IAsset asset = _assetOf(token);
-        (amount, , withdrawalHaircut) = CoreV3.quoteWithdrawAmount(
+        (amount, , fee) = CoreV3.quoteWithdrawAmount(
             asset,
             liquidity,
             ampFactor,
-            _getGlobalEquilCovRatioForDepositWithdrawal(),
-            withdrawalHaircutRate
+            _getGlobalEquilCovRatioForDepositWithdrawal()
         );
-        fee = int256(liquidity) - int256(amount); // TODO: The value is incorrect fix this or remove this value
-
-        uint8 decimals = asset.underlyingTokenDecimals();
-        amount = amount.fromWad(decimals);
-        fee = fee.fromWad(decimals);
+        amount = amount.fromWad(asset.underlyingTokenDecimals());
     }
 
     /**
@@ -698,8 +672,7 @@ contract PoolV3 is
             haircutRate,
             0,
             0,
-            _getGlobalEquilCovRatioForDepositWithdrawal(),
-            withdrawalHaircutRate
+            _getGlobalEquilCovRatioForDepositWithdrawal()
         );
 
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
@@ -952,7 +925,7 @@ contract PoolV3 is
             if (lpDividend > 0) {
                 // exact deposit to maintain r* = 1
                 // increase the value of the LP token, i.e. assetsPerShare
-                (, uint256 liabilityToMint) = CoreV3.quoteDepositLiquidity(
+                (, uint256 liabilityToMint, ) = CoreV3.quoteDepositLiquidity(
                     asset,
                     lpDividend,
                     ampFactor,
