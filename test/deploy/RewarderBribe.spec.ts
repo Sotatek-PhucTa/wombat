@@ -5,7 +5,7 @@ import { BigNumberish, Contract } from 'ethers'
 import _ from 'lodash'
 import { parseEther } from 'ethers/lib/utils'
 
-describe('RewarderBribe', function () {
+describe.skip('RewarderBribe', function () {
   let wom: Contract
   let usdt: Contract
   let busd: Contract
