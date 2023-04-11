@@ -6,10 +6,14 @@ import chai, { expect } from 'chai'
 import { BigNumber, BigNumberish } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import { Asset, CoreV3, GovernedPriceFeed, PriceFeedAsset, TestERC20, VolatilePool } from '../../../build/typechain'
+import { roughlyNear } from '../../assertions/roughlyNear'
 import { veryNear } from '../../assertions/veryNear'
 import { latest } from '../../helpers'
+import { near } from '../../assertions/near'
 
+chai.use(near)
 chai.use(veryNear)
+chai.use(roughlyNear)
 
 /**
  * TODO: generate more random testings against different pool setting and different kind of txns
@@ -107,112 +111,297 @@ describe('Pool - Swap', function () {
     console.log(formatEther(await asset.cash()), formatEther(await asset.liability()))
   }
 
-  it('r* is not changed by swaps', async function () {
-    const { pool, assets, priceFeeds } = await createPool({
-      assetConfig: [
-        { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
-        { cash: parseEther('150'), liability: parseEther('200'), underlyingToken: token1 },
-        { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
-      ],
+  describe('r* = 0.477', async function () {
+    let pool: VolatilePool
+    let assets: PriceFeedAsset[]
+    let priceFeeds: GovernedPriceFeed[]
+
+    beforeEach(async function () {
+      ;({ pool, assets, priceFeeds } = await createPool({
+        assetConfig: [
+          { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
+          { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
+          { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
+        ],
+      }))
+
+      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+
+      await token0.approve(pool.address, ethers.constants.MaxUint256)
+      await token1.approve(pool.address, ethers.constants.MaxUint256)
+
+      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
+      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+
+      expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('0.4775'))
     })
-    await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-    await priceFeeds[1].setLatestPrice(parseEther('1200'))
 
-    await token0.approve(pool.address, ethers.constants.MaxUint256)
-    await token1.approve(pool.address, ethers.constants.MaxUint256)
+    it('r* is not changed by swaps', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
 
-    const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+      // swap 1
+      await pool.swap(token0.address, token1.address, parseEther('100000'), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
 
-    // swap 1
-    await pool.swap(token0.address, token1.address, parseEther('100000'), 0, owner.address, fiveSecondsSince)
-    const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
-    expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+      // swap 2
+      await pool.swap(token1.address, token0.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
 
-    // swap 2
-    await pool.swap(token1.address, token0.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
-    const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
-    expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
 
-    // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    it('r* is not changed by deposits', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // deposit 1
+      await pool.deposit(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince, false)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+
+      // deposit 2
+      await pool.deposit(token1.address, parseUnits('300', 8), 0, owner.address, fiveSecondsSince, false)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
+
+    it('r* is not changed by withdrawals', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // withdrawal 1
+      await pool.withdraw(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+
+      // withdrawal 2
+      await pool.withdraw(token1.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
+
+    it('r* is changed by oracle update', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // update oracle
+      await priceFeeds[1].setLatestPrice(parseEther('1100'))
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).not.to.be.veryNear(equilCovRatio1, 500)
+    })
   })
 
-  it('r* is not changed by deposits', async function () {
-    const { pool, assets, priceFeeds } = await createPool({
-      assetConfig: [
-        { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
-        { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
-        { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
-      ],
+  describe('r* = 1.638 (floating r*)', async function () {
+    let pool: VolatilePool
+    let assets: PriceFeedAsset[]
+    let priceFeeds: GovernedPriceFeed[]
+
+    beforeEach(async function () {
+      ;({ pool, assets, priceFeeds } = await createPool({
+        assetConfig: [
+          { cash: parseEther('80000'), liability: parseEther('100000'), underlyingToken: token0 },
+          { cash: parseEther('130'), liability: parseEther('200'), underlyingToken: token1 },
+          { cash: parseEther('2000000'), liability: parseEther('1000000'), underlyingToken: token2 },
+        ],
+      }))
+
+      await pool.setShouldCapEquilCovRatio(false)
+
+      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+
+      await token0.approve(pool.address, ethers.constants.MaxUint256)
+      await token1.approve(pool.address, ethers.constants.MaxUint256)
+
+      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
+      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+
+      expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('1.638'))
     })
-    await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-    await priceFeeds[1].setLatestPrice(parseEther('1200'))
 
-    await token0.approve(pool.address, ethers.constants.MaxUint256)
-    await token1.approve(pool.address, ethers.constants.MaxUint256)
+    it('r* is not changed by swaps', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
 
-    const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+      // swap 1
+      await pool.swap(token0.address, token1.address, parseEther('100000'), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
 
-    // deposit 1
-    await pool.deposit(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince, false)
-    const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
-    expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+      // swap 2
+      await pool.swap(token1.address, token0.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
 
-    // deposit 2
-    await pool.deposit(token1.address, parseUnits('300', 8), 0, owner.address, fiveSecondsSince, false)
-    const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
-    expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
 
-    // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    it('r* is not changed by deposits', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // deposit 1
+      await pool.deposit(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince, false)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+
+      // deposit 2
+      await pool.deposit(token1.address, parseUnits('300', 8), 0, owner.address, fiveSecondsSince, false)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
+
+    it('r* is not changed by withdrawals', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // withdrawal 1
+      await pool.withdraw(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+
+      // withdrawal 2
+      await pool.withdraw(token1.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
+
+    it('r* is changed by oracle update', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // update oracle
+      await priceFeeds[1].setLatestPrice(parseEther('1100'))
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).not.to.be.veryNear(equilCovRatio1, 500)
+    })
   })
 
-  it('r* is not changed by withdrawals', async function () {
-    const { pool, assets, priceFeeds } = await createPool({
-      assetConfig: [
-        { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
-        { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
-        { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
-      ],
-    })
-    await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-    await priceFeeds[1].setLatestPrice(parseEther('1200'))
-
-    await assets[0].approve(pool.address, ethers.constants.MaxUint256)
-    await assets[1].approve(pool.address, ethers.constants.MaxUint256)
-
-    const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
-
-    // withdrawal 1
-    await pool.withdraw(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince)
-    const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
-    expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
-
-    // withdrawal 2
-    await pool.withdraw(token1.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
-    const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
-    expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
-
-    // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+  describe('r* = 1.638 (capping r*)', async function () {
+    // TODO: implement
   })
 
-  it('r* is changed by oracle update', async function () {
-    const { pool, assets, priceFeeds } = await createPool({
-      assetConfig: [
-        { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
-        { cash: parseEther('150'), liability: parseEther('200'), underlyingToken: token1 },
-        { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
-      ],
+  describe('withdrawal haircut', async function () {
+    let pool: VolatilePool
+    let assets: PriceFeedAsset[]
+    let priceFeeds: GovernedPriceFeed[]
+
+    beforeEach(async function () {
+      ;({ pool, assets, priceFeeds } = await createPool({
+        assetConfig: [
+          { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
+          { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
+          { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
+        ],
+      }))
+
+      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+
+      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
     })
-    await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-    await priceFeeds[1].setLatestPrice(parseEther('1200'))
 
-    await token0.approve(pool.address, ethers.constants.MaxUint256)
-    await token1.approve(pool.address, ethers.constants.MaxUint256)
+    it('withdrawal haircut is applied', async function () {
+      // quote withdrawal, haircut = 0.005
+      await pool.setWithdrawalHaircutRate(parseEther('0.005'))
+      const { amount, fee } = await pool.quotePotentialWithdraw(token1.address, parseEther('100'))
+      expect(
+        await pool.callStatic.withdraw(token1.address, parseEther('100'), 0, owner.address, fiveSecondsSince)
+      ).to.eq(amount)
 
-    const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+      // quote withdrawal, haircut = 0
+      await pool.setWithdrawalHaircutRate(0)
+      const { amount: amount1, fee: fee1 } = await pool.quotePotentialWithdraw(token1.address, parseEther('100'))
+      expect(
+        await pool.callStatic.withdraw(token1.address, parseEther('100'), 0, owner.address, fiveSecondsSince)
+      ).to.eq(amount1)
 
-    // update oracle
-    await priceFeeds[1].setLatestPrice(parseEther('1100'))
-    const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
-    expect(equilCovRatio0).not.to.be.veryNear(equilCovRatio1, 500)
+      // verify that the haircut is applied
+      expect(amount1.mul(199).div(200)).to.be.veryNear(amount, 10)
+      expect(amount.add(fee)).to.equal(amount1.add(fee1))
+    })
+
+    it('withdrawal from other asset haircut is applied', async function () {
+      // quote withdrawal, haircut = 0.005
+      await pool.setWithdrawalHaircutRate(parseEther('0.005'))
+      const { finalAmount, withdrewAmount } = await pool.quotePotentialWithdrawFromOtherAsset(
+        token0.address,
+        token1.address,
+        parseEther('100')
+      )
+      expect(
+        await pool.callStatic.withdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('100'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+      ).to.eq(finalAmount)
+
+      // quote WithdrawFromOtherAsset, haircut = 0
+      await pool.setWithdrawalHaircutRate(0)
+      const { finalAmount: finalAmount1, withdrewAmount: withdrewAmount1 } =
+        await pool.quotePotentialWithdrawFromOtherAsset(token0.address, token1.address, parseEther('100'))
+      expect(
+        await pool.callStatic.withdrawFromOtherAsset(
+          token0.address,
+          token1.address,
+          parseEther('100'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+      ).to.eq(finalAmount1)
+
+      // verify that the haircut is applied
+      expect(withdrewAmount1.mul(199).div(200)).to.be.veryNear(withdrewAmount, 100)
+      expect(finalAmount1.mul(199).div(200)).to.be.roughlyNear(finalAmount)
+    })
+
+    it('withdrawal from other asset haircut is applied (reverse direction)', async function () {
+      // quote withdrawal, haircut = 0.005
+      await pool.setWithdrawalHaircutRate(parseEther('0.005'))
+      const { finalAmount, withdrewAmount } = await pool.quotePotentialWithdrawFromOtherAsset(
+        token1.address,
+        token0.address,
+        parseEther('100')
+      )
+      expect(
+        await pool.callStatic.withdrawFromOtherAsset(
+          token1.address,
+          token0.address,
+          parseEther('100'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+      ).to.eq(finalAmount)
+
+      // quote WithdrawFromOtherAsset, haircut = 0
+      await pool.setWithdrawalHaircutRate(0)
+      const { finalAmount: finalAmount1, withdrewAmount: withdrewAmount1 } =
+        await pool.quotePotentialWithdrawFromOtherAsset(token1.address, token0.address, parseEther('100'))
+      expect(
+        await pool.callStatic.withdrawFromOtherAsset(
+          token1.address,
+          token0.address,
+          parseEther('100'),
+          0,
+          owner.address,
+          fiveSecondsSince
+        )
+      ).to.eq(finalAmount1)
+
+      // verify that the haircut is applied
+      expect(withdrewAmount1.mul(199).div(200)).to.be.veryNear(withdrewAmount, 100)
+      expect(finalAmount1.mul(199).div(200)).to.be.roughlyNear(finalAmount)
+    })
   })
 })

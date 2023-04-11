@@ -39,7 +39,7 @@ library CoreV3 {
         uint256 amount,
         uint256 ampFactor,
         int256 _equilCovRatio
-    ) public view returns (uint256 lpTokenToMint, uint256 liabilityToMint, uint256 reward) {
+    ) public view returns (uint256 lpTokenToMint, uint256 liabilityToMint) {
         liabilityToMint = _equilCovRatio == WAD_I
             ? exactDepositLiquidityInEquilImpl(
                 int256(amount),
@@ -55,13 +55,6 @@ library CoreV3 {
                 _equilCovRatio
             ).toUint256();
 
-        if (liabilityToMint >= amount) {
-            reward = liabilityToMint - amount;
-        } else {
-            // rounding error
-            liabilityToMint = amount;
-        }
-
         // Calculate amount of LP to mint : ( deposit + reward ) * TotalAssetSupply / Liability
         uint256 liability = asset.liability();
         lpTokenToMint = (liability == 0 ? liabilityToMint : (liabilityToMint * asset.totalSupply()) / liability);
@@ -72,16 +65,18 @@ library CoreV3 {
      * @param asset The asset willing to be withdrawn
      * @param liquidity The liquidity willing to be withdrawn
      * @param _equilCovRatio global equilibrium coverage ratio
+     * @param withdrawalHaircutRate withdraw haircut rate
      * @return amount Total amount to be withdrawn from Pool
      * @return liabilityToBurn Total liability to be burned by Pool
-     * @return fee
+     * @return withdrawalHaircut Total withdrawal haircut
      */
     function quoteWithdrawAmount(
         IAsset asset,
         uint256 liquidity,
         uint256 ampFactor,
-        int256 _equilCovRatio
-    ) public view returns (uint256 amount, uint256 liabilityToBurn, uint256 fee) {
+        int256 _equilCovRatio,
+        uint256 withdrawalHaircutRate
+    ) public view returns (uint256 amount, uint256 liabilityToBurn, uint256 withdrawalHaircut) {
         liabilityToBurn = (asset.liability() * liquidity) / asset.totalSupply();
         if (liabilityToBurn == 0) revert CORE_ZERO_LIQUIDITY();
 
@@ -100,11 +95,10 @@ library CoreV3 {
                 _equilCovRatio
             ).toUint256();
 
-        if (liabilityToBurn >= amount) {
-            fee = liabilityToBurn - amount;
-        } else {
-            // rounding error
-            amount = liabilityToBurn;
+        // charge withdrawal haircut
+        if (withdrawalHaircutRate > 0) {
+            withdrawalHaircut = amount.wmul(withdrawalHaircutRate);
+            amount -= withdrawalHaircut;
         }
     }
 
@@ -117,13 +111,21 @@ library CoreV3 {
         uint256 haircutRate,
         uint256 startCovRatio,
         uint256 endCovRatio,
-        int256 _equilCovRatio
+        int256 _equilCovRatio,
+        uint256 withdrawalHaircutRate
     ) public view returns (uint256 finalAmount, uint256 withdrewAmount) {
         // quote withdraw
-        (withdrewAmount, , ) = quoteWithdrawAmount(fromAsset, liquidity, ampFactor, _equilCovRatio);
+        uint256 withdrawalHaircut;
+        (withdrewAmount, , withdrawalHaircut) = quoteWithdrawAmount(
+            fromAsset,
+            liquidity,
+            ampFactor,
+            _equilCovRatio,
+            withdrawalHaircutRate
+        );
 
         // quote swap
-        uint256 fromCash = fromAsset.cash() - withdrewAmount;
+        uint256 fromCash = fromAsset.cash() - withdrewAmount - withdrawalHaircut;
         uint256 fromLiability = fromAsset.liability() - liquidity;
 
         if (scaleFactor != WAD) {
