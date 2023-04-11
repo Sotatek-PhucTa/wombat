@@ -117,5 +117,4 @@ contract MockAdaptor is Adaptor {
     ) external pure returns (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) {
         return _decode(encoded);
     }
-
 }

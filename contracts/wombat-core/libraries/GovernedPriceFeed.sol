@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.5;
 
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/access/AccessControlEnumerable.sol';
 
@@ -13,7 +15,7 @@ import '../interfaces/IPriceFeed.sol';
 contract GovernedPriceFeed is IPriceFeed, Ownable, AccessControl {
     bytes32 public constant ROLE_OPERATOR = keccak256('operator');
 
-    address public immutable token;
+    IERC20 public immutable token;
 
     /// @notice max deviation allowed for updating oracle in case wrong parameter is supplied
     uint256 public immutable maxDeviation;
@@ -24,7 +26,7 @@ contract GovernedPriceFeed is IPriceFeed, Ownable, AccessControl {
 
     event SetLatestPrice(uint256 newPrice);
 
-    constructor(address _token, uint256 _initialPrice, uint256 _maxDeviation) {
+    constructor(IERC20 _token, uint256 _initialPrice, uint256 _maxDeviation) {
         token = _token;
         _price = _initialPrice;
         maxDeviation = _maxDeviation;
@@ -55,7 +57,7 @@ contract GovernedPriceFeed is IPriceFeed, Ownable, AccessControl {
     /**
      * @notice return price of the asset in 18 decimals
      */
-    function getLatestPrice(address _token) external view returns (uint256) {
+    function getLatestPrice(IERC20 _token) external view returns (uint256) {
         require(_token == token, 'unknown token');
         return _price;
     }
