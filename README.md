@@ -208,9 +208,9 @@ To verify proxy contracts:
   - Asset_USDPlus_Pool_USD+ (LP-USD+) => `0x88bEb144352BD3109c79076202Fac2bcEAb87117`
   - Asset_USDPlus_Pool_USDT+ (LP-USDT+) => `0xbd459E33307A4ae92fFFCb45C6893084CFC273B1`
   - Asset_USDPlus_Pool_USDC (LP-USDC) => `0x8Df8b50B73849f0433EE3314BD956e624e67b3ce`
-  - Bribe_Asset_USDPlus_Pool_USD+ => `0xdAa33667A9aB2791Fb0F3c0261C74c4A3d0A7eFA`
-  - Bribe_Asset_USDPlus_Pool_USDT+ => `0x51AbD2A24d225C80108252fb73AEd819f1Ef52Bd`
-  - Bribe_Asset_USDPlus_Pool_USDC => `0xCd69ca1e4dA21F65896A8d2e4ea625FF5B19E8Fe`
+  - Bribe_Asset_USDPlus_Pool_USD+ => ``
+  - Bribe_Asset_USDPlus_Pool_USDT+ => ``
+  - Bribe_Asset_USDPlus_Pool_USDC => ``
 
 - AnkrBNB Pool
   - Pool Proxy (DynamicPoolV2) => `0x6F1c689235580341562cdc3304E923cC8fad5bFa`
@@ -275,9 +275,9 @@ To verify proxy contracts:
   - Asset_USDPlus_Pool_USD+ (LP-USD+) => `0xBd7568d25338940ba212e3F299D2cCC138fA35F0`
   - Asset_USDPlus_Pool_DAI+ (LP-DAI+) => `0x51E073D92b0c226F7B0065909440b18A85769606`
   - Asset_USDPlus_Pool_USDC (LP-USDC) => `0x6ADd078996308547C57B052549a19c5f66BF42C8`
-  - Bribe_Asset_USDPlus_Pool_USD+ => `0x7c9B170e41C551DfF2c03bE68222180074bC11ad`
-  - Bribe_Asset_USDPlus_Pool_DAI+ => `0x8F5e6fD62B4385E74E35D2B93034DbBc353B62dE`
-  - Bribe_Asset_USDPlus_Pool_USDC => `0x153E4B01E13a8102ae9958650F11f413b7b17252`
+  - Bribe_Asset_USDPlus_Pool_USD+ => ``
+  - Bribe_Asset_USDPlus_Pool_DAI+ => ``
+  - Bribe_Asset_USDPlus_Pool_USDC => ``
   - MultiRewarderPerSec_V3_Asset_USDPlus_Pool_USDC => `0x72b46b8bfF10B0A48d97C47Ed53d03Ca9EeCB2Ef`
 
 - MIM Pool
@@ -330,7 +330,7 @@ To verify proxy contracts:
   - Asset_FRAX_Pool_USDC => `0x502a88FFCeb9363BEFD1B1c78265FC3ac8ABd3a2`
   - Bribe_Asset_FRAX_Pool_FRAX => `0xe3c747896C76aEE3f4c18F34A36eE58b425B8E17`
   - Bribe_Asset_FRAX_Pool_MAI => `0x7b604147a84b5968815347c1D73fCDA2235b7C64`
-  - Bribe_Asset_FRAX_Pool_USD+ => `0xd6d42c18099D2b92b4ffA721E62aea484Cd5D82d`
+  - Bribe_Asset_FRAX_Pool_USD+ => ``
   - MultiRewarderPerSec_V3_Asset_FRAX_Pool_USDC => `0xa9a08133af8241e36193b57E4dFE43D147Cd23cC`
 
 ### BSC testnet deployed contracts:
