@@ -208,9 +208,9 @@ To verify proxy contracts:
   - Asset_USDPlus_Pool_USD+ (LP-USD+) => `0x88bEb144352BD3109c79076202Fac2bcEAb87117`
   - Asset_USDPlus_Pool_USDT+ (LP-USDT+) => `0xbd459E33307A4ae92fFFCb45C6893084CFC273B1`
   - Asset_USDPlus_Pool_USDC (LP-USDC) => `0x8Df8b50B73849f0433EE3314BD956e624e67b3ce`
-  - Bribe_Asset_USDPlus_Pool_USD+ => ``
-  - Bribe_Asset_USDPlus_Pool_USDT+ => ``
-  - Bribe_Asset_USDPlus_Pool_USDC => ``
+  - Bribe_Asset_USDPlus_Pool_USD+ => `0xd66fE42C6Eb5471a7483354Cf9476bBFEa2e717D`
+  - Bribe_Asset_USDPlus_Pool_USDT+ => `0x6aA55c9E51Cb2cC39A50f872607d76dc6910e046`
+  - Bribe_Asset_USDPlus_Pool_USDC => `0x92e8B58ef7E68A4cb44910390fc85a33B1870dcB`
 
 - AnkrBNB Pool
   - Pool Proxy (DynamicPoolV2) => `0x6F1c689235580341562cdc3304E923cC8fad5bFa`
