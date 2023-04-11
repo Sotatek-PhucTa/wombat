@@ -254,7 +254,7 @@ To verify proxy contracts:
 
 - Wombat Router
 
-  - WombatRouter => `0x9da4edBed6068666ea8EF6505C909e1ff8eA5725`
+  - WombatRouter => `0xc4B2F992496376C6127e73F1211450322E580668`
 
 - Wombat Governance
 
