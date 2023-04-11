@@ -275,9 +275,9 @@ To verify proxy contracts:
   - Asset_USDPlus_Pool_USD+ (LP-USD+) => `0xBd7568d25338940ba212e3F299D2cCC138fA35F0`
   - Asset_USDPlus_Pool_DAI+ (LP-DAI+) => `0x51E073D92b0c226F7B0065909440b18A85769606`
   - Asset_USDPlus_Pool_USDC (LP-USDC) => `0x6ADd078996308547C57B052549a19c5f66BF42C8`
-  - Bribe_Asset_USDPlus_Pool_USD+ => ``
-  - Bribe_Asset_USDPlus_Pool_DAI+ => ``
-  - Bribe_Asset_USDPlus_Pool_USDC => ``
+  - Bribe_Asset_USDPlus_Pool_USD+ => `0x8cd967EA785E5C947559C58DD8A8c572EA6980DE`
+  - Bribe_Asset_USDPlus_Pool_DAI+ => `0x8b892b6Ea1d0e5B29b719d6Bd6eb9354f1cDE060`
+  - Bribe_Asset_USDPlus_Pool_USDC => `0x1edFA9c9Ae18ccC4525c20F698a13D464515Bf03`
   - MultiRewarderPerSec_V3_Asset_USDPlus_Pool_USDC => `0x72b46b8bfF10B0A48d97C47Ed53d03Ca9EeCB2Ef`
 
 - MIM Pool
@@ -330,7 +330,7 @@ To verify proxy contracts:
   - Asset_FRAX_Pool_USDC => `0x502a88FFCeb9363BEFD1B1c78265FC3ac8ABd3a2`
   - Bribe_Asset_FRAX_Pool_FRAX => `0xe3c747896C76aEE3f4c18F34A36eE58b425B8E17`
   - Bribe_Asset_FRAX_Pool_MAI => `0x7b604147a84b5968815347c1D73fCDA2235b7C64`
-  - Bribe_Asset_FRAX_Pool_USD+ => ``
+  - Bribe_Asset_FRAX_Pool_USD+ => `0x5Fb5225FeA83440B8f764639D9b6309E56562F54`
   - MultiRewarderPerSec_V3_Asset_FRAX_Pool_USDC => `0xa9a08133af8241e36193b57E4dFE43D147Cd23cC`
 
 ### BSC testnet deployed contracts:
