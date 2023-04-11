@@ -6,6 +6,7 @@ import { getCurrentNetwork } from '../types/network'
 export enum Token {
   ANKR,
   BOB,
+  BUSD,
   FXS,
   HAY,
   MGP,
@@ -56,6 +57,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/bob
     [Network.BSC_MAINNET]: Address('0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B'),
     [Network.ARBITRUM_MAINNET]: Address('0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B'),
+  },
+  [Token.BUSD]: {
+    [Network.HARDHAT]: Deployment('BUSD'),
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share
@@ -117,6 +121,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65'),
   },
   [Token.USDT]: {
+    [Network.HARDHAT]: Deployment('USDT'),
     // https://www.coingecko.com/en/coins/tether
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),

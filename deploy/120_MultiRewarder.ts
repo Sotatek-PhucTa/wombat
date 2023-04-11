@@ -33,14 +33,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       contract: 'MultiRewarderPerSec',
       log: true,
       skipIfAlreadyDeployed: true,
-      args: [masterWombat.address, lpTokenAddress, startTimestamp, rewardTokens[0], rewarderConfig.tokenPerSec],
+      args: [masterWombat.address, lpTokenAddress, startTimestamp, rewardTokens[0], rewarderConfig.tokenPerSec[0]],
     })
     const address = deployResult.address
     const contract = await ethers.getContractAt(contractName, address)
 
     if (deployResult.newlyDeployed) {
       /// Add remaining reward tokens
-      for (let i = 0; i < rewardTokens.length; i++) {
+      for (let i = 1; i < rewardTokens.length; i++) {
         const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
         const address = rewardTokens[i]
         deployments.log(`${name} adding rewardToken: ${address}`)

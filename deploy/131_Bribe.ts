@@ -38,7 +38,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
       /// Add remaining reward tokens
-      for (let i = 0; i < rewardTokens.length; i++) {
+      for (let i = 1; i < rewardTokens.length; i++) {
         const bribe = await getDeployedContract('Bribe', name)
         const address = rewardTokens[i]
         deployments.log(`${name} adding rewardToken: ${address}`)
