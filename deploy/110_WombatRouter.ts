@@ -79,11 +79,11 @@ async function approveForPools(router: Contract, poolConfigs: NetworkPoolInfo<IP
         tokens.push(asset.address)
       }
     }
-    const contractName = getPoolDeploymentName(poolInfo.setting.deploymentNamePrefix, poolName)
-    const poolDeployment = await deployments.get(contractName)
+    const deploymentName = getPoolDeploymentName(poolInfo.setting.deploymentNamePrefix, poolName)
+    const poolDeployment = await deployments.get(deploymentName)
 
     // approve by poolName
-    deployments.log(`Approving pool tokens for Pool: ${contractName}...`)
+    deployments.log(`Approving pool tokens for Pool: ${deploymentName}...`)
     await approveSpending(router, owner, tokens, poolDeployment.address)
   }
 }
