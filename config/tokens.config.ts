@@ -22,6 +22,7 @@ import {
 import { Token } from './token'
 import { ExternalContract } from './contract'
 import { Epochs } from './epoch'
+import { convertTokenPerEpochToTokenPerSec } from './emission'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -1285,23 +1286,27 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.SPELL],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USD+', {
+      startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDT+', {
+      startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
+      startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('300', 6))],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR],
-      // TODO: configure tokenPerSec
       startTimestamp: Epochs.Apr12,
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR],
-      // TODO: configure tokenPerSec
       startTimestamp: Epochs.Apr12,
       operator: ExternalContract.AnkrBribeOperator,
     }),
@@ -1327,12 +1332,17 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
   },
   [Network.ARBITRUM_MAINNET]: {
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USD+', {
+      startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('6500', 6))],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_DAI+', {
+      startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('3500', 6))],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
+      startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_MIM', {
@@ -1348,7 +1358,9 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.QI],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USD+', {
+      startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('1000', 6))],
     }),
     ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_BOB', {
       rewardTokens: [Token.BOB],
