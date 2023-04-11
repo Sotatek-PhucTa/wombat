@@ -63,7 +63,7 @@ contract WormholeAdaptor is Adaptor {
             sourceTxHash: sourceTxHash,
             sourceNonce: sourceNonce,
             targetChain: targetChain,
-            deliveryIndex: uint8(1), // TODO: what is this?
+            deliveryIndex: uint8(1), // TODO: Update this value if we support batch messages
             multisendIndex: uint8(0),
             newMaxTransactionFee: msg.value,
             newReceiverValue: 0,
@@ -85,7 +85,7 @@ contract WormholeAdaptor is Adaptor {
      */
     function receiveWormholeMessages(bytes[] memory vaas, bytes[] memory) external {
         // Cross-chain swap is experimental, only the core relayer can invoke this function
-        // TODO: Assess if this line is required: is there trust assumption to the generic relayer?
+        // Verify the sender as there are trust assumptions to the generic relayer
         require(msg.sender == address(relayer), 'not authorized');
 
         uint256 numObservations = vaas.length;
@@ -127,7 +127,6 @@ contract WormholeAdaptor is Adaptor {
 
     function _recordMessageHash(bytes32 _hash) internal {
         // revert if the message is already delivered
-        // TODO: verify if the hash is collision resistant
         if (deliveredMessage[_hash]) revert ADAPTOR__MESSAGE_ALREADY_DELIVERED(_hash);
         deliveredMessage[_hash] = true;
     }

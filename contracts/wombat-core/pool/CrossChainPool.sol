@@ -9,7 +9,6 @@ import '../interfaces/ICrossChainPool.sol';
  * @title Mega Pool
  * @notice Mega Pool is able to handle cross-chain swaps in addition to ordinary swap within its own chain
  * @dev Refer to note of `swapTokensForTokensCrossChain` for procedure of a cross-chain swap
- * @dev TODO: write documents for protection mechanism and implement it
  * Note: All variables are 18 decimals, except from that of parameters of external functions and underlying tokens
  */
 contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
@@ -186,7 +185,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     ) internal returns (uint256 creditAmount, uint256 feeInFromToken) {
         // Assume credit has 18 decimals
         if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
-        // TODO: implement _quoteFactor for credit
+        // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
         // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
         (creditAmount, feeInFromToken) = CoreV3.quoteSwapTokensForCredit(
             fromAsset,
@@ -248,7 +247,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 minimumToAmount
     ) internal returns (uint256 actualToAmount, uint256 haircut) {
         if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
-        // TODO: implement _quoteFactor for credit
+        // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
         (actualToAmount, haircut) = CoreV3.quoteSwapCreditForTokens(
             fromCreditAmount,
             toAsset,
@@ -277,7 +276,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     ) external view returns (uint256 amount) {
         IAsset toAsset = _assetOf(toToken);
         if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
-        // TODO: implement _quoteFactor for credit
+        // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
         (uint256 actualToAmount, ) = CoreV3.quoteSwapCreditForTokens(
             fromCreditAmount,
             toAsset,
@@ -302,7 +301,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
 
         // Assume credit has 18 decimals
         if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
-        // TODO: implement _quoteFactor for credit
+        // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
         // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
         (creditAmount, feeInFromToken) = CoreV3.quoteSwapTokensForCredit(
             fromAsset,
