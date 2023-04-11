@@ -1,5 +1,5 @@
 const first_epoch = 1673416500 // 2023-01-11T05:55:00.000Z
-const epoch_duration = 7 * 24 * 3600 // 7 days
+export const epoch_duration_seconds = 7 * 24 * 3600 // 7 days
 
 export enum Epochs {
   Apr12 = atEpochStart('2023-04-12T05:55Z'),
@@ -14,8 +14,8 @@ export function atEpochStart(isoString: string): number {
     throw new Error(`Date ${isoString} is not a whole second`)
   }
   const epochSeconds = epochMillis / 1000
-  const n = Math.floor((epochSeconds - first_epoch) / epoch_duration)
-  if (epochSeconds != first_epoch + n * epoch_duration) {
+  const n = Math.floor((epochSeconds - first_epoch) / epoch_duration_seconds)
+  if (epochSeconds != first_epoch + n * epoch_duration_seconds) {
     throw new Error(`Date ${isoString} is not at the start of an epoch`)
   }
   return epochSeconds
