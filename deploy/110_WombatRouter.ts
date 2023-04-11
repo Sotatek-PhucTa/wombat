@@ -25,11 +25,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   deployments.log(`Step 110. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
+  const wrappedNativeToken = WRAPPED_NATIVE_TOKENS_MAP[hre.network.name as Network]
+  assert(wrappedNativeToken != ethers.constants.AddressZero, 'Wrapped native token is not set')
   const deployResult = await deploy('WombatRouter', {
     from: deployer,
     contract: 'WombatRouter',
     log: true,
-    args: [WRAPPED_NATIVE_TOKENS_MAP[hre.network.name as Network]],
+    args: [wrappedNativeToken],
     skipIfAlreadyDeployed: true,
     deterministicDeployment: false, // will adopt bridging protocols/ wrapped addresses instead of CREATE2
   })

@@ -23,11 +23,10 @@ interface IWNative {
 contract WombatRouter is Ownable, IWombatRouter {
     using SafeERC20 for IERC20;
 
-    // WBNB (mainnet): 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c
-    // WBNB (testnet): 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd
     IWNative public immutable wNative;
 
     constructor(IWNative _wNative) {
+        require(address(_wNative) != address(0), 'WombatRouter: wNative is zero address');
         wNative = _wNative;
     }
 
