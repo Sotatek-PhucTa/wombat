@@ -314,6 +314,8 @@ To verify proxy contracts:
   - Asset_qWOM_Pool_WOM => `0x6B7C9dB425951543aA556b984869C50e6a18C7B2`
   - Bribe_Asset_qWOM_Pool_qWOM => `0x5A65Cb65C601A396e79Ff9e03650Bdc97Ed2dE8B`
   - Bribe_Asset_qWOM_Pool_WOM => `0x38169243f4743De770B64acd987d89E8BD58B54C`
+  - MultiRewarderPerSec_V3_Asset_qWOM_Pool_qWOM => `0x6001f4726F11155533630cb9936436CdB7631bb9`
+  - MultiRewarderPerSec_V3_Asset_qWOM_Pool_WOM => `0xF1dB5B1f92dbe4A34B9FC0CF629E6b013d7dE18d`
 
 - frxETH Pool
   - Pool Proxy (DynamicPoolV2) => `0x20D7ee728900848752FA280fAD51aF40c47302f1`
