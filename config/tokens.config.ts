@@ -1148,6 +1148,18 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
     ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
       rewardTokens: [Token.WOM],
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_WOM', {
+      startTimestamp: Epochs.Apr12,
+      rewardTokens: [Token.QUO],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('40000'))],
+      operator: ExternalContract.QuollBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_qWOM', {
+      startTimestamp: Epochs.Apr12,
+      rewardTokens: [Token.QUO],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('60000'))],
+      operator: ExternalContract.QuollBribeOperator,
+    }),
   },
 })
 

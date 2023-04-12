@@ -7,6 +7,7 @@ import { getAddress } from '../utils'
 export enum ExternalContract {
   AnkrBribeOperator,
   MagpieVeWomProxy,
+  QuollBribeOperator,
   QuollVeWomProxy,
   SkimAdmin,
   WombexVeWomProxy,
@@ -41,6 +42,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
     [Network.ARBITRUM_MAINNET]: Address('0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc'),
+  },
+  [ExternalContract.QuollBribeOperator]: {
+    [Network.ARBITRUM_MAINNET]: Address('0x20A62EDcE0e18683D081744b1789A614d1De6397'),
   },
   [ExternalContract.QuollVeWomProxy]: {
     [Network.ARBITRUM_MAINNET]: Address('0x277Cd4b508aFbb75d182870409bBf610AFab5c7b'),
