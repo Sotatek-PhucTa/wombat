@@ -904,6 +904,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           underlyingToken: Token.sfrxETH,
           assetContractName: 'PriceFeedAsset',
           priceFeed: sfrxETHGovernedPriceFeed(),
+          maxSupply: parseEther('1600'),
         },
         frxETH: {
           tokenName: 'Frax Ether',
@@ -1014,6 +1015,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           underlyingToken: Token.sfrxETH,
           assetContractName: 'PriceFeedAsset',
           priceFeed: sfrxETHGovernedPriceFeed(),
+          maxSupply: parseEther('1600'),
         },
       },
     },

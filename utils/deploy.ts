@@ -178,6 +178,12 @@ export async function deployAssetV2(
     await confirmTxn(await asset.connect(deployerSigner).setPool(poolAddress))
     deployments.log(`Added ${tokenSymbol} Asset at ${address} to Pool located ${poolAddress}`)
 
+    // Set max supply
+    if (assetInfo.maxSupply) {
+      await confirmTxn(await asset.connect(deployerSigner).setMaxSupply(assetInfo.maxSupply))
+      deployments.log(`${deploymentName} set max supply to ${formatEther(assetInfo.maxSupply)}`)
+    }
+
     // transfer asset LP token contract ownership to Gnosis Safe
     // The owner of the asset contract can change our pool address and change asset max supply
     deployments.log(`Transferring ownership of asset ${asset.address} to ${multisig}...`)

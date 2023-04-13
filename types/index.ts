@@ -117,6 +117,7 @@ export interface IAssetInfo {
   // TODO: separate mock token deployment from asset
   useMockToken?: boolean // to deploy a mock token, this field is required
   priceFeed?: GovernedPriceFeed
+  maxSupply?: BigNumberish
 }
 
 export type PartialRecord<K extends keyof any, T> = {
