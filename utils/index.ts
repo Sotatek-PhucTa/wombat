@@ -204,3 +204,20 @@ export async function printPoolGovernanceParam(address: string) {
   }
   console.table(table)
 }
+
+export async function printAssetInfo() {
+  // Use startsWith instead of includes since Bribe also has Asset in its name.
+  const names = Object.keys(await deployments.all()).filter((name) => name.startsWith('Asset'))
+  console.table(
+    await Promise.all(
+      names.map(async (name) => {
+        const asset = await getDeployedContract('Asset', name)
+        return {
+          name,
+          address: asset.address,
+          maxSupply: formatEther(await asset.maxSupply()),
+        }
+      })
+    )
+  )
+}
