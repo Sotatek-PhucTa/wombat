@@ -134,7 +134,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.WBNB]: {
     // https://www.coingecko.com/en/coins/wbnb
-    [Network.BSC_MAINNET]: Address('0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'),
+    [Network.BSC_MAINNET]: Address('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'),
   },
   [Token.WETH]: {
     // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
@@ -152,8 +152,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
   },
   [Token.ankrBNB]: {
-    // https://bscscan.com/address/0x52f24a5e03aee338da5fd9df68d2b6fae1178827
-    [Network.BSC_MAINNET]: Address('0x52f24a5e03aee338da5fd9df68d2b6fae1178827'),
+    // https://bscscan.com/address/0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827
+    [Network.BSC_MAINNET]: Address('0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827'),
   },
   [Token.axlUSDC]: {
     // https://www.coingecko.com/en/coins/axelar-usdc
