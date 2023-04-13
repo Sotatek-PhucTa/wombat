@@ -27,11 +27,12 @@ export enum Token {
   WMX,
   WOM,
   ankrBNB,
+  axlUSDC,
   frxETH,
   iUSD,
   mWOM,
   qWOM,
-  axlUSDC,
+  sfrxETH,
   testFRAX, // TestERC20
   vUSDC,
   wmxWOM,
@@ -154,8 +155,12 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://bscscan.com/address/0x52f24a5e03aee338da5fd9df68d2b6fae1178827
     [Network.BSC_MAINNET]: Address('0x52f24a5e03aee338da5fd9df68d2b6fae1178827'),
   },
+  [Token.axlUSDC]: {
+    // https://www.coingecko.com/en/coins/axelar-usdc
+    [Network.BSC_MAINNET]: Address('0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3'),
+  },
   [Token.frxETH]: {
-    // https://arbiscan.io/token/0x178412e79c25968a32e89b11f63b33f733770c2a
+    // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
     [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63b33f733770c2a'),
   },
   [Token.iUSD]: {
@@ -174,9 +179,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://arbiscan.io/address/0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e
     [Network.ARBITRUM_MAINNET]: Address('0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e'),
   },
-  [Token.axlUSDC]: {
-    // https://www.coingecko.com/en/coins/axelar-usdc
-    [Network.BSC_MAINNET]: Address('0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3'),
+  [Token.sfrxETH]: {
+    // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
+    [Network.BSC_MAINNET]: Address('0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53'),
+    [Network.ARBITRUM_MAINNET]: Address('0x95aB45875cFFdba1E5f451B950bC2E42c0053f39'),
   },
   [Token.testFRAX]: {
     // TestERC20

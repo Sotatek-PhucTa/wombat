@@ -878,20 +878,22 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ...defaultDynamicPoolConfig,
       },
       assets: {
-        // sfrxETH: {
-        //   tokenName: 'Staked Frax Ether',
-        //   tokenSymbol: 'sfrxETH',
-        //   underlyingTokenAddr: '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
-        //   assetContractName: 'PriceFeedAsset',
-        //   priceFeed: {
-        //     priceFeedContract: 'GovernedPriceFeed',
-        //     deployArgs: [
-        //       '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
-        //       parseEther('1.029'), // The initial value could be read from convertToAssets at https://etherscan.io/token/0xac3e018457b222d93114458476f3e3416abbe38f#readContract
-        //       parseEther('0.01'),
-        //     ],
-        //   },
-        // },
+        sfrxETH: {
+          tokenName: 'Staked Frax Ether',
+          tokenSymbol: 'sfrxETH',
+          underlyingToken: Token.sfrxETH,
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            priceFeedContract: 'GovernedPriceFeed',
+            deployArgs: [
+              // address of sfrxETH
+              '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
+              // initial price. See pricePerShare() at https://monobase.xyz/address/0xac3E018457B222d93114458476f3E3416Abbe38F#call
+              parseEther('1.033731297810126883'),
+              parseEther('0.01'),
+            ],
+          },
+        },
         frxETH: {
           tokenName: 'Frax Ether',
           tokenSymbol: 'frxETH',
@@ -994,6 +996,22 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           tokenSymbol: 'WETH',
           underlyingTokenAddr: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
           assetContractName: 'DynamicAsset',
+        },
+        sfrxETH: {
+          tokenName: 'Staked Frax Ether',
+          tokenSymbol: 'sfrxETH',
+          underlyingToken: Token.sfrxETH,
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            priceFeedContract: 'GovernedPriceFeed',
+            deployArgs: [
+              // address of sfrxETH
+              '0x95aB45875cFFdba1E5f451B950bC2E42c0053f39',
+              // initial price. See pricePerShare() at https://monobase.xyz/address/0xac3E018457B222d93114458476f3E3416Abbe38F#call
+              parseEther('1.033731297810126883'),
+              parseEther('0.01'),
+            ],
+          },
         },
       },
     },
@@ -1322,6 +1340,11 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       startTimestamp: Epochs.Apr12,
       operator: ExternalContract.AnkrBribeOperator,
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+      startTimestamp: Epochs.Apr19,
+      rewardTokens: [Token.FXS],
+      operator: ExternalContract.FraxBribeOperator,
+    }),
   },
   bsc_testnet: {
     BUSD: {
@@ -1405,6 +1428,11 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     }),
     ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_WOM', {
       rewardTokens: [Token.QUO],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+      startTimestamp: Epochs.Apr19,
+      rewardTokens: [Token.FXS],
+      operator: ExternalContract.FraxBribeOperator,
     }),
   },
 })

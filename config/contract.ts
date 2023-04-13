@@ -6,6 +6,7 @@ import { getAddress } from '../utils'
 // style note: sort alphabetically.
 export enum ExternalContract {
   AnkrBribeOperator,
+  FraxBribeOperator,
   MagpieVeWomProxy,
   QuollBribeOperator,
   QuollVeWomProxy,
@@ -38,6 +39,10 @@ export async function getContractAddressOrDefault(
 const contractRegistry: Record<ExternalContract, PartialRecord<Network, DeploymentOrAddress>> = {
   [ExternalContract.AnkrBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0xAE1c38847Fb90A13a2a1D7E5552cCD80c62C6508'),
+  },
+  [ExternalContract.FraxBribeOperator]: {
+    [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
+    [Network.ARBITRUM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
   },
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
