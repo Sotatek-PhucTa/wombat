@@ -5,6 +5,7 @@ import {
   Address,
   Deployment,
   DeploymentOrAddress,
+  GovernedPriceFeed,
   IHighCovRatioFeePoolConfig,
   IMockTokenInfo,
   IRewarder,
@@ -56,6 +57,25 @@ function defaultRewarder(): IRewarder {
     // Use empty reward token here as we expect config to override it.
     rewardTokens: [],
     tokenPerSec: [0],
+  }
+}
+
+function defaultGovernedPriceFeed(): GovernedPriceFeed {
+  return {
+    contract: 'GovernedPriceFeed',
+    token: Token.UNKNOWN,
+    initialPrice: 0,
+    maxDeviation: 0,
+  }
+}
+
+function sfrxETHGovernedPriceFeed(): GovernedPriceFeed {
+  return {
+    ...defaultGovernedPriceFeed(),
+    token: Token.sfrxETH,
+    // initial price. See pricePerShare() at https://monobase.xyz/address/0xac3E018457B222d93114458476f3E3416Abbe38F#call
+    initialPrice: parseEther('1.033731297810126883'),
+    maxDeviation: parseEther('0.01'),
   }
 }
 
@@ -883,16 +903,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           tokenSymbol: 'sfrxETH',
           underlyingToken: Token.sfrxETH,
           assetContractName: 'PriceFeedAsset',
-          priceFeed: {
-            priceFeedContract: 'GovernedPriceFeed',
-            deployArgs: [
-              // address of sfrxETH
-              '0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53',
-              // initial price. See pricePerShare() at https://monobase.xyz/address/0xac3E018457B222d93114458476f3E3416Abbe38F#call
-              parseEther('1.033731297810126883'),
-              parseEther('0.01'),
-            ],
-          },
+          priceFeed: sfrxETHGovernedPriceFeed(),
         },
         frxETH: {
           tokenName: 'Frax Ether',
@@ -1002,16 +1013,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           tokenSymbol: 'sfrxETH',
           underlyingToken: Token.sfrxETH,
           assetContractName: 'PriceFeedAsset',
-          priceFeed: {
-            priceFeedContract: 'GovernedPriceFeed',
-            deployArgs: [
-              // address of sfrxETH
-              '0x95aB45875cFFdba1E5f451B950bC2E42c0053f39',
-              // initial price. See pricePerShare() at https://monobase.xyz/address/0xac3E018457B222d93114458476f3E3416Abbe38F#call
-              parseEther('1.033731297810126883'),
-              parseEther('0.01'),
-            ],
-          },
+          priceFeed: sfrxETHGovernedPriceFeed(),
         },
       },
     },

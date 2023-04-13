@@ -96,6 +96,13 @@ export interface IHighCovRatioFeePoolConfig extends IPoolConfig {
   endCovRatio: BigNumber
 }
 
+export interface GovernedPriceFeed {
+  contract: string
+  token: Token
+  initialPrice: BigNumberish
+  maxDeviation: BigNumberish
+}
+
 // TODO: verify mock tokens exist in MOCK_TOKEN_MAP before deployment
 export interface IAssetInfo {
   tokenName: string
@@ -109,10 +116,7 @@ export interface IAssetInfo {
   oracleAddress?: string
   // TODO: separate mock token deployment from asset
   useMockToken?: boolean // to deploy a mock token, this field is required
-  priceFeed?: {
-    priceFeedContract: string
-    deployArgs: unknown[]
-  } // to be used by PriceFeedAsset
+  priceFeed?: GovernedPriceFeed
 }
 
 export type PartialRecord<K extends keyof any, T> = {

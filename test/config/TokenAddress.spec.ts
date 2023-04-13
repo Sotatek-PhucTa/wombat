@@ -7,4 +7,10 @@ describe('TokenAddressConfig', function () {
     await deployments.fixture('WombatToken')
     expect(await getTokenAddress(Token.WOM)).to.exist
   })
+
+  it('throws for UNKNOWN', async function () {
+    await expect(getTokenAddress(Token.UNKNOWN)).to.be.rejectedWith(
+      'No config found for token UNKNOWN in network hardhat'
+    )
+  })
 })

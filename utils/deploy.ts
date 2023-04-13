@@ -149,7 +149,7 @@ export async function deployAssetV2(
       multisig,
       assetInfo,
       asset,
-      `PriceFeed_${deploymentName}_${assetInfo.priceFeed?.priceFeedContract}`
+      `PriceFeed_${assetInfo.priceFeed?.contract}_${deploymentName}`
     )
   }
 
@@ -217,28 +217,27 @@ export async function deployPriceFeed(
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const { deploy } = deployments
 
-  deployments.log(
-    `Attemping to deploy price feed for: ${assetInfo.tokenName} with args ${assetInfo.priceFeed?.deployArgs}`
-  )
-  if (!assetInfo.priceFeed) {
+  deployments.log(`Attemping to deploy price feed for: ${assetInfo.tokenName}`)
+  const priceFeed = assetInfo.priceFeed
+  if (!priceFeed) {
     throw `assetInfo.priceFeed for ${assetInfo.tokenName} is full`
   }
 
   const deployResult = await deploy(deploymentName, {
     from: deployer,
-    contract: assetInfo.priceFeed?.priceFeedContract,
+    contract: priceFeed.contract,
     log: true,
-    args: assetInfo.priceFeed?.deployArgs,
+    args: [await getTokenAddress(priceFeed.token), priceFeed.initialPrice, priceFeed.maxDeviation],
     skipIfAlreadyDeployed: true,
   })
   if (deployResult.newlyDeployed) {
-    const priceFeed = await getDeployedContract(assetInfo.priceFeed?.priceFeedContract, deploymentName)
-
+    const priceFeedContract = await getDeployedContract(priceFeed.contract, deploymentName)
     deployments.log(`Transferring ownership of price feed ${deployResult.address} to ${multisig}...`)
-    await confirmTxn(priceFeed.connect(deployerSigner).transferOwnership(multisig))
+    await confirmTxn(priceFeedContract.connect(deployerSigner).transferOwnership(multisig))
     deployments.log(`Transferred ownership of price feed ${deployResult.address} to ${multisig}...`)
 
     deployments.log('Setting price feed for asset...')
     await confirmTxn(asset.connect(deployerSigner).setPriceFeed(deployResult.address))
   }
+  logVerifyCommand(network.name, deployResult)
 }
