@@ -17,7 +17,7 @@ abstract contract OraclePriceFeed is IPriceFeed, OwnableUpgradeable {
     uint96 maxPriceAge;
 
     uint256[50] private _gap;
-    
+
     event UpdateFallbackPriceFeed(IPriceFeed priceFeed);
 
     function _getFallbackPrice(IERC20 _token) internal view returns (uint256 price) {

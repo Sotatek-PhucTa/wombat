@@ -22,6 +22,7 @@
     "@pythnetwork/pyth-sdk-solidity": "^2.2.1",
     "@typechain/ethers-v5": "^10.2.0",
     "@typechain/hardhat": "^6.1.5",
+    "@types/dedent": "^0.7.0",
     "@types/lodash": "^4.14.192",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.11",
@@ -32,6 +33,7 @@
     "@typescript-eslint/parser": "^5.58.0",
     "bignumber.js": "^9.1.1",
     "chai": "^4.3.7",
+    "dedent": "^0.7.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
@@ -80,6 +82,7 @@
     "lt": "yarn lint && yarn test",
     "coverage": "hardhat coverage",
     "size": "hardhat size-contracts",
+    "generate_interface": "npx hardhat run ./scripts/code-gen.ts",
     "generate_uml": "sol2uml ./contracts",
     "generate_docs": "yarn run hardhat docgen --theme markdown"
   }
