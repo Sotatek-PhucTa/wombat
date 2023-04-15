@@ -125,7 +125,7 @@ contract MultiRewarderPerSec is IMultiRewarder, Ownable, ReentrancyGuard {
     }
 
     function _updateReward(uint256 totalShare) internal {
-        if (block.timestamp > lastRewardTimestamp && totalShare > 0) {
+        if (block.timestamp > lastRewardTimestamp) {
             uint256 length = rewardInfo.length;
             for (uint256 i; i < length; ++i) {
                 RewardInfo storage reward = rewardInfo[i];

@@ -132,7 +132,7 @@ describe('[Rewarder]', function () {
       expect(await rewarder.updateReward()).to.be.ok
     })
 
-    it('A user can steal all bribes', async function () {
+    it('A user cannot steal all bribes', async function () {
       // A rewarder is deployed for next bribe a long time ago
       // A user deposits and withdraw some LP token when there are no rewards
       await deposit(user, master, rewarder, parseDAI('1'))
@@ -143,14 +143,14 @@ describe('[Rewarder]', function () {
       // Two weeks later, we activate the rewarder at 1 DAI/s
       await time.increase(14 * 24 * 3600) // T+14d
       await rewarder.setRewardRate(0, parseDAI('1'))
-      // Timestamp is not updated because there are no shares
-      expect(await rewarder.lastRewardTimestamp()).to.eq(lastRewardTimestamp)
+      // Timestamp is updated. If not, a user can steal all the bribe.
+      expect(await rewarder.lastRewardTimestamp()).to.eq(lastRewardTimestamp.add(14 * 24 * 3600 + 1))
 
       // The user deposits again after the reward is live.
-      // And takes all the bribe even though its only a second.
+      // There are no pending rewards from stale lastRewardTimestamp.
       await deposit(user, master, rewarder, parseDAI('1'))
       const [rewards] = await rewarder.pendingTokens(user.address)
-      expect(rewards).to.be.closeTo(parseDAI('1').mul(14 * 24 * 3600), parseDAI('4'))
+      expect(rewards).to.be.eq(0)
     })
   })
 
