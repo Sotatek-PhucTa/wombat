@@ -1,5 +1,5 @@
+// Copied from https://github.com/wormhole-foundation/trustless-generic-relayer/blob/2ed875bef7f9113a96cbe4999cfb9d168e6fcd6f/ethereum/contracts/interfaces/IWormholeRelayer.sol
 // SPDX-License-Identifier: Apache 2
-// Copied from https://github.com/wormhole-foundation/trustless-generic-relayer/blob/main/ethereum/contracts/interfaces/IWormholeRelayer.sol
 
 pragma solidity ^0.8.0;
 
@@ -89,7 +89,10 @@ interface IWormholeRelayer {
      *  @return sequence The sequence number for the emitted wormhole message, which contains encoded delivery instructions meant for your specified relay provider.
      *  The relay provider will listen for these messages, and then execute the delivery as described.
      */
-    function send(Send memory request, uint32 nonce, address relayProvider) external payable returns (uint64 sequence);
+    function send(Send memory request, uint32 nonce, address relayProvider)
+        external
+        payable
+        returns (uint64 sequence);
 
     /**
      * @notice This 'forward' function can only be called in a IWormholeReceiver within the 'receiveWormholeMessages' function
@@ -194,10 +197,10 @@ interface IWormholeRelayer {
      *  @return sequence The sequence number for the emitted wormhole message, which contains encoded delivery instructions meant for the default wormhole relay provider.
      *  The relay provider will listen for these messages, and then execute the delivery as described
      */
-    function multichainSend(
-        MultichainSend memory sendContainer,
-        uint32 nonce
-    ) external payable returns (uint64 sequence);
+    function multichainSend(MultichainSend memory sendContainer, uint32 nonce)
+        external
+        payable
+        returns (uint64 sequence);
 
     /**
      * @notice The multichainForward function can only be called in a IWormholeReceiver within the 'receiveWormholeMessages' function
@@ -283,11 +286,10 @@ interface IWormholeRelayer {
      *
      * @return maxTransactionFee The 'maxTransactionFee' you pass into your request (to relay messages to 'targetChain' and use 'gasLimit' units of gas) must be at least this amount
      */
-    function quoteGas(
-        uint16 targetChain,
-        uint32 gasLimit,
-        address relayProvider
-    ) external pure returns (uint256 maxTransactionFee);
+    function quoteGas(uint16 targetChain, uint32 gasLimit, address relayProvider)
+        external
+        pure
+        returns (uint256 maxTransactionFee);
 
     /**
      * @notice quoteGasResend tells you how much maxTransactionFee (denominated in current (source) chain currency) must be in order to fund a *resend* call to
@@ -303,11 +305,10 @@ interface IWormholeRelayer {
      *
      * @return maxTransactionFee The 'maxTransactionFee' you pass into your resend request (to relay messages to 'targetChain' and use 'gasLimit' units of gas) must be at least this amount
      */
-    function quoteGasResend(
-        uint16 targetChain,
-        uint32 gasLimit,
-        address relayProvider
-    ) external pure returns (uint256 maxTransactionFee);
+    function quoteGasResend(uint16 targetChain, uint32 gasLimit, address relayProvider)
+        external
+        pure
+        returns (uint256 maxTransactionFee);
 
     /**
      * @notice quoteReceiverValue tells you how much receiverValue (denominated in current (source) chain currency) must be
@@ -323,11 +324,10 @@ interface IWormholeRelayer {
      *
      * @return receiverValue The 'receiverValue' you pass into your send request (to relay messages to 'targetChain' with 'targetAmount' of value) must be at least this amount
      */
-    function quoteReceiverValue(
-        uint16 targetChain,
-        uint256 targetAmount,
-        address relayProvider
-    ) external pure returns (uint256 receiverValue);
+    function quoteReceiverValue(uint16 targetChain, uint256 targetAmount, address relayProvider)
+        external
+        pure
+        returns (uint256 receiverValue);
 
     /**
      * @notice Helper function that converts an EVM address to wormhole format

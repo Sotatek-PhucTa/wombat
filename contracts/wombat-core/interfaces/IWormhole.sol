@@ -1,4 +1,4 @@
-// contracts/Messages.sol
+// Copied from https://github.com/wormhole-foundation/trustless-generic-relayer/blob/2ed875bef7f9113a96cbe4999cfb9d168e6fcd6f/ethereum/contracts/interfaces/IWormhole.sol
 // SPDX-License-Identifier: Apache 2
 
 pragma solidity ^0.8.0;
@@ -68,34 +68,29 @@ interface IWormhole {
     }
 
     event LogMessagePublished(
-        address indexed sender,
-        uint64 sequence,
-        uint32 nonce,
-        bytes payload,
-        uint8 consistencyLevel
+        address indexed sender, uint64 sequence, uint32 nonce, bytes payload, uint8 consistencyLevel
     );
     event ContractUpgraded(address indexed oldContract, address indexed newContract);
     event GuardianSetAdded(uint32 indexed index);
 
-    function publishMessage(
-        uint32 nonce,
-        bytes memory payload,
-        uint8 consistencyLevel
-    ) external payable returns (uint64 sequence);
+    function publishMessage(uint32 nonce, bytes memory payload, uint8 consistencyLevel)
+        external
+        payable
+        returns (uint64 sequence);
 
     function initialize() external;
 
-    function parseAndVerifyVM(
-        bytes calldata encodedVM
-    ) external view returns (VM memory vm, bool valid, string memory reason);
+    function parseAndVerifyVM(bytes calldata encodedVM)
+        external
+        view
+        returns (VM memory vm, bool valid, string memory reason);
 
     function verifyVM(VM memory vm) external view returns (bool valid, string memory reason);
 
-    function verifySignatures(
-        bytes32 hash,
-        Signature[] memory signatures,
-        GuardianSet memory guardianSet
-    ) external pure returns (bool valid, string memory reason);
+    function verifySignatures(bytes32 hash, Signature[] memory signatures, GuardianSet memory guardianSet)
+        external
+        pure
+        returns (bool valid, string memory reason);
 
     function parseVM(bytes memory encodedVM) external pure returns (VM memory vm);
 
@@ -127,13 +122,19 @@ interface IWormhole {
 
     function parseContractUpgrade(bytes memory encodedUpgrade) external pure returns (ContractUpgrade memory cu);
 
-    function parseGuardianSetUpgrade(bytes memory encodedUpgrade) external pure returns (GuardianSetUpgrade memory gsu);
+    function parseGuardianSetUpgrade(bytes memory encodedUpgrade)
+        external
+        pure
+        returns (GuardianSetUpgrade memory gsu);
 
     function parseSetMessageFee(bytes memory encodedSetMessageFee) external pure returns (SetMessageFee memory smf);
 
     function parseTransferFees(bytes memory encodedTransferFees) external pure returns (TransferFees memory tf);
 
-    function parseRecoverChainId(bytes memory encodedRecoverChainId) external pure returns (RecoverChainId memory rci);
+    function parseRecoverChainId(bytes memory encodedRecoverChainId)
+        external
+        pure
+        returns (RecoverChainId memory rci);
 
     function submitContractUpgrade(bytes memory _vm) external;
 

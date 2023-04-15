@@ -101,13 +101,28 @@ abstract contract Adaptor is
         uint256 minimumToAmount,
         address receiver
     ) internal pure returns (bytes memory) {
+        require(toToken != address(0), 'toToken cannot be zero');
+        require(receiver != address(0), 'receiver cannot be zero');
+        require(minimumToAmount != uint256(0), 'minimumToAmount cannot be zero');
+        require(creditAmount != uint256(0), 'creditAmount cannot be zero');
+        require(toToken != receiver, 'toToken cannot be receiver');
+
         return abi.encode(toToken, creditAmount, minimumToAmount, receiver);
     }
 
     function _decode(
         bytes memory encoded
     ) internal pure returns (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) {
+        require(encoded.length == 128, 'byte length must be 128');
+
         (toToken, creditAmount, minimumToAmount, receiver) = abi.decode(encoded, (address, uint256, uint256, address));
+
+        require(toToken != address(0), 'toToken cannot be zero');
+        require(receiver != address(0), 'receiver cannot be zero');
+
+        require(minimumToAmount != uint256(0), 'minimumToAmount cannot be zero');
+        require(creditAmount != uint256(0), 'creditAmount cannot be zero');
+        require(toToken != receiver, 'toToken cannot be receiver');
     }
 
     /**

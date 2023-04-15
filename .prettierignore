@@ -1,1 +1,5 @@
 build/
+
+# Ignore imported interfaces
+contracts/wombat-core/interfaces/IWormhole.sol
+contracts/wombat-core/interfaces/IWormholeRelayer.sol

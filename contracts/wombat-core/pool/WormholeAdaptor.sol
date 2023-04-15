@@ -63,7 +63,7 @@ contract WormholeAdaptor is Adaptor {
             sourceTxHash: sourceTxHash,
             sourceNonce: sourceNonce,
             targetChain: targetChain,
-            deliveryIndex: uint8(1), // TODO: Update this value if we support batch messages
+            deliveryIndex: uint8(1), // TODO: Update this value if we support batch messages; This feature will likely be deprecated per upstream.
             multisendIndex: uint8(0),
             newMaxTransactionFee: msg.value,
             newReceiverValue: 0,
@@ -208,10 +208,12 @@ contract WormholeAdaptor is Adaptor {
     }
 
     function _wormholeAddrToEthAddr(bytes32 addr) internal pure returns (address) {
+        require(address(uint160(uint256(addr))) != address(0), 'addr bytes cannot be zero');
         return address(uint160(uint256(addr)));
     }
 
     function _ethAddrToWormholeAddr(address addr) internal pure returns (bytes32) {
+        require(addr != address(0), 'addr cannot be zero');
         return bytes32(uint256(uint160(addr)));
     }
 }
