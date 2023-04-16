@@ -311,8 +311,11 @@ To verify proxy contracts:
   - Pool Proxy (DynamicPoolV2) => `0x20D7ee728900848752FA280fAD51aF40c47302f1`
   - Asset_frxETH_Pool_frxETH (LP-frxETH) => `0x6966553568634F4225330D559a8783DE7649C7D3`
   - Asset_frxETH_Pool_WETH (LP-WETH) => `0xe62880CC6872c9E9Fb1DDd73f400850fdaBE798D`
+  - Asset_frxETH_Pool_sfrxETH => `0x2a20202A6F740200BA188F6D72fa72a08a346Aaa`
+  - PriceFeed_GovernedPriceFeed_Asset_frxETH_Pool_sfrxETH => `0x1d15c46e75CC006490c356D29FF357a647918797`
   - Bribe_Asset_frxETH_Pool_frxETH => `0x96412caB79c3A4c5cACD8b6fbFbEa36F4cA3791a`
   - Bribe_Asset_frxETH_Pool_WETH => `0x4f7f9B195eAE3Bd3D933fA9708c9B7ADbFb52ac2`
+  - Bribe_Asset_frxETH_Pool_sfrxETH => `0x765fDA4B8f57587B9A6d525b81a2130679075543`
 
 - FRAX Pool
   - Pool Proxy (HighCovRatioFeePoolV2) => `0x4a8686df475D4c44324210FFA3Fc1DEA705296e0`
