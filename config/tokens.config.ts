@@ -74,7 +74,7 @@ function sfrxETHGovernedPriceFeed(): GovernedPriceFeed {
     ...defaultGovernedPriceFeed(),
     token: Token.sfrxETH,
     // initial price. See pricePerShare() at https://monobase.xyz/address/0xac3E018457B222d93114458476f3E3416Abbe38F#call
-    initialPrice: parseEther('1.033731297810126883'),
+    initialPrice: parseEther('1.0342029648225833'),
     maxDeviation: parseEther('0.01'),
   }
 }
