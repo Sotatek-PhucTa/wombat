@@ -5,6 +5,7 @@ import { getCurrentNetwork } from '../types/network'
 // style note: sort alphabetically.
 export enum Token {
   ANKR,
+  BNBy,
   BOB,
   BUSD,
   FXS,
@@ -18,6 +19,7 @@ export enum Token {
   RT2, // TestERC20
   SD,
   SPELL,
+  TENFI,
   UNKNOWN,
   USDC,
   USDPlus,
@@ -58,6 +60,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.ANKR]: {
     // https://www.coingecko.com/en/coins/ankr-network
     [Network.BSC_MAINNET]: Address('0xf307910a4c7bbc79691fd374889b36d8531b08e3'),
+  },
+  [Token.BNBy]: {
+    // https://bscscan.com/address/0x6764506be2a755c18f4c70bDe4e63F26f9F62810
+    [Network.BSC_MAINNET]: Address('0x6764506be2a755c18f4c70bDe4e63F26f9F62810'),
   },
   [Token.BOB]: {
     // https://www.coingecko.com/en/coins/bob
@@ -116,6 +122,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/spell-token
     [Network.BSC_MAINNET]: Address('0x9Fe28D11ce29E340B7124C493F59607cbAB9ce48'),
     [Network.ARBITRUM_MAINNET]: Address('0x3e6648c5a70a150a88bce65f4ad4d506fe15d2af'),
+  },
+  [Token.TENFI]: {
+    // https://www.coingecko.com/en/coins/ten
+    [Network.BSC_MAINNET]: Address('0xd15C444F1199Ae72795eba15E8C1db44E47abF62'),
   },
   [Token.UNKNOWN]: {
     // Cannot be resolved on any network.

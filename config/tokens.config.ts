@@ -989,6 +989,29 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         },
       },
     },
+    BNBy_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        mintFeeThreshold: parseEther('0.03'),
+        deploymentNamePrefix: '',
+        supportNativeToken: true,
+      },
+      assets: {
+        WBNB: {
+          tokenName: 'Wrapped BNB',
+          tokenSymbol: 'WBNB',
+          underlyingToken: Token.WBNB,
+          assetContractName: 'DynamicAsset',
+        },
+        BNBy: {
+          tokenName: 'BNB Yield',
+          tokenSymbol: 'BNBy',
+          underlyingToken: Token.BNBy,
+          oracle: ExternalContract.BNByOracle,
+          assetContractName: 'BnbxAsset',
+        },
+      },
+    },
   },
   [Network.ARBITRUM_MAINNET]: {
     frxETH_Pool: {
@@ -1348,6 +1371,16 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       startTimestamp: Epochs.Apr19,
       rewardTokens: [Token.FXS],
       operator: ExternalContract.FraxBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_BNBy_Pool_WBNB', {
+      startTimestamp: Epochs.Apr19,
+      rewardTokens: [Token.TENFI],
+      operator: ExternalContract.TenFiBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_BNBy_Pool_BNBy', {
+      startTimestamp: Epochs.Apr19,
+      rewardTokens: [Token.TENFI],
+      operator: ExternalContract.TenFiBribeOperator,
     }),
   },
   bsc_testnet: {

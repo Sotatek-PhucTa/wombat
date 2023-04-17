@@ -113,6 +113,8 @@ export interface IAssetInfo {
   underlyingTokenAddr?: string
   allocPoint?: BigNumberish // default to be 0
   assetContractName?: string // default using Asset
+  // TODO: migrate oracleAddress to oracle
+  oracle?: ExternalContract
   oracleAddress?: string
   // TODO: separate mock token deployment from asset
   useMockToken?: boolean // to deploy a mock token, this field is required

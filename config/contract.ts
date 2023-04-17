@@ -6,11 +6,13 @@ import { getAddress } from '../utils'
 // style note: sort alphabetically.
 export enum ExternalContract {
   AnkrBribeOperator,
+  BNByOracle,
   FraxBribeOperator,
   MagpieVeWomProxy,
   QuollBribeOperator,
   QuollVeWomProxy,
   SkimAdmin,
+  TenFiBribeOperator,
   WombexVeWomProxy,
 }
 
@@ -40,6 +42,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.AnkrBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0xAE1c38847Fb90A13a2a1D7E5552cCD80c62C6508'),
   },
+  [ExternalContract.BNByOracle]: {
+    // https://bscscan.com/address/0xf68d19881d0de14066926313b148f8ab07876988
+    [Network.BSC_MAINNET]: Address('0xf68d19881d0de14066926313b148f8ab07876988'),
+  },
   [ExternalContract.FraxBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
     [Network.ARBITRUM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
@@ -57,6 +63,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.SkimAdmin]: {
     [Network.BSC_MAINNET]: Address('0xa772b0BA6042b9416a619f6638dcfEaC4a8B31fF'),
     [Network.ARBITRUM_MAINNET]: Address('0x3ca375b8107cB2c7f520cA87b2DeF8dC5040aeb4'),
+  },
+  [ExternalContract.TenFiBribeOperator]: {
+    [Network.BSC_MAINNET]: Address('0x393c7c3ebcbff2c1138d123df5827e215458f0c4'),
   },
   [ExternalContract.WombexVeWomProxy]: {
     // https://arbiscan.io/address/0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1

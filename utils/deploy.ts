@@ -5,6 +5,7 @@ import { deployments, ethers, network, upgrades } from 'hardhat'
 import { DeploymentResult, IAssetInfo, IPoolConfig, PoolInfo } from '../types'
 import { confirmTxn, getDeployedContract, getTestERC20, isOwner, logVerifyCommand } from '../utils'
 import { getTokenAddress } from '../config/token'
+import { getContractAddress } from '../config/contract'
 
 export async function deployTestAsset(tokenSymbol: string) {
   const erc20 = await getTestERC20(tokenSymbol)
@@ -122,7 +123,7 @@ export async function deployAssetV2(
   const underlyingTokenAddr = assetInfo.underlyingToken
     ? await getTokenAddress(assetInfo.underlyingToken)
     : assetInfo.underlyingTokenAddr
-  const oracleAddress = assetInfo.oracleAddress
+  const oracleAddress = assetInfo.oracle ? await getContractAddress(assetInfo.oracle) : assetInfo.oracleAddress
   const assetContractName = assetInfo.assetContractName ?? 'Asset'
   const name = `Wombat ${tokenName} Asset`
   const symbol = `LP-${tokenSymbol}`
