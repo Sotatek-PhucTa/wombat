@@ -12,7 +12,7 @@ import '../interfaces/IPriceFeed.sol';
  * @notice Price feed managed by operator
  * @dev This contract is used as a temporary solution and should be migrated to use oracle when possible
  */
-contract GovernedPriceFeed is IPriceFeed, Ownable, AccessControl {
+contract GovernedPriceFeed is IPriceFeed, Ownable, AccessControlEnumerable {
     bytes32 public constant ROLE_OPERATOR = keccak256('operator');
 
     IERC20 public immutable token;

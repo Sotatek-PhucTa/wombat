@@ -360,8 +360,10 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
 
     /**
      * @notice In case `completeSwapCreditForTokens` fails, adaptor should mint credit to the respective user
+     * @dev This function is only for the case when `completeSwapCreditForTokens` fails, and should not be called otherwise
+     * Also, this function should work even if the pool is paused
      */
-    function mintCredit(uint256 creditAmount, address receiver, uint256 trackingId) external override whenNotPaused {
+    function mintCredit(uint256 creditAmount, address receiver, uint256 trackingId) external override {
         require(msg.sender == address(adaptor));
         creditBalance[receiver] += creditAmount;
         emit MintCredit(receiver, creditAmount, trackingId);
