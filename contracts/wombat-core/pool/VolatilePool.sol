@@ -9,7 +9,7 @@ import './DynamicPoolV3.sol';
  */
 contract VolatilePool is DynamicPoolV3 {
     /// @notice Whether to cap the global equilibrium coverage ratio at 1 for deposit and withdrawal
-    bool shouldCapEquilCovRatio;
+    bool public shouldCapEquilCovRatio;
 
     uint256[50] private _gap;
 
@@ -22,6 +22,7 @@ contract VolatilePool is DynamicPoolV3 {
         shouldCapEquilCovRatio = shouldCapEquilCovRatio_;
     }
 
+    /// @dev enable floating r*, deposit and withdrawal amount should be adjusted by r*
     function _getGlobalEquilCovRatioForDepositWithdrawal() internal view override returns (int256 equilCovRatio) {
         (equilCovRatio, ) = globalEquilCovRatio();
         if (equilCovRatio > WAD_I && shouldCapEquilCovRatio) {
@@ -29,6 +30,4 @@ contract VolatilePool is DynamicPoolV3 {
             equilCovRatio = WAD_I;
         }
     }
-
-    // TODO: override `withdraw` to charge withdrawal fees
 }

@@ -90,9 +90,8 @@ describe('Pool - Deposit', function () {
 
     describe('quotePotentialDeposit', function () {
       it('works', async function () {
-        const [liquidity, reward] = await poolContract.quotePotentialDeposit(token0.address, parseEther('100'))
+        const liquidity = await poolContract.quotePotentialDeposit(token0.address, parseEther('100'))
         expect(liquidity).to.be.equal(parseEther('100'))
-        expect(reward).to.be.equal(0)
       })
     })
 
@@ -460,12 +459,17 @@ describe('Pool - Deposit', function () {
 
       await expect(receipt)
         .to.emit(poolContract, 'Deposit')
-        .withArgs(user1.address, token1.address, parseUnits('0.01', 8), parseEther('0.01'), user1.address)
+        .withArgs(
+          user1.address,
+          token1.address,
+          parseUnits('0.01', 8),
+          parseEther('0.009999999999991000'),
+          user1.address
+        )
 
-      expect(await poolContract.connect(owner).globalEquilCovRatio()).to.deep.equal([
-        parseEther('1.000001274247472392'),
-        parseEther('19971814.037429637005304507'),
-      ])
+      const result = await poolContract.connect(owner).globalEquilCovRatio()
+      expect(result.equilCovRatio).equal(parseEther('1.000001274247472392'))
+      expect(result.invariant).equal(parseEther('19971814.037429637005295525'))
     })
   })
 

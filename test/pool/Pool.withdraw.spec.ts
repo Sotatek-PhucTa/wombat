@@ -92,7 +92,7 @@ describe('Pool - Withdraw', function () {
         const beforeBalance = await token0.balanceOf(user1.address)
 
         // quote withdrawal => 70000000000000000000
-        const [quotedWithdrawal] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('70'))
+        const quotedWithdrawal = await poolContract.quotePotentialWithdraw(token0.address, parseEther('70'))
 
         const receipt = await poolContract
           .connect(user1)
@@ -118,7 +118,7 @@ describe('Pool - Withdraw', function () {
         const beforeBalance = await token0.balanceOf(user1.address)
 
         // quote withdrawal
-        const [withdrawAmount] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('100'))
+        const withdrawAmount = await poolContract.quotePotentialWithdraw(token0.address, parseEther('100'))
 
         await poolContract
           .connect(user1)
@@ -320,7 +320,7 @@ describe('Pool - Withdraw', function () {
 
         const expectedAmount = parseEther('10.262080051991132960')
         // verify withdrawFromOtherAsset is better than withdraw.
-        const [withdrawAmount] = await poolContract.quotePotentialWithdraw(token1.address, parseEther('10'))
+        const withdrawAmount = await poolContract.quotePotentialWithdraw(token1.address, parseEther('10'))
         expect(withdrawAmount).to.lt(expectedAmount)
 
         await expectBalanceChange(expectedAmount, owner, token0, async () => {
@@ -403,17 +403,15 @@ describe('Pool - Withdraw', function () {
         await asset0.connect(owner).addLiability(parseEther('1.768743776499783944'))
         await asset0.connect(owner).setPool(poolContract.address)
 
-        const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
+        const actualAmount = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
 
         expect(actualAmount).to.be.equal(parseEther('10.170955082800484398'))
-        expect(fee).to.be.equal(parseEther('0.005919294849493996'))
       })
 
       it('works with 0 fee (cov >= 1)', async function () {
-        const [actualAmount, fee] = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
+        const actualAmount = await poolContract.quotePotentialWithdraw(token0.address, parseEther('10'))
 
         expect(actualAmount).to.be.equal(parseEther('10'))
-        expect(fee).to.be.equal(0)
       })
     })
 
@@ -482,7 +480,7 @@ describe('Pool - Withdraw', function () {
         const beforeBalance = await token1.balanceOf(user1.address)
 
         // quote withdrawal => 70000000000000000000
-        const [quotedWithdrawal] = await poolContract.quotePotentialWithdraw(token1.address, parseEther('70'))
+        const quotedWithdrawal = await poolContract.quotePotentialWithdraw(token1.address, parseEther('70'))
 
         const receipt = await poolContract
           .connect(user1)

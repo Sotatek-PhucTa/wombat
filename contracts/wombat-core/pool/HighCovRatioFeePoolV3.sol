@@ -132,7 +132,8 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             haircutRate,
             startCovRatio,
             endCovRatio,
-            _getGlobalEquilCovRatioForDepositWithdrawal()
+            _getGlobalEquilCovRatioForDepositWithdrawal(),
+            withdrawalHaircutRate
         );
 
         withdrewAmount = withdrewAmount.fromWad(fromAsset.underlyingTokenDecimals());
