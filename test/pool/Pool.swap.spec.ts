@@ -409,6 +409,7 @@ describe('Pool - Swap', function () {
 
       it('reverts if asset paused', async function () {
         await poolContract.connect(owner).pauseAsset(token1.address)
+        expect(await poolContract.isPaused(token1.address)).to.be.true
         await expect(
           poolContract.connect(user1).swap(
             token1.address,
@@ -423,6 +424,7 @@ describe('Pool - Swap', function () {
 
       it('allows swap if asset paused and unpaused after', async function () {
         await poolContract.connect(owner).pauseAsset(token1.address)
+        expect(await poolContract.isPaused(token1.address)).to.be.true
         await expect(
           poolContract.connect(user1).swap(
             token1.address,

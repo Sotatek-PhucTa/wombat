@@ -23,6 +23,15 @@ contract PausableAssets {
     error WOMBAT_ASSET_NOT_PAUSED();
 
     /**
+     * @dev Function to return if the asset is paused.
+     * The return value is only useful when true.
+     * When the return value is false, the asset can be either not paused or not exist.
+     */
+    function isPaused(address token) public view returns (bool) {
+        return _pausedAssets[token];
+    }
+
+    /**
      * @dev Function to make a function callable only when the asset is not paused.
      *
      * Requirements:

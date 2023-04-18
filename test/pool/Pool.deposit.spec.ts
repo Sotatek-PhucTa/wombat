@@ -210,6 +210,7 @@ describe('Pool - Deposit', function () {
 
       it('reverts if asset paused', async function () {
         await poolContract.connect(owner).pauseAsset(token0.address)
+        expect(await poolContract.isPaused(token0.address)).to.be.true
         await expect(
           poolContract
             .connect(user1)
