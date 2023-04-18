@@ -1002,6 +1002,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           tokenSymbol: 'WBNB',
           underlyingToken: Token.WBNB,
           assetContractName: 'DynamicAsset',
+          maxSupply: parseEther('10000'),
         },
         BNBy: {
           tokenName: 'BNB Yield',
@@ -1009,6 +1010,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           underlyingToken: Token.BNBy,
           oracle: ExternalContract.BNByOracle,
           assetContractName: 'BnbxAsset',
+          maxSupply: parseEther('10000'),
         },
       },
     },
