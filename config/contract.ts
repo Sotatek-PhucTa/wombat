@@ -43,8 +43,8 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.BSC_MAINNET]: Address('0xAE1c38847Fb90A13a2a1D7E5552cCD80c62C6508'),
   },
   [ExternalContract.BNByOracle]: {
-    // https://bscscan.com/address/0xf68d19881d0de14066926313b148f8ab07876988
-    [Network.BSC_MAINNET]: Address('0xf68d19881d0de14066926313b148f8ab07876988'),
+    // https://bscscan.com/address/0x5e259cdbC6A3b7CeA735C906E585cba36Cca7f44
+    [Network.BSC_MAINNET]: Address('0x5e259cdbC6A3b7CeA735C906E585cba36Cca7f44'),
   },
   [ExternalContract.FraxBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
