@@ -9,6 +9,7 @@ import { Random } from 'random/dist/random'
 describe('CoreV3', function () {
   const ampFactor = parseEther('0.04')
   let core: Contract
+  let coreInvariant: Contract
   let random: Random
 
   // @TODO: Add a function generate random TVL, cov ratio, ampFactor and swapAmount
@@ -26,6 +27,9 @@ describe('CoreV3', function () {
   // deploy once only since this is stateless
   before(async function () {
     core = await ethers.deployContract('CoreV3')
+    coreInvariant = await ethers.deployContract('CoreV3Invariant', {
+      libraries: { CoreV3: core.address },
+    })
     const seed = process.env.RANDOM_SEED || new Date().toISOString()
     random = await CreateRandom(seed)
     // to reproduce, use `RANDOM_SEED=... hh test`
@@ -183,8 +187,36 @@ describe('CoreV3', function () {
     })
   })
 
-  // verify that quote = swapFromCredit(swapToCredit)
+  // Verify swap, deposit, and withdraw invariants.
   async function invariant(
+    fromAssetCash: BigNumberish,
+    fromAssetLiability: BigNumberish,
+    toAssetCash: BigNumberish,
+    toAssetLiability: BigNumberish,
+    swapAmount: BigNumberish,
+    ampFactor: BigNumberish
+  ) {
+    return Promise.all([
+      swapInvariant(fromAssetCash, fromAssetLiability, toAssetCash, toAssetLiability, swapAmount, ampFactor),
+      // Only verify the from side since caller already inverts parameters.
+      depositWithdrawInvariant(fromAssetCash, fromAssetLiability, swapAmount, ampFactor),
+    ])
+  }
+
+  async function depositWithdrawInvariant(
+    fromAssetCash: BigNumberish,
+    fromAssetLiability: BigNumberish,
+    amount: BigNumberish,
+    ampFactor: BigNumberish
+  ) {
+    return Promise.all([
+      coreInvariant.testGeneralDeposit(1, amount, fromAssetCash, fromAssetLiability, ampFactor),
+      coreInvariant.testGeneralWithdraw(1, amount, fromAssetCash, fromAssetLiability, ampFactor),
+    ])
+  }
+
+  // verify that quote = swapFromCredit(swapToCredit)
+  async function swapInvariant(
     fromAssetCash: BigNumberish,
     fromAssetLiability: BigNumberish,
     toAssetCash: BigNumberish,
