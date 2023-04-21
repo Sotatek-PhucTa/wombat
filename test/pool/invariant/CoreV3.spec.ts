@@ -209,9 +209,13 @@ describe('CoreV3', function () {
     amount: BigNumberish,
     ampFactor: BigNumberish
   ) {
-    return Promise.all([
+    const amountBn = BigNumber.from(amount)
+    const delta = amountBn.lt(parseEther('0.1')) ? 5 : amountBn.div(10000) // 1bps
+    await Promise.all([
       coreInvariant.testGeneralDeposit(1, amount, fromAssetCash, fromAssetLiability, ampFactor),
       coreInvariant.testGeneralWithdraw(1, amount, fromAssetCash, fromAssetLiability, ampFactor),
+      coreInvariant.testGeneralDepositWithCoverageRatio(delta, amount, fromAssetCash, fromAssetLiability, ampFactor),
+      coreInvariant.testGeneralWithdrawWithCoverageRatio(delta, amount, fromAssetCash, fromAssetLiability, ampFactor),
     ])
   }
 
