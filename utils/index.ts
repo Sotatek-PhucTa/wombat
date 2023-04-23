@@ -221,3 +221,22 @@ export async function printAssetInfo() {
     )
   )
 }
+
+export async function printVoterInfos() {
+  const voter = await getDeployedContract('Voter')
+  const length = await voter.lpTokenLength()
+  const lpTokens = await Promise.all(_.range(0, length).map((i) => voter.lpTokens(i)))
+  const infos = await Promise.all(
+    lpTokens.map(async (lpToken) => {
+      const { allocPoint, voteWeight } = await voter.weights(lpToken)
+      const asset = await ethers.getContractAt('Asset', lpToken)
+      return {
+        name: await asset.name(),
+        lpToken,
+        allocPoint: formatEther(allocPoint),
+        voteWeight: formatEther(voteWeight),
+      }
+    })
+  )
+  console.table(infos)
+}
