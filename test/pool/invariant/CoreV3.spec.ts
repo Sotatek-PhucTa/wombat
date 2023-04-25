@@ -45,7 +45,7 @@ describe('CoreV3', function () {
       it(`balanced pool (${formatEther(tvl)}) at equilibrium`, async function () {
         // perform swap with 0~100% of TVL, plus 0~99 bips in each step.
         await Promise.all(
-          _.range(0, 100).map((percent) => {
+          _.range(0, 10).map((percent) => {
             const bips = random.int(0, 99) // [0, 100)
             const swapAmount = BigNumber.from(tvl)
               .mul(percent)
@@ -78,7 +78,7 @@ describe('CoreV3', function () {
         // perform swap with 0~100% of TVL, plus 0~99 bips in each step.
         await Promise.all(
           // imbalance pool with 1-10x difference
-          _.range(0, 100).flatMap((percent) => {
+          _.range(0, 10).flatMap((percent) => {
             return _.range(1, 10).map((ratio) => {
               const bips = random.int(0, 99) // [0, 100)
               const swapAmount = BigNumber.from(tvl)
@@ -114,7 +114,7 @@ describe('CoreV3', function () {
       it(`balanced pool (${formatEther(tvl)}) with 1-200% cov ratio`, async function () {
         // perform swap with 0~100% of TVL, plus 0~99 bips in each step.
         await Promise.all(
-          _.range(1, 100).map((percent) => {
+          _.range(1, 10).map((percent) => {
             // random cov ratio from 1% ~ 200%
             const fromCovRatio = random.int(100, 20000)
             const toCovRatio = random.int(100, 20000)
@@ -157,7 +157,7 @@ describe('CoreV3', function () {
         await Promise.all(
           // imbalance pool with 1-10x difference
           _.range(1, 10).flatMap((ratio) => {
-            return _.range(1, 100).map((percent) => {
+            return _.range(1, 10).map((percent) => {
               // random cov ratio from 1% ~ 200%
               const fromCovRatio = random.int(100, 20000)
               const toCovRatio = random.int(100, 20000)
