@@ -158,6 +158,10 @@ export async function deployAssetV2(
   if (deployResult.newlyDeployed) {
     deployments.log('Configuring asset...')
 
+    if (assetContractName != 'Asset') {
+      deployments.log(`Asset relative price: ${formatEther(await asset.getRelativePrice())}`)
+    }
+
     // Remove old and add new Asset to newly-deployed Pool
     const underlyingTokens = await pool.getTokens()
     if (!underlyingTokens.includes(underlyingTokenAddr)) {

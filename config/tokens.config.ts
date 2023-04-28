@@ -102,7 +102,7 @@ const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
 const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
   ...defaultFactoryPoolConfig,
   ampFactor: parseEther('0.02'),
-  haircut: parseEther('0.001'),
+  haircut: parseEther('0.0004'),
   mintFeeThreshold: parseEther('0.01'),
   deploymentNamePrefix: 'DynamicPools',
 }
@@ -893,6 +893,28 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
   NetworkPoolInfo<IHighCovRatioFeePoolConfig>
 > = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
   [Network.BSC_MAINNET]: {
+    wBETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+      },
+      assets: {
+        wBETH: {
+          tokenName: 'Wrapped Binance Beacon ETH (wBETH)',
+          tokenSymbol: 'wBETH',
+          underlyingToken: Token.wBETH,
+          assetContractName: 'WBETHAsset',
+          oracle: ExternalContract.wBETHOracle,
+          maxSupply: parseEther('1600'),
+        },
+        ETH: {
+          tokenName: 'Binance-Peg Ethereum Token',
+          tokenSymbol: 'ETH',
+          underlyingToken: Token.ETH,
+          assetContractName: 'DynamicAsset',
+          maxSupply: parseEther('1600'),
+        },
+      },
+    },
     frxETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
@@ -1016,6 +1038,29 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.ARBITRUM_MAINNET]: {
+    jUSDC_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+      },
+      assets: {
+        jUSDC: {
+          tokenName: 'Jones USDC',
+          tokenSymbol: 'jUSDC',
+          underlyingToken: Token.jUSDC,
+          assetContractName: 'jUsdcAsset',
+          oracle: ExternalContract.jUSDCOracle,
+          maxSupply: parseEther('10000000'),
+        },
+        USDC: {
+          tokenName: 'USD Coin (Arb1)',
+          tokenSymbol: 'USDC',
+          underlyingToken: Token.USDC,
+          assetContractName: 'DynamicAsset',
+          maxSupply: parseEther('10000000'),
+        },
+      },
+    },
+
     frxETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,

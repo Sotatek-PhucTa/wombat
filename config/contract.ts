@@ -14,6 +14,8 @@ export enum ExternalContract {
   SkimAdmin,
   TenFiBribeOperator,
   WombexVeWomProxy,
+  jUSDCOracle,
+  wBETHOracle,
 }
 
 export async function getContractAddress(contract: ExternalContract): Promise<string> {
@@ -70,5 +72,13 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.WombexVeWomProxy]: {
     // https://arbiscan.io/address/0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1
     [Network.ARBITRUM_MAINNET]: Address('0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1'),
+  },
+  [ExternalContract.jUSDCOracle]: {
+    // https://arbiscan.io/address/0xEE5828181aFD52655457C2793833EbD7ccFE86Ac
+    [Network.ARBITRUM_MAINNET]: Address('0xEE5828181aFD52655457C2793833EbD7ccFE86Ac'),
+  },
+  [ExternalContract.wBETHOracle]: {
+    // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1
+    [Network.BSC_MAINNET]: Address('0xa2E3356610840701BDf5611a53974510Ae27E2e1'),
   },
 }

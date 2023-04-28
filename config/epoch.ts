@@ -4,6 +4,7 @@ export const epoch_duration_seconds = 7 * 24 * 3600 // 7 days
 export enum Epochs {
   Apr12 = atEpochStart('2023-04-12T05:55Z'),
   Apr19 = atEpochStart('2023-04-19T05:55Z'),
+  May4 = atEpochStart('2023-05-03T05:55Z'),
 }
 
 // Utility to create timestamp in seconds at the start of the epoch given by the iso string

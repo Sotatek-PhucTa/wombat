@@ -1,4 +1,5 @@
 import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
+
 import { getAddress } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 
@@ -8,6 +9,7 @@ export enum Token {
   BNBy,
   BOB,
   BUSD,
+  ETH,
   FXS,
   HAY,
   MGP,
@@ -33,11 +35,13 @@ export enum Token {
   axlUSDC,
   frxETH,
   iUSD,
+  jUSDC,
   mWOM,
   qWOM,
   sfrxETH,
   testFRAX, // TestERC20
   vUSDC,
+  wBETH,
   wmxWOM,
 }
 
@@ -72,6 +76,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.BUSD]: {
     [Network.HARDHAT]: Deployment('BUSD'),
+  },
+  [Token.ETH]: {
+    // https://bscscan.com/address/0x2170Ed0880ac9A755fd29B2688956BD959F933F8
+    [Network.BSC_MAINNET]: Address('0x2170Ed0880ac9A755fd29B2688956BD959F933F8'),
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share
@@ -185,6 +193,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/izumi-bond-usd
     [Network.BSC_MAINNET]: Address('0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D'),
   },
+  [Token.jUSDC]: {
+    // https://arbiscan.io/address/0xe66998533a1992ecE9eA99cDf47686F4fc8458E0
+    [Network.ARBITRUM_MAINNET]: Address('0xe66998533a1992ecE9eA99cDf47686F4fc8458E0'),
+  },
   [Token.mWOM]: {
     // https://bscscan.com/address/0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c
     [Network.BSC_MAINNET]: Address('0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c'),
@@ -208,6 +220,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.vUSDC]: {
     [Network.HARDHAT]: Deployment('vUSDC'),
+  },
+  [Token.wBETH]: {
+    // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1
+    [Network.BSC_MAINNET]: Address('0xa2E3356610840701BDf5611a53974510Ae27E2e1'),
   },
   [Token.wmxWOM]: {
     // https://bscscan.com/address/0x0415023846Ff1C6016c4d9621de12b24B2402979
