@@ -8,6 +8,7 @@ export enum ExternalContract {
   AnkrBribeOperator,
   BNByOracle,
   FraxBribeOperator,
+  JonesDaoBribeOperator,
   MagpieVeWomProxy,
   QuollBribeOperator,
   QuollVeWomProxy,
@@ -51,6 +52,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.FraxBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
     [Network.ARBITRUM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
+  },
+  [ExternalContract.JonesDaoBribeOperator]: {
+    [Network.ARBITRUM_MAINNET]: Address('0xDD0556DDCFE7CdaB3540E7F09cB366f498d90774'),
   },
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc

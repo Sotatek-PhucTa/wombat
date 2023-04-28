@@ -11,6 +11,7 @@ export enum Token {
   ETH,
   FXS,
   HAY,
+  JONES,
   MGP,
   MIM,
   PSTAKE,
@@ -88,6 +89,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.HAY]: {
     // https://www.coingecko.com/en/coins/destablecoin-hay
     [Network.BSC_MAINNET]: Address('0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5'),
+  },
+  [Token.JONES]: {
+    // https://www.coingecko.com/en/coins/jones-dao
+    [Network.ARBITRUM_MAINNET]: Address('0x10393c20975cf177a3513071bc110f7962cd67da'),
   },
   [Token.MGP]: {
     // https://www.coingecko.com/en/coins/magpie

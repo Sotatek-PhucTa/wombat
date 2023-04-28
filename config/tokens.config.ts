@@ -1554,6 +1554,16 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.FXS],
       operator: ExternalContract.FraxBribeOperator,
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_jUSDC_Pool_jUSDC', {
+      startTimestamp: Epochs.May4,
+      rewardTokens: [Token.USDC],
+      operator: ExternalContract.JonesDaoBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_jUSDC_Pool_USDC', {
+      startTimestamp: Epochs.May4,
+      rewardTokens: [Token.USDC],
+      operator: ExternalContract.JonesDaoBribeOperator,
+    }),
   },
 })
 
