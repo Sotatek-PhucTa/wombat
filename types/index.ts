@@ -14,6 +14,8 @@ export enum Network {
   AVALANCHE_TESTNET = 'avax_testnet',
   ARBITRUM_MAINNET = 'arbitrum_mainnet',
   ARBITRUM_TESTNET = 'arbitrum_testnet',
+  OPTIMISM_MAINNET = 'opt_mainnet',
+  OPTIMISM_TESTNET = 'opt_testnet',
 }
 
 export interface DeploymentOrAddress {

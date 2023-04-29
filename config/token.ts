@@ -1,5 +1,4 @@
-import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
-
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
 import { getAddress } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 
@@ -141,6 +140,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.USDC]: {
     // https://www.coingecko.com/en/coins/usd-coin
     [Network.ARBITRUM_MAINNET]: Address('0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'),
+    [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
   },
   [Token.USDPlus]: {
     // https://www.coingecko.com/en/coins/usdplus
@@ -152,6 +152,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/tether
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),
+    [Network.OPTIMISM_MAINNET]: Address('0x94b008aA00579c1307B0EF2c499aD98a8ce58e58'),
   },
   [Token.USDTPlus]: {
     // not yet on coingecko.
@@ -165,6 +166,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.WETH]: {
     // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
     [Network.ARBITRUM_MAINNET]: Address('0x82af49447d8a07e3bd95bd0d56f35241523fbab1'),
+    // https://optimistic.etherscan.io/token/0x4200000000000000000000000000000000000006
+    [Network.OPTIMISM_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
   },
   [Token.WMX]: {
     // https://www.coingecko.com/en/coins/wombex
@@ -176,6 +179,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.HARDHAT]: Deployment('WombatToken'),
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
+    [Network.OPTIMISM_MAINNET]: Unknown(),
   },
   [Token.ankrBNB]: {
     // https://bscscan.com/address/0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827

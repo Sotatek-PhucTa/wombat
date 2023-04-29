@@ -61,6 +61,16 @@ const config: HardhatUserConfig = {
       url: 'https://goerli-rollup.arbitrum.io/rpc',
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
     },
+    [Network.OPTIMISM_MAINNET]: {
+      chainId: 10,
+      url: 'https://mainnet.optimism.io',
+      accounts: [secrets.deployer.privateKey],
+    },
+    [Network.OPTIMISM_TESTNET]: {
+      chainId: 69,
+      url: 'https://kovan.optimism.io',
+      accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
+    },
   },
   etherscan: {
     apiKey: {
@@ -128,6 +138,7 @@ const config: HardhatUserConfig = {
       [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       [Network.BSC_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
       [Network.ARBITRUM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
+      [Network.OPTIMISM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
     },
     user1: {
       default: 1,
@@ -141,6 +152,8 @@ const config: HardhatUserConfig = {
       [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452', // same as deployer
       [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
+      // TODO: create gnosis multi-sig safe for OPT
+      [Network.OPTIMISM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
     },
   },
   docgen: {

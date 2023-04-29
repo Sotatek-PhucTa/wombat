@@ -36,6 +36,7 @@ export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetw
   [Network.POLYGON_MAINNET]: Unknown(),
   [Network.POLYGON_TESTNET]: Unknown(),
   [Network.AVALANCHE_TESTNET]: Address('0xa15E4544D141aa98C4581a1EA10Eb9048c3b3382'),
+  [Network.OPTIMISM_MAINNET]: Unknown(),
 }) as Record<Network, DeploymentOrAddress>
 
 export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
@@ -48,6 +49,8 @@ export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetw
   [Network.AVALANCHE_TESTNET]: '0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3',
   [Network.ARBITRUM_MAINNET]: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
   [Network.ARBITRUM_TESTNET]: '0xDa01302C86ECcd5bc94c1086777acF3c3Af7EF63',
+  [Network.OPTIMISM_MAINNET]: '0x4200000000000000000000000000000000000006',
+  [Network.OPTIMISM_TESTNET]: ethers.constants.AddressZero,
 }) as Record<Network, string>
 
 function defaultRewarder(): IRewarder {
@@ -77,6 +80,18 @@ function sfrxETHGovernedPriceFeed(): GovernedPriceFeed {
     initialPrice: parseEther('1.0342029648225833'),
     maxDeviation: parseEther('0.01'),
   }
+}
+
+const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
+  ampFactor: parseEther('0.002'),
+  haircut: parseEther('0.0001'),
+  mintFeeThreshold: parseEther('10'),
+  startCovRatio: parseEther('5'),
+  endCovRatio: parseEther('10'),
+  lpDividendRatio: parseEther('0.5'),
+  retentionRatio: parseEther('0.5'),
+  deploymentNamePrefix: '',
+  supportNativeToken: false,
 }
 
 const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
@@ -882,6 +897,27 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
           tokenName: 'Wombat Token',
           tokenSymbol: 'WOM',
           underlyingTokenAddr: '0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96',
+        },
+      },
+    },
+  },
+  [Network.OPTIMISM_MAINNET]: {
+    Main_Pool: {
+      setting: {
+        ...defaultMainPoolConfig,
+      },
+      assets: {
+        USDC: {
+          tokenName: 'USD Coin',
+          tokenSymbol: 'USDC',
+          underlyingToken: Token.USDC,
+          maxSupply: parseUnits('1000000', 6),
+        },
+        USDT: {
+          tokenName: 'Tether USD',
+          tokenSymbol: 'USDT',
+          underlyingToken: Token.USDT,
+          maxSupply: parseUnits('1000000', 6),
         },
       },
     },

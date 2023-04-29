@@ -2,7 +2,7 @@ import { parseEther } from '@ethersproject/units'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeploymentsExtension } from 'hardhat-deploy/types'
-import { logVerifyCommand } from '../utils'
+import { confirmTxn, logVerifyCommand } from '../utils'
 
 const contractName = 'Pool'
 
@@ -53,18 +53,15 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     // transfer pool contract dev to Gnosis Safe
     deployments.log(`Transferring dev of ${deployResult.address} to ${multisig}...`)
     // The dev of the pool contract can pause and unpause pools & assets!
-    const setDevTxn = await contract.connect(owner).setDev(multisig)
-    await setDevTxn.wait()
+    await confirmTxn(contract.connect(owner).setDev(multisig))
     deployments.log(`Transferred dev of ${deployResult.address} to:`, multisig)
 
     /// Admin scripts
     deployments.log(`setFee to 0 for lpDividendRatio and ${10 ** 18} for retentionRatio...`)
-    const setFeeTxn = await contract.connect(owner).setFee(0, parseEther('1'))
-    await setFeeTxn.wait()
+    await confirmTxn(contract.connect(owner).setFee(0, parseEther('1')))
 
     deployments.log(`setMintFeeThreshold to ${10000 ** 18}...`)
-    const setMintFeeThresholdTxn = await contract.connect(owner).setMintFeeThreshold(parseEther('1000'))
-    await setMintFeeThresholdTxn.wait()
+    await confirmTxn(contract.connect(owner).setMintFeeThreshold(parseEther('1000')))
 
     logVerifyCommand(hre.network.name, deployResult)
     return deployResult
