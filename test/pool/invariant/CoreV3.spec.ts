@@ -45,7 +45,8 @@ describe('CoreV3', function () {
       it(`balanced pool (${formatEther(tvl)}) at equilibrium`, async function () {
         // perform swap with 0~100% of TVL, plus 0~99 bips in each step.
         await Promise.all(
-          _.range(0, 10).map((percent) => {
+          _.times(10).map(() => {
+            const percent = random.int(1, 99) // [1, 100)
             const bips = random.int(0, 99) // [0, 100)
             const swapAmount = BigNumber.from(tvl)
               .mul(percent)
@@ -78,7 +79,8 @@ describe('CoreV3', function () {
         // perform swap with 0~100% of TVL, plus 0~99 bips in each step.
         await Promise.all(
           // imbalance pool with 1-10x difference
-          _.range(0, 10).flatMap((percent) => {
+          _.times(10).flatMap(() => {
+            const percent = random.int(1, 99) // [1, 100)
             return _.range(1, 10).map((ratio) => {
               const bips = random.int(0, 99) // [0, 100)
               const swapAmount = BigNumber.from(tvl)
@@ -114,7 +116,8 @@ describe('CoreV3', function () {
       it(`balanced pool (${formatEther(tvl)}) with 1-200% cov ratio`, async function () {
         // perform swap with 0~100% of TVL, plus 0~99 bips in each step.
         await Promise.all(
-          _.range(1, 10).map((percent) => {
+          _.times(10).map(() => {
+            const percent = random.int(1, 99) // [1, 100)
             // random cov ratio from 1% ~ 200%
             const fromCovRatio = random.int(100, 20000)
             const toCovRatio = random.int(100, 20000)
@@ -157,7 +160,8 @@ describe('CoreV3', function () {
         await Promise.all(
           // imbalance pool with 1-10x difference
           _.range(1, 10).flatMap((ratio) => {
-            return _.range(1, 10).map((percent) => {
+            return _.times(10).map(() => {
+              const percent = random.int(1, 99) // [1, 100)
               // random cov ratio from 1% ~ 200%
               const fromCovRatio = random.int(100, 20000)
               const toCovRatio = random.int(100, 20000)
@@ -200,7 +204,11 @@ describe('CoreV3', function () {
       swapInvariant(fromAssetCash, fromAssetLiability, toAssetCash, toAssetLiability, swapAmount, ampFactor),
       // Only verify the from side since caller already inverts parameters.
       depositWithdrawInvariant(fromAssetCash, fromAssetLiability, swapAmount, ampFactor),
-    ])
+    ]).catch((err) => {
+      const parameters = [fromAssetCash, fromAssetLiability, toAssetCash, toAssetLiability, swapAmount, ampFactor]
+      console.log(`Invariant failed with parameters: [${parameters.join(', ')}]`)
+      throw err
+    })
   }
 
   async function depositWithdrawInvariant(
@@ -211,7 +219,7 @@ describe('CoreV3', function () {
   ) {
     const amountBn = BigNumber.from(amount)
     const delta = amountBn.lt(parseEther('0.1')) ? 5 : amountBn.div(10000) // 1bps
-    await Promise.all([
+    return Promise.all([
       coreInvariant.testGeneralDeposit(1, amount, fromAssetCash, fromAssetLiability, ampFactor),
       coreInvariant.testGeneralWithdraw(1, amount, fromAssetCash, fromAssetLiability, ampFactor),
       coreInvariant.testGeneralDepositWithCoverageRatio(delta, amount, fromAssetCash, fromAssetLiability, ampFactor),
@@ -234,18 +242,8 @@ describe('CoreV3', function () {
       core.swapQuoteFunc(fromAssetCash, toAssetCash, fromAssetLiability, toAssetLiability, swapAmount, ampFactor),
     ])
     const quoteFromCredit = await core.swapFromCreditQuote(toAssetCash, toAssetLiability, credit, ampFactor)
-
-    // error message for reproducibility
-    const parameters = [
-      fromAssetCash,
-      fromAssetLiability,
-      fromAssetCash,
-      fromAssetLiability,
-      swapAmount,
-      ampFactor,
-    ].join(',')
     // expect absolute delta when quote is small; else relative.
     const delta = quote.lt(parseEther('0.1')) ? 5 : quote.div(10000) // 1bps
-    expect(quoteFromCredit, `invariant failed for (${parameters}) quoteFromCredit`).to.be.closeTo(quote, delta)
+    expect(quoteFromCredit).to.be.closeTo(quote, delta)
   }
 })
