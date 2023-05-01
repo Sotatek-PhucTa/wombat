@@ -335,6 +335,13 @@ To verify proxy contracts:
   - Bribe_Asset_FRAX_Pool_USD+ => `0x5Fb5225FeA83440B8f764639D9b6309E56562F54`
   - MultiRewarderPerSec_V3_Asset_FRAX_Pool_USDC => `0xa9a08133af8241e36193b57E4dFE43D147Cd23cC`
 
+- jUSDC Pool
+  - Pool Proxy (DynamicV2) => ` 0xc7a6bA5F28993BaDb566007bD2E0CB253c431974`
+  - Asset_jUSDC_Pool_jUSDC => ` 0xde509fE1555ab907E5C29f987ba0BE1AC0626dAe`
+  - Asset_jUSDC_Pool_USDC => ` 0x4688300D46eF400C3506a165d5bDCa6A51350978`
+  - Bribe_Asset_jUSDC_Pool_jUSDC => ` 0xF760094A46bC456a1e3fd0A00ccf98108f9B35D0`
+  - Bribe_Asset_jUSDC_Pool_USDC => ` 0x19f477e5864Fec9Cc8f91Fd9F6eD71F6ce13d3b3`
+
 ### BSC testnet deployed contracts:
 
 - BSC Wallet Accounts
