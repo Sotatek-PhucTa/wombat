@@ -4,3 +4,7 @@ import { epoch_duration_seconds } from './epoch'
 export function convertTokenPerEpochToTokenPerSec(reward: BigNumberish): BigNumber {
   return BigNumber.from(reward).div(epoch_duration_seconds)
 }
+
+export function convertTokenPerMonthToTokenPerSec(reward: BigNumberish): BigNumber {
+  return BigNumber.from(reward).div(30 * 24 * 3600)
+}
