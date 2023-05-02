@@ -20,7 +20,7 @@ import {
   TokenMap,
   Unknown,
 } from '../types'
-import { Token } from './token'
+import { Token, tokenRegistry } from './token'
 import { ExternalContract } from './contract'
 import { Epochs } from './epoch'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
@@ -973,8 +973,30 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ETH: {
           tokenName: 'Binance-Peg Ethereum Token',
           tokenSymbol: 'ETH',
-          underlyingTokenAddr: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
+          underlyingToken: Token.ETH,
           assetContractName: 'DynamicAsset',
+        },
+      },
+    },
+    ankrETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+      },
+      assets: {
+        ankrETH: {
+          tokenName: 'Ankr Staked ETH',
+          tokenSymbol: 'ankrETH',
+          underlyingToken: Token.ankrETH,
+          assetContractName: 'AnkrStakingAsset',
+          oracleAddress: '0xe05a08226c49b636acf99c40da8dc6af83ce5bb3', // TODO: replace with one from token registry
+          maxSupply: parseEther('1600'),
+        },
+        ETH: {
+          tokenName: 'Binance-Peg Ethereum Token',
+          tokenSymbol: 'ETH',
+          underlyingToken: Token.ETH,
+          assetContractName: 'DynamicAsset',
+          maxSupply: parseEther('1600'),
         },
       },
     },

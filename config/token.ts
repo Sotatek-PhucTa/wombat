@@ -4,6 +4,7 @@ import { getCurrentNetwork } from '../types/network'
 
 // style note: sort alphabetically.
 export enum Token {
+  ankrETH,
   ANKR,
   BNBy,
   BOB,
@@ -61,6 +62,10 @@ export async function getTokenAddress(token: Token): Promise<string> {
 
 // registry of token address. Used by getTokenAddress only. Do not export.
 const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> = {
+  [Token.ankrETH]: {
+    // https://bscscan.com/address/0xe05a08226c49b636acf99c40da8dc6af83ce5bb3
+    [Network.BSC_MAINNET]: Address('0xe05a08226c49b636acf99c40da8dc6af83ce5bb3'),
+  },
   [Token.ANKR]: {
     // https://www.coingecko.com/en/coins/ankr-network
     [Network.BSC_MAINNET]: Address('0xf307910a4c7bbc79691fd374889b36d8531b08e3'),

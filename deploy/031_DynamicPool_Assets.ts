@@ -47,6 +47,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     } else {
       throw new Error(`Unknown owner: ${await pool.owner()} who is not multisig nor deployer`)
     }
+
+    deployments.log('') // line break
   }
 }
 
