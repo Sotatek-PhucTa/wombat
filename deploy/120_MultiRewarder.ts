@@ -6,6 +6,7 @@ import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, logVer
 import { Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
+import { getContractAddressOrDefault } from '../config/contract'
 
 const contractName = 'MultiRewarderPerSec'
 
@@ -36,7 +37,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       args: [masterWombat.address, lpTokenAddress, startTimestamp, rewardTokens[0], rewarderConfig.tokenPerSec[0]],
     })
     const address = deployResult.address
-    const contract = await ethers.getContractAt(contractName, address)
 
     if (deployResult.newlyDeployed) {
       /// Add remaining reward tokens
@@ -47,12 +47,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         await confirmTxn(rewarder.connect(owner).addRewardToken(address, rewarderConfig.tokenPerSec[i]))
       }
 
-      deployments.log(`Transferring operator of ${deployResult.address} to ${owner.address}...`)
+      const rewarder = await ethers.getContractAt(contractName, address)
+      const operator = await getContractAddressOrDefault(rewarderConfig.operator, deployer)
+      deployments.log(`Transferring operator of ${deployResult.address} to ${operator}...`)
       // The operator of the rewarder contract can set and update reward rates
-      await confirmTxn(contract.connect(owner).setOperator(owner.address))
+      await confirmTxn(rewarder.connect(owner).setOperator(owner.address))
       deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the rewarder contract can add new reward tokens and withdraw them
-      await confirmTxn(contract.connect(owner).transferOwnership(multisig))
+      await confirmTxn(rewarder.connect(owner).transferOwnership(multisig))
       deployments.log(`${name} Deployment complete.`)
     }
 
