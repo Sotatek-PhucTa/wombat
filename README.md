@@ -168,6 +168,8 @@ To verify proxy contracts:
   - Asset_wmxWOMPool_WOM (LP-WOM) => `0xF9BdC872D75f76B946E0770f96851b1f2F653caC`
   - Bribe_wmxWom => `0x08401FDb51D7C53e5A1Ee22186f030354B8880eD`
   - Bribe_wmxWOMPool_WOM => `0xE2a60C52C4abB9fbc3f711da3cb9E633269DBC67`
+  - MultiRewarderPerSec_V3_Asset_wmxWOMPool_WOM => `0x83BC718359D5C950618b4E85e1237c42C67d20f8`
+  - MultiRewarderPerSec_V3_Asset_wmxWOMPool_wmxWom => `0xB06B2eec4439f0e057D540845d033998DF1828b2`
 
 - mWOM Side Pool (WOM-mWom)
   - Pool Proxy (Main entry) => `0x083640c5dBD5a8dDc30100FB09B45901e12f9f55`
@@ -175,14 +177,17 @@ To verify proxy contracts:
   - Asset_mWOMPool_WOM (LP-WOM) => `0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2`
   - Bribe_mWOM => `0x7DC7E908427ab2C737A827cDc8069fF002489649`
   - Bribe_mWOMPool_WOM => `0x5E5dCBa266AB4c999889421C001b93b899d3092a`
+  - MultiRewarderPerSec_V3_Asset_mWOMPool_WOM => `0xc4B2F992496376C6127e73F1211450322E580668`
+  - MultiRewarderPerSec_V3_Asset_mWOMPool_mWOM => `0xEfdEC25602Ee8358278f3f5cFa0230C4bDD5fC5F`
 
 - qWOM Side Pool (WOM-qWom)
-
   - Pool Proxy (Main entry) => `0x2c5464b9052319e3d76f8279031f04e4B7fd7955`
   - Asset_qWOMPool_qWOM (LP-qWOM) => `0x87073ba87517E7ca981AaE3636754bCA95C120E4`
   - Asset_qWOMPool_WOM (LP-WOM) => `0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8`
   - Bribe_qWOM => `0x7F95D391e5F1A4B0a265e40Bf588739BEa2202c4`
   - Bribe_qWOMPool_WOM => `0xcf2e56E086fcD21eaB3614A5A78c8Ae27c2F0536`
+  - MultiRewarderPerSec_V3_Asset_qWOMPool_WOM => `0xA2Ccca1D89D5d4098265CEf9674D65Cb9B642d96`
+  - MultiRewarderPerSec_V3_Asset_qWOMPool_qWOM => `0x5f027adF7eFFB310297fF78e2FB73D2B9626653c`
 
 - MIM Pool
 
@@ -297,6 +302,8 @@ To verify proxy contracts:
   - Asset_mWOM_Pool_WOM (LP-WOM) => `0x59d8DCA660b71Ba97a16f781A40809a0fC350769`
   - Bribe_Asset_mWOM_Pool_mWOM => `0x259ccd824d4162f41D8BB52e56B15445a21a33Ee`
   - Bribe_Asset_mWOM_Pool_WOM => `0x096f99AF43B96e87659668A5f9397FeC724D7B24`
+  - MultiRewarderPerSec_V3_Asset_mWOM_Pool_WOM => `0xF01d86db93674E37d90A702499f962Aa505ff081`
+  - MultiRewarderPerSec_V3_Asset_mWOM_Pool_mWOM => `0xf9cDC1cc73bA10eCC138948E140aF64F958CFCF6`
 
 - wmxWom Pool
   - Pool Proxy (HighCovRatioFeePoolV2) => `0xEE9b42b40852a53c7361F527e638B485D49750cD`
@@ -304,6 +311,8 @@ To verify proxy contracts:
   - Asset_wmxWOM_Pool_WOM (LP-WOM) => `0xB1Ad5C2573867E8157deD08d065fc761d606C3D9`
   - Bribe_Asset_wmxWOM_Pool_wmxWOM => `0x3324303607b0Fbc2f59E045612eE34C08C7AE41e`
   - Bribe_Asset_wmxWOM_Pool_WOM => `0x6f70C8832a8661113b935453835f20b0C46ae695`
+  - MultiRewarderPerSec_V3_Asset_wmxWOM_Pool_WOM => `0x6569DDC1Cc2648c89BC8025046A7dd65EB8940F3`
+  - MultiRewarderPerSec_V3_Asset_wmxWOM_Pool_wmxWOM => `0xeB87bF23030F2390E8822249e962cdfBFC8Bc480`
 
 - qWom Pool
   - Pool Proxy (HighCovRatioFeePoolV2) => `0x12Fa5AB079CFf564d599466d39715D35d90Af978`
