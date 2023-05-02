@@ -1,4 +1,4 @@
-import { Address, DeploymentOrAddress, Network, PartialRecord } from '../types'
+import { Address, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
 import { getCurrentNetwork } from '../types/network'
 import { getAddress } from '../utils'
 
@@ -9,11 +9,13 @@ export enum ExternalContract {
   BNByOracle,
   FraxBribeOperator,
   JonesDaoBribeOperator,
+  MagpieBribeOperator,
   MagpieVeWomProxy,
   QuollBribeOperator,
   QuollVeWomProxy,
   SkimAdmin,
   TenFiBribeOperator,
+  WombexBribeOperator,
   WombexVeWomProxy,
   jUSDCOracle,
   wBETHOracle,
@@ -56,11 +58,16 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.JonesDaoBribeOperator]: {
     [Network.ARBITRUM_MAINNET]: Address('0xDD0556DDCFE7CdaB3540E7F09cB366f498d90774'),
   },
+  [ExternalContract.MagpieBribeOperator]: {
+    [Network.BSC_MAINNET]: Address('0xf433c2A2D6FACeCDd9Edd7B8cE9cEaaB96F41866'),
+    [Network.ARBITRUM_MAINNET]: Address('0xf433c2A2D6FACeCDd9Edd7B8cE9cEaaB96F41866'),
+  },
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
     [Network.ARBITRUM_MAINNET]: Address('0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc'),
   },
   [ExternalContract.QuollBribeOperator]: {
+    [Network.BSC_MAINNET]: Address('0x20A62EDcE0e18683D081744b1789A614d1De6397'),
     [Network.ARBITRUM_MAINNET]: Address('0x20A62EDcE0e18683D081744b1789A614d1De6397'),
   },
   [ExternalContract.QuollVeWomProxy]: {
@@ -72,6 +79,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   },
   [ExternalContract.TenFiBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x393c7c3ebcbff2c1138d123df5827e215458f0c4'),
+  },
+  [ExternalContract.WombexBribeOperator]: {
+    [Network.BSC_MAINNET]: Address('0x35d32110d9a6f02d403061c851618756b3bc597f'),
+    [Network.ARBITRUM_MAINNET]: Address('0x7429A2e8dC807c9e13Bb65edb335D6E01051aE64'),
   },
   [ExternalContract.WombexVeWomProxy]: {
     // https://arbiscan.io/address/0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1
