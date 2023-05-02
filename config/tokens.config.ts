@@ -1139,7 +1139,7 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       tokenPerSec: [parseEther('12.3'), parseEther('100')],
     }),
   },
-  bsc_mainnet: {
+  [Network.BSC_MAINNET]: {
     HAY: {
       ...defaultRewarder(),
       lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // HAY-LP
@@ -1214,8 +1214,38 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       lpToken: Address('0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E'),
       rewardTokens: [Token.WOM],
     },
+    ...createBribeConfigFromDeployedAsset('Asset_qWOMPool_WOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.QUO],
+      operator: ExternalContract.QuollBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_qWOMPool_qWOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.QUO],
+      operator: ExternalContract.QuollBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_mWOMPool_WOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.MGP],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_mWOMPool_mWOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.MGP],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wmxWOMPool_WOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.WMX],
+      operator: ExternalContract.WombexBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wmxWOMPool_wmxWom', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.WMX],
+      operator: ExternalContract.WombexBribeOperator,
+    }),
   },
-  bsc_testnet: {
+  [Network.BSC_TESTNET]: {
     BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'),
@@ -1287,6 +1317,26 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       rewardTokens: [Token.QUO],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('60000'))],
       operator: ExternalContract.QuollBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_WOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.MGP],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_mWOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.MGP],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_WOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.WMX],
+      operator: ExternalContract.WombexBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
+      startTimestamp: Epochs.May3,
+      rewardTokens: [Token.WMX],
+      operator: ExternalContract.WombexBribeOperator,
     }),
   },
 })
