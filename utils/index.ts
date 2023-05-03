@@ -1,7 +1,7 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { BigNumber, Contract } from 'ethers'
-import { formatEther } from 'ethers/lib/utils'
+import { BigNumber, BigNumberish, Contract } from 'ethers'
+import { formatEther, formatUnits } from 'ethers/lib/utils'
 import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
@@ -9,6 +9,7 @@ import _ from 'lodash'
 import { DeploymentOrAddress, IAssetInfo } from '../types'
 import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3 } from '../build/typechain'
+import { epoch_duration_seconds } from '../config/epoch'
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Promise<string> {
   if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
@@ -132,28 +133,38 @@ export async function printMultiRewarderV3Balances() {
 
 export async function printBribeBalances() {
   const names = Object.keys(await deployments.all()).filter((name) => name.includes('Bribe'))
-
-  return Promise.all(
-    names.map(async (name) => {
+  const data = await Promise.all(
+    names.flatMap(async (name) => {
       const contract = await getDeployedContract('Bribe', name)
-      const balances = await contract.balances()
-      const tokens = await contract.rewardTokens()
-      const decimals = await Promise.all(
-        tokens.map(async (address: string) => {
-          const token = await ethers.getContractAt('ERC20', address)
-          return token.decimals()
+      const lpToken = await contract.lpToken()
+
+      const rewardInfos = await Promise.all(
+        _.range(0, await contract.rewardLength()).map(async (i) => {
+          const { rewardToken, tokenPerSec } = await contract.rewardInfo(i)
+          const token = await ethers.getContractAt('ERC20', rewardToken)
+          const decimals = await token.decimals()
+          const balance = await token.balanceOf(contract.address)
+          const daysLeft = !tokenPerSec.isZero() ? balance.div(tokenPerSec).toNumber() / (24 * 3600) : NaN
+          return {
+            symbol: await token.symbol(),
+            tokenPerEpoch: formatUnits(tokenPerSec.mul(epoch_duration_seconds), decimals),
+            daysLeft,
+            balance: formatUnits(balance, decimals),
+          }
         })
       )
-      return {
-        rewarder: name,
-        rewarderAddress: contract.address,
-        lpToken: await contract.lpToken(),
-        balances: balances.map((balance: BigNumber) => formatEther(balance)),
-        rewardTokens: tokens,
-        decimals,
-      }
+
+      return rewardInfos.map((info) => {
+        return {
+          rewarder: name,
+          ...info,
+          rewarderAddress: contract.address,
+          lpToken,
+        }
+      })
     })
   )
+  console.table(data.flat())
 }
 
 function printBigNumber(num: BigNumber) {
