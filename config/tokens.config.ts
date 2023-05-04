@@ -20,10 +20,10 @@ import {
   TokenMap,
   Unknown,
 } from '../types'
-import { Token, tokenRegistry } from './token'
 import { ExternalContract } from './contract'
-import { Epochs } from './epoch'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
+import { Epochs } from './epoch'
+import { Token } from './token'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -83,7 +83,7 @@ function sfrxETHGovernedPriceFeed(): GovernedPriceFeed {
 }
 
 const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
-  ampFactor: parseEther('0.001'),
+  ampFactor: parseEther('0.00025'),
   haircut: parseEther('0.0001'),
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('5'),
@@ -96,7 +96,7 @@ const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
 
 const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
   ampFactor: parseEther('0.0025'),
-  haircut: parseEther('0.0004'),
+  haircut: parseEther('0.0001'),
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('1.5'),
   endCovRatio: parseEther('1.8'),
@@ -109,9 +109,11 @@ const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
 const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
   ...defaultFactoryPoolConfig,
   ampFactor: parseEther('0.1'),
-  haircut: parseEther('0.0025'),
+  haircut: parseEther('0.0020'),
   mintFeeThreshold: parseEther('55.5555555556'),
   deploymentNamePrefix: 'WomSidePools',
+  startCovRatio: parseEther('2'),
+  endCovRatio: parseEther('2.5'),
 }
 
 const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
@@ -123,8 +125,8 @@ const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
 }
 
 const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
-  ampFactor: parseEther('0.005'),
-  haircut: parseEther('0.0004'),
+  ampFactor: parseEther('0.00025'),
+  haircut: parseEther('0.0001'),
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('1.5'),
   endCovRatio: parseEther('1.8'),
@@ -333,8 +335,6 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     stables_01: {
       setting: {
         ...defaultFactoryPoolConfig,
-        haircut: parseEther('0.0003'),
-        mintFeeThreshold: parseEther('0.6'),
       },
       assets: {
         BUSD: {
@@ -358,9 +358,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     SidePool_01: {
       setting: {
         ...defaultFactoryPoolConfig,
-        haircut: parseEther('0.0002'),
         deploymentNamePrefix: '',
-        mintFeeThreshold: parseEther('0.45'),
       },
       assets: {
         BUSD: {
@@ -497,7 +495,6 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     MIM_Pool: {
       setting: {
         ...defaultFactoryPoolConfig,
-        mintFeeThreshold: parseEther('10'),
       },
       assets: {
         MIM: {
@@ -515,6 +512,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     wmxWOMPool: {
       setting: {
         ...defaultWomPoolConfig,
+        haircut: parseEther('0.0001'),
       },
       assets: {
         WOM: {
@@ -532,6 +530,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     mWOMPool: {
       setting: {
         ...defaultWomPoolConfig,
+        haircut: parseEther('0.0001'),
       },
       assets: {
         WOM: {
@@ -549,6 +548,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     qWOMPool: {
       setting: {
         ...defaultWomPoolConfig,
+        haircut: parseEther('0.0001'),
       },
       assets: {
         WOM: {
@@ -590,7 +590,6 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     SidePool_01: {
       setting: {
         ...defaultFactoryPoolConfig,
-        haircut: parseEther('0.0003'),
         deploymentNamePrefix: '',
       },
       assets: {
@@ -789,6 +788,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     MIM_Pool: {
       setting: {
         ...defaultFactoryPoolConfig,
+        startCovRatio: parseEther('5'),
+        endCovRatio: parseEther('10'),
       },
       assets: {
         MIM: {
@@ -852,6 +853,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     mWOM_Pool: {
       setting: {
         ...defaultWomPoolConfig,
+        startCovRatio: parseEther('1.5'),
+        endCovRatio: parseEther('1.8'),
       },
       assets: {
         mWOM: {
@@ -869,6 +872,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     wmxWOM_Pool: {
       setting: {
         ...defaultWomPoolConfig,
+        startCovRatio: parseEther('1.5'),
+        endCovRatio: parseEther('1.8'),
       },
       assets: {
         wmxWOM: {
@@ -886,6 +891,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     qWOM_Pool: {
       setting: {
         ...defaultWomPoolConfig,
+        startCovRatio: parseEther('1.5'),
+        endCovRatio: parseEther('1.8'),
       },
       assets: {
         qWOM: {
@@ -932,6 +939,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     wBETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
       },
       assets: {
         wBETH: {
@@ -954,6 +962,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     frxETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
       },
       assets: {
         sfrxETH: {
@@ -981,6 +990,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     ankrETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
       },
       assets: {
         ankrETH: {
@@ -1003,6 +1013,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     BnbxPool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
         mintFeeThreshold: parseEther('0.00666666666'),
         deploymentNamePrefix: '',
         supportNativeToken: true,
@@ -1026,6 +1037,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     StkBnbPool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
         mintFeeThreshold: parseEther('0.00333333333'),
         deploymentNamePrefix: '',
         supportNativeToken: true,
@@ -1049,6 +1061,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     AnkrBNBPool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
         mintFeeThreshold: parseEther('0.03'),
         deploymentNamePrefix: '',
         supportNativeToken: true,
@@ -1072,6 +1085,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     BNBy_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
         mintFeeThreshold: parseEther('0.03'),
         deploymentNamePrefix: '',
         supportNativeToken: true,
@@ -1099,6 +1113,9 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     jUSDC_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
+        ampFactor: parseEther('0.0025'),
+        mintFeeThreshold: parseEther('10'),
       },
       assets: {
         jUSDC: {

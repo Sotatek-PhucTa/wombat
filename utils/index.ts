@@ -8,6 +8,7 @@ import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
 import { DeploymentOrAddress, IAssetInfo } from '../types'
 import { getTokenAddress } from '../config/token'
+import { HighCovRatioFeePoolV3 } from '../build/typechain'
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Promise<string> {
   if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
@@ -160,20 +161,37 @@ function printBigNumber(num: BigNumber) {
 }
 
 // print pool's ampFactor and haircut
+const deprecatedPools = ['DynamicPool_01_Proxy']
 export async function printDeployedPoolsArgs() {
-  const pools = Object.keys(await deployments.all()).filter((name) => name.includes('Pool') && name.includes('Proxy'))
+  const pools = Object.keys(await deployments.all()).filter(
+    (name) => name.includes('Pool') && name.includes('Proxy') && !deprecatedPools.includes(name)
+  )
   const data = await Promise.all(
     pools.map(async (name) => {
-      const pool = await getDeployedContract('Pool', name)
+      const pool = (await getDeployedContract('HighCovRatioFeePoolV3', name)) as HighCovRatioFeePoolV3
+      let startCovRatio
+      let endCovRatio
+      try {
+        startCovRatio = printBigNumber(await pool.startCovRatio())
+        endCovRatio = printBigNumber(await pool.endCovRatio())
+      } catch (e) {
+        startCovRatio = 'N/A'
+        endCovRatio = 'N/A'
+      }
       return {
-        name,
+        name: name.slice(0, -6),
         pool: pool.address,
         ampFactor: printBigNumber(await pool.ampFactor()),
         haircut: printBigNumber(await pool.haircutRate()),
+        feeThshl: printBigNumber(await pool.mintFeeThreshold()),
+        startCR: startCovRatio,
+        endCR: endCovRatio,
       }
     })
   )
-  console.table(data)
+
+  // sort by amp. factor
+  console.table(data.sort((x, y) => x.ampFactor - y.ampFactor))
 }
 
 export async function validateUpgrade(oldContract: string, newContract: string, opts?: ValidationOptions) {
