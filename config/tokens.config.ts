@@ -83,7 +83,7 @@ function sfrxETHGovernedPriceFeed(): GovernedPriceFeed {
 }
 
 const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
-  ampFactor: parseEther('0.002'),
+  ampFactor: parseEther('0.001'),
   haircut: parseEther('0.0001'),
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('5'),
@@ -95,7 +95,7 @@ const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
 }
 
 const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
-  ampFactor: parseEther('0.005'),
+  ampFactor: parseEther('0.0025'),
   haircut: parseEther('0.0004'),
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('1.5'),
@@ -116,7 +116,7 @@ const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
 
 const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
   ...defaultFactoryPoolConfig,
-  ampFactor: parseEther('0.02'),
+  ampFactor: parseEther('0.008'),
   haircut: parseEther('0.0004'),
   mintFeeThreshold: parseEther('0.01'),
   deploymentNamePrefix: 'DynamicPools',
