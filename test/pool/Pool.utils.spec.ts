@@ -221,6 +221,22 @@ describe('Pool - Utils', function () {
       await expect(poolContract.connect(user).pause(), 'WOMBAT_FORBIDDEN').to.be.reverted
       await expect(poolContract.connect(user).unpause(), 'WOMBAT_FORBIDDEN').to.be.reverted
     })
+
+    it('pauseAsset: check if asset exists', async function () {
+      await poolContract.pauseAsset(token0.address)
+      // cannot pause a non-token address
+      await expect(poolContract.pauseAsset(owner.address)).to.be.revertedWithCustomError(
+        poolContract,
+        'WOMBAT_ASSET_NOT_EXISTS'
+      )
+
+      await poolContract.unpauseAsset(token0.address)
+      // cannot unpause a non-token address
+      await expect(poolContract.unpauseAsset(owner.address)).to.be.revertedWithCustomError(
+        poolContract,
+        'WOMBAT_ASSET_NOT_PAUSED'
+      )
+    })
   })
 
   describe('fillPool', function () {

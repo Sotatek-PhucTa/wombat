@@ -320,6 +320,7 @@ contract PoolV2 is
      */
     function pauseAsset(address token) external {
         _onlyDev();
+        if (!_containsAsset(token)) revert WOMBAT_ASSET_NOT_EXISTS();
         _pauseAsset(token);
     }
 
