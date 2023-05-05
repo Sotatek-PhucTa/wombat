@@ -282,7 +282,80 @@ describe('Pool - Swap', function () {
   })
 
   describe('r* = 1.638 (capping r*)', async function () {
-    // TODO: implement
+    let pool: VolatilePool
+    let assets: PriceFeedAsset[]
+    let priceFeeds: GovernedPriceFeed[]
+
+    beforeEach(async function () {
+      ;({ pool, assets, priceFeeds } = await createPool({
+        assetConfig: [
+          { cash: parseEther('80000'), liability: parseEther('100000'), underlyingToken: token0 },
+          { cash: parseEther('130'), liability: parseEther('200'), underlyingToken: token1 },
+          { cash: parseEther('2000000'), liability: parseEther('1000000'), underlyingToken: token2 },
+        ],
+      }))
+
+      await pool.setShouldCapEquilCovRatio(true)
+
+      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+
+      await token0.approve(pool.address, ethers.constants.MaxUint256)
+      await token1.approve(pool.address, ethers.constants.MaxUint256)
+
+      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
+      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+
+      expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('1.638'))
+    })
+
+    it('r* is not changed by swaps', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // swap 1
+      await pool.swap(token0.address, token1.address, parseEther('100000'), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+
+      // swap 2
+      await pool.swap(token1.address, token0.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
+
+    it('r* is not changed by deposits', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // deposit 1
+      await pool.deposit(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince, false)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+
+      // deposit 2
+      await pool.deposit(token1.address, parseUnits('300', 8), 0, owner.address, fiveSecondsSince, false)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
+
+    it('r* is not changed by withdrawals', async function () {
+      const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
+
+      // withdrawal 1
+      await pool.withdraw(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+
+      // withdrawal 2
+      await pool.withdraw(token1.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
+      const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
+      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+
+      // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
+    })
   })
 
   describe('withdrawal haircut', async function () {

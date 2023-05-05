@@ -8,6 +8,8 @@ import { contractNamePrefix } from './060_CrossChainPool'
 
 const contractName = 'WormholeAdaptor'
 
+// Ref: Relayer testnet deployments: https://book.wormhole.com/reference/contracts.html#relayer-contracts
+
 const deployFunc = async function () {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()

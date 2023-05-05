@@ -5,8 +5,6 @@ import '../libraries/Adaptor.sol';
 import '../interfaces/IWormholeRelayer.sol';
 import '../interfaces/IWormhole.sol';
 
-// Relayer testnet deployments: https://book.wormhole.com/reference/contracts.html#relayer-contracts
-
 /// @title WormholeAdaptor
 /// @notice `WormholeAdaptor` uses the generic relayer of wormhole to send message across different networks
 contract WormholeAdaptor is Adaptor {
@@ -20,6 +18,7 @@ contract WormholeAdaptor is Adaptor {
     IWormholeRelayer public relayer;
     IWormhole public wormhole;
 
+    /// @dev Reference: https://book.wormhole.com/wormhole/3_coreLayerContracts.html#consistency-levels
     uint8 public consistencyLevel;
 
     /// @dev wormhole chainId => adaptor address
@@ -28,19 +27,30 @@ contract WormholeAdaptor is Adaptor {
     /// @dev hash => is message delivered
     mapping(bytes32 => bool) public deliveredMessage;
 
+    event UnknownEmitter(address emitterAddress);
+
     error ADAPTOR__MESSAGE_ALREADY_DELIVERED(bytes32 _hash);
 
     function initialize(
         IWormholeRelayer _relayer,
         IWormhole _wormhole,
-        ICrossChainPool _crossChainPool,
-        uint8 _consistencyLevel
+        ICrossChainPool _crossChainPool
     ) public virtual initializer {
         relayer = _relayer;
         wormhole = _wormhole;
-        consistencyLevel = _consistencyLevel;
 
         __Adaptor_init(_crossChainPool);
+
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        if (chainId == 56) {
+            // refer to https://book.wormhole.com/wormhole/3_coreLayerContracts.html#consistency-levels for recommended consistency level
+            consistencyLevel = 15;
+        } else {
+            consistencyLevel = 1;
+        }
     }
 
     /**
@@ -80,7 +90,14 @@ contract WormholeAdaptor is Adaptor {
 
     /**
      * @dev core relayer is assumed to be trusted so re-entrancy protection is not required
-     * Note: This function should NOT throw; Otherwise it will be a delivery failure
+     * Note: This function should NOT throw; Otherwise it will result in a delivery failure
+     * Assumptions to the wormhole relayer:
+     *   - The message should deliver typically within 5 minutes
+     *   - Unused gas should be refunded to the refundAddress
+     *   - The target chain id and target contract address is verified
+     * Things to be aware of:
+     *   - VAA are not verified, order of message can be changed
+     *   - deliveries can potentially performed multiple times
      * (ref: https://book.wormhole.com/technical/evm/relayer.html#delivery-failures)
      */
     function receiveWormholeMessages(bytes[] memory vaas, bytes[] memory) external {
@@ -89,14 +106,18 @@ contract WormholeAdaptor is Adaptor {
         require(msg.sender == address(relayer), 'not authorized');
 
         uint256 numObservations = vaas.length;
+        // the last message is skipped as it is expected to be emitted by the relayer
         for (uint256 i = 0; i < numObservations - 1; ++i) {
             (IWormhole.VM memory vm, bool valid, string memory reason) = wormhole.parseAndVerifyVM(vaas[i]);
-            // requre all messages to be valid, otherwise the whole transaction is reverted
+            // requre all messages except the last one to be valid, otherwise the whole transaction is reverted
             require(valid, reason);
 
             // only accept messages from a trusted chain & contract
             // Assumption: the core relayer must verify the target chain ID and target contract address
-            if (adaptorAddress[vm.emitterChainId] != _wormholeAddrToEthAddr(vm.emitterAddress)) continue;
+            if (adaptorAddress[vm.emitterChainId] != _wormholeAddrToEthAddr(vm.emitterAddress)) {
+                emit UnknownEmitter(_wormholeAddrToEthAddr(vm.emitterAddress));
+                continue;
+            }
 
             (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) = _decode(vm.payload);
 
@@ -144,7 +165,7 @@ contract WormholeAdaptor is Adaptor {
         trackingId = wormhole.publishMessage{value: wormhole.messageFee()}(
             nonce, // nonce
             _encode(toToken, fromAmount, minimumToAmount, receiver), // payload
-            consistencyLevel // Consistency level. Use 1 for finalized, and use 15 blocks for BNB chain; Ref: https://book.wormhole.com/wormhole/3_coreLayerContracts.html#consistency-levels
+            consistencyLevel // Consistency level
         );
 
         // Delivery fee attached to the txn is done off-chain via `estimateDeliveryFee` to reduce gas cost
@@ -166,8 +187,8 @@ contract WormholeAdaptor is Adaptor {
 
         IWormholeRelayer.Send memory request = IWormholeRelayer.Send({
             targetChain: uint16(toChain),
-            targetAddress: relayer.toWormholeFormat(adaptorAddress[uint16(toChain)]),
-            refundAddress: relayer.toWormholeFormat(receiver), // This will be ignored on the target chain if the intent is to perform a forward
+            targetAddress: _ethAddrToWormholeAddr(adaptorAddress[uint16(toChain)]),
+            refundAddress: _ethAddrToWormholeAddr(receiver), // This will be ignored on the target chain if the intent is to perform a forward
             maxTransactionFee: msg.value - 2 * wormhole.messageFee(),
             receiverValue: 0,
             relayParameters: relayer.getDefaultRelayParams()
@@ -186,7 +207,8 @@ contract WormholeAdaptor is Adaptor {
      * @param toChain wormhole chain ID
      * @param gasLimit gas limit of the callback function on the designated network
      * @param receiveValue target amount of gas token to receive
-     * @dev TODO: Add a mock relayer to test this function
+     * @dev Note that this function may fail if the value requested is too large
+     * TODO: Add a mock relayer to test this function
      */
     function estimateDeliveryFee(
         uint16 toChain,
