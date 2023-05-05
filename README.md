@@ -226,8 +226,10 @@ To verify proxy contracts:
 
 - ankrETH Pool
   - DynamicPools_ankrETH_Pool_Proxy => `0x1b507b97c89eDE3E40d1b2Ed92972197c6276D35`
-  - Asset_ankrETH_Pool_ankrETH => `0x128FA2c0708Bd0e357Cd97EadAAfa3bc9608228b`
   - Asset_ankrETH_Pool_ETH => `0x90F6F0e11EF071aeCdBbCA5Ef01c2d630f2B5201`
+  - Asset_ankrETH_Pool_ankrETH => `0x128FA2c0708Bd0e357Cd97EadAAfa3bc9608228b`
+  - Bribe_Asset_ankrETH_Pool_ETH => `0xc7a6bA5F28993BaDb566007bD2E0CB253c431974`
+  - Bribe_Asset_ankrETH_Pool_ankrETH => `0x8Dc7B0a98fC1A70e07cb2efEe6e339Bf9FE87B47`
 
 - Wombat Rewarders
 
