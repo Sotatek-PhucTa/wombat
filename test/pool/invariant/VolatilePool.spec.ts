@@ -18,7 +18,7 @@ chai.use(roughlyNear)
 /**
  * TODO: generate more random testings against different pool setting and different kind of txns
  */
-describe('Pool - Swap', function () {
+describe('VolatilePool - invariant', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
   let coreV3: CoreV3
@@ -325,34 +325,34 @@ describe('Pool - Swap', function () {
       // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
     })
 
-    it('r* is not changed by deposits', async function () {
+    it('r* is changed by deposits', async function () {
       const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
 
       // deposit 1
       await pool.deposit(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince, false)
       const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
-      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+      expect(equilCovRatio0).to.not.be.veryNear(equilCovRatio1, 500)
 
       // deposit 2
       await pool.deposit(token1.address, parseUnits('300', 8), 0, owner.address, fiveSecondsSince, false)
       const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
-      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+      expect(equilCovRatio1).to.not.be.veryNear(equilCovRatio2, 500)
 
       // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
     })
 
-    it('r* is not changed by withdrawals', async function () {
+    it('r* is changed by withdrawals', async function () {
       const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
 
       // withdrawal 1
       await pool.withdraw(token0.address, parseEther('30000'), 0, owner.address, fiveSecondsSince)
       const equilCovRatio1 = (await pool.globalEquilCovRatio()).equilCovRatio
-      expect(equilCovRatio0).to.be.veryNear(equilCovRatio1, 500)
+      expect(equilCovRatio0).to.not.be.veryNear(equilCovRatio1, 500)
 
       // withdrawal 2
       await pool.withdraw(token1.address, parseUnits('100', 8), 0, owner.address, fiveSecondsSince)
       const equilCovRatio2 = (await pool.globalEquilCovRatio()).equilCovRatio
-      expect(equilCovRatio1).to.be.veryNear(equilCovRatio2, 500)
+      expect(equilCovRatio1).to.not.be.veryNear(equilCovRatio2, 500)
 
       // TODO: compare against the value of `equilCovRatio0` after a lot of txn to assert that error doesn't accumulate
     })
