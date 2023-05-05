@@ -1568,6 +1568,21 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.ANKR],
       operator: ExternalContract.AnkrBribeOperator,
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_HAY_Pool_HAY', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.HAY],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_HAY_Pool_USDC', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.HAY],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_HAY_Pool_USDT', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.HAY],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+    }),
   },
   bsc_testnet: {
     BUSD: {
