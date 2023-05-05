@@ -4,6 +4,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { MOCK_TOKEN_MAP, USD_TOKENS_MAP } from '../config/tokens.config'
 import { IMockTokenInfo, Network } from '../types'
 import { logVerifyCommand } from '../utils'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'MockTokens'
 
@@ -20,7 +21,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     Network.BSC_TESTNET,
     Network.LOCALHOST,
     Network.HARDHAT,
-  ].includes(hre.network.name as Network)
+  ].includes(await getCurrentNetwork())
 
   if (shouldDeployMockTokens) {
     /// Mock USD TOKENS ///
