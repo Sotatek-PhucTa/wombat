@@ -24,6 +24,7 @@ import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
 import { Epochs } from './epoch'
 import { Token } from './token'
+import { HayAsset, UsdcAsset, UsdtAsset } from './assets.config'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -375,6 +376,17 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         },
       },
     },
+    HAY_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+        deploymentNamePrefix: '',
+      },
+      assets: {
+        ...HayAsset(),
+        ...UsdcAsset(),
+        ...UsdtAsset(),
+      },
+    },
     iUSD_Pool: {
       setting: {
         ...defaultFactoryPoolConfig,
@@ -440,11 +452,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
           tokenSymbol: 'USDD',
           underlyingTokenAddr: '0xd17479997F34dd9156Deef8F95A52D81D265be9c',
         },
-        USDC: {
-          tokenName: 'USD Coin',
-          tokenSymbol: 'USDC',
-          underlyingTokenAddr: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
-        },
+        ...UsdcAsset(),
       },
     },
     BOB_Pool: {
@@ -502,11 +510,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
           tokenSymbol: 'MIM',
           underlyingTokenAddr: '0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba',
         },
-        USDT: {
-          tokenName: 'Tether USD',
-          tokenSymbol: 'USDT',
-          underlyingTokenAddr: '0x55d398326f99059fF775485246999027B3197955',
-        },
+        ...UsdtAsset(),
       },
     },
     wmxWOMPool: {
