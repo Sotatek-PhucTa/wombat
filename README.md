@@ -190,7 +190,6 @@ To verify proxy contracts:
   - MultiRewarderPerSec_V3_Asset_qWOMPool_qWOM => `0x5f027adF7eFFB310297fF78e2FB73D2B9626653c`
 
 - MIM Pool
-
   - Pool Proxy (Main entry) => `0xb8b1b72a9b9BA90E2539348fEC1Ad6b265F9F684`
   - Asset_MIM_Pool_MIM (LP-MIM) => `0xA45C0ABeef67C363364E0e73832df9986aBa3800`
   - Asset_MIM_Pool_USDT (LP-USDT) => `0x61e338828ABBdD7bddAd918BB3Cd1F09d4345752`
@@ -198,7 +197,6 @@ To verify proxy contracts:
   - Bribe_Asset_MIM_Pool_USDT => `0xACEB589012edbBEe4CE7b4E89B916700B43419CA`
 
 - USD+ Pool
-
   - Pool Proxy (Main entry) => `0x9498563e47D7CFdFa22B818bb8112781036c201C`
   - Asset_USDPlus_Pool_USD+ (LP-USD+) => `0x88bEb144352BD3109c79076202Fac2bcEAb87117`
   - Asset_USDPlus_Pool_USDT+ (LP-USDT+) => `0xbd459E33307A4ae92fFFCb45C6893084CFC273B1`
@@ -220,6 +218,16 @@ To verify proxy contracts:
   - Asset_BNBy_Pool_BNBy => `0x5d64eD5f5121d0A3452ad36D8aeFA554D4060F4a`
   - Bribe_Asset_BNBy_Pool_WBNB => `0x8779D3887b029F4005a4C5B6aDBC6589bEA301b1`
   - Bribe_Asset_BNBy_Pool_BNBy => `0xc007e84D995e49f68AEA51D7f6E3aDD21b73676f`
+
+- wBETH Pool
+  - DynamicPools_wBETH_Pool_Proxy => `0x8b892b6Ea1d0e5B29b719d6Bd6eb9354f1cDE060`
+  - Asset_wBETH_Pool_wBETH => `0x975693AFe5bb69088a716E3A7f9BFF77ec51D57F`
+  - Asset_wBETH_Pool_ETH => `0x4447DE210475BFa08e5D42271A73D7624c8a5aC6`
+
+- ankrETH Pool
+  - DynamicPools_ankrETH_Pool_Proxy => `0x1b507b97c89eDE3E40d1b2Ed92972197c6276D35`
+  - Asset_ankrETH_Pool_ankrETH => `0x128FA2c0708Bd0e357Cd97EadAAfa3bc9608228b`
+  - Asset_ankrETH_Pool_ETH => `0x90F6F0e11EF071aeCdBbCA5Ef01c2d630f2B5201`
 
 - Wombat Rewarders
 
