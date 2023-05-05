@@ -30,15 +30,16 @@ export async function getTestERC20(tokenSymbol: string): Promise<Contract> {
 }
 
 export async function getUnderlyingTokenAddr(assetInfo: IAssetInfo): Promise<string> {
-  const address = assetInfo.useMockToken
-    ? (await deployments.get(assetInfo.tokenSymbol)).address
-    : assetInfo.underlyingToken
-    ? await getTokenAddress(assetInfo.underlyingToken)
-    : assetInfo.underlyingTokenAddr
-  if (address === undefined) {
-    throw `underlying token is undefined ${assetInfo}`
+  if (assetInfo.useMockToken) {
+    const deployment = await deployments.get(assetInfo.tokenSymbol)
+    return deployment.address
+  } else if (assetInfo.underlyingToken) {
+    return getTokenAddress(assetInfo.underlyingToken)
+  } else if (assetInfo.underlyingTokenAddr != undefined) {
+    return assetInfo.underlyingTokenAddr
+  } else {
+    throw `underlying token is undefined for ${assetInfo.assetContractName} ${assetInfo.tokenSymbol}`
   }
-  return address
 }
 
 export async function confirmTxn(response: Promise<TransactionResponse>, confirms = 1): Promise<TransactionReceipt> {
