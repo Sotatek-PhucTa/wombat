@@ -1558,6 +1558,16 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.TENFI],
       operator: ExternalContract.TenFiBribeOperator,
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ETH', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.ANKR],
+      operator: ExternalContract.AnkrBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.ANKR],
+      operator: ExternalContract.AnkrBribeOperator,
+    }),
   },
   bsc_testnet: {
     BUSD: {
