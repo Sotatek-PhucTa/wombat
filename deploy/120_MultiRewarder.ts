@@ -7,6 +7,7 @@ import { Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
 import { getContractAddressOrDefault } from '../config/contract'
+import { getRewarderDeploymentName } from '../utils/deploy'
 
 const contractName = 'MultiRewarderPerSec'
 
@@ -25,7 +26,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const startTimestamp = rewarderConfig?.startTimestamp || getDeadlineFromNow(rewarderConfig.secondsToStart!)
 
     /// Deploy rewarder
-    const name = `MultiRewarderPerSec_V3_${token}`
+    const name = getRewarderDeploymentName(token)
     const lpTokenAddress = await getAddress(rewarderConfig.lpToken)
     const rewardTokens = await Promise.all(rewarderConfig.rewardTokens.map((t) => getTokenAddress(t)))
     assert(rewardTokens.length > 0, `Empty rewardTokens for rewarder at ${token}`)

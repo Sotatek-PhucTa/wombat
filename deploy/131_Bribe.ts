@@ -9,6 +9,7 @@ import { Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
 import { getContractAddressOrDefault } from '../config/contract'
+import { getBribeDeploymentName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -23,7 +24,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   for await (const [token, bribeConfig] of Object.entries(BRIBE_MAPS[hre.network.name as Network] || {})) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
-    const name = `Bribe_${token}`
+    const name = getBribeDeploymentName(token)
     const lpTokenAddress = await getAddress(bribeConfig.lpToken)
     const rewardTokens = await Promise.all(bribeConfig.rewardTokens.map((t) => getTokenAddress(t)))
     assert(rewardTokens.length > 0, `Empty rewardTokens for bribe at ${token}`)

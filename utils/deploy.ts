@@ -29,6 +29,14 @@ export function getAssetDeploymentName(poolName: string, tokenSymbol: string) {
   return `Asset_${poolName}_${tokenSymbol}`
 }
 
+export function getBribeDeploymentName(assetDeployment: string) {
+  return `Bribe_${assetDeployment}`
+}
+
+export function getRewarderDeploymentName(assetDeployment: string) {
+  return `MultiRewarderPerSec_V3_${assetDeployment}`
+}
+
 /**
  * Deploy a base pool contract. The caller should handle the pool specific setup.
  */
