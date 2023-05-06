@@ -13,7 +13,7 @@ const PENDING_MULTISIG_JSON = '.pending-multisig.json'
 
 // Write transactions to multisig.json that can be imported into Gnosis Safe.
 // Overwrite existing file if the file already exists.
-export function writeTransactionsToFile(transactions: BatchTransaction[]) {
+export function writeTransactionsToFile(transactions: BatchTransaction[], file = MULTISIG_JSON) {
   const batchFile: BatchFile = {
     version: '1.0.0',
     chainId: network.config.chainId?.toString() || '0',
@@ -24,5 +24,5 @@ export function writeTransactionsToFile(transactions: BatchTransaction[]) {
     transactions,
   }
   assert(validateTransactionsInBatch(batchFile), `Invalid transactions in batch file: ${JSON.stringify(batchFile)}`)
-  fs.writeFileSync(MULTISIG_JSON, JSON.stringify(batchFile))
+  fs.writeFileSync(file, JSON.stringify(batchFile, null, 2) + '\n')
 }
