@@ -90,8 +90,8 @@ export async function removeAssets(
 ): Promise<BatchTransaction[]> {
   assert(poolDeployment.includes('Proxy'), 'Must use proxy')
   const standalonePool = await getDeployedContract('PoolV2', poolDeployment)
-  const txns = await Promise.all(
-    assetDeployments.flatMap(async (assetDeployment) => {
+  return concatAll(
+    ...assetDeployments.flatMap(async (assetDeployment) => {
       const asset = await getDeployedContract('Asset', assetDeployment)
       const token = await asset.underlyingToken()
       const poolAddress = await asset.pool()
@@ -103,5 +103,15 @@ export async function removeAssets(
       ]
     })
   )
-  return txns.flat()
+}
+
+// Set bribe to voter
+// Requires: bribe.master() == voter.address
+export async function setBribe(bribeDeployment: string): Promise<BatchTransaction[]> {
+  const bribe = await getDeployedContract('Bribe', bribeDeployment)
+  const voter = await getDeployedContract('Voter')
+  const master = await bribe.master()
+  assert(voter.address == master, `Voter does not own bribe. Voter: ${voter.address}, Bribe master: ${master}`)
+  const lpToken = await bribe.lpToken()
+  return [Safe(voter).setBribe(lpToken, bribe.address)]
 }
