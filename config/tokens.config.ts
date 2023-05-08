@@ -1538,16 +1538,6 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       lpToken: Address('0x7Ff1AEc17ea060BBcB7dF6b8723F6Ea7fc905E8F'),
       rewardTokens: [Token.iUSD],
     },
-    CUSDPool_CUSD: {
-      ...defaultRewarder(),
-      lpToken: Address('0x3ac762C607ed6Dba156cBcF11efF96340e86b490'),
-      rewardTokens: [Token.WOM],
-    },
-    CUSDPool_HAY: {
-      ...defaultRewarder(),
-      lpToken: Address('0xa6eF6C45EbFDBc13f6D032fbDFeC9b389C1603E5'),
-      rewardTokens: [Token.WOM],
-    },
     AxlUsdcPool_axlUSDC: {
       ...defaultRewarder(),
       lpToken: Address('0x77F645Ee0c6d47380A942B04B8151fD542927391'),
@@ -1594,20 +1584,31 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_USDT', {
       rewardTokens: [Token.SPELL],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USD+', {
+    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_USD+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDT+', {
+    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_USDT+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
+    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_USDC', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('300', 6))],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_CUSD', {
+      rewardTokens: [Token.WOM],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_HAY', {
+      rewardTokens: [Token.WOM],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_FRAX', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.FXS],
+      operator: ExternalContract.FraxBribeOperator,
     }),
     ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR],
