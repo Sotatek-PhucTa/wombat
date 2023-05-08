@@ -54,10 +54,11 @@ export async function mergePools(poolDeployments: string[]): Promise<BatchTransa
       const assetAddress = await pool.addressOfAsset(token)
       const asset = await ethers.getContractAt('Asset', assetAddress)
       txns.push(Safe(asset).setPool(basePool.address))
+      txns.push(Safe(basePool).addAsset(token, assetAddress))
     }
   }
 
-  assert(txns.length >= 3 * otherPools.length, 'Expect at least 3 transactions per pool to merge')
+  assert(txns.length >= 5 * otherPools.length, 'Expect at least 3 transactions per pool to merge')
   return txns
 }
 
