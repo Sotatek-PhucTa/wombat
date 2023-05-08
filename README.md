@@ -84,6 +84,9 @@ To verify proxy contracts:
   - Asset_P01_USDT (LP-USDT) => `0x4F95fE57BEA74b7F642cF9c097311959B9b988F7`
   - Asset_P01_DAI (LP-DAI) => `0x9D0a463D5dcB82008e86bF506eb048708a15dd84`
 
+- Standalone Pool (for removed assets)
+  - FactoryPools_StandalonePool_Proxy => `0x6569DDC1Cc2648c89BC8025046A7dd65EB8940F3`
+
 - Wombat Side Pool
   - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
   - Asset_SP01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
