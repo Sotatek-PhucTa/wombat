@@ -8,6 +8,7 @@ runScript('RemoveAsset_TUSD_wormholeETH', async () => {
     multisig.utils.pausePool('FactoryPools_StandalonePool_Proxy'),
     // Set pool directly since asset is already removed from pool.
     multisig.utils.setPool('Asset_frxETH_Pool_WETH', 'FactoryPools_StandalonePool_Proxy'),
+    multisig.utils.addAssetToPool('Asset_frxETH_Pool_WETH', 'FactoryPools_StandalonePool_Proxy'),
     // Remove assets from the pool.
     multisig.utils.removeAssets(['Asset_stables_01_TUSD'])
   )
