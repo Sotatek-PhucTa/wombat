@@ -585,6 +585,12 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         },
       },
     },
+    StandalonePool: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+      },
+      assets: {},
+    },
   },
   [Network.BSC_TESTNET]: {
     stables_01: {
