@@ -9,6 +9,7 @@ export enum Token {
   BOB,
   BUSD,
   BTC,
+  CUSD,
   ETH,
   FXS,
   HAY,
@@ -83,6 +84,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.BTC]: {
     [Network.BSC_TESTNET]: Deployment('BTC'),
     [Network.BSC_MAINNET]: Address('0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c'),
+  },
+  [Token.CUSD]: {
+    [Network.BSC_MAINNET]: Address('0xFa4BA88Cf97e282c505BEa095297786c16070129'),
   },
   [Token.ETH]: {
     [Network.BSC_TESTNET]: Deployment('ETH'),

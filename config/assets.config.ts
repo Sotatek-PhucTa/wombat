@@ -30,3 +30,35 @@ export function UsdtAsset(): TokenMap<IAssetInfo> {
     },
   }
 }
+
+export function CusdAsset(): TokenMap<IAssetInfo> {
+  return {
+    CUSD: {
+      tokenName: 'Coin98 Dollar',
+      tokenSymbol: 'CUSD',
+      underlyingToken: Token.CUSD,
+    },
+  }
+}
+
+export function UsdPlusAsset(): TokenMap<IAssetInfo> {
+  return {
+    'USD+': {
+      tokenName: 'USD+',
+      tokenSymbol: 'USD+',
+      underlyingToken: Token.USDPlus,
+      assetContractName: 'SkimmableAsset',
+    },
+  }
+}
+
+export function UsdtPlusAsset(): TokenMap<IAssetInfo> {
+  return {
+    'USDT+': {
+      tokenName: 'USDT+',
+      tokenSymbol: 'USDT+',
+      underlyingToken: Token.USDTPlus,
+      assetContractName: 'SkimmableAsset',
+    },
+  }
+}
