@@ -86,6 +86,8 @@ To verify proxy contracts:
 
 - Standalone Pool (for removed assets)
   - FactoryPools_StandalonePool_Proxy => `0x6569DDC1Cc2648c89BC8025046A7dd65EB8940F3`
+  - Asset_stables_01_TUSD (LP-TUSD) => `0x3C8e744f6c4Ed2c9D82e33D69DDcC5961Aa05367`
+  - Asset_frxETH_Pool_WETH (deprecated) => `0xb268c3181921747379271B9BFfCE8B16311656e3`
 
 - Wombat Side Pool
   - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
@@ -96,7 +98,6 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0x48f6A8a0158031BaF8ce3e45344518f1e69f2A14`
   - Asset_stables_01_BUSD (LP-BUSD) => `0xcF434949c242C2D32514BA971947bD3700EFB015`
   - Asset_stables_01_FRAX (LP-FRAX) => `0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB`
-  - Asset_stables_01_TUSD (LP-TUSD) => `0x3C8e744f6c4Ed2c9D82e33D69DDcC5961Aa05367`
   - Bribe_frax => `0x966c3729366294829911A2fc651DD88378E71C01`
 
 - iUSD Pool
@@ -145,7 +146,6 @@ To verify proxy contracts:
 - frxETH Pool
   - Pool Proxy (Main entry) => `0x2Ea772346486972E7690219c190dAdDa40Ac5dA4`
   - Asset_frxETH_Pool_frxETH => `0xd67EdEA100AdC2Aa8ae0b5CEe7bF420ee17E5bB9`
-  - Asset_frxETH_Pool_WETH (deprecated) => `0xb268c3181921747379271B9BFfCE8B16311656e3`
   - Asset_frxETH_Pool_ETH => `0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E`
   - Asset_frxETH_Pool_sfrxETH => `0xa9a08133af8241e36193b57E4dFE43D147Cd23cC`
   - PriceFeed_GovernedPriceFeed_Asset_frxETH_Pool_sfrxETH => `0xDD29f25A64eb824E1FF37948FD2485D9E073fA01`
