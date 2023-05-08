@@ -1660,6 +1660,14 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.HAY],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_wBETH', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.wBETH],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_ETH', {
+      startTimestamp: Epochs.May10,
+      rewardTokens: [Token.wBETH],
+    }),
   },
   bsc_testnet: {
     BUSD: {
