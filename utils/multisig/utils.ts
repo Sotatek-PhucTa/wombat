@@ -58,3 +58,45 @@ export async function mergePools(poolDeployments: string[]): Promise<BatchTransa
   assert(txns.length >= 3 * otherPools.length, 'Expect at least 3 transactions per pool to merge')
   return txns
 }
+
+// Pause a pool by name
+export async function pausePool(poolDeployment: string): Promise<BatchTransaction[]> {
+  const pool = await getDeployedContract('PoolV2', poolDeployment)
+  return [Safe(pool).pause()]
+}
+
+// Pause asset by looking up the pool from the asset.
+export async function pauseAsset(assetDeployment: string): Promise<BatchTransaction[]> {
+  const asset = await getDeployedContract('Asset', assetDeployment)
+  const token = await asset.underlyingToken()
+  const pool = await ethers.getContractAt('PoolV2', await asset.pool())
+  return [Safe(pool).pauseAsset(token)]
+}
+
+export async function setPool(assetDeployment: string, poolDeployment: string): Promise<BatchTransaction[]> {
+  const asset = await getDeployedContract('Asset', assetDeployment)
+  const pool = await getDeployedContract('PoolV2', poolDeployment)
+  return [Safe(asset).setPool(pool.address)]
+}
+
+// Remove asset from current pool and add it to the standalone pool.
+export async function removeAssets(
+  assetDeployments: string[],
+  poolDeployment = 'FactoryPools_StandalonePool'
+): Promise<BatchTransaction[]> {
+  const standalonePool = await getDeployedContract('PoolV2', poolDeployment)
+  const txns = await Promise.all(
+    assetDeployments.flatMap(async (assetDeployment) => {
+      const asset = await getDeployedContract('Asset', assetDeployment)
+      const token = await asset.underlyingToken()
+      const poolAddress = await asset.pool()
+      const currentPool = await ethers.getContractAt('PoolV2', poolAddress)
+      return [
+        Safe(currentPool).removeAsset(token),
+        Safe(standalonePool).addAsset(token, asset.address),
+        Safe(asset).setPool(standalonePool.address),
+      ]
+    })
+  )
+  return txns.flat()
+}

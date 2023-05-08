@@ -6,7 +6,7 @@ import fs from 'fs'
 export async function runMultisigScript(id: string, script: () => Promise<BatchTransaction[]>) {
   const file = `proposals/${network.name}/${id}.json`
   if (fs.existsSync(file)) {
-    throw new Error(`File ${file} already exists`)
+    console.warn(`Overwriting existing file ${file}`)
   }
   await writeTransactionsToFile(await script(), file)
   console.log(`Saving proposals to ${file}`)
