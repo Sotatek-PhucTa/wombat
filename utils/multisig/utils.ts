@@ -1,5 +1,5 @@
 import { deployments, ethers } from 'hardhat'
-import { getDeployedContract } from '..'
+import { concatAll, getDeployedContract } from '..'
 import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe } from './transactions'
@@ -13,12 +13,7 @@ import assert from 'assert'
 // For example, if you asset id is `Asset_USDPlus_Pool_USDC`, it will look for:
 // - Bribe_Asset_USDPlus_Pool_USDC
 // - MultiRewarderPerSec_V3_Asset_USDPlus_Pool_USDC
-export async function addAssetsToMasterWombatAndVoter(assetDeployments: string[]): Promise<BatchTransaction[]> {
-  const transactions = await Promise.all(assetDeployments.map(createTransactionsToAddAsset))
-  return transactions.flat()
-}
-
-async function createTransactionsToAddAsset(assetDeployment: string): Promise<BatchTransaction[]> {
+export async function addAssetToMasterWombatAndVoter(assetDeployment: string): Promise<BatchTransaction[]> {
   const lpToken = await getDeployedContract('Asset', assetDeployment)
   const rewarder = await deployments.getOrNull(getRewarderDeploymentName(assetDeployment))
   const bribe = await deployments.getOrNull(getBribeDeploymentName(assetDeployment))
@@ -28,6 +23,13 @@ async function createTransactionsToAddAsset(assetDeployment: string): Promise<Ba
     Safe(masterWombat).add(lpToken.address, rewarder?.address || ethers.constants.AddressZero),
     Safe(voter).add(masterWombat.address, lpToken.address, bribe?.address || ethers.constants.AddressZero),
   ]
+}
+
+export async function addAssetToPool(assetDeployment: string, poolDeployment: string): Promise<BatchTransaction[]> {
+  const asset = await getDeployedContract('Asset', assetDeployment)
+  const token = await asset.underlyingToken()
+  const pool = await getDeployedContract('PoolV2', poolDeployment)
+  return [Safe(pool).addAsset(token, asset.address)]
 }
 
 // This function generates transactions to merge pools.
@@ -61,6 +63,7 @@ export async function mergePools(poolDeployments: string[]): Promise<BatchTransa
 
 // Pause a pool by name
 export async function pausePool(poolDeployment: string): Promise<BatchTransaction[]> {
+  assert(poolDeployment.includes('Proxy'), 'Must use proxy')
   const pool = await getDeployedContract('PoolV2', poolDeployment)
   return [Safe(pool).pause()]
 }
@@ -74,6 +77,7 @@ export async function pauseAsset(assetDeployment: string): Promise<BatchTransact
 }
 
 export async function setPool(assetDeployment: string, poolDeployment: string): Promise<BatchTransaction[]> {
+  assert(poolDeployment.includes('Proxy'), 'Must use proxy')
   const asset = await getDeployedContract('Asset', assetDeployment)
   const pool = await getDeployedContract('PoolV2', poolDeployment)
   return [Safe(asset).setPool(pool.address)]
@@ -82,8 +86,9 @@ export async function setPool(assetDeployment: string, poolDeployment: string): 
 // Remove asset from current pool and add it to the standalone pool.
 export async function removeAssets(
   assetDeployments: string[],
-  poolDeployment = 'FactoryPools_StandalonePool'
+  poolDeployment = 'FactoryPools_StandalonePool_Proxy'
 ): Promise<BatchTransaction[]> {
+  assert(poolDeployment.includes('Proxy'), 'Must use proxy')
   const standalonePool = await getDeployedContract('PoolV2', poolDeployment)
   const txns = await Promise.all(
     assetDeployments.flatMap(async (assetDeployment) => {

@@ -1,6 +1,6 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { BigNumber, BigNumberish, Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatEther, formatUnits } from 'ethers/lib/utils'
 import { deployments, ethers, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
@@ -10,6 +10,11 @@ import { DeploymentOrAddress, IAssetInfo } from '../types'
 import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3 } from '../build/typechain'
 import { epoch_duration_seconds } from '../config/epoch'
+
+export async function concatAll<T>(...promises: Promise<T[]>[]): Promise<T[]> {
+  const txns = await Promise.all(promises)
+  return txns.flat()
+}
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Promise<string> {
   if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
