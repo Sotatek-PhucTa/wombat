@@ -20,7 +20,7 @@ import {
   TokenMap,
   Unknown,
 } from '../types'
-import { CusdAsset, HayAsset, UsdPlusAsset, UsdcAsset, UsdtAsset, UsdtPlusAsset } from './assets.config'
+import { CusdAsset, FraxAsset, HayAsset, UsdPlusAsset, UsdcAsset, UsdtAsset, UsdtPlusAsset } from './assets.config'
 import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
 import { Epochs } from './epoch'
@@ -367,11 +367,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
           tokenSymbol: 'TUSD',
           underlyingTokenAddr: '0x14016E85a25aeb13065688cAFB43044C2ef86784',
         },
-        FRAX: {
-          tokenName: 'Frax',
-          tokenSymbol: 'FRAX',
-          underlyingTokenAddr: '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40',
-        },
+        ...FraxAsset(),
       },
     },
     SidePool_01: {
@@ -486,6 +482,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...UsdcAsset(),
         ...CusdAsset(),
         ...HayAsset(),
+        ...FraxAsset(),
       },
     },
     MIM_Pool: {

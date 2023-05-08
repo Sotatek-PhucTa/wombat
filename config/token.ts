@@ -11,6 +11,7 @@ export enum Token {
   BTC,
   CUSD,
   ETH,
+  FRAX,
   FXS,
   HAY,
   JONES,
@@ -92,6 +93,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_TESTNET]: Deployment('ETH'),
     // https://bscscan.com/address/0x2170Ed0880ac9A755fd29B2688956BD959F933F8
     [Network.BSC_MAINNET]: Address('0x2170Ed0880ac9A755fd29B2688956BD959F933F8'),
+  },
+  [Token.FRAX]: {
+    [Network.BSC_MAINNET]: Address('0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40'),
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share

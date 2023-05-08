@@ -62,3 +62,13 @@ export function UsdtPlusAsset(): TokenMap<IAssetInfo> {
     },
   }
 }
+
+export function FraxAsset(): TokenMap<IAssetInfo> {
+  return {
+    FRAX: {
+      tokenName: 'Frax',
+      tokenSymbol: 'FRAX',
+      underlyingToken: Token.FRAX,
+    },
+  }
+}
