@@ -11,6 +11,7 @@ export enum ExternalContract {
   JonesDaoBribeOperator,
   MagpieBribeOperator,
   MagpieVeWomProxy,
+  PythOracle,
   QuollBribeOperator,
   QuollVeWomProxy,
   SkimAdmin,
@@ -65,6 +66,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
     [Network.ARBITRUM_MAINNET]: Address('0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc'),
+  },
+  [ExternalContract.PythOracle]: {
+    // https://docs.pyth.network/pythnet-price-feeds/evm
+    [Network.BSC_TESTNET]: Address('0xd7308b14BF4008e7C7196eC35610B1427C5702EA'),
   },
   [ExternalContract.QuollBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x20A62EDcE0e18683D081744b1789A614d1De6397'),

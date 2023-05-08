@@ -8,6 +8,7 @@ export enum Token {
   BNBy,
   BOB,
   BUSD,
+  BTC,
   ETH,
   FXS,
   HAY,
@@ -77,8 +78,14 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.BUSD]: {
     [Network.HARDHAT]: Deployment('BUSD'),
+    [Network.BSC_TESTNET]: Deployment('BUSD'),
+  },
+  [Token.BTC]: {
+    [Network.BSC_TESTNET]: Deployment('BTC'),
+    [Network.BSC_MAINNET]: Address('0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c'),
   },
   [Token.ETH]: {
+    [Network.BSC_TESTNET]: Deployment('ETH'),
     // https://bscscan.com/address/0x2170Ed0880ac9A755fd29B2688956BD959F933F8
     [Network.BSC_MAINNET]: Address('0x2170Ed0880ac9A755fd29B2688956BD959F933F8'),
   },
@@ -156,6 +163,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.USDT]: {
     [Network.HARDHAT]: Deployment('USDT'),
+    [Network.BSC_TESTNET]: Deployment('USDT'),
     // https://www.coingecko.com/en/coins/tether
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),
@@ -167,6 +175,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C'),
   },
   [Token.WBNB]: {
+    [Network.BSC_TESTNET]: Address('0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd'),
     // https://www.coingecko.com/en/coins/wbnb
     [Network.BSC_MAINNET]: Address('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'),
   },

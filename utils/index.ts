@@ -183,6 +183,7 @@ export async function printDeployedPoolsArgs() {
       const pool = (await getDeployedContract('HighCovRatioFeePoolV3', name)) as HighCovRatioFeePoolV3
       let startCovRatio
       let endCovRatio
+      let globalEquilCovRatio
       try {
         startCovRatio = printBigNumber(await pool.startCovRatio())
         endCovRatio = printBigNumber(await pool.endCovRatio())
@@ -190,14 +191,20 @@ export async function printDeployedPoolsArgs() {
         startCovRatio = 'N/A'
         endCovRatio = 'N/A'
       }
+      try {
+        globalEquilCovRatio = printBigNumber((await pool.globalEquilCovRatio()).equilCovRatio)
+      } catch (e) {
+        globalEquilCovRatio = 'N/A'
+      }
       return {
         name: name.slice(0, -6),
-        pool: pool.address,
         ampFactor: printBigNumber(await pool.ampFactor()),
         haircut: printBigNumber(await pool.haircutRate()),
         feeThshl: printBigNumber(await pool.mintFeeThreshold()),
         startCR: startCovRatio,
         endCR: endCovRatio,
+        'r*': globalEquilCovRatio,
+        address: pool.address,
       }
     })
   )

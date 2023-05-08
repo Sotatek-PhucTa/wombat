@@ -98,8 +98,12 @@ export interface IHighCovRatioFeePoolConfig extends IPoolConfig {
   endCovRatio: BigNumber
 }
 
-export interface GovernedPriceFeed {
-  contract: string
+export interface IPriceFeed {
+  // TODO: handle fallback price feed
+  contract: 'GovernedPriceFeed' | 'ChainlinkPriceFeed' | 'PythPriceFeed'
+}
+
+export interface IGovernedPriceFeed extends IPriceFeed {
   token: Token
   initialPrice: BigNumberish
   maxDeviation: BigNumberish
@@ -120,7 +124,7 @@ export interface IAssetInfo {
   oracleAddress?: string
   // TODO: separate mock token deployment from asset
   useMockToken?: boolean // to deploy a mock token, this field is required
-  priceFeed?: GovernedPriceFeed
+  priceFeed?: IPriceFeed
   maxSupply?: BigNumberish
 }
 

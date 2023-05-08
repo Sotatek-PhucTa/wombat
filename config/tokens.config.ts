@@ -5,7 +5,7 @@ import {
   Address,
   Deployment,
   DeploymentOrAddress,
-  GovernedPriceFeed,
+  IGovernedPriceFeed,
   IHighCovRatioFeePoolConfig,
   IMockTokenInfo,
   IRewarder,
@@ -20,11 +20,11 @@ import {
   TokenMap,
   Unknown,
 } from '../types'
+import { HayAsset, UsdcAsset, UsdtAsset } from './assets.config'
 import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
 import { Epochs } from './epoch'
 import { Token } from './token'
-import { HayAsset, UsdcAsset, UsdtAsset } from './assets.config'
 
 // To resolve DeploymentOrAddress, use getAddress in utils/index.ts
 export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetwork({
@@ -64,7 +64,7 @@ function defaultRewarder(): IRewarder {
   }
 }
 
-function defaultGovernedPriceFeed(): GovernedPriceFeed {
+function defaultGovernedPriceFeed(): IGovernedPriceFeed {
   return {
     contract: 'GovernedPriceFeed',
     token: Token.UNKNOWN,
@@ -73,7 +73,7 @@ function defaultGovernedPriceFeed(): GovernedPriceFeed {
   }
 }
 
-function sfrxETHGovernedPriceFeed(): GovernedPriceFeed {
+function sfrxETHGovernedPriceFeed(): IGovernedPriceFeed {
   return {
     ...defaultGovernedPriceFeed(),
     token: Token.sfrxETH,
@@ -125,6 +125,14 @@ const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
   deploymentNamePrefix: 'DynamicPools',
 }
 
+const defaultVolatilePoolConfig: IHighCovRatioFeePoolConfig = {
+  ...defaultFactoryPoolConfig,
+  ampFactor: parseEther('0.1'),
+  haircut: parseEther('0.0015'),
+  mintFeeThreshold: parseEther('10'),
+  deploymentNamePrefix: 'VolatilePools',
+}
+
 const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
   ampFactor: parseEther('0.00025'),
   haircut: parseEther('0.0001'),
@@ -138,7 +146,7 @@ const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
 }
 
 // inject forkNetwork to hardhat and localhost
-function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<Network, T> {
+export function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<Network, T> {
   const forkNetwork = process.env.FORK_NETWORK || ''
   // default value in .env
   if (forkNetwork == 'false') {
@@ -296,6 +304,16 @@ export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = 
     qWOM: {
       tokenName: 'Quoll WOM',
       tokenSymbol: 'qWOM',
+      decimalForMockToken: 18,
+    },
+    BTC: {
+      tokenName: 'Bitcoin Token',
+      tokenSymbol: 'BTC',
+      decimalForMockToken: 18,
+    },
+    ETH: {
+      tokenName: 'Ethereum Token',
+      tokenSymbol: 'ETH',
       decimalForMockToken: 18,
     },
   },
@@ -1168,6 +1186,91 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         },
       },
     },
+  },
+})
+
+export const VOLATILEPOOL_TOKENS_MAP: PartialRecord<
+  Network,
+  NetworkPoolInfo<IHighCovRatioFeePoolConfig>
+> = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
+  [Network.BSC_TESTNET]: {
+    'BUSD-ETH-BTC_Pool': {
+      // pool with chainlink price feed
+      setting: {
+        ...defaultVolatilePoolConfig,
+      },
+      assets: {
+        BUSD: {
+          tokenName: 'Binance USD',
+          tokenSymbol: 'BUSD',
+          underlyingToken: Token.BUSD,
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            contract: 'ChainlinkPriceFeed',
+          },
+          maxSupply: parseEther('1000000'),
+        },
+        ETH: {
+          tokenName: 'Binance-Peg Ethereum Token',
+          tokenSymbol: 'ETH',
+          underlyingToken: Token.ETH,
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            contract: 'ChainlinkPriceFeed',
+          },
+          maxSupply: parseEther('1600'),
+        },
+        BTC: {
+          tokenName: 'Binance-Peg BTCB Token',
+          tokenSymbol: 'BTCB',
+          underlyingToken: Token.BTC,
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            contract: 'ChainlinkPriceFeed',
+          },
+          maxSupply: parseEther('500'),
+        },
+      },
+    },
+
+    // 'USDT-ETH-WBNB_Pool': {
+    //   // pool with pyth price feed
+    //   setting: {
+    //     ...defaultVolatilePoolConfig,
+    //   },
+    //   assets: {
+    //     USDT: {
+    //       tokenName: 'Tether USD',
+    //       tokenSymbol: 'USDT',
+    //       underlyingToken: Token.USDT,
+    //       assetContractName: 'PriceFeedAsset',
+    //       priceFeed: {
+    //         contract: 'PythPriceFeed',
+    //       },
+    //       maxSupply: parseEther('1000000'),
+    //     },
+    //     ETH: {
+    //       tokenName: 'Binance-Peg Ethereum Token',
+    //       tokenSymbol: 'ETH',
+    //       underlyingToken: Token.ETH,
+    //       assetContractName: 'PriceFeedAsset',
+    //       priceFeed: {
+    //         contract: 'PythPriceFeed',
+    //       },
+    //       maxSupply: parseEther('1600'),
+    //     },
+    //     WBNB: {
+    //       tokenName: 'Wrapped BNB',
+    //       tokenSymbol: 'WBNB',
+    //       underlyingToken: Token.WBNB,
+    //       assetContractName: 'PriceFeedAsset',
+    //       priceFeed: {
+    //         contract: 'PythPriceFeed',
+    //       },
+    //       maxSupply: parseEther('10000'),
+    //     },
+    //   },
+    // },
   },
 })
 

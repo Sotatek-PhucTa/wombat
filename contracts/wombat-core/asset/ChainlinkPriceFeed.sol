@@ -14,6 +14,10 @@ contract ChainlinkPriceFeed is OraclePriceFeed {
 
     event UpdatePriceFeed(IERC20 token, AggregatorV3Interface priceFeed);
 
+    function initialize() public initializer {
+        __Ownable_init();
+    }
+
     /**
      * Returns the latest price.
      */

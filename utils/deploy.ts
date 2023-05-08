@@ -2,10 +2,17 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import { deployments, ethers, network, upgrades } from 'hardhat'
-import { DeploymentResult, IAssetInfo, IPoolConfig, PoolInfo } from '../types'
-import { confirmTxn, getDeployedContract, getTestERC20, isOwner, logVerifyCommand } from '../utils'
-import { getTokenAddress } from '../config/token'
 import { getContractAddress } from '../config/contract'
+import { getTokenAddress } from '../config/token'
+import { DeploymentResult, IAssetInfo, IGovernedPriceFeed, IPoolConfig, PoolInfo } from '../types'
+import {
+  confirmTxn,
+  getDeployedContract,
+  getTestERC20,
+  getUnderlyingTokenAddr,
+  isOwner,
+  logVerifyCommand,
+} from '../utils'
 
 export async function deployTestAsset(tokenSymbol: string) {
   const erc20 = await getTestERC20(tokenSymbol)
@@ -30,7 +37,8 @@ export async function deployBasePool(
   poolName: string,
   pooInfo: PoolInfo<IPoolConfig>,
   deployer: string,
-  multisig: string
+  multisig: string,
+  libraries?: { [key: string]: string }
 ): Promise<DeploymentResult> {
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const { deploy } = deployments
@@ -42,6 +50,7 @@ export async function deployBasePool(
     log: true,
     contract: poolContract,
     skipIfAlreadyDeployed: true,
+    libraries,
     proxy: {
       owner: multisig,
       proxyContract: 'OptimizedTransparentProxy',
@@ -84,9 +93,9 @@ export async function deployBasePool(
 
     // Admin scripts
     deployments.log(
-      `setFee to ${formatEther(setting.lpDividendRatio)} for lpDividendRatio and ${
+      `setFee to ${formatEther(setting.lpDividendRatio)} for lpDividendRatio and ${formatEther(
         setting.retentionRatio
-      } for retentionRatio...`
+      )} for retentionRatio...`
     )
     await confirmTxn(pool.connect(deployerSigner).setFee(setting.lpDividendRatio, setting.retentionRatio))
 
@@ -152,7 +161,8 @@ export async function deployAssetV2(
       multisig,
       assetInfo,
       asset,
-      `PriceFeed_${assetInfo.priceFeed?.contract}_${deploymentName}`
+      `PriceFeed_${assetInfo.priceFeed?.contract}_${deploymentName}`,
+      deployResult.newlyDeployed
     )
   }
 
@@ -161,7 +171,9 @@ export async function deployAssetV2(
     deployments.log('Configuring asset...')
 
     if (assetContractName != 'Asset') {
-      deployments.log(`Asset relative price: ${formatEther(await asset.getRelativePrice())}`)
+      deployments.log('Asset relative price is...')
+      const relativePrice = await asset.getRelativePrice()
+      deployments.log(`${formatEther(relativePrice)}`)
     }
 
     // Remove old and add new Asset to newly-deployed Pool
@@ -225,32 +237,52 @@ export async function deployPriceFeed(
   multisig: string,
   assetInfo: IAssetInfo,
   asset: Contract,
-  deploymentName: string
+  deploymentName: string,
+  assetNewlyDeployed: boolean
 ) {
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const { deploy } = deployments
 
   deployments.log(`Attemping to deploy price feed for: ${assetInfo.tokenName}`)
-  const priceFeed = assetInfo.priceFeed
-  if (!priceFeed) {
+  if (!assetInfo.priceFeed) {
     throw `assetInfo.priceFeed for ${assetInfo.tokenName} is full`
   }
 
-  const deployResult = await deploy(deploymentName, {
-    from: deployer,
-    contract: priceFeed.contract,
-    log: true,
-    args: [await getTokenAddress(priceFeed.token), priceFeed.initialPrice, priceFeed.maxDeviation],
-    skipIfAlreadyDeployed: true,
-  })
-  if (deployResult.newlyDeployed) {
-    const priceFeedContract = await getDeployedContract(priceFeed.contract, deploymentName)
-    deployments.log(`Transferring ownership of price feed ${deployResult.address} to ${multisig}...`)
-    await confirmTxn(priceFeedContract.connect(deployerSigner).transferOwnership(multisig))
-    deployments.log(`Transferred ownership of price feed ${deployResult.address} to ${multisig}...`)
+  if (assetInfo.priceFeed.contract === 'GovernedPriceFeed') {
+    const priceFeed = assetInfo.priceFeed as IGovernedPriceFeed
 
-    deployments.log('Setting price feed for asset...')
-    await confirmTxn(asset.connect(deployerSigner).setPriceFeed(deployResult.address))
+    // deploy `GovernedPriceFeed` contract
+    const deployResult = await deploy(deploymentName, {
+      from: deployer,
+      contract: priceFeed.contract,
+      log: true,
+      args: [await getTokenAddress(priceFeed.token), priceFeed.initialPrice, priceFeed.maxDeviation],
+      skipIfAlreadyDeployed: true,
+    })
+
+    if (deployResult.newlyDeployed) {
+      const priceFeedContract = await getDeployedContract(priceFeed.contract, deploymentName)
+      deployments.log(`Transferring ownership of price feed ${deployResult.address} to ${multisig}...`)
+      await confirmTxn(priceFeedContract.connect(deployerSigner).transferOwnership(multisig))
+      deployments.log(`Transferred ownership of price feed ${deployResult.address} to ${multisig}...`)
+
+      deployments.log('Setting price feed for asset...')
+      await confirmTxn(asset.connect(deployerSigner).setPriceFeed(deployResult.address))
+    }
+    logVerifyCommand(network.name, deployResult)
+  } else if (['ChainlinkPriceFeed', 'PythPriceFeed'].includes(assetInfo.priceFeed.contract)) {
+    const priceFeedContract = await getDeployedContract(assetInfo.priceFeed.contract)
+    deployments.log('Latest price for the underlying token is...')
+    try {
+      deployments.log(formatEther(await priceFeedContract.getLatestPrice(getUnderlyingTokenAddr(assetInfo))))
+    } catch (e) {
+      deployments.log('Failed to get latest price. Is the price feed configured?')
+    }
+
+    if (assetNewlyDeployed) {
+      const priceFeedDeployment = await deployments.get(assetInfo.priceFeed.contract)
+      deployments.log('Setting price feed for asset...')
+      await confirmTxn(asset.connect(deployerSigner).setPriceFeed(priceFeedDeployment.address))
+    }
   }
-  logVerifyCommand(network.name, deployResult)
 }
