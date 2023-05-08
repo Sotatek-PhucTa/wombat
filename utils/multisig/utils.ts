@@ -13,7 +13,7 @@ import assert from 'assert'
 // For example, if you asset id is `Asset_USDPlus_Pool_USDC`, it will look for:
 // - Bribe_Asset_USDPlus_Pool_USDC
 // - MultiRewarderPerSec_V3_Asset_USDPlus_Pool_USDC
-export async function createTransactionsToAddAssets(assetDeployments: string[]): Promise<BatchTransaction[]> {
+export async function addAssetsToMasterWombatAndVoter(assetDeployments: string[]): Promise<BatchTransaction[]> {
   const transactions = await Promise.all(assetDeployments.map(createTransactionsToAddAsset))
   return transactions.flat()
 }
