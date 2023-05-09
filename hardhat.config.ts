@@ -63,7 +63,7 @@ const config: HardhatUserConfig = {
     },
     [Network.OPTIMISM_MAINNET]: {
       chainId: 10,
-      url: 'https://mainnet.optimism.io',
+      url: secrets.alchemy_optimism_url || 'https://mainnet.optimism.io',
       accounts: [secrets.deployer.privateKey],
     },
     [Network.OPTIMISM_TESTNET]: {
@@ -74,7 +74,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      // get the correct key in https://github.com/NomicFoundation/hardhat/blob/main/packages/hardhat-etherscan/src/ChainConfig.ts
+      // get the correct key in https://github.com/NomicFoundation/hardhat/blob/main/packages/hardhat-verify/src/chain-config.ts
       bsc: secrets.bscscan_api_key,
       bscTestnet: secrets.bscscan_api_key,
       avalancheFujiTestnet: secrets.snowtrace_api_key,
@@ -82,6 +82,7 @@ const config: HardhatUserConfig = {
       // TODO: add polygonscan key for polygon and polygonMumbai
       arbitrumOne: secrets.arbiscan_api_key,
       arbitrumGoerli: secrets.arbiscan_api_key,
+      optimisticEthereum: secrets.opt_etherscan_api_key,
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [],
