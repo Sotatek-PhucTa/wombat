@@ -152,8 +152,7 @@ const config: HardhatUserConfig = {
       [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452', // same as deployer
       [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
-      // TODO: create gnosis multi-sig safe for OPT
-      [Network.OPTIMISM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
+      [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe
     },
   },
   docgen: {
