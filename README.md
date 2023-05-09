@@ -93,6 +93,7 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
   - Asset_SP01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
   - Asset_SP01_HAY (LP-HAY) => `0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b`
+  - Bribe_HAY => `0x6dD7116B2640f4FA7a2AAD3fA6a6126bFA782B0B`
 
 - Factory Pool Stables 01
   - Pool Proxy (Main entry) => `0x48f6A8a0158031BaF8ce3e45344518f1e69f2A14`
@@ -478,7 +479,6 @@ To verify proxy contracts:
   - Bribe_BUSD => `0x3aEA5139441318A951e11aB38392c8C75F1a7522`
   - Bribe_FRAX_BUSD => `0xcF7640E12b4aB4F5a4Fe35b231541DF9a83351Ea`
   - Bribe_BNBx => `0xf496a50aE1663942a0D0ee23b914DDDea1FC4A10`
-  - Bribe_HAY => `0x6dD7116B2640f4FA7a2AAD3fA6a6126bFA782B0B`
 
 - Wombat Rewarders
 
