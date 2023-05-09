@@ -2,6 +2,8 @@ import { runScript } from '.'
 import { concatAll } from '../../utils'
 import * as multisig from '../../utils/multisig'
 
+// Step 1: remove assets to standalone pool.
+// Step 2: pause assets in standalone pool. See Unpause_Standalone_Pool.ts
 runScript('RemoveAsset_TUSD_wormholeETH', async () => {
   return concatAll(
     // Pause standalone pool for the first time. So no swap or deposits can be made.

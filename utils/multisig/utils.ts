@@ -69,6 +69,12 @@ export async function pausePool(poolDeployment: string): Promise<BatchTransactio
   return [Safe(pool).pause()]
 }
 
+export async function unpausePool(poolDeployment: string): Promise<BatchTransaction[]> {
+  assert(poolDeployment.includes('Proxy'), 'Must use proxy')
+  const pool = await getDeployedContract('PoolV2', poolDeployment)
+  return [Safe(pool).unpause()]
+}
+
 // Pause asset by looking up the pool from the asset.
 export async function pauseAsset(assetDeployment: string): Promise<BatchTransaction[]> {
   const asset = await getDeployedContract('Asset', assetDeployment)
