@@ -37,7 +37,7 @@ export const WOMBAT_TOKEN: Record<Network, DeploymentOrAddress> = injectForkNetw
   [Network.POLYGON_MAINNET]: Unknown(),
   [Network.POLYGON_TESTNET]: Unknown(),
   [Network.AVALANCHE_TESTNET]: Address('0xa15E4544D141aa98C4581a1EA10Eb9048c3b3382'),
-  [Network.OPTIMISM_MAINNET]: Unknown(),
+  [Network.OPTIMISM_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
 }) as Record<Network, DeploymentOrAddress>
 
 export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
