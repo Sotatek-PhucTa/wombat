@@ -378,6 +378,16 @@ To verify proxy contracts:
   - Bribe_Asset_jUSDC_Pool_jUSDC => ` 0xF760094A46bC456a1e3fd0A00ccf98108f9B35D0`
   - Bribe_Asset_jUSDC_Pool_USDC => ` 0x19f477e5864Fec9Cc8f91Fd9F6eD71F6ce13d3b3`
 
+### Optimism mainnet deployed contracts:
+
+Wombat Governance
+  - DefaultProxyAdmin => `0x85cEBD962861be410a777755dFa06914de6af003`
+
+Main Pool
+  - Main_Pool_Proxy => `0x6f8Ad371FDD422c0abE21352525f58b5E3bB266b`
+  - Asset_Main_Pool_USDC => `0xd05CF2BCaaee3a221E9effF58bF2874b9F11E47b`
+  - Asset_Main_Pool_USDT => `0x375883a1F801138B6f5EE953a7A11072129Ac624`
+
 ### BSC testnet deployed contracts:
 
 - BSC Wallet Accounts
