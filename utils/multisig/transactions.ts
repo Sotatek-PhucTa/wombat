@@ -4,7 +4,7 @@ import { BatchTransaction, validateTransactionsInBatch, BatchFile, ContractMetho
 
 // A Safe generates BatchTransaction instead of signing on-chain transactions.
 export interface Safe {
-  [key: string]: (...args: string[]) => BatchTransaction
+  [key: string]: (...args: { toString: () => string }[]) => BatchTransaction
 }
 
 // Create a Safe from an ether.js Contract.
@@ -19,8 +19,12 @@ export function Safe(contract: Contract): Safe {
   Object.keys(contract.interface.functions).map((name: string) => {
     const fn = name.split('(')[0]
     assert(!safe[fn], `Function ${fn} already exists on Safe`)
-    safe[fn] = (...args: string[]) => {
-      return createTransaction(contract, name, args)
+    safe[fn] = (...args: { toString: () => string }[]) => {
+      return createTransaction(
+        contract,
+        name,
+        args.map((arg) => arg.toString())
+      )
     }
   })
 

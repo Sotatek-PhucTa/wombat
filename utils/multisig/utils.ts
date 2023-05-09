@@ -1,9 +1,15 @@
 import { deployments, ethers } from 'hardhat'
-import { concatAll, getDeployedContract } from '..'
+import { concatAll, getAddress, getDeployedContract } from '..'
 import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe } from './transactions'
 import assert from 'assert'
+import { Token, getTokenAddress } from '../../config/token'
+import { BigNumber, BigNumberish } from 'ethers'
+import { DeploymentOrAddress } from '../../types'
+import _ from 'lodash'
+import { epoch_duration_seconds } from '../../config/epoch'
+import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -121,4 +127,34 @@ export async function setBribe(bribeDeployment: string): Promise<BatchTransactio
   assert(voter.address == master, `Voter does not own bribe. Voter: ${voter.address}, Bribe master: ${master}`)
   const lpToken = await bribe.lpToken()
   return [Safe(voter).setBribe(lpToken, bribe.address)]
+}
+
+// Top up the bribe token by one epoch. Optionally set a new rate.
+export async function topUpBribe(
+  bribeDeployment: string,
+  token: Token,
+  epochAmount?: BigNumberish
+): Promise<BatchTransaction[]> {
+  const bribe = await getDeployedContract('Bribe', bribeDeployment)
+  const length = await bribe.rewardLength()
+  const tokenAddress = await getTokenAddress(token)
+  return concatAll(
+    ..._.range(0, length).map(async (i) => {
+      const { rewardToken, tokenPerSec } = await bribe.rewardInfo(i)
+      if (tokenAddress != rewardToken) {
+        return []
+      }
+
+      const txns = []
+      const newTokenRate = epochAmount ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
+      if (newTokenRate > 0) {
+        const erc20 = await ethers.getContractAt('ERC20', rewardToken)
+        txns.push(Safe(erc20).transfer(bribe.address, newTokenRate.mul(epoch_duration_seconds)))
+      }
+      if (newTokenRate != tokenPerSec) {
+        txns.push(Safe(bribe).setRewardRate(i, newTokenRate))
+      }
+      return txns
+    })
+  )
 }
