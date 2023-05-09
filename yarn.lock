@@ -181,7 +181,7 @@
     bufio "^1.0.7"
     chai "^4.3.4"
 
-"@ethersproject/abi@5.7.0", "@ethersproject/abi@^5.0.0-beta.146", "@ethersproject/abi@^5.0.9", "@ethersproject/abi@^5.1.2", "@ethersproject/abi@^5.7.0":
+"@ethersproject/abi@5.7.0", "@ethersproject/abi@^5.0.0-beta.146", "@ethersproject/abi@^5.0.9", "@ethersproject/abi@^5.1.2", "@ethersproject/abi@^5.6.3", "@ethersproject/abi@^5.7.0":
   version "5.7.0"
   resolved "https://registry.npmjs.org/@ethersproject/abi/-/abi-5.7.0.tgz"
   integrity sha512-351ktp42TiRcYB3H1OP8yajPeAQstMW/yCFokj/AthP9bLHzQFPlOrxOcwYEDkUAICmOHljvN4K39OMTMUa9RA==
@@ -906,20 +906,22 @@
     defender-base-client "^1.3.1"
     ethereumjs-util "^7.1.5"
 
-"@openzeppelin/hardhat-upgrades@^1.20.0", "@openzeppelin/hardhat-upgrades@^1.24.0":
-  version "1.24.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.24.0.tgz#b56f9858fcbb852d5db7caa9cc0367fa1239a64d"
-  integrity sha512-PmNf6y1eXSZ4k4f6Y42mcHeMfwY81MBiuh6vne+fOnWNZANCpjMV9b2Dy7SoS6IgFjq0umAtQYBsHWVWiaMSaw==
+"@openzeppelin/hardhat-upgrades@^1.20.0", "@openzeppelin/hardhat-upgrades@^1.25.0":
+  version "1.25.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.25.0.tgz#7c40554d6d67e9e7693ac087a606798b214865ef"
+  integrity sha512-8kFCHMPLVdbegE4pItBmtEphK1dZE5rXIegOs2lgnOoGOuI+0hSpFNFlhFD8nYYP5YAsuFnxuFbCHVribWF4Rg==
   dependencies:
-    "@openzeppelin/upgrades-core" "^1.25.0"
+    "@openzeppelin/upgrades-core" "^1.26.0"
     chalk "^4.1.0"
     debug "^4.1.1"
+    defender-admin-client "^1.39.0"
+    platform-deploy-client "^0.3.2"
     proper-lockfile "^4.1.1"
 
-"@openzeppelin/upgrades-core@^1.25.0":
-  version "1.25.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/upgrades-core/-/upgrades-core-1.25.0.tgz#4f540e2043b98f8b59a4e8a988b9aeb5b5f23a35"
-  integrity sha512-vSxOSm1k+P156nNm15ydhOmSPGC37mnl092FMVOH+eGaoqLjr2Za6ULVjDMFzvMnG+sGE1UoDOqBNPfTm0ch8w==
+"@openzeppelin/upgrades-core@^1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/upgrades-core/-/upgrades-core-1.26.0.tgz#809c276cb28540f8279604f169f685892f33f14f"
+  integrity sha512-iUrHdTvMxV4zWQ/baBTz3PMmnhoDyJ+TsnlH4/k15eutQi8G6YnS7ca8GAKm/9RFwHPeSjVcqPuWwa1QqL/1hw==
   dependencies:
     cbor "^8.0.0"
     chalk "^4.1.0"
@@ -2421,18 +2423,29 @@ deep-is@^0.1.3, deep-is@~0.1.3:
   resolved "https://registry.npmjs.org/deep-is/-/deep-is-0.1.4.tgz"
   integrity sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==
 
-defender-admin-client@^1.29.0-rc.1:
-  version "1.38.0"
-  resolved "https://registry.npmjs.org/defender-admin-client/-/defender-admin-client-1.38.0.tgz"
-  integrity sha512-uXrZNSIqMs81CY/9MMrAtN6IrPf+BzwHFgs2yOCYX56zQJISeg/Lzc+jYuJMna+zzzHTx35PM+f51Ozp4yqyRg==
+defender-admin-client@^1.29.0-rc.1, defender-admin-client@^1.39.0:
+  version "1.43.0"
+  resolved "https://registry.yarnpkg.com/defender-admin-client/-/defender-admin-client-1.43.0.tgz#a04dd2c01c57599175efc754d0ff315564d6f7fd"
+  integrity sha512-EAB4dUkpcKjbLSHSTTw9KVmTrs8A36x+eVNt85Qr47ypilILtyNgjdqgvroda8syRicQBy28VBdUUWPJtVYAPA==
   dependencies:
     axios "^0.21.2"
-    defender-base-client "1.38.0"
+    defender-base-client "1.43.0"
     ethers "^5.7.2"
     lodash "^4.17.19"
     node-fetch "^2.6.0"
 
-defender-base-client@1.38.0, defender-base-client@^1.3.1:
+defender-base-client@1.43.0, defender-base-client@^1.40.0:
+  version "1.43.0"
+  resolved "https://registry.yarnpkg.com/defender-base-client/-/defender-base-client-1.43.0.tgz#0b915ea9a1ac7f9ce67c381043aa4db035f43c5c"
+  integrity sha512-PFQPDZ08SznSlsKiHcvf1TzvKtnd/fv2/P5s2Y8jYPIb7OtANHw94oDFOOvRpg54o8EQItIb9v7H4g4kp/7fng==
+  dependencies:
+    amazon-cognito-identity-js "^6.0.1"
+    async-retry "^1.3.3"
+    axios "^0.21.2"
+    lodash "^4.17.19"
+    node-fetch "^2.6.0"
+
+defender-base-client@^1.3.1:
   version "1.38.0"
   resolved "https://registry.npmjs.org/defender-base-client/-/defender-base-client-1.38.0.tgz"
   integrity sha512-ooxjlmnPpIP7Zb4ZJkNMcZo3eijaI1FQhgdziuvfF5ggl3gOcDwaZwRoUbYUjgC5oX0Pe+wj+fp1b4S39bjB9Q==
@@ -5125,6 +5138,17 @@ pkg-dir@4.2.0:
   integrity sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==
   dependencies:
     find-up "^4.0.0"
+
+platform-deploy-client@^0.3.2:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/platform-deploy-client/-/platform-deploy-client-0.3.3.tgz#7358d3ee2747fdc8c094d8fed66929d8caeb09c7"
+  integrity sha512-CO7P0h8OHSa19QjA7hWbpmLPE0TPacDgdwA8Vwu9NnUdlYvXfF+q4f0FwaeS0vb1ruWtpkTfeIxy7Sc+TxgcNQ==
+  dependencies:
+    "@ethersproject/abi" "^5.6.3"
+    axios "^0.21.2"
+    defender-base-client "^1.40.0"
+    lodash "^4.17.19"
+    node-fetch "^2.6.0"
 
 pluralize@^8.0.0:
   version "8.0.0"
