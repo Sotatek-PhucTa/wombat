@@ -249,31 +249,30 @@ To verify proxy contracts:
   - Bribe_Asset_HAY_Pool_USDT => `0xD80356F64c0693BAd4844250527B144cDf382915`
 
 - Wombat Rewarders
-
-  - MultiRewarderPerSec_V3_HAY => `0x7903289B0122f3F4E0fF532D1D8A300D19bFd46f`
-  - MultiRewarderPerSec_V3_mWOM => `0x04299f69b567c6C8dC49162138E0ba32cD15ffA4`
-  - MultiRewarderPerSec_V3_mWOMPool_WOM => `0x624BE60CC68Dd7Fc2e3f9f28cC7ef58c5bEB1e26`
-  - MultiRewarderPerSec_V3_qWOM => `0x06228b709Ed3c8344ae61e64b48204174d2e48B5`
-  - MultiRewarderPerSec_V3_qWOMPool_WOM => `0x75Eaa804518a66196946598317Aed57Ef86235Fe`
-  - MultiRewarderPerSec_V3_wmxWom => `0x71E41ca23115545682B12900AfC8c5130e03E623`
-  - MultiRewarderPerSec_V3_wmxWOMPool_WOM => `0xa12BA2d89a16f57C4b714b03C7951c41c7695502`
-  - MultiRewarderPerSec_WBNB => `0x414D1a760320f948147FB71113851BB11CB53976`
-  - MultiRewarderPerSec_PSTAKE => `0x946207061de96bfc2a5CD544EA4eC2F7fBE84A98`
-  - MultiRewarderPerSec_ANKR => `0x2DC5C0A6b83Dc3B7eC92c4A868a87b464Aa27501`
-  - MultiRewarderPerSec_SD => `0x053cd96D5BeB742189E21D9B9112a9195E19435f`
+  - MultiRewarderPerSec_V3_HAY (deprecated) => `0x7903289B0122f3F4E0fF532D1D8A300D19bFd46f`
+  - MultiRewarderPerSec_V3_mWOM (deprecated) => `0x04299f69b567c6C8dC49162138E0ba32cD15ffA4`
+  - MultiRewarderPerSec_V3_mWOMPool_WOM (deprecated) => `0x624BE60CC68Dd7Fc2e3f9f28cC7ef58c5bEB1e26`
+  - MultiRewarderPerSec_V3_qWOM (deprecated) => `0x06228b709Ed3c8344ae61e64b48204174d2e48B5`
+  - MultiRewarderPerSec_V3_qWOMPool_WOM (deprecated) => `0x75Eaa804518a66196946598317Aed57Ef86235Fe`
+  - MultiRewarderPerSec_V3_wmxWom (deprecated) => `0x71E41ca23115545682B12900AfC8c5130e03E623`
+  - MultiRewarderPerSec_V3_wmxWOMPool_WOM (deprecated) => `0xa12BA2d89a16f57C4b714b03C7951c41c7695502`
+  - MultiRewarderPerSec_WBNB (deprecated) => `0x414D1a760320f948147FB71113851BB11CB53976`
+  - MultiRewarderPerSec_PSTAKE (deprecated) => `0x946207061de96bfc2a5CD544EA4eC2F7fBE84A98`
+  - MultiRewarderPerSec_ANKR (deprecated) => `0x2DC5C0A6b83Dc3B7eC92c4A868a87b464Aa27501`
+  - MultiRewarderPerSec_SD (deprecated) => `0x053cd96D5BeB742189E21D9B9112a9195E19435f`
   - MultiRewarderPerSec_BUSD (DEFUNCT) => `0xBD28Fb07c755408ecB81EB8Fcd3e380E4b315f0F`
   - MultiRewarderPerSec_HAY (DEFUNCT) => `0xf812166D8Ff0C90f125b3ad7A59ff9ad6e2BC77D`
   - MultiRewarderPerSec_V2_BUSD (LATEST) => `0x6521a549834F5E6d253CD2e5F4fbe4048f86cd7b`
   - MultiRewarderPerSec_V2_HAY (LATEST) => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
-  - MultiRewarderPerSec_mWOM => `0xd29b3e305cF76e2076c7aACf018fa5D85510Ca01`
-  - MultiRewarderPerSec_mWOMPool_WOM => `0x7A8faab51ca17C181F1516Ce46a716e47cc6e38e`
-  - MultiRewarderPerSec_qWOM => `0xc7Fbef047e25257043Afc1bB9bC3894a47cFCd6c`
-  - MultiRewarderPerSec_qWOMPool_WOM => `0x5D0f17F6385B3C0d1d8Ac4a6CcCacA2A558408e6`
-  - MultiRewarderPerSec_V3_BNBx => `0xe4fD5D5C4D058c2323a35FbB720897EEeB6C76Bd`
-  - MultiRewarderPerSec_V3_BnbxPool_WBNB => `0xFbc083ed7655F68baF0f2039431Ea09c3635176D`
-  - MultiRewarderPerSec_V3_stkBnb => `0x28edda710ef4E72bf1389e2ff7d50Ccfa75f95Af`
-  - MultiRewarderPerSec_V3_StkBnbPool_WBNB => `0x7Db1B59747430b0F5946e8Cd525CFc41bfD3A1C1`
-  - MultiRewarderPerSec_V3_frxETH_Pool_ETH => `0x1cBb0f9ce44F024B47E5f7c07D72F6044DEf4497`
+  - MultiRewarderPerSec_mWOM (deprecated) => `0xd29b3e305cF76e2076c7aACf018fa5D85510Ca01`
+  - MultiRewarderPerSec_mWOMPool_WOM (deprecated) => `0x7A8faab51ca17C181F1516Ce46a716e47cc6e38e`
+  - MultiRewarderPerSec_qWOM (deprecated) => `0xc7Fbef047e25257043Afc1bB9bC3894a47cFCd6c`
+  - MultiRewarderPerSec_qWOMPool_WOM (deprecated) => `0x5D0f17F6385B3C0d1d8Ac4a6CcCacA2A558408e6`
+  - MultiRewarderPerSec_V3_BNBx (deprecated) => `0xe4fD5D5C4D058c2323a35FbB720897EEeB6C76Bd`
+  - MultiRewarderPerSec_V3_BnbxPool_WBNB (deprecated) => `0xFbc083ed7655F68baF0f2039431Ea09c3635176D`
+  - MultiRewarderPerSec_V3_stkBnb (deprecated) => `0x28edda710ef4E72bf1389e2ff7d50Ccfa75f95Af`
+  - MultiRewarderPerSec_V3_StkBnbPool_WBNB (deprecated) => `0x7Db1B59747430b0F5946e8Cd525CFc41bfD3A1C1`
+  - MultiRewarderPerSec_V3_frxETH_Pool_ETH (deprecated) => `0x1cBb0f9ce44F024B47E5f7c07D72F6044DEf4497`
 
 ### Arbitrum mainnet deployed contracts:
 
