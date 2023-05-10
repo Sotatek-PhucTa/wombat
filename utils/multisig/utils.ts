@@ -146,7 +146,7 @@ export async function topUpBribe(
       }
 
       const txns = []
-      const newTokenRate = epochAmount ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
+      const newTokenRate = epochAmount != undefined ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
       if (newTokenRate > 0) {
         const erc20 = await ethers.getContractAt('ERC20', rewardToken)
         txns.push(Safe(erc20).transfer(bribe.address, newTokenRate.mul(epoch_duration_seconds)))
