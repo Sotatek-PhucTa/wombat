@@ -10,6 +10,7 @@ import { DeploymentOrAddress } from '../../types'
 import _ from 'lodash'
 import { epoch_duration_seconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
+import { ExternalContract, getContractAddress } from '../../config/contract'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -157,4 +158,20 @@ export async function topUpBribe(
       return txns
     })
   )
+}
+
+export async function setOperator(deploymentName: string, to: ExternalContract): Promise<BatchTransaction[]> {
+  // Note: use abi for set operator since many contracts have this method.
+  const abi = [
+    {
+      inputs: [{ internalType: 'address', name: '_operator', type: 'address' }],
+      name: 'setOperator',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+  ]
+  const deployment = await deployments.get(deploymentName)
+  const contract = await ethers.getContractAt(abi, deployment.address)
+  return [Safe(contract).setOperator(await getContractAddress(to))]
 }
