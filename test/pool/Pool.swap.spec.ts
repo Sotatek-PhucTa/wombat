@@ -1,10 +1,10 @@
 import { ethers } from 'hardhat'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import chai from 'chai'
-
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { CrossChainPool__factory } from '../../build/typechain'
+import { restoreOrCreateSnapshot } from '../../test/fixtures/executions'
 
 const { expect } = chai
 
@@ -27,52 +27,54 @@ describe('Pool - Swap', function () {
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
 
-  beforeEach(async function () {
-    const [first, ...rest] = await ethers.getSigners()
-    owner = first
-    user1 = rest[0]
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      const [first, ...rest] = await ethers.getSigners()
+      owner = first
+      user1 = rest[0]
 
-    // get last block time
-    const lastBlock = await ethers.provider.getBlock('latest')
-    lastBlockTime = lastBlock.timestamp
-    fiveSecondsSince = lastBlockTime + 5 * 1000
-    fiveSecondsAgo = lastBlockTime - 5 * 1000
+      // get last block time
+      const lastBlock = await ethers.provider.getBlock('latest')
+      lastBlockTime = lastBlock.timestamp
+      fiveSecondsSince = lastBlockTime + 5 * 1000
+      fiveSecondsAgo = lastBlockTime - 5 * 1000
 
-    // Get Factories
-    AssetFactory = await ethers.getContractFactory('Asset')
-    TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-    const coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = (await ethers.getContractFactory('PoolV3', {
-      libraries: { CoreV3: coreV3.address },
-    })) as CrossChainPool__factory
+      // Get Factories
+      AssetFactory = await ethers.getContractFactory('Asset')
+      TestERC20Factory = await ethers.getContractFactory('TestERC20')
+      const CoreV3Factory = await ethers.getContractFactory('CoreV3')
+      const coreV3 = await CoreV3Factory.deploy()
+      PoolFactory = (await ethers.getContractFactory('PoolV3', {
+        libraries: { CoreV3: coreV3.address },
+      })) as CrossChainPool__factory
 
-    // Deploy with factories
-    token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
-    token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
-    token3 = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('1000000', 18)) // 1 mil USDT
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
-    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
-    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
-    asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP')
-    poolContract = await PoolFactory.connect(owner).deploy()
+      // Deploy with factories
+      token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
+      token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
+      token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
+      token3 = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('1000000', 18)) // 1 mil USDT
+      asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+      asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
+      asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
+      asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP')
+      poolContract = await PoolFactory.connect(owner).deploy()
 
-    // set pool address
-    await asset0.setPool(poolContract.address)
-    await asset1.setPool(poolContract.address)
-    await asset2.setPool(poolContract.address)
-    await asset3.setPool(poolContract.address)
+      // set pool address
+      await asset0.setPool(poolContract.address)
+      await asset1.setPool(poolContract.address)
+      await asset2.setPool(poolContract.address)
+      await asset3.setPool(poolContract.address)
 
-    // initialize pool contract
-    poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+      // initialize pool contract
+      poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
-    // Add BUSD & USDC & USDT assets to pool
-    await poolContract.connect(owner).addAsset(token0.address, asset0.address)
-    await poolContract.connect(owner).addAsset(token1.address, asset1.address)
-    await poolContract.connect(owner).addAsset(token2.address, asset2.address)
-    await poolContract.connect(owner).addAsset(token3.address, asset3.address)
-  })
+      // Add BUSD & USDC & USDT assets to pool
+      await poolContract.connect(owner).addAsset(token0.address, asset0.address)
+      await poolContract.connect(owner).addAsset(token1.address, asset1.address)
+      await poolContract.connect(owner).addAsset(token2.address, asset2.address)
+      await poolContract.connect(owner).addAsset(token3.address, asset3.address)
+    })
+  )
 
   describe('Asset BUSD (18 decimals) and vUSDC (6 decimals)', function () {
     beforeEach(async function () {

@@ -5,6 +5,7 @@ import chai from 'chai'
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 import { ethers } from 'hardhat'
 import { CrossChainPool__factory } from '../../build/typechain'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const { expect } = chai
 
@@ -27,48 +28,50 @@ describe('Pool - Withdraw', function () {
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
 
-  beforeEach(async function () {
-    const [first, ...rest] = await ethers.getSigners()
-    owner = first
-    user1 = rest[0]
-    user2 = rest[1]
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      const [first, ...rest] = await ethers.getSigners()
+      owner = first
+      user1 = rest[0]
+      user2 = rest[1]
 
-    // get last block time
-    const lastBlock = await ethers.provider.getBlock('latest')
-    lastBlockTime = lastBlock.timestamp
-    fiveSecondsSince = lastBlockTime + 5 * 1000
-    fiveSecondsAgo = lastBlockTime - 5 * 1000
+      // get last block time
+      const lastBlock = await ethers.provider.getBlock('latest')
+      lastBlockTime = lastBlock.timestamp
+      fiveSecondsSince = lastBlockTime + 5 * 1000
+      fiveSecondsAgo = lastBlockTime - 5 * 1000
 
-    // Get Factories
-    AssetFactory = await ethers.getContractFactory('Asset')
-    TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-    coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = (await ethers.getContractFactory('PoolV3', {
-      libraries: { CoreV3: coreV3.address },
-    })) as CrossChainPool__factory
+      // Get Factories
+      AssetFactory = await ethers.getContractFactory('Asset')
+      TestERC20Factory = await ethers.getContractFactory('TestERC20')
+      const CoreV3Factory = await ethers.getContractFactory('CoreV3')
+      coreV3 = await CoreV3Factory.deploy()
+      PoolFactory = (await ethers.getContractFactory('PoolV3', {
+        libraries: { CoreV3: coreV3.address },
+      })) as CrossChainPool__factory
 
-    // Deploy with factories
-    token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
-    token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
-    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
-    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
-    poolContract = await PoolFactory.connect(owner).deploy()
+      // Deploy with factories
+      token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
+      token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
+      token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
+      asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+      asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
+      asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
+      poolContract = await PoolFactory.connect(owner).deploy()
 
-    // set pool address
-    await asset0.setPool(poolContract.address)
-    await asset1.setPool(poolContract.address)
+      // set pool address
+      await asset0.setPool(poolContract.address)
+      await asset1.setPool(poolContract.address)
 
-    // initialize pool contract
-    await poolContract.connect(owner).initialize(parseEther('0.001'), parseEther('0.0001'))
+      // initialize pool contract
+      await poolContract.connect(owner).initialize(parseEther('0.001'), parseEther('0.0001'))
 
-    // Add BUSD & USDC assets to pool
-    await poolContract.connect(owner).addAsset(token0.address, asset0.address)
-    await poolContract.connect(owner).addAsset(token1.address, asset1.address)
-    await poolContract.connect(owner).addAsset(token2.address, asset2.address)
-  })
+      // Add BUSD & USDC assets to pool
+      await poolContract.connect(owner).addAsset(token0.address, asset0.address)
+      await poolContract.connect(owner).addAsset(token1.address, asset1.address)
+      await poolContract.connect(owner).addAsset(token2.address, asset2.address)
+    })
+  )
 
   describe('Asset BUSD (18 decimals)', function () {
     beforeEach(async function () {

@@ -5,6 +5,7 @@ import chai from 'chai'
 import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { CrossChainPool__factory } from '../../build/typechain'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const { expect } = chai
 
@@ -41,36 +42,38 @@ describe('Pool - Fee', function () {
     })) as CrossChainPool__factory
   })
 
-  beforeEach(async function () {
-    // get last block time
-    const lastBlock = await ethers.provider.getBlock('latest')
-    lastBlockTime = lastBlock.timestamp
-    fiveSecondsSince = lastBlockTime + 5 * 1000
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      // get last block time
+      const lastBlock = await ethers.provider.getBlock('latest')
+      lastBlockTime = lastBlock.timestamp
+      fiveSecondsSince = lastBlockTime + 5 * 1000
 
-    // Deploy with factories
-    token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
-    token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
-    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
-    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
-    poolContract = await PoolFactory.connect(owner).deploy()
+      // Deploy with factories
+      token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
+      token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
+      token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
+      asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+      asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
+      asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
+      poolContract = await PoolFactory.connect(owner).deploy()
 
-    // set pool address
-    await asset0.setPool(poolContract.address)
-    await asset1.setPool(poolContract.address)
-    await asset2.setPool(poolContract.address)
+      // set pool address
+      await asset0.setPool(poolContract.address)
+      await asset1.setPool(poolContract.address)
+      await asset2.setPool(poolContract.address)
 
-    // initialize pool contract
-    await poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+      // initialize pool contract
+      await poolContract.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
-    // Add BUSD & USDC assets to pool
-    await poolContract.connect(owner).addAsset(token0.address, asset0.address)
-    await poolContract.connect(owner).addAsset(token1.address, asset1.address)
-    await poolContract.connect(owner).addAsset(token2.address, asset2.address)
+      // Add BUSD & USDC assets to pool
+      await poolContract.connect(owner).addAsset(token0.address, asset0.address)
+      await poolContract.connect(owner).addAsset(token1.address, asset1.address)
+      await poolContract.connect(owner).addAsset(token2.address, asset2.address)
 
-    await poolContract.connect(owner).setFee(0, parseEther('0.8'))
-  })
+      await poolContract.connect(owner).setFee(0, parseEther('0.8'))
+    })
+  )
 
   describe('Various Paths', function () {
     it('should not set fee to 0', async function () {
