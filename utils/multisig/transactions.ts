@@ -1,6 +1,9 @@
 import { assert } from 'chai'
 import { Contract } from 'ethers'
 import { BatchTransaction, validateTransactionsInBatch, BatchFile, ContractMethod, ContractInput } from './tx-builder'
+import { ethers } from 'hardhat'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { TransactionResponse } from '@ethersproject/providers'
 
 // A Safe generates BatchTransaction instead of signing on-chain transactions.
 export interface Safe {
@@ -31,7 +34,23 @@ export function Safe(contract: Contract): Safe {
   return safe
 }
 
-export function createTransaction(contract: Contract, method: string, args: string[]): BatchTransaction {
+// Execute a batch transaction as a given account.
+export async function executeBatchTransaction(
+  signer: SignerWithAddress,
+  txn: BatchTransaction
+): Promise<TransactionResponse> {
+  return signer.sendTransaction({ to: txn.to, data: txn.data || encodeData(txn), value: 0 })
+}
+
+function encodeData(txn: BatchTransaction): string {
+  assert(txn.contractMethod && txn.contractInputsValues, 'Missing contract method or inputs')
+  // This is a function, not other types: deploy, events, or errors.
+  // https://docs.ethers.org/v5/api/utils/abi/interface/#Interface--properties
+  const iface = new ethers.utils.Interface(`["function ${txn.contractMethod.name}"]`)
+  return iface.encodeFunctionData(txn.contractMethod.name, Object.values(txn.contractInputsValues))
+}
+
+function createTransaction(contract: Contract, method: string, args: string[]): BatchTransaction {
   const fragment = contract.interface.getFunction(method)
   assert(fragment.inputs.length === args.length, 'Invalid number of arguments')
   const values = fragment.inputs.reduce((acc, param, index) => {
