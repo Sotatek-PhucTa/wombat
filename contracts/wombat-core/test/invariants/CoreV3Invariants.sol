@@ -41,7 +41,8 @@ contract CoreV3Invariant {
     ) public pure {
         int256 coverageRatio = (1 ether * cash) / liability;
         int256 expected = CoreV3.exactDepositLiquidityInEquilImpl(amount, liability, liability, ampFactor);
-        int256 actual = CoreV3.exactDepositLiquidityImpl(amount, cash, liability, ampFactor, coverageRatio) * coverageRatio  / 1 ether;
+        int256 actual = (CoreV3.exactDepositLiquidityImpl(amount, cash, liability, ampFactor, coverageRatio) *
+            coverageRatio) / 1 ether;
         require(
             SignedMath.abs(expected - actual) <= margin,
             string(
@@ -92,8 +93,8 @@ contract CoreV3Invariant {
     ) public pure {
         int256 coverageRatio = (1 ether * cash) / liability;
         int256 expected = CoreV3.withdrawalAmountInEquilImpl(amount, liability, liability, ampFactor);
-        int256 actual = (CoreV3.withdrawalAmountImpl(amount, cash, liability, ampFactor, coverageRatio) *
-            1 ether) / coverageRatio;
+        int256 actual = (CoreV3.withdrawalAmountImpl(amount, cash, liability, ampFactor, coverageRatio) * 1 ether) /
+            coverageRatio;
         require(
             SignedMath.abs(expected - actual) <= margin,
             string(
