@@ -5,7 +5,7 @@ import { BatchTransaction } from './tx-builder'
 import { Safe } from './transactions'
 import assert from 'assert'
 import { Token, getTokenAddress } from '../../config/token'
-import { BigNumber, BigNumberish } from 'ethers'
+import { BigNumber, BigNumberish, Contract } from 'ethers'
 import { DeploymentOrAddress } from '../../types'
 import _ from 'lodash'
 import { epoch_duration_seconds } from '../../config/epoch'
@@ -121,13 +121,31 @@ export async function removeAssets(
 
 // Set bribe to voter
 // Requires: bribe.master() == voter.address
+// Requires: no existing bribe or it has no active emission
 export async function setBribe(bribeDeployment: string): Promise<BatchTransaction[]> {
   const bribe = await getDeployedContract('Bribe', bribeDeployment)
   const voter = await getDeployedContract('Voter')
   const master = await bribe.master()
   assert(voter.address == master, `Voter does not own bribe. Voter: ${voter.address}, Bribe master: ${master}`)
   const lpToken = await bribe.lpToken()
+
+  // Make sure existing bribe is not emitting
+  const { bribe: currentBribe } = await voter.infos(lpToken)
+  if (currentBribe != ethers.constants.AddressZero) {
+    assert(await !hasActiveRewards(bribe), 'Bribe is still emitting rewards')
+  }
   return [Safe(voter).setBribe(lpToken, bribe.address)]
+}
+
+async function hasActiveRewards(bribe: Contract): Promise<boolean> {
+  const length = await bribe.rewardLength()
+  const tokenRates = await Promise.all(
+    _.range(0, length).map(async (i) => {
+      const { tokenPerSec } = await bribe.rewardInfo(i)
+      return tokenPerSec
+    })
+  )
+  return tokenRates.every((tokenPerSec) => tokenPerSec == 0)
 }
 
 // Top up the bribe token by one epoch. Optionally set a new rate.
@@ -139,13 +157,14 @@ export async function topUpBribe(
   const bribe = await getDeployedContract('Bribe', bribeDeployment)
   const length = await bribe.rewardLength()
   const tokenAddress = await getTokenAddress(token)
-  return concatAll(
+  let hasToken = false
+  const batch_txns = concatAll(
     ..._.range(0, length).map(async (i) => {
       const { rewardToken, tokenPerSec } = await bribe.rewardInfo(i)
       if (tokenAddress != rewardToken) {
         return []
       }
-
+      hasToken = true
       const txns = []
       const newTokenRate = epochAmount != undefined ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
       if (newTokenRate > 0) {
@@ -158,6 +177,11 @@ export async function topUpBribe(
       return txns
     })
   )
+  assert(
+    hasToken,
+    `Token ${token} (${tokenAddress}) not found in Bribe (${bribe.address}). Please call addRewardToken first.`
+  )
+  return batch_txns
 }
 
 export async function setOperator(deploymentName: string, to: ExternalContract): Promise<BatchTransaction[]> {
