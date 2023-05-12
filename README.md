@@ -276,17 +276,10 @@ To verify proxy contracts:
 
 ### Arbitrum mainnet deployed contracts:
 
-- Wombat Proxy Admin
-
-  - Default Proxy Admin (Proxy Admin) => `0x2722FE570Fa9f7fEE1662dEee01F5d76003dE182`
-
-- Wombat Router
-
-  - WombatRouter => `0xc4B2F992496376C6127e73F1211450322E580668`
-
 - Wombat Governance
-
+  - Default Proxy Admin (Proxy Admin) => `0x2722FE570Fa9f7fEE1662dEee01F5d76003dE182`
   - Wombat Token => `0x7b5eb3940021ec0e8e463d5dbb4b7b09a89ddf96`
+  - WombatRouter => `0xc4B2F992496376C6127e73F1211450322E580668`
   - MasterWombatV3 Proxy => `0x62A83C6791A3d7950D823BB71a38e47252b6b6F4`
   - VeWom Proxy => `0x488B34F704a601DAeEf14135146a3dA79F2d3EFC`
   - Voter Proxy => `0x3f90a5a47364c0467031fB00246192d40E3D2D9D`
@@ -381,6 +374,7 @@ To verify proxy contracts:
 
 Wombat Governance
   - DefaultProxyAdmin => `0x85cEBD962861be410a777755dFa06914de6af003`
+  - Wombat Token => `0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668`
 
 Main Pool
   - Main_Pool_Proxy => `0x6f8Ad371FDD422c0abE21352525f58b5E3bB266b`

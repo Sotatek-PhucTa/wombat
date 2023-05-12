@@ -224,7 +224,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.HARDHAT]: Deployment('WombatToken'),
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
-    [Network.OPTIMISM_MAINNET]: Unknown(),
+    [Network.OPTIMISM_MAINNET]: Address('0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668'),
   },
   [Token.ankrBNB]: {
     // https://bscscan.com/address/0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827
