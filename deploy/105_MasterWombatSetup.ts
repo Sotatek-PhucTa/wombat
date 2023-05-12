@@ -15,14 +15,16 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log(`Step 105. Deploying on: ${hre.network.name}...`)
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
-  const vewom = await getDeployedContract('VeWom')
-  const voter = await getDeployedContract('Voter')
-
-  deployments.log(`set vewom to ${vewom.address}`)
-  await confirmTxn(masterWombat.connect(owner).setVeWom(vewom.address))
-
-  deployments.log(`set voter to ${voter.address}`)
-  await confirmTxn(masterWombat.connect(owner).setVoter(voter.address))
+  const vewom = await deployments.getOrNull('VeWom')
+  const voter = await deployments.getOrNull('Voter')
+  if (vewom != undefined && vewom != (await masterWombat.vewom())) {
+    deployments.log(`set vewom to ${vewom.address}`)
+    await confirmTxn(masterWombat.connect(owner).setVeWom(vewom.address))
+  }
+  if (voter != undefined && voter != (await masterWombat.voter())) {
+    deployments.log(`set voter to ${voter.address}`)
+    await confirmTxn(masterWombat.connect(owner).setVoter(voter.address))
+  }
 
   deployments.log('Setting up main pool')
   const USD_TOKENS = USD_TOKENS_MAP[hre.network.name as Network] || {}
@@ -69,5 +71,5 @@ async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetA
 }
 
 export default deployFunc
-deployFunc.dependencies = ['MasterWombatV3', 'Voter', 'VeWom']
+deployFunc.dependencies = ['MasterWombatV3']
 deployFunc.tags = ['MasterWombatV3Setup']
