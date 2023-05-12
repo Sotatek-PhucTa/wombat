@@ -375,6 +375,8 @@ To verify proxy contracts:
 Wombat Governance
   - DefaultProxyAdmin => `0x85cEBD962861be410a777755dFa06914de6af003`
   - Wombat Token => `0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668`
+  - WombatRouter => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
+  - MasterWombatV3_Proxy => `0x34E2F923bBa206358EcE221af73E8d121837F873`
 
 Main Pool
   - Main_Pool_Proxy => `0x6f8Ad371FDD422c0abE21352525f58b5E3bB266b`
