@@ -7,13 +7,11 @@ import { network } from 'hardhat'
 const MULTISIG_JSON = 'multisig.json'
 
 // Pending transactions during deployment
-// TODO: integrate with deploy script to add pending transaction
-// TODO: provide util to convert pending transactions to multisig.json
 const PENDING_MULTISIG_JSON = '.pending-multisig.json'
 
 // Write transactions to multisig.json that can be imported into Gnosis Safe.
 // Overwrite existing file if the file already exists.
-export function writeTransactionsToFile(transactions: BatchTransaction[], file = MULTISIG_JSON) {
+export function writeBatchFile(transactions: BatchTransaction[], file = MULTISIG_JSON) {
   const batchFile: BatchFile = {
     version: '1.0.0',
     chainId: network.config.chainId?.toString() || '0',
@@ -25,4 +23,17 @@ export function writeTransactionsToFile(transactions: BatchTransaction[], file =
   }
   assert(validateTransactionsInBatch(batchFile), `Invalid transactions in batch file: ${JSON.stringify(batchFile)}`)
   fs.writeFileSync(file, JSON.stringify(batchFile, null, 2) + '\n')
+}
+
+export function readPendingTransactions(file = PENDING_MULTISIG_JSON): BatchTransaction[] {
+  assert(fs.existsSync(file), `File ${file} does not exist`)
+  const content = fs.readFileSync(file).toString()
+  // filter out empty newline
+  const lines = content.split('\n').filter((line) => line.length > 0)
+  return lines.flatMap((line) => JSON.parse(line) as BatchTransaction[])
+}
+
+// Append batch transactions to file as single line.
+export function appendBatchTransactions(transactions: BatchTransaction[], file = PENDING_MULTISIG_JSON) {
+  fs.appendFileSync(file, JSON.stringify(transactions) + '\n')
 }

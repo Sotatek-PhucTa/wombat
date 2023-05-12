@@ -8,7 +8,6 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 describe('Safe', function () {
   let owner: SignerWithAddress
   let user: SignerWithAddress
-
   let pool: Contract
 
   beforeEach(async function () {
