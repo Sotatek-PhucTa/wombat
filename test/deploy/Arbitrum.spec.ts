@@ -40,6 +40,9 @@ describe('Arbitrum', function () {
       getDeployedContract('WombatERC20', 'WombatToken'),
     ])
 
+    expect(await masterWombatV3.veWom()).to.eql(vewom.address)
+    expect(await masterWombatV3.voter()).to.eql(voter.address)
+
     await wom.connect(multisig).transfer(user.address, parseEther('1000'))
     await busd.connect(user).faucet(parseEther('1000'))
     expect(await wom.balanceOf(user.address)).to.eq(parseEther('1000'))

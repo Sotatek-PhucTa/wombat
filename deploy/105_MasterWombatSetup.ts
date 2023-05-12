@@ -17,7 +17,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const masterWombat = await getDeployedContract('MasterWombatV3')
   const vewom = await deployments.getOrNull('VeWom')
   const voter = await deployments.getOrNull('Voter')
-  if (vewom != undefined && vewom != (await masterWombat.vewom())) {
+  if (vewom != undefined && vewom != (await masterWombat.veWom())) {
     deployments.log(`set vewom to ${vewom.address}`)
     await confirmTxn(masterWombat.connect(owner).setVeWom(vewom.address))
   }
