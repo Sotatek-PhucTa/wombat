@@ -1,9 +1,8 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { getAddress, logVerifyCommand } from '../utils'
+import { logVerifyCommand } from '../utils'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
-import { WOMBAT_TOKEN } from '../config/tokens.config'
-import { Network } from '../types'
+import { Token, getTokenAddress } from '../config/token'
 
 const contractName = 'MasterWombatV2'
 
@@ -13,7 +12,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
 
   deployments.log(`Step 101. Deploying on : ${hre.network.name} with account : ${deployer}`)
-  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
+  const wombatToken = await getTokenAddress(Token.WOM)
   const womPerSec = 1 // small amount > 0 to avoid actually sending emission
   const latest = await time.latest()
   const startTimestamp = latest + 300 // T+5min

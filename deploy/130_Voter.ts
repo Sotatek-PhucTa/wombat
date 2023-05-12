@@ -2,10 +2,9 @@ import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { getAddress, logVerifyCommand } from '../utils'
+import { logVerifyCommand } from '../utils'
 import { parseEther } from 'ethers/lib/utils'
-import { WOMBAT_TOKEN } from '../config/tokens.config'
-import { Network } from '../types'
+import { Token, getTokenAddress } from '../config/token'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
@@ -14,7 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 130. Deploying on: ${hre.network.name}...`)
 
-  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
+  const wombatToken = await getTokenAddress(Token.WOM)
   const vewom = await deployments.get('VeWom')
 
   const block = await ethers.provider.getBlock('latest')

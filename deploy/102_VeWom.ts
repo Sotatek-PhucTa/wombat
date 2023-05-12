@@ -1,8 +1,7 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { WOMBAT_TOKEN } from '../config/tokens.config'
-import { Network } from '../types'
-import { confirmTxn, getAddress, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { confirmTxn, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { Token, getTokenAddress } from '../config/token'
 
 const contractName = 'VeWom'
 
@@ -15,7 +14,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   deployments.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
-  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
+  const wombatToken = await getTokenAddress(Token.WOM)
   const masterWombat = await getDeployedContract('MasterWombatV3')
 
   // deterministicDeployment is used only for implementation but not the proxy contract

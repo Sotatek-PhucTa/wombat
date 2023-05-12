@@ -1,8 +1,7 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { WOMBAT_TOKEN } from '../config/tokens.config'
-import { Network } from '../types'
-import { getAddress, logVerifyCommand } from '../utils'
+import { Token, getTokenAddress } from '../config/token'
+import { logVerifyCommand } from '../utils'
 
 const contractName = 'MasterWombatV3'
 
@@ -13,7 +12,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   deployments.log(`Step 104. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
-  const wombatToken = await getAddress(WOMBAT_TOKEN[hre.network.name as Network])
+  const wombatToken = await getTokenAddress(Token.WOM)
   const deployResult = await deploy(contractName, {
     from: deployer,
     contract: contractName,
