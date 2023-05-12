@@ -56,17 +56,24 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 }
 
+function hasAsset(masterWombat: Contract, assetAddress: string): Promise<boolean> {
+  return masterWombat.getAssetPid(assetAddress).then(
+    () => true,
+    () => false
+  )
+}
+
 async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetAddress: string) {
   deployments.log('addAsset', assetAddress)
+  if (await hasAsset(masterWombat, assetAddress)) {
+    deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
+  }
+
   try {
     await confirmTxn(masterWombat.connect(owner).add(assetAddress, ethers.constants.AddressZero))
   } catch (err: any) {
-    if (err.message.includes('add: LP already added')) {
-      deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
-    } else {
-      deployments.log('Failed to add asset', assetAddress, 'due to', err)
-      throw err
-    }
+    deployments.log('Failed to add asset', assetAddress, 'due to', err)
+    throw err
   }
 }
 
