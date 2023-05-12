@@ -139,20 +139,14 @@ export async function deployAssetV2(
   deployments.log(`Attemping to deploy Asset contract for: ${assetInfo.tokenName} of pool ${poolAddress}`)
   const tokenName = assetInfo.tokenName
   const tokenSymbol = assetInfo.tokenSymbol
-  const underlyingTokenAddr = assetInfo.underlyingToken
-    ? await getTokenAddress(assetInfo.underlyingToken)
-    : assetInfo.underlyingTokenAddr
-  const oracleAddress = assetInfo.oracle ? await getContractAddress(assetInfo.oracle) : assetInfo.oracleAddress
   const assetContractName = assetInfo.assetContractName ?? 'Asset'
   const name = `Wombat ${tokenName} Asset`
   const symbol = `LP-${tokenSymbol}`
-  if (underlyingTokenAddr == undefined) {
-    throw 'invalid asset info for ' + assetInfo.tokenName
-  }
-
+  const underlyingTokenAddr = await getUnderlyingTokenAddr(assetInfo)
   const args: string[] = [underlyingTokenAddr, name, symbol]
-  if (oracleAddress) args.push(oracleAddress)
-
+  if (assetInfo.oracle) {
+    args.push(await getContractAddress(assetInfo.oracle))
+  }
   const deployResult = await deploy(deploymentName, {
     from: deployer,
     contract: assetContractName,

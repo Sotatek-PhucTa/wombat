@@ -40,8 +40,6 @@ export async function getUnderlyingTokenAddr(assetInfo: IAssetInfo): Promise<str
     return deployment.address
   } else if (assetInfo.underlyingToken) {
     return getTokenAddress(assetInfo.underlyingToken)
-  } else if (assetInfo.underlyingTokenAddr != undefined) {
-    return assetInfo.underlyingTokenAddr
   } else {
     throw `underlying token is undefined for ${assetInfo.assetContractName} ${assetInfo.tokenSymbol}`
   }

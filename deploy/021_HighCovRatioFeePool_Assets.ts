@@ -24,13 +24,11 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const pool = await getDeployedContract('HighCovRatioFeePoolV2', poolContractName)
 
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
-      const tokenAddress = await getUnderlyingTokenAddr(assetInfo)
-
       await deployAssetV2(
         hre.network.name,
         deployer,
         multisig,
-        Object.assign(assetInfo, { underlyingTokenAddr: tokenAddress }),
+        assetInfo,
         pool.address,
         pool,
         getAssetDeploymentName(poolName, assetInfo.tokenSymbol)

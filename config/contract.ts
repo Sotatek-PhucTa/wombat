@@ -5,7 +5,10 @@ import { getAddress } from '../utils'
 // Enum of external contract that are not tokens.
 // style note: sort alphabetically.
 export enum ExternalContract {
+  AnkrBNBOracle,
   AnkrBribeOperator,
+  AnkrETHOracle,
+  BNBxOracle,
   BNByOracle,
   FraxBribeOperator,
   JonesDaoBribeOperator,
@@ -15,6 +18,7 @@ export enum ExternalContract {
   QuollBribeOperator,
   QuollVeWomProxy,
   SkimAdmin,
+  StkBNBOracle,
   TenFiBribeOperator,
   WombexBribeOperator,
   WombexVeWomProxy,
@@ -45,8 +49,17 @@ export async function getContractAddressOrDefault(
 
 // registry of contract address. Used by getContractAddress only. Do not export.
 const contractRegistry: Record<ExternalContract, PartialRecord<Network, DeploymentOrAddress>> = {
+  [ExternalContract.AnkrBNBOracle]: {
+    [Network.BSC_MAINNET]: Address('0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827'),
+  },
   [ExternalContract.AnkrBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0xAE1c38847Fb90A13a2a1D7E5552cCD80c62C6508'),
+  },
+  [ExternalContract.AnkrETHOracle]: {
+    [Network.BSC_MAINNET]: Address('0xe05a08226c49b636acf99c40da8dc6af83ce5bb3'),
+  },
+  [ExternalContract.BNBxOracle]: {
+    [Network.BSC_MAINNET]: Address('0x7276241a669489E4BBB76f63d2A43Bfe63080F2F'),
   },
   [ExternalContract.BNByOracle]: {
     // https://bscscan.com/address/0x5e259cdbC6A3b7CeA735C906E585cba36Cca7f44
@@ -81,6 +94,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.SkimAdmin]: {
     [Network.BSC_MAINNET]: Address('0xa772b0BA6042b9416a619f6638dcfEaC4a8B31fF'),
     [Network.ARBITRUM_MAINNET]: Address('0x3ca375b8107cB2c7f520cA87b2DeF8dC5040aeb4'),
+  },
+  [ExternalContract.StkBNBOracle]: {
+    [Network.BSC_MAINNET]: Address('0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8'),
   },
   [ExternalContract.TenFiBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x393c7c3ebcbff2c1138d123df5827e215458f0c4'),

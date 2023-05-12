@@ -5,28 +5,33 @@ import { getCurrentNetwork } from '../types/network'
 // style note: sort alphabetically.
 export enum Token {
   ANKR,
+  BNBx,
   BNBy,
   BOB,
   BUSD,
   BTC,
   CUSD,
+  DAIPlus,
   ETH,
   FRAX,
   FXS,
   HAY,
   JONES,
+  MAI,
   MGP,
   MIM,
   PSTAKE,
   QI,
   QUO,
-  RT1, // TestERC20
-  RT2, // TestERC20
+  RT1,
+  RT2,
   SD,
   SPELL,
   TENFI,
+  TUSD,
   UNKNOWN,
   USDC,
+  USDD,
   USDPlus,
   USDT,
   USDTPlus,
@@ -43,7 +48,8 @@ export enum Token {
   mWOM,
   qWOM,
   sfrxETH,
-  testFRAX, // TestERC20
+  stkBNB,
+  testFRAX,
   vUSDC,
   wBETH,
   wmxWOM,
@@ -69,6 +75,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/ankr-network
     [Network.BSC_MAINNET]: Address('0xf307910a4c7bbc79691fd374889b36d8531b08e3'),
   },
+  [Token.BNBx]: {
+    [Network.BSC_MAINNET]: Address('0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275'),
+  },
   [Token.BNBy]: {
     // https://bscscan.com/address/0x6764506be2a755c18f4c70bDe4e63F26f9F62810
     [Network.BSC_MAINNET]: Address('0x6764506be2a755c18f4c70bDe4e63F26f9F62810'),
@@ -88,6 +97,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.CUSD]: {
     [Network.BSC_MAINNET]: Address('0xFa4BA88Cf97e282c505BEa095297786c16070129'),
+  },
+  [Token.DAIPlus]: {
+    [Network.ARBITRUM_MAINNET]: Address('0xeb8E93A0c7504Bffd8A8fFa56CD754c63aAeBFe8'),
   },
   [Token.ETH]: {
     [Network.BSC_TESTNET]: Deployment('ETH'),
@@ -109,6 +121,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.JONES]: {
     // https://www.coingecko.com/en/coins/jones-dao
     [Network.ARBITRUM_MAINNET]: Address('0x10393c20975cf177a3513071bc110f7962cd67da'),
+  },
+  [Token.MAI]: {
+    [Network.ARBITRUM_MAINNET]: Address('0x3F56e0c36d275367b8C502090EDF38289b3dEa0d'),
   },
   [Token.MGP]: {
     // https://www.coingecko.com/en/coins/magpie
@@ -155,6 +170,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/ten
     [Network.BSC_MAINNET]: Address('0xd15C444F1199Ae72795eba15E8C1db44E47abF62'),
   },
+  [Token.TUSD]: {
+    [Network.BSC_MAINNET]: Address('0x14016E85a25aeb13065688cAFB43044C2ef86784'),
+  },
   [Token.UNKNOWN]: {
     // Cannot be resolved on any network.
   },
@@ -163,6 +181,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
     [Network.ARBITRUM_MAINNET]: Address('0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'),
     [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
+  },
+  [Token.USDD]: {
+    [Network.BSC_MAINNET]: Address('0xd17479997F34dd9156Deef8F95A52D81D265be9c'),
   },
   [Token.USDPlus]: {
     // https://www.coingecko.com/en/coins/usdplus
@@ -220,6 +241,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.frxETH]: {
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
     [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63b33f733770c2a'),
+  },
+  [Token.stkBNB]: {
+    [Network.BSC_MAINNET]: Address('0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16'),
   },
   [Token.iUSD]: {
     // https://www.coingecko.com/en/coins/izumi-bond-usd
