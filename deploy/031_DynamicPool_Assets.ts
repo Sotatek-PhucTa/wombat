@@ -4,7 +4,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DYNAMICPOOL_TOKENS_MAP } from '../config/tokens.config'
 import { Network } from '../types'
-import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, isOwner } from '../utils'
+import { confirmTxn, getDeployedContract, isOwner } from '../utils'
 import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 
 const contractName = 'DynamicPoolAssets'

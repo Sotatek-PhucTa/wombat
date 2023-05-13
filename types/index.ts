@@ -79,8 +79,8 @@ export interface IWormholeConfig {
 }
 
 export interface IWormholeAdaptorConfig {
-  adaptorAddr: string
-  tokens: string[]
+  adaptorAddr: DeploymentOrAddress
+  tokens: Token[]
 }
 
 export interface IPoolConfig {
@@ -113,13 +113,10 @@ export interface IGovernedPriceFeed extends IPriceFeed {
 export interface IAssetInfo {
   tokenName: string
   tokenSymbol: string
-  // TODO: make this required once we separate mock token deployment
-  underlyingToken?: Token
+  underlyingToken: Token
   allocPoint?: BigNumberish // default to be 0
   assetContractName?: string // default using Asset
   oracle?: ExternalContract
-  // TODO: separate mock token deployment from asset
-  useMockToken?: boolean // to deploy a mock token, this field is required
   priceFeed?: IPriceFeed
   maxSupply?: BigNumberish
 }

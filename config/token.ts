@@ -90,6 +90,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.BUSD]: {
     [Network.HARDHAT]: Deployment('BUSD'),
     [Network.BSC_TESTNET]: Deployment('BUSD'),
+    [Network.AVALANCHE_TESTNET]: Deployment('BUSD'),
   },
   [Token.BTC]: {
     [Network.BSC_TESTNET]: Deployment('BTC'),
@@ -276,6 +277,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.vUSDC]: {
     [Network.HARDHAT]: Deployment('vUSDC'),
+    [Network.BSC_TESTNET]: Deployment('vUSDC'),
+    [Network.AVALANCHE_TESTNET]: Deployment('vUSDC'),
   },
   [Token.wBETH]: {
     // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1

@@ -48,6 +48,7 @@ import {
   UsddAsset,
   UsdtAsset,
   UsdtPlusAsset,
+  VusdcAsset,
   WbethAsset,
   WbnbAsset,
   WethAsset,
@@ -184,38 +185,38 @@ export function injectForkNetwork<T>(config: PartialRecord<Network, T>): Partial
 
 export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
   [Network.BSC_MAINNET]: {
-    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 220], // last item is pool alloc point
+    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 220],
     USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 220],
     USDT: ['Tether USD', 'USDT', '0x55d398326f99059ff775485246999027b3197955', 220],
     DAI: ['Dai Stablecoin', 'DAI', '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3', 75],
   },
   [Network.BSC_TESTNET]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
-    USDC: ['USD Coin', 'USDC', '18', 0, 240],
-    USDT: ['Tether USD', 'USDT', '18', 0, 240],
-    TUSD: ['TrueUSD', 'TUSD', '18', 0, 240],
-    DAI: ['Dai Stablecoin', 'DAI', '18', 0, 240],
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
+    BUSD: ['Binance USD', 'BUSD', '18', 0],
+    USDC: ['USD Coin', 'USDC', '18', 0],
+    USDT: ['Tether USD', 'USDT', '18', 0],
+    TUSD: ['TrueUSD', 'TUSD', '18', 0],
+    DAI: ['Dai Stablecoin', 'DAI', '18', 0],
+    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
   },
   [Network.AVALANCHE_TESTNET]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
+    BUSD: ['Binance USD', 'BUSD', '18', 0],
+    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
   },
   [Network.LOCALHOST]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
-    USDC: ['USD Coin', 'USDC', '18', 0, 240],
-    USDT: ['Tether USD', 'USDT', '18', 0, 240],
-    TUSD: ['TrueUSD', 'TUSD', '18', 0, 240],
-    DAI: ['Dai Stablecoin', 'DAI', '18', 0, 240],
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
+    BUSD: ['Binance USD', 'BUSD', '18', 0],
+    USDC: ['USD Coin', 'USDC', '18', 0],
+    USDT: ['Tether USD', 'USDT', '18', 0],
+    TUSD: ['TrueUSD', 'TUSD', '18', 0],
+    DAI: ['Dai Stablecoin', 'DAI', '18', 0],
+    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
   },
   [Network.HARDHAT]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0, 240], // 0 tokens minted to msg.sender initially
-    USDC: ['USD Coin', 'USDC', '18', 0, 240],
-    USDT: ['Tether USD', 'USDT', '18', 0, 240],
-    TUSD: ['TrueUSD', 'TUSD', '18', 0, 240],
-    DAI: ['Dai Stablecoin', 'DAI', '18', 0, 240],
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0, 240],
+    BUSD: ['Binance USD', 'BUSD', '18', 0],
+    USDC: ['USD Coin', 'USDC', '18', 0],
+    USDT: ['Tether USD', 'USDT', '18', 0],
+    TUSD: ['TrueUSD', 'TUSD', '18', 0],
+    DAI: ['Dai Stablecoin', 'DAI', '18', 0],
+    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
   },
   [Network.ARBITRUM_MAINNET]: {
     USDC: ['USD Coin', 'USDC', '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8', /*allocPoint=*/ '300'],
@@ -228,140 +229,47 @@ export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = 
   TokenMap<IMockTokenInfo>
 >({
   [Network.HARDHAT]: {
-    axlUSDC: {
-      tokenName: 'Axelar Wrapped USDC',
-      tokenSymbol: 'axlUSDC',
-      decimalForMockToken: 6,
-    },
+    BUSD: { tokenName: 'Binance USD', tokenSymbol: 'BUSD', decimalForMockToken: 18 },
+    USDC: { tokenName: 'USD Coin', tokenSymbol: 'USDC', decimalForMockToken: 18 },
+    USDT: { tokenName: 'Tether USD', tokenSymbol: 'USDT', decimalForMockToken: 18 },
+    TUSD: { tokenName: 'TrueUSD', tokenSymbol: 'TUSD', decimalForMockToken: 18 },
+    DAI: { tokenName: 'Dai Stablecoin', tokenSymbol: 'DAI', decimalForMockToken: 18 },
+    vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', decimalForMockToken: 8 },
+    axlUSDC: { tokenName: 'Axelar Wrapped USDC', tokenSymbol: 'axlUSDC', decimalForMockToken: 6 },
   },
   [Network.BSC_TESTNET]: {
-    BUSD: {
-      tokenName: 'Binance USD',
-      tokenSymbol: 'BUSD',
-      decimalForMockToken: 18,
-    },
-    USDC: {
-      tokenName: 'USD Coin',
-      tokenSymbol: 'USDC',
-      decimalForMockToken: 18,
-    },
-    USDT: {
-      tokenName: 'Tether USD',
-      tokenSymbol: 'USDT',
-      decimalForMockToken: 18,
-    },
-    DAI: {
-      tokenName: 'Dai Stablecoin',
-      tokenSymbol: 'DAI',
-      decimalForMockToken: 18,
-    },
-    vUSDC: {
-      tokenName: 'Venus USDC',
-      tokenSymbol: 'vUSDC',
-      decimalForMockToken: 8,
-    },
-    TUSD: {
-      tokenName: 'TrueUSD',
-      tokenSymbol: 'TUSD',
-      decimalForMockToken: 18,
-    },
-    FRAX: {
-      tokenName: 'Frax',
-      tokenSymbol: 'FRAX',
-      decimalForMockToken: 18,
-    },
-    iUSD: {
-      tokenName: 'iZUMi Bond USD',
-      tokenSymbol: 'iUSD',
-      decimalForMockToken: 18,
-    },
-    CUSD: {
-      tokenName: 'Coin98 Dollar',
-      tokenSymbol: 'CUSD',
-      decimalForMockToken: 18,
-    },
-    MIM: {
-      tokenName: 'Magic Internet Money',
-      tokenSymbol: 'MIM',
-      decimalForMockToken: 18,
-    },
-    HAY: {
-      tokenName: 'Hay Destablecoin',
-      tokenSymbol: 'HAY',
-      decimalForMockToken: 18,
-    },
-    axlUSDC: {
-      tokenName: 'Axelar Wrapped USDC',
-      tokenSymbol: 'axlUSDC',
-      decimalForMockToken: 6,
-    },
-    USDD: {
-      tokenName: 'Decentralized USD',
-      tokenSymbol: 'USDD',
-      decimalForMockToken: 18,
-    },
-    BOB: {
-      tokenName: 'BOB',
-      tokenSymbol: 'BOB',
-      decimalForMockToken: 18,
-    },
-    WOM: {
-      tokenName: 'Wombat Token',
-      tokenSymbol: 'WOM',
-      decimalForMockToken: 18,
-    },
-    wmxWOM: {
-      tokenName: 'WMX WOM',
-      tokenSymbol: 'wmxWOM',
-      decimalForMockToken: 18,
-    },
-    mWOM: {
-      tokenName: 'M WOM',
-      tokenSymbol: 'mWOM',
-      decimalForMockToken: 18,
-    },
-    qWOM: {
-      tokenName: 'Quoll WOM',
-      tokenSymbol: 'qWOM',
-      decimalForMockToken: 18,
-    },
-    BTC: {
-      tokenName: 'Bitcoin Token',
-      tokenSymbol: 'BTC',
-      decimalForMockToken: 18,
-    },
-    ETH: {
-      tokenName: 'Ethereum Token',
-      tokenSymbol: 'ETH',
-      decimalForMockToken: 18,
-    },
+    BUSD: { tokenName: 'Binance USD', tokenSymbol: 'BUSD', decimalForMockToken: 18 },
+    USDC: { tokenName: 'USD Coin', tokenSymbol: 'USDC', decimalForMockToken: 18 },
+    USDT: { tokenName: 'Tether USD', tokenSymbol: 'USDT', decimalForMockToken: 18 },
+    DAI: { tokenName: 'Dai Stablecoin', tokenSymbol: 'DAI', decimalForMockToken: 18 },
+    vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', decimalForMockToken: 8 },
+    TUSD: { tokenName: 'TrueUSD', tokenSymbol: 'TUSD', decimalForMockToken: 18 },
+    FRAX: { tokenName: 'Frax', tokenSymbol: 'FRAX', decimalForMockToken: 18 },
+    iUSD: { tokenName: 'iZUMi Bond USD', tokenSymbol: 'iUSD', decimalForMockToken: 18 },
+    CUSD: { tokenName: 'Coin98 Dollar', tokenSymbol: 'CUSD', decimalForMockToken: 18 },
+    MIM: { tokenName: 'Magic Internet Money', tokenSymbol: 'MIM', decimalForMockToken: 18 },
+    HAY: { tokenName: 'Hay Destablecoin', tokenSymbol: 'HAY', decimalForMockToken: 18 },
+    axlUSDC: { tokenName: 'Axelar Wrapped USDC', tokenSymbol: 'axlUSDC', decimalForMockToken: 6 },
+    USDD: { tokenName: 'Decentralized USD', tokenSymbol: 'USDD', decimalForMockToken: 18 },
+    BOB: { tokenName: 'BOB', tokenSymbol: 'BOB', decimalForMockToken: 18 },
+    WOM: { tokenName: 'Wombat Token', tokenSymbol: 'WOM', decimalForMockToken: 18 },
+    wmxWOM: { tokenName: 'WMX WOM', tokenSymbol: 'wmxWOM', decimalForMockToken: 18 },
+    mWOM: { tokenName: 'M WOM', tokenSymbol: 'mWOM', decimalForMockToken: 18 },
+    qWOM: { tokenName: 'Quoll WOM', tokenSymbol: 'qWOM', decimalForMockToken: 18 },
+    BTC: { tokenName: 'Bitcoin Token', tokenSymbol: 'BTC', decimalForMockToken: 18 },
+    ETH: { tokenName: 'Ethereum Token', tokenSymbol: 'ETH', decimalForMockToken: 18 },
   },
   [Network.LOCALHOST]: {
-    BUSD: {
-      tokenName: 'Binance USD',
-      tokenSymbol: 'BUSD',
-      decimalForMockToken: 18,
-    },
-    USDC: {
-      tokenName: 'USD Coin',
-      tokenSymbol: 'USDC',
-      decimalForMockToken: 18,
-    },
-    USDT: {
-      tokenName: 'Tether USD',
-      tokenSymbol: 'USDT',
-      decimalForMockToken: 18,
-    },
-    DAI: {
-      tokenName: 'Dai Stablecoin',
-      tokenSymbol: 'DAI',
-      decimalForMockToken: 18,
-    },
-    vUSDC: {
-      tokenName: 'Venus USDC',
-      tokenSymbol: 'vUSDC',
-      decimalForMockToken: 8,
-    },
+    BUSD: { tokenName: 'Binance USD', tokenSymbol: 'BUSD', decimalForMockToken: 18 },
+    USDC: { tokenName: 'USD Coin', tokenSymbol: 'USDC', decimalForMockToken: 18 },
+    USDT: { tokenName: 'Tether USD', tokenSymbol: 'USDT', decimalForMockToken: 18 },
+    TUSD: { tokenName: 'TrueUSD', tokenSymbol: 'TUSD', decimalForMockToken: 18 },
+    DAI: { tokenName: 'Dai Stablecoin', tokenSymbol: 'DAI', decimalForMockToken: 18 },
+    vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', decimalForMockToken: 8 },
+  },
+  [Network.AVALANCHE_TESTNET]: {
+    BUSD: { tokenName: 'Binance USD', tokenSymbol: 'BUSD', decimalForMockToken: 18 },
+    vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', decimalForMockToken: 8 },
   },
 })
 
@@ -508,21 +416,9 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig,
       },
       assets: {
-        BUSD: {
-          tokenName: 'Binance USD',
-          tokenSymbol: 'BUSD',
-          useMockToken: true,
-        },
-        TUSD: {
-          tokenName: 'TrueUSD',
-          tokenSymbol: 'TUSD',
-          useMockToken: true,
-        },
-        FRAX: {
-          tokenName: 'Frax',
-          tokenSymbol: 'FRAX',
-          useMockToken: true,
-        },
+        ...BusdAsset(),
+        ...TusdAsset(),
+        ...FraxAsset(),
       },
     },
     SidePool_01: {
@@ -531,32 +427,11 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         deploymentNamePrefix: '',
       },
       assets: {
-        BUSD: {
-          tokenName: 'Binance USD',
-          tokenSymbol: 'BUSD',
-          useMockToken: true,
-          allocPoint: 10,
-        },
-        TUSD: {
-          tokenName: 'TrueUSD',
-          tokenSymbol: 'TUSD',
-          useMockToken: true,
-        },
-        FRAX: {
-          tokenName: 'Frax',
-          tokenSymbol: 'FRAX',
-          useMockToken: true,
-        },
-        MIM: {
-          tokenName: 'Magic Internet Money',
-          tokenSymbol: 'MIM',
-          useMockToken: true,
-        },
-        HAY: {
-          tokenName: 'Hay Stablecoin',
-          tokenSymbol: 'HAY',
-          useMockToken: true,
-        },
+        ...BusdAsset({ allocPoint: 10 }),
+        ...TusdAsset(),
+        ...FraxAsset(),
+        ...MimAsset(),
+        ...HayAsset(),
       },
     },
     iUSD_Pool: {
@@ -564,16 +439,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig,
       },
       assets: {
-        iUSD: {
-          tokenName: 'iZUMi Bond USD',
-          tokenSymbol: 'iUSD',
-          useMockToken: true,
-        },
-        BUSD: {
-          tokenName: 'Binance USD',
-          tokenSymbol: 'BUSD',
-          useMockToken: true,
-        },
+        ...IusdAsset(),
+        ...BusdAsset(),
       },
     },
     CUSD_Pool: {
@@ -581,16 +448,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig,
       },
       assets: {
-        CUSD: {
-          tokenName: 'Coin98 Dollar',
-          tokenSymbol: 'CUSD',
-          useMockToken: true,
-        },
-        HAY: {
-          tokenName: 'Hay Destablecoin',
-          tokenSymbol: 'HAY',
-          useMockToken: true,
-        },
+        ...CusdAsset(),
+        ...HayAsset(),
       },
     },
     axlUSDC_Pool: {
@@ -598,16 +457,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig,
       },
       assets: {
-        axlUSDC: {
-          tokenName: 'Axelar Wrapped USDC',
-          tokenSymbol: 'axlUSDC',
-          useMockToken: true,
-        },
-        BUSD: {
-          tokenName: 'Binance USD',
-          tokenSymbol: 'BUSD',
-          useMockToken: true,
-        },
+        ...AxlUsdcAsset(),
+        ...BusdAsset(),
       },
     },
     USDD_Pool: {
@@ -615,16 +466,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig,
       },
       assets: {
-        USDD: {
-          tokenName: 'Decentralized USD',
-          tokenSymbol: 'USDD',
-          useMockToken: true,
-        },
-        USDC: {
-          tokenName: 'USD Coin',
-          tokenSymbol: 'USDC',
-          useMockToken: true,
-        },
+        ...UsddAsset(),
+        ...UsdcAsset(),
       },
     },
     BOB_Pool: {
@@ -632,16 +475,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig,
       },
       assets: {
-        BOB: {
-          tokenName: 'BOB',
-          tokenSymbol: 'BOB',
-          useMockToken: true,
-        },
-        USDC: {
-          tokenName: 'USD Coin',
-          tokenSymbol: 'USDC',
-          useMockToken: true,
-        },
+        ...BobAsset(),
+        ...UsdcAsset(),
       },
     },
     wmxWOMPool: {
@@ -649,16 +484,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultWomPoolConfig,
       },
       assets: {
-        WOM: {
-          tokenName: 'Wombat Token',
-          tokenSymbol: 'WOM',
-          useMockToken: true,
-        },
-        wmxWOM: {
-          tokenName: 'WMX WOM',
-          tokenSymbol: 'wmxWOM',
-          useMockToken: true,
-        },
+        ...WomAsset(),
+        ...WmxWomAsset(),
       },
     },
     mWOMPool: {
@@ -666,16 +493,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultWomPoolConfig,
       },
       assets: {
-        WOM: {
-          tokenName: 'Wombat Token',
-          tokenSymbol: 'WOM',
-          useMockToken: true,
-        },
-        mWOM: {
-          tokenName: 'M WOM',
-          tokenSymbol: 'mWOM',
-          useMockToken: true,
-        },
+        ...WomAsset(),
+        ...MwomAsset(),
       },
     },
     qWOMPool: {
@@ -683,16 +502,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultWomPoolConfig,
       },
       assets: {
-        WOM: {
-          tokenName: 'Wombat Token',
-          tokenSymbol: 'WOM',
-          useMockToken: true,
-        },
-        qWOM: {
-          tokenName: 'Quoll WOM',
-          tokenSymbol: 'qWOM',
-          useMockToken: true,
-        },
+        ...WomAsset(),
+        ...QwomAsset(),
       },
     },
   },
@@ -1547,12 +1358,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        BUSD: {
-          tokenName: 'Binance USD',
-          tokenSymbol: 'BUSD',
-          useMockToken: true,
-        },
-        vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+        ...BusdAsset(),
+        ...VusdcAsset(),
       },
     },
   },
@@ -1562,12 +1369,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        BUSD: {
-          tokenName: 'Binance USD',
-          tokenSymbol: 'BUSD',
-          useMockToken: true,
-        },
-        vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', useMockToken: true },
+        ...BusdAsset(),
+        ...VusdcAsset(),
       },
     },
   },
@@ -1579,14 +1382,14 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
 > = injectForkNetwork<Record<PoolName, IWormholeAdaptorConfig>>({
   [Network.BSC_TESTNET]: {
     stablecoinPool: {
-      adaptorAddr: '0xebD34D7d249686d7Cfb391dd18A220773e72feDb',
-      tokens: ['0x326335BA4e70cb838Ee55dEB18027A6570E5144d', '0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8'], // BUSD, vUSDC
+      adaptorAddr: Deployment('WormholeAdaptor_stablecoinPool_Proxy'),
+      tokens: [Token.BUSD, Token.vUSDC],
     },
   },
   [Network.AVALANCHE_TESTNET]: {
     stablecoinPool: {
-      adaptorAddr: '0x0683e2c4d6e26274bd0574D09bfb8CE25e4dFA85',
-      tokens: ['0x921ee0bdBB71065DCC15d201Cc99F63d71224b87', '0x8Cfa834ebBE803294020b08c521aA4637cB3dC1A'], // BUSD, vUSDC
+      adaptorAddr: Deployment('WormholeAdaptor_stablecoinPool_Proxy'),
+      tokens: [Token.BUSD, Token.vUSDC],
     },
   },
 })

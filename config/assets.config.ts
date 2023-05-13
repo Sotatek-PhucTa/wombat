@@ -368,3 +368,14 @@ export function BtcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
     },
   }
 }
+
+export function VusdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    vUSDC: {
+      tokenName: 'Venus USDC',
+      tokenSymbol: 'vUSDC',
+      underlyingToken: Token.vUSDC,
+      ...partial,
+    },
+  }
+}

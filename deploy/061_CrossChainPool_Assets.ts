@@ -7,7 +7,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { TestERC20 } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/tokens.config'
 import { Network } from '../types'
-import { confirmTxn, getDeadlineFromNow, getDeployedContract, getUnderlyingTokenAddr } from '../utils'
+import { confirmTxn, getDeadlineFromNow, getDeployedContract } from '../utils'
 import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 
@@ -35,10 +35,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
         pool,
         getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
       )
-
-      if (assetInfo.useMockToken) {
-        await faucetToken(assetInfo.tokenSymbol, pool, deployer)
-      }
     }
 
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
@@ -49,6 +45,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 }
 
+// TODO: find a place for this utility.
 async function faucetToken(tokenSymbol: string, pool: Contract, deployer: string) {
   const token0 = (await getDeployedContract('TestERC20', tokenSymbol)) as TestERC20
   deployments.log('faucet token...', tokenSymbol)
