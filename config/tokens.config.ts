@@ -723,6 +723,16 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         }),
       },
     },
+    ankrETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
+      },
+      assets: {
+        ...AnkrEthAsset({ maxSupply: parseEther('1600') }),
+        ...EthAsset({ maxSupply: parseEther('1600') }),
+      },
+    },
   },
 })
 
@@ -1224,7 +1234,7 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.wBETH],
     }),
   },
-  bsc_testnet: {
+  [Network.BSC_TESTNET]: {
     BUSD: {
       ...defaultRewarder(),
       lpToken: Address('0xA1a8d6688A2DEF14d6bD3A76E3AA2bdB5670C567'),
@@ -1321,6 +1331,16 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ETH', {
+      startTimestamp: Epochs.May17,
+      rewardTokens: [Token.ANKR],
+      operator: ExternalContract.AnkrBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
+      startTimestamp: Epochs.May17,
+      rewardTokens: [Token.ANKR],
+      operator: ExternalContract.AnkrBribeOperator,
     }),
   },
 })

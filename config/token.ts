@@ -74,6 +74,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.ANKR]: {
     // https://www.coingecko.com/en/coins/ankr-network
     [Network.BSC_MAINNET]: Address('0xf307910a4c7bbc79691fd374889b36d8531b08e3'),
+    [Network.ARBITRUM_MAINNET]: Address('0x46f74778b265df3a15ec9695ccd2fd3869ca848c'),
   },
   [Token.BNBx]: {
     [Network.BSC_MAINNET]: Address('0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275'),
@@ -232,8 +233,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827'),
   },
   [Token.ankrETH]: {
-    // https://bscscan.com/address/0xe05a08226c49b636acf99c40da8dc6af83ce5bb3
+    // https://www.ankr.com/docs/staking-extra/staking-smart-contracts/
     [Network.BSC_MAINNET]: Address('0xe05a08226c49b636acf99c40da8dc6af83ce5bb3'),
+    [Network.ARBITRUM_MAINNET]: Unknown(),
   },
   [Token.axlUSDC]: {
     // https://www.coingecko.com/en/coins/axelar-usdc
