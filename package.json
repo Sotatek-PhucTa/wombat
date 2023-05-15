@@ -18,7 +18,7 @@
     "@openzeppelin/contracts": "^4.8.3",
     "@openzeppelin/contracts-upgradeable": "^4.8.3",
     "@openzeppelin/hardhat-defender": "^1.8.2",
-    "@openzeppelin/hardhat-upgrades": "^1.25.1",
+    "@openzeppelin/hardhat-upgrades": "^1.25.3",
     "@pythnetwork/pyth-sdk-solidity": "^2.2.1",
     "@typechain/ethers-v5": "^10.2.1",
     "@typechain/hardhat": "^6.1.6",
