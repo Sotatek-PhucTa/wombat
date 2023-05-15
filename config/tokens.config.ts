@@ -730,7 +730,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       },
       assets: {
         ...AnkrEthAsset({ maxSupply: parseEther('1600') }),
-        ...EthAsset({ maxSupply: parseEther('1600') }),
+        ...WethAsset({ maxSupply: parseEther('1600') }),
       },
     },
   },
@@ -1332,7 +1332,7 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ETH', {
+    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_WETH', {
       startTimestamp: Epochs.May17,
       rewardTokens: [Token.ANKR],
       operator: ExternalContract.AnkrBribeOperator,

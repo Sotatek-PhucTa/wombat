@@ -235,7 +235,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.ankrETH]: {
     // https://www.ankr.com/docs/staking-extra/staking-smart-contracts/
     [Network.BSC_MAINNET]: Address('0xe05a08226c49b636acf99c40da8dc6af83ce5bb3'),
-    [Network.ARBITRUM_MAINNET]: Unknown(),
+    [Network.ARBITRUM_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
   },
   [Token.axlUSDC]: {
     // https://www.coingecko.com/en/coins/axelar-usdc
