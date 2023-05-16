@@ -110,6 +110,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.FRAX]: {
     [Network.BSC_MAINNET]: Address('0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40'),
+    [Network.ARBITRUM_MAINNET]: Address('0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F'),
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share
