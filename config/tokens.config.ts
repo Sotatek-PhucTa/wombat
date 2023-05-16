@@ -727,6 +727,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       setting: {
         ...defaultDynamicPoolConfig,
         haircut: parseEther('0.0001'),
+        supportNativeToken: true,
       },
       assets: {
         ...AnkrEthAsset({ maxSupply: parseEther('1600') }),
