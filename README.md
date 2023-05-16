@@ -370,6 +370,13 @@ To verify proxy contracts:
   - Bribe_Asset_jUSDC_Pool_jUSDC => ` 0xF760094A46bC456a1e3fd0A00ccf98108f9B35D0`
   - Bribe_Asset_jUSDC_Pool_USDC => ` 0x19f477e5864Fec9Cc8f91Fd9F6eD71F6ce13d3b3`
 
+- ankrETH Pool
+  - DynamicPools_ankrETH_Pool_Proxy => `0xB9bdfE449Da096256Fe7954Ef61A18eE195Db77B`
+  - Asset_ankrETH_Pool_ankrETH => `0x2290281060F2cE6BB73DcCF9b1735bC366f3f2C4`
+  - Asset_ankrETH_Pool_WETH => `0x35c462B3396359CAe6c5b40c24e0859B1f1Bc6aC`
+  - Bribe_Asset_ankrETH_Pool_WETH => `0x4ce537d187c97B7a5696B38f5de41aA4e57a08BA`
+  - Bribe_Asset_ankrETH_Pool_ankrETH => `0x9f3F1e89831391214fAA57ee7e27667156140655`
+
 ### Optimism mainnet deployed contracts:
 
 Wombat Governance
