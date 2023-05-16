@@ -181,7 +181,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.USDC]: {
     // https://www.coingecko.com/en/coins/usd-coin
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
-    [Network.ARBITRUM_MAINNET]: Address('0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'),
+    [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
     [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
   },
   [Token.USDD]: {
@@ -211,8 +211,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'),
   },
   [Token.WETH]: {
-    // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
-    [Network.ARBITRUM_MAINNET]: Address('0x82af49447d8a07e3bd95bd0d56f35241523fbab1'),
+    // https://arbiscan.io/token/0x82aF49447D8a07e3bd95BD0d56f35241523fBab1
+    [Network.ARBITRUM_MAINNET]: Address('0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'),
     // https://optimistic.etherscan.io/token/0x4200000000000000000000000000000000000006
     [Network.OPTIMISM_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
   },
@@ -243,7 +243,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.frxETH]: {
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
-    [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63b33f733770c2a'),
+    [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63B33F733770c2A'),
   },
   [Token.stkBNB]: {
     [Network.BSC_MAINNET]: Address('0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16'),
