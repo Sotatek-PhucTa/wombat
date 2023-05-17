@@ -1,8 +1,10 @@
 import { assert } from 'chai'
-import { BigNumber, BigNumberish, Contract, ethers } from 'ethers'
+import { BigNumber, BigNumberish, Contract } from 'ethers'
 import { DeployResult } from 'hardhat-deploy/types'
 import { ExternalContract } from '../config/contract'
 import { Token } from '../config/token'
+import { isChecksumAddress, toChecksumAddress } from '../utils/addresses'
+import { add } from 'lodash'
 
 export enum Network {
   HARDHAT = 'hardhat',
@@ -32,7 +34,10 @@ export function Deployment(deployment: string): DeploymentOrAddress {
 }
 
 export function Address(address: string): DeploymentOrAddress {
-  assert(ethers.utils.isAddress(address))
+  assert(
+    isChecksumAddress(address),
+    `Address ${address} is not a checksum address. Please use ${toChecksumAddress(address)}.`
+  )
   return { deploymentOrAddress: address }
 }
 

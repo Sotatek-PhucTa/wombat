@@ -57,8 +57,8 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.ARBITRUM_MAINNET]: Address('0xAE1c38847Fb90A13a2a1D7E5552cCD80c62C6508'),
   },
   [ExternalContract.AnkrETHOracle]: {
-    [Network.BSC_MAINNET]: Address('0xe05a08226c49b636acf99c40da8dc6af83ce5bb3'),
-    [Network.ARBITRUM_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
+    [Network.BSC_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
+    [Network.ARBITRUM_MAINNET]: Unknown(),
   },
   [ExternalContract.BNBxOracle]: {
     [Network.BSC_MAINNET]: Address('0x7276241a669489E4BBB76f63d2A43Bfe63080F2F'),
@@ -101,10 +101,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.BSC_MAINNET]: Address('0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8'),
   },
   [ExternalContract.TenFiBribeOperator]: {
-    [Network.BSC_MAINNET]: Address('0x393c7c3ebcbff2c1138d123df5827e215458f0c4'),
+    [Network.BSC_MAINNET]: Address('0x393c7C3EbCBFf2c1138D123df5827e215458F0c4'),
   },
   [ExternalContract.WombexBribeOperator]: {
-    [Network.BSC_MAINNET]: Address('0x35d32110d9a6f02d403061c851618756b3bc597f'),
+    [Network.BSC_MAINNET]: Address('0x35D32110d9a6f02d403061C851618756B3bC597F'),
     [Network.ARBITRUM_MAINNET]: Address('0x7429A2e8dC807c9e13Bb65edb335D6E01051aE64'),
   },
   [ExternalContract.WombexVeWomProxy]: {

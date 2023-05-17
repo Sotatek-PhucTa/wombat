@@ -74,8 +74,8 @@ export async function getTokenAddress(token: Token): Promise<string> {
 const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> = {
   [Token.ANKR]: {
     // https://www.coingecko.com/en/coins/ankr-network
-    [Network.BSC_MAINNET]: Address('0xf307910a4c7bbc79691fd374889b36d8531b08e3'),
-    [Network.ARBITRUM_MAINNET]: Address('0x46f74778b265df3a15ec9695ccd2fd3869ca848c'),
+    [Network.BSC_MAINNET]: Address('0xf307910A4c7bbc79691fD374889b36d8531B08e3'),
+    [Network.ARBITRUM_MAINNET]: Address('0x46F74778b265Df3a15EC9695CCd2fD3869ca848c'),
   },
   [Token.BNBx]: {
     [Network.BSC_MAINNET]: Address('0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275'),
@@ -121,8 +121,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share
-    [Network.BSC_MAINNET]: Address('0xe48a3d7d0bc88d552f730b62c006bc925eadb9ee'),
-    [Network.ARBITRUM_MAINNET]: Address('0x9d2f299715d94d8a7e6f5eaa8e654e8c74a988a7'),
+    [Network.BSC_MAINNET]: Address('0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE'),
+    [Network.ARBITRUM_MAINNET]: Address('0x9d2F299715D94d8A7E6F5eaa8E654E8c74a988A7'),
   },
   [Token.HAY]: {
     // https://www.coingecko.com/en/coins/destablecoin-hay
@@ -130,20 +130,20 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.JONES]: {
     // https://www.coingecko.com/en/coins/jones-dao
-    [Network.ARBITRUM_MAINNET]: Address('0x10393c20975cf177a3513071bc110f7962cd67da'),
+    [Network.ARBITRUM_MAINNET]: Address('0x10393c20975cF177a3513071bC110f7962CD67da'),
   },
   [Token.MAI]: {
     [Network.ARBITRUM_MAINNET]: Address('0x3F56e0c36d275367b8C502090EDF38289b3dEa0d'),
   },
   [Token.MGP]: {
     // https://www.coingecko.com/en/coins/magpie
-    [Network.BSC_MAINNET]: Address('0xd06716e1ff2e492cc5034c2e81805562dd3b45fa'),
+    [Network.BSC_MAINNET]: Address('0xD06716E1Ff2E492Cc5034c2E81805562dd3b45fa'),
     [Network.ARBITRUM_MAINNET]: Address('0xa61F74247455A40b01b0559ff6274441FAfa22A3'),
   },
   [Token.MIM]: {
     // https://www.coingecko.com/en/coins/magic-internet-money
-    [Network.BSC_MAINNET]: Address('0xfe19f0b51438fd612f6fd59c1dbb3ea319f433ba'),
-    [Network.ARBITRUM_MAINNET]: Address('0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a'),
+    [Network.BSC_MAINNET]: Address('0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba'),
+    [Network.ARBITRUM_MAINNET]: Address('0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A'),
   },
   [Token.PSTAKE]: {
     // https://www.coingecko.com/en/coins/pstake-finance
@@ -151,12 +151,12 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.QI]: {
     // https://docs.mai.finance/functions/smart-contract-addresses
-    [Network.ARBITRUM_MAINNET]: Address('0xb9c8f0d3254007ee4b98970b94544e473cd610ec'),
+    [Network.ARBITRUM_MAINNET]: Address('0xB9C8F0d3254007eE4b98970b94544e473Cd610EC'),
   },
   [Token.QUO]: {
     // https://www.coingecko.com/en/coins/quoll-finance
-    [Network.BSC_MAINNET]: Address('0x08b450e4a48c04cdf6db2bd4cf24057f7b9563ff'),
-    [Network.BSC_TESTNET]: Address('0x458c742849d041723efadd9a31153233de442b9b'),
+    [Network.BSC_MAINNET]: Address('0x08b450e4a48C04CDF6DB2bD4cf24057f7B9563fF'),
+    [Network.BSC_TESTNET]: Address('0x458C742849d041723EfadD9a31153233de442B9b'),
     [Network.ARBITRUM_MAINNET]: Address('0xf00D8790A76ee5A5Dbc10eaCac39151aa2af0331'),
   },
   [Token.RT1]: {
@@ -165,7 +165,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.RT2]: {
     // TestERC20
-    [Network.BSC_TESTNET]: Address('0x615f8656b763ff4a6a82b3cbbd54d392834df13f'),
+    [Network.BSC_TESTNET]: Address('0x615F8656b763FF4A6a82B3cbBd54d392834df13F'),
   },
   [Token.SD]: {
     // https://www.coingecko.com/en/coins/stader
@@ -174,7 +174,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.SPELL]: {
     // https://www.coingecko.com/en/coins/spell-token
     [Network.BSC_MAINNET]: Address('0x9Fe28D11ce29E340B7124C493F59607cbAB9ce48'),
-    [Network.ARBITRUM_MAINNET]: Address('0x3e6648c5a70a150a88bce65f4ad4d506fe15d2af'),
+    [Network.ARBITRUM_MAINNET]: Address('0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF'),
   },
   [Token.TENFI]: {
     // https://www.coingecko.com/en/coins/ten
@@ -219,7 +219,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'),
   },
   [Token.WETH]: {
-    // https://arbiscan.io/token/0x82aF49447D8a07e3bd95BD0d56f35241523fBab1
+    // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
     [Network.ARBITRUM_MAINNET]: Address('0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'),
     // https://optimistic.etherscan.io/token/0x4200000000000000000000000000000000000006
     [Network.OPTIMISM_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
@@ -234,7 +234,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.HARDHAT]: Deployment('WombatToken'),
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
-    [Network.OPTIMISM_MAINNET]: Address('0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668'),
+    [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
   },
   [Token.ankrBNB]: {
     // https://bscscan.com/address/0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827
@@ -242,8 +242,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.ankrETH]: {
     // https://www.ankr.com/docs/staking-extra/staking-smart-contracts/
-    [Network.BSC_MAINNET]: Address('0xe05a08226c49b636acf99c40da8dc6af83ce5bb3'),
-    [Network.ARBITRUM_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
+    [Network.BSC_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
+    [Network.ARBITRUM_MAINNET]: Unknown(),
   },
   [Token.axlUSDC]: {
     // https://www.coingecko.com/en/coins/axelar-usdc
