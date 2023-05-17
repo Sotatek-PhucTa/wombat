@@ -1,16 +1,17 @@
 import { deployments, ethers } from 'hardhat'
-import { concatAll, getAddress, getDeployedContract } from '..'
+import { concatAll, getDeployedContract } from '..'
 import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe } from './transactions'
 import assert from 'assert'
 import { Token, getTokenAddress } from '../../config/token'
-import { BigNumber, BigNumberish, Contract } from 'ethers'
-import { DeploymentOrAddress } from '../../types'
+import { BigNumberish, Contract } from 'ethers'
+import { Zero } from '@ethersproject/constants'
 import _ from 'lodash'
 import { epoch_duration_seconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
+import { isSameAddress } from '../addresses'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -161,7 +162,7 @@ export async function topUpBribe(
   const batch_txns = await concatAll(
     ..._.range(0, length).map(async (i) => {
       const { rewardToken, tokenPerSec } = await bribe.rewardInfo(i)
-      if (tokenAddress != rewardToken) {
+      if (!isSameAddress(tokenAddress, rewardToken)) {
         return []
       }
       hasToken = true
@@ -178,7 +179,7 @@ export async function topUpBribe(
     })
   )
   if (!hasToken) {
-    assert(epochAmount != undefined, 'Cannot add new token without epoch amount')
+    assert(epochAmount != undefined && Zero.lt(epochAmount), 'Cannot add new token without epoch amount')
     const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
     const newTokenRate = convertTokenPerEpochToTokenPerSec(epochAmount)
     batch_txns.push(Safe(erc20).transfer(bribe.address, epochAmount))

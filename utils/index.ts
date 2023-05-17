@@ -11,6 +11,9 @@ import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3 } from '../build/typechain'
 import { epoch_duration_seconds } from '../config/epoch'
 
+export * as multisig from './multisig'
+export * as addresses from './addresses'
+
 export async function concatAll<T>(...promises: Promise<T[]>[]): Promise<T[]> {
   const txns = await Promise.all(promises)
   return txns.flat()

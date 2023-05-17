@@ -197,7 +197,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.USDPlus]: {
     // https://www.coingecko.com/en/coins/usdplus
-    [Network.BSC_MAINNET]: Address('0xe80772eaf6e2e18b651f160bc9158b2a5cafca65'),
+    [Network.BSC_MAINNET]: Address('0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65'),
     [Network.ARBITRUM_MAINNET]: Address('0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65'),
   },
   [Token.USDT]: {
