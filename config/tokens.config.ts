@@ -103,9 +103,10 @@ function sfrxETHGovernedPriceFeed(): IGovernedPriceFeed {
   }
 }
 
+const oneBips = parseEther('0.0001')
 const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
   ampFactor: parseEther('0.00025'),
-  haircut: parseEther('0.0001'),
+  haircut: oneBips,
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('5'),
   endCovRatio: parseEther('10'),
@@ -116,8 +117,8 @@ const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
 }
 
 const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
-  ampFactor: parseEther('0.0025'),
-  haircut: parseEther('0.0001'),
+  ampFactor: parseEther('0.00125'),
+  haircut: oneBips,
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('1.5'),
   endCovRatio: parseEther('1.8'),
@@ -130,7 +131,7 @@ const defaultFactoryPoolConfig: IHighCovRatioFeePoolConfig = {
 const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
   ...defaultFactoryPoolConfig,
   ampFactor: parseEther('0.1'),
-  haircut: parseEther('0.0020'),
+  haircut: oneBips.mul(20),
   mintFeeThreshold: parseEther('55.5555555556'),
   deploymentNamePrefix: 'WomSidePools',
   startCovRatio: parseEther('2'),
@@ -139,8 +140,8 @@ const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
 
 const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
   ...defaultFactoryPoolConfig,
-  ampFactor: parseEther('0.008'),
-  haircut: parseEther('0.0004'),
+  ampFactor: parseEther('0.002'),
+  haircut: oneBips,
   mintFeeThreshold: parseEther('0.01'),
   deploymentNamePrefix: 'DynamicPools',
 }
