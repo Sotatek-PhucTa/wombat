@@ -11,6 +11,7 @@ export enum Token {
   BUSD,
   BTC,
   CUSD,
+  DAI,
   DAIPlus,
   ETH,
   FRAX,
@@ -101,6 +102,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.CUSD]: {
     [Network.BSC_MAINNET]: Address('0xFa4BA88Cf97e282c505BEa095297786c16070129'),
+  },
+  [Token.DAI]: {
+    [Network.BSC_MAINNET]: Address('0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3'),
+    [Network.ARBITRUM_MAINNET]: Address('0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'),
   },
   [Token.DAIPlus]: {
     [Network.ARBITRUM_MAINNET]: Address('0xeb8E93A0c7504Bffd8A8fFa56CD754c63aAeBFe8'),

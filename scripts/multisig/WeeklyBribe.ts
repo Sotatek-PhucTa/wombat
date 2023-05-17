@@ -12,8 +12,11 @@ runScript('WeeklyBribe', async () => {
   if (network == Network.ARBITRUM_MAINNET) {
     return concatAll(
       // USD+ pool
-      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_USD+', Token.USDPlus, parseUnits('3900', 6)),
-      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_DAI+', Token.USDPlus, parseUnits('2100', 6)),
+      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_USD+', Token.USDPlus, 0),
+      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_DAI+', Token.USDPlus, 0),
+      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_USD+', Token.DAI, parseEther('3900')),
+      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_DAI+', Token.DAI, parseEther('2100')),
+      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_USDC', Token.DAI, parseEther('1000')),
       // FRAX-USD+ pool
       multisig.utils.topUpBribe('Bribe_Asset_FRAX_Pool_USD+', Token.USDPlus, 0)
     )
@@ -26,8 +29,10 @@ runScript('WeeklyBribe', async () => {
 
       // Mixed pool
       multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_HAY', Token.HAY, parseEther('1500')),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USD+', Token.USDPlus, parseUnits('1000', 6)),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USDT+', Token.USDPlus, parseUnits('1000', 6)),
+      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USD+', Token.USDPlus, 0),
+      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USDT+', Token.USDPlus, 0),
+      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USD+', Token.DAI, parseEther('3000')),
+      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USDT+', Token.DAI, parseEther('3000')),
       multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_CUSD', Token.CUSD, parseEther('1000')),
       multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USDC', Token.USDC, parseEther('600'))
     )

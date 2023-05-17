@@ -158,7 +158,7 @@ export async function topUpBribe(
   const length = await bribe.rewardLength()
   const tokenAddress = await getTokenAddress(token)
   let hasToken = false
-  const batch_txns = concatAll(
+  const batch_txns = await concatAll(
     ..._.range(0, length).map(async (i) => {
       const { rewardToken, tokenPerSec } = await bribe.rewardInfo(i)
       if (tokenAddress != rewardToken) {
@@ -177,10 +177,13 @@ export async function topUpBribe(
       return txns
     })
   )
-  assert(
-    hasToken,
-    `Token ${token} (${tokenAddress}) not found in Bribe (${bribe.address}). Please call addRewardToken first.`
-  )
+  if (!hasToken) {
+    assert(epochAmount != undefined, 'Cannot add new token without epoch amount')
+    const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
+    const newTokenRate = convertTokenPerEpochToTokenPerSec(epochAmount)
+    batch_txns.push(Safe(erc20).transfer(bribe.address, epochAmount))
+    batch_txns.push(Safe(bribe).addRewardToken(tokenAddress, newTokenRate))
+  }
   return batch_txns
 }
 
