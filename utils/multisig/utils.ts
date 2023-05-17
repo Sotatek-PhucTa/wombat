@@ -158,34 +158,29 @@ export async function topUpBribe(
   const bribe = await getDeployedContract('Bribe', bribeDeployment)
   const length = await bribe.rewardLength()
   const tokenAddress = await getTokenAddress(token)
-  let hasToken = false
-  const batch_txns = await concatAll(
-    ..._.range(0, length).map(async (i) => {
-      const { rewardToken, tokenPerSec } = await bribe.rewardInfo(i)
-      if (!isSameAddress(tokenAddress, rewardToken)) {
-        return []
-      }
-      hasToken = true
-      const txns = []
-      const newTokenRate = epochAmount != undefined ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
-      if (newTokenRate > 0) {
-        const erc20 = await ethers.getContractAt('ERC20', rewardToken)
-        txns.push(Safe(erc20).transfer(bribe.address, newTokenRate.mul(epoch_duration_seconds)))
-      }
-      if (newTokenRate != tokenPerSec) {
-        txns.push(Safe(bribe).setRewardRate(i, newTokenRate))
-      }
-      return txns
-    })
-  )
-  if (!hasToken) {
+  const allRewardRates = await Promise.all(_.range(0, length).map(async (i) => ({ i, ...(await bribe.rewardInfo(i)) })))
+  const currentRewardRate = allRewardRates.find(({ rewardToken }) => isSameAddress(rewardToken, tokenAddress))
+  if (currentRewardRate != undefined) {
+    const txns = []
+    const { i, rewardToken, tokenPerSec } = currentRewardRate
+    const newTokenRate = epochAmount != undefined ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
+    if (newTokenRate > 0) {
+      const erc20 = await ethers.getContractAt('ERC20', rewardToken)
+      txns.push(Safe(erc20).transfer(bribe.address, newTokenRate.mul(epoch_duration_seconds)))
+    }
+    if (newTokenRate != tokenPerSec) {
+      txns.push(Safe(bribe).setRewardRate(i, newTokenRate))
+    }
+    return txns
+  } else {
+    const txns = []
     assert(epochAmount != undefined && Zero.lt(epochAmount), 'Cannot add new token without epoch amount')
     const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
     const newTokenRate = convertTokenPerEpochToTokenPerSec(epochAmount)
-    batch_txns.push(Safe(erc20).transfer(bribe.address, epochAmount))
-    batch_txns.push(Safe(bribe).addRewardToken(tokenAddress, newTokenRate))
+    txns.push(Safe(erc20).transfer(bribe.address, epochAmount))
+    txns.push(Safe(bribe).addRewardToken(tokenAddress, newTokenRate))
+    return txns
   }
-  return batch_txns
 }
 
 export async function setOperator(deploymentName: string, to: ExternalContract): Promise<BatchTransaction[]> {
