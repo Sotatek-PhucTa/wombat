@@ -104,6 +104,7 @@ function sfrxETHGovernedPriceFeed(): IGovernedPriceFeed {
 }
 
 const oneBips = parseEther('0.0001')
+const twentyBips = oneBips.mul(20)
 const defaultMainPoolConfig: IHighCovRatioFeePoolConfig = {
   ampFactor: parseEther('0.00025'),
   haircut: oneBips,
@@ -149,7 +150,7 @@ const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
 const defaultVolatilePoolConfig: IHighCovRatioFeePoolConfig = {
   ...defaultFactoryPoolConfig,
   ampFactor: parseEther('0.1'),
-  haircut: parseEther('0.0015'),
+  haircut: twentyBips,
   mintFeeThreshold: parseEther('10'),
   deploymentNamePrefix: 'VolatilePools',
 }
