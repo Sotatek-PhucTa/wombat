@@ -1,5 +1,6 @@
 import '@hardhat-docgen/core'
 import '@hardhat-docgen/markdown'
+import 'hardhat-dependency-compiler'
 import '@nomicfoundation/hardhat-chai-matchers'
 import '@nomicfoundation/hardhat-toolbox'
 import '@nomiclabs/hardhat-solhint'
@@ -161,6 +162,9 @@ const config: HardhatUserConfig = {
     clear: true,
     runOnCompile: false,
     except: ['/test/*', '/mock/*'],
+  },
+  dependencyCompiler: {
+    paths: ['@openzeppelin/contracts/governance/TimelockController.sol'],
   },
 }
 
