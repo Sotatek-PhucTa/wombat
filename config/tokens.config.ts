@@ -929,6 +929,12 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_wBETH', {
+      rewardTokens: [Token.WOM],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_ETH', {
+      rewardTokens: [Token.WOM],
+    }),
   },
   [Network.BSC_TESTNET]: {
     BUSD: {
