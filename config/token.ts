@@ -191,6 +191,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
     [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
+    [Network.ETHEREUM_MAINNET]: Address('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'),
   },
   [Token.USDD]: {
     [Network.BSC_MAINNET]: Address('0xd17479997F34dd9156Deef8F95A52D81D265be9c'),
@@ -207,6 +208,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),
     [Network.OPTIMISM_MAINNET]: Address('0x94b008aA00579c1307B0EF2c499aD98a8ce58e58'),
+    [Network.ETHEREUM_MAINNET]: Address('0xdAC17F958D2ee523a2206206994597C13D831ec7'),
   },
   [Token.USDTPlus]: {
     // not yet on coingecko.
@@ -223,6 +225,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'),
     // https://optimistic.etherscan.io/token/0x4200000000000000000000000000000000000006
     [Network.OPTIMISM_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
+    // https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
+    [Network.ETHEREUM_MAINNET]: Address('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'),
   },
   [Token.WMX]: {
     // https://www.coingecko.com/en/coins/wombex
@@ -235,6 +239,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
+    [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),
   },
   [Token.ankrBNB]: {
     // https://bscscan.com/address/0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827

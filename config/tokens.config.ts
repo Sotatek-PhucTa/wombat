@@ -72,6 +72,7 @@ export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetw
   [Network.ARBITRUM_TESTNET]: '0xDa01302C86ECcd5bc94c1086777acF3c3Af7EF63',
   [Network.OPTIMISM_MAINNET]: '0x4200000000000000000000000000000000000006',
   [Network.OPTIMISM_TESTNET]: ethers.constants.AddressZero,
+  [Network.ETHEREUM_MAINNET]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
 }) as Record<Network, string>
 
 function defaultRewarder(): IRewarder {
@@ -588,6 +589,17 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.OPTIMISM_MAINNET]: {
+    Main_Pool: {
+      setting: {
+        ...defaultMainPoolConfig,
+      },
+      assets: {
+        ...UsdcAsset({ maxSupply: parseUnits('1000000', 6) }),
+        ...UsdtAsset({ maxSupply: parseUnits('1000000', 6) }),
+      },
+    },
+  },
+  [Network.ETHEREUM_MAINNET]: {
     Main_Pool: {
       setting: {
         ...defaultMainPoolConfig,

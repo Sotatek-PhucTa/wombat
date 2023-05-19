@@ -18,6 +18,7 @@ export enum Network {
   ARBITRUM_TESTNET = 'arb_testnet',
   OPTIMISM_MAINNET = 'opt_mainnet',
   OPTIMISM_TESTNET = 'opt_testnet',
+  ETHEREUM_MAINNET = 'eth_mainnet',
 }
 
 export interface DeploymentOrAddress {

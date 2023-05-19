@@ -72,6 +72,11 @@ const config: HardhatUserConfig = {
       url: 'https://kovan.optimism.io',
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
     },
+    [Network.ETHEREUM_MAINNET]: {
+      chainId: 1,
+      url: secrets.alchemy_ethereum_url || 'https://eth.llamarpc.com',
+      accounts: [secrets.deployer.privateKey],
+    },
   },
   etherscan: {
     apiKey: {
@@ -84,6 +89,7 @@ const config: HardhatUserConfig = {
       arbitrumOne: secrets.arbiscan_api_key,
       arbitrumGoerli: secrets.arbiscan_api_key,
       optimisticEthereum: secrets.opt_etherscan_api_key,
+      mainnet: secrets.etherscan_api_key,
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [],
@@ -141,6 +147,7 @@ const config: HardhatUserConfig = {
       [Network.BSC_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
       [Network.ARBITRUM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
       [Network.OPTIMISM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
+      [Network.ETHEREUM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
     },
     user1: {
       default: 1,
@@ -155,6 +162,7 @@ const config: HardhatUserConfig = {
       [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe
+      [Network.ETHEREUM_MAINNET]: '0x5781b4fe4fAdB61ea2483eEDD9498388F9b353b1', // Gnosis Safe
     },
   },
   docgen: {

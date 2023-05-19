@@ -59,10 +59,8 @@ To verify proxy contracts:
 
 ### BSC mainnet deployed contracts:
 
-- Wombat Proxy Admin
-  - Default Proxy Admin (Proxy Admin) => `0xa75F185888F1E8d2320e80dCd2e7a4c9A17e013B`
-
 - Wombat Governance
+  - Default Proxy Admin (Proxy Admin) => `0xa75F185888F1E8d2320e80dCd2e7a4c9A17e013B`
   - MasterWombatV3 Proxy => `0x489833311676B566f888119c29bd997Dc6C95830`
   - MasterWombatV2 Proxy => `0xE2C07d20AF0Fb50CAE6cDD615CA44AbaAA31F9c8`
   - VeWom Proxy => `0x3DA62816dD31c56D9CdF22C6771ddb892cB5b0Cc`
@@ -391,6 +389,11 @@ Main Pool
   - Main_Pool_Proxy => `0x6f8Ad371FDD422c0abE21352525f58b5E3bB266b`
   - Asset_Main_Pool_USDC => `0xd05CF2BCaaee3a221E9effF58bF2874b9F11E47b`
   - Asset_Main_Pool_USDT => `0x375883a1F801138B6f5EE953a7A11072129Ac624`
+
+### Ethereum mainnet deployed contracts:
+
+Wombat Governance
+  - Wombat Token => `0xc0B314a8c08637685Fc3daFC477b92028c540CFB`
 
 ### BSC testnet deployed contracts:
 
