@@ -394,6 +394,8 @@ Main Pool
 
 Wombat Governance
   - Wombat Token => `0xc0B314a8c08637685Fc3daFC477b92028c540CFB`
+  - DefaultProxyAdmin => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
+  - MasterWombatV3_Proxy => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
 
 ### BSC testnet deployed contracts:
 
