@@ -246,6 +246,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.frxETH]: {
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
+    [Network.BSC_MAINNET]: Address('0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e'),
     [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63B33F733770c2A'),
   },
   [Token.stkBNB]: {
