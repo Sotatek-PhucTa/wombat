@@ -81,6 +81,9 @@ async function approveForPools(router: Contract, poolConfigs: NetworkPoolInfo<IP
     }
     const deploymentName = getPoolDeploymentName(poolInfo.setting.deploymentNamePrefix, poolName)
     const poolDeployment = await deployments.get(deploymentName)
+    if (deploymentName == 'FactoryPools_StandalonePool') {
+      continue // this pool only holds deprecated tokens
+    }
 
     // approve by poolName
     deployments.log(`Approving pool tokens for Pool: ${deploymentName}...`)
@@ -94,7 +97,7 @@ async function approveSpending(
   tokenAddresses: string[],
   poolAddress: string
 ) {
-  assert(tokenAddresses.length > 0)
+  assert(tokenAddresses.length > 0, `tokenAddresses is empty for ${poolAddress}`)
   // We only sample the last token here. This is a heuristics that changes are append to config. We already verified
   // tokenAddresses exist. So at(-1) can't be null, but linter is stupid.
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

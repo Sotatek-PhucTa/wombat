@@ -92,6 +92,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.HARDHAT]: Deployment('BUSD'),
     [Network.BSC_TESTNET]: Deployment('BUSD'),
     [Network.AVALANCHE_TESTNET]: Deployment('BUSD'),
+    // https://bscscan.com/address/0xe9e7cea3dedca5984780bafc599bd69add087d56
+    [Network.BSC_MAINNET]: Address('0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'),
   },
   [Token.BTC]: {
     [Network.BSC_TESTNET]: Deployment('BTC'),
