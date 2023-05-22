@@ -3,13 +3,17 @@ import { Contract } from 'ethers'
 import { getNamedAccounts } from 'hardhat'
 import { CrossChainPool, DynamicPoolV3, HighCovRatioFeePoolV3 } from '../../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../../config/tokens.config'
-import { IPoolConfig } from '../../types'
+import { IPoolConfig, Network } from '../../types'
 import { getCurrentNetwork } from '../../types/network'
 import { getDeployedContract } from '../../utils'
 import { getPoolDeploymentName } from '../../utils/deploy'
 
 // Run with `FORK_NETWORK=bsc_mainnet yarn test test/deploy/PoolConfig.spec.ts`
-describe('Verify Pool Config', function () {
+describe('Verify Pool Config', async function () {
+  if ([Network.HARDHAT, Network.LOCALHOST].includes(await getCurrentNetwork())) {
+    return
+  }
+
   let multisig: string
 
   beforeEach(async function () {
