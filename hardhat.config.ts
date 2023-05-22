@@ -28,7 +28,7 @@ const config: HardhatUserConfig = {
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
     },
     [Network.BSC_MAINNET]: {
-      url: 'https://bsc-dataseed.binance.org/',
+      url: secrets.quicknode_binance_url || 'https://bsc-dataseed.binance.org/',
       chainId: 56,
       gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey],
