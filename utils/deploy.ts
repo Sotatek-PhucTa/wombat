@@ -25,6 +25,10 @@ export function getPoolDeploymentName(contractNamePrefix: string, poolName: stri
   return contractNamePrefix + '_' + poolName
 }
 
+export function getImplementationName(contract: string) {
+  return `${contract}_Implementation`
+}
+
 export function getAssetDeploymentName(poolName: string, tokenSymbol: string) {
   return `Asset_${poolName}_${tokenSymbol}`
 }
@@ -56,12 +60,14 @@ export async function deployBasePool(
     from: deployer,
     log: true,
     contract: poolContract,
-    skipIfAlreadyDeployed: true,
+    // Deploy the new implementation if it has changed.
+    skipIfAlreadyDeployed: false,
     libraries,
     proxy: {
       owner: multisig,
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
+      implementationName: getImplementationName(poolContract),
       execute: {
         init: {
           methodName: 'initialize',
