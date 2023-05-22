@@ -91,6 +91,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.BUSD]: {
     [Network.HARDHAT]: Deployment('BUSD'),
+    [Network.LOCALHOST]: Deployment('BUSD'),
     [Network.BSC_TESTNET]: Deployment('BUSD'),
     [Network.AVALANCHE_TESTNET]: Deployment('BUSD'),
     // https://bscscan.com/address/0xe9e7cea3dedca5984780bafc599bd69add087d56
@@ -187,6 +188,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // Cannot be resolved on any network.
   },
   [Token.USDC]: {
+    [Network.HARDHAT]: Deployment('USDC'),
+    [Network.LOCALHOST]: Deployment('USDC'),
+    [Network.BSC_TESTNET]: Deployment('USDC'),
     // https://www.coingecko.com/en/coins/usd-coin
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
@@ -203,6 +207,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.USDT]: {
     [Network.HARDHAT]: Deployment('USDT'),
+    [Network.LOCALHOST]: Deployment('USDT'),
     [Network.BSC_TESTNET]: Deployment('USDT'),
     // https://www.coingecko.com/en/coins/tether
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),

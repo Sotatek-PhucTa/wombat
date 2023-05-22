@@ -12,20 +12,14 @@ const contractName = 'HighCovRatioFeePool'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
-  const { deployer, multisig } = await getNamedAccounts()
+  const { deployer } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 020. Deploying on : ${hre.network.name}...`)
 
   const POOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, pooInfo] of Object.entries(POOL_TOKENS)) {
-    const { contract: pool, deployResult } = await deployBasePool(
-      'HighCovRatioFeePoolV2',
-      poolName,
-      pooInfo,
-      deployer,
-      multisig
-    )
+    const { contract: pool, deployResult } = await deployBasePool('HighCovRatioFeePoolV2', poolName, pooInfo)
 
     const setting = pooInfo.setting
     if (deployResult.newlyDeployed) {

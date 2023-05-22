@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
-import { deployments, ethers, network, upgrades } from 'hardhat'
+import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardhat'
 import { getContractAddress } from '../config/contract'
 import { getTokenAddress } from '../config/token'
 import { DeploymentResult, IAssetInfo, IGovernedPriceFeed, IPoolConfig, PoolInfo } from '../types'
@@ -44,10 +44,9 @@ export async function deployBasePool(
   poolContract: string,
   poolName: string,
   pooInfo: PoolInfo<IPoolConfig>,
-  deployer: string,
-  multisig: string,
   libraries?: { [key: string]: string }
 ): Promise<DeploymentResult> {
+  const { deployer, multisig } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const { deploy } = deployments
   const setting = pooInfo.setting

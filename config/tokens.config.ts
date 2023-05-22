@@ -610,6 +610,17 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
+  [Network.HARDHAT]: {
+    Main_Pool: {
+      setting: {
+        ...defaultMainPoolConfig,
+      },
+      assets: {
+        ...UsdcAsset({ maxSupply: parseUnits('1000000', 6) }),
+        ...UsdtAsset({ maxSupply: parseUnits('1000000', 6) }),
+      },
+    },
+  },
 })
 
 export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<

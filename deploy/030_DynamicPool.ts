@@ -12,20 +12,14 @@ export const contractName = 'DynamicPool'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
-  const { deployer, multisig } = await getNamedAccounts()
+  const { deployer } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 030. Deploying on : ${hre.network.name}...`)
 
   const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, pooInfo] of Object.entries(POOL_TOKENS)) {
-    const { contract: pool, deployResult } = await deployBasePool(
-      'DynamicPoolV2',
-      poolName,
-      pooInfo,
-      deployer,
-      multisig
-    )
+    const { contract: pool, deployResult } = await deployBasePool('DynamicPoolV2', poolName, pooInfo)
 
     const setting = pooInfo.setting
     if (deployResult.newlyDeployed) {
