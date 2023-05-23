@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs'
-import { BigNumber, Contract, ContractFactory } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import { ethers, deployments, getNamedAccounts } from 'hardhat'
+import { ethers, deployments } from 'hardhat'
 import { getDeployedContract } from '../utils'
 import { duration, increase } from './helpers/time'
 import { restoreOrCreateSnapshot } from './fixtures/executions'
@@ -17,11 +17,10 @@ async function scheduleAndExecute(
   payload: string,
   predecessor: string = ethers.constants.HashZero,
   delay: BigNumber = MIN_DELAY
-): Promise<any> {
+) {
   await timelockContract.schedule(target, BigNumber.from(0), payload, predecessor, salt, delay)
   await increase(MIN_DELAY)
-
-  return await timelockContract.execute(target, BigNumber.from(0), payload, predecessor, salt)
+  return timelockContract.execute(target, BigNumber.from(0), payload, predecessor, salt)
 }
 
 async function genOperationId(
@@ -36,9 +35,6 @@ async function genOperationId(
 }
 
 describe('TimelockController', function () {
-  let TimelockFactory: ContractFactory
-  let AssetFactory: ContractFactory
-
   let timelockContract: Contract
   let poolContract: Contract
   let asset0: Contract
@@ -52,20 +48,16 @@ describe('TimelockController', function () {
   const CANCELLER_ROLE = ethers.utils.solidityKeccak256(['string'], ['CANCELLER_ROLE'])
   beforeEach(
     restoreOrCreateSnapshot(async function () {
-      await deployments.fixture(['PoolV2', 'Asset', 'MockTokens'])
-
-      poolContract = await getDeployedContract('PoolV2', 'Pool')
+      await deployments.fixture(['HighCovRatioFeePoolAssets', 'MockTokens'])
+      poolContract = await getDeployedContract('HighCovRatioFeePoolV2', 'MainPool')
       ;[multisig] = await ethers.getSigners()
 
-      TimelockFactory = await ethers.getContractFactory('TimelockController')
-      AssetFactory = await ethers.getContractFactory('Asset')
-
-      timelockContract = await TimelockFactory.deploy(
+      timelockContract = await ethers.deployContract('TimelockController', [
         MIN_DELAY,
         [multisig.address],
         [multisig.address],
-        multisig.address
-      )
+        multisig.address,
+      ])
 
       expect(await timelockContract.TIMELOCK_ADMIN_ROLE()).to.be.equal(TIMELOCK_ADMIN_ROLE)
       expect(await timelockContract.PROPOSER_ROLE()).to.be.equal(PROPOSER_ROLE)
@@ -108,7 +100,7 @@ describe('TimelockController', function () {
       expect(await asset1.owner()).to.be.equal(timelockContract.address)
 
       // transfer ownership back to multisig
-      const data = AssetFactory.interface.encodeFunctionData('transferOwnership', [multisig.address])
+      const data = asset0.interface.encodeFunctionData('transferOwnership', [multisig.address])
       const receipt0 = await scheduleAndExecute(timelockContract, asset0.address, data)
       const receipt1 = await scheduleAndExecute(timelockContract, asset1.address, data)
 
@@ -129,7 +121,7 @@ describe('TimelockController', function () {
       expect(await asset0.maxSupply()).to.be.equal(0)
       expect(await asset1.maxSupply()).to.be.equal(0)
 
-      const payload = AssetFactory.interface.encodeFunctionData('setMaxSupply', [parseEther('100')])
+      const payload = asset0.interface.encodeFunctionData('setMaxSupply', [parseEther('100')])
       // set maxSupply to 100
       await timelockContract.scheduleBatch(
         [asset0.address, asset1.address],
@@ -154,8 +146,8 @@ describe('TimelockController', function () {
     })
 
     it('should work with predecessor', async function () {
-      const supplyPayload = AssetFactory.interface.encodeFunctionData('setMaxSupply', [parseEther('100')])
-      const ownershipPaylod = AssetFactory.interface.encodeFunctionData('transferOwnership', [multisig.address])
+      const supplyPayload = asset0.interface.encodeFunctionData('setMaxSupply', [parseEther('100')])
+      const ownershipPaylod = asset0.interface.encodeFunctionData('transferOwnership', [multisig.address])
 
       const supplyId = genOperationId(timelockContract, asset0.address, supplyPayload, BigNumber.from(0))
 
