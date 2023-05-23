@@ -613,23 +613,18 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
-  [Network.HARDHAT]: {
-    Pool_One: {
+  [Network.BSC_TESTNET]: {
+    MainPool: {
       setting: {
         ...defaultMainPoolConfig,
       },
       assets: {
-        ...UsdcAsset({ maxSupply: parseUnits('1000000', 6) }),
-        ...UsdtAsset({ maxSupply: parseUnits('1000000', 6) }),
-      },
-    },
-    Pool_Two: {
-      setting: {
-        ...defaultMainPoolConfig,
-      },
-      assets: {
-        ...BusdAsset({ maxSupply: parseUnits('1000000', 6) }),
-        ...UsdtAsset({ maxSupply: parseUnits('1000000', 6) }),
+        ...BusdAsset(),
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...DaiAsset(),
+        ...TusdAsset(),
+        ...VusdcAsset(),
       },
     },
   },

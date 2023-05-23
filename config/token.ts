@@ -105,6 +105,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xFa4BA88Cf97e282c505BEa095297786c16070129'),
   },
   [Token.DAI]: {
+    [Network.HARDHAT]: Deployment('DAI'),
+    [Network.LOCALHOST]: Deployment('DAI'),
+    [Network.BSC_TESTNET]: Deployment('DAI'),
     [Network.BSC_MAINNET]: Address('0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3'),
     [Network.ARBITRUM_MAINNET]: Address('0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'),
   },
@@ -182,6 +185,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xd15C444F1199Ae72795eba15E8C1db44E47abF62'),
   },
   [Token.TUSD]: {
+    [Network.HARDHAT]: Deployment('TUSD'),
+    [Network.LOCALHOST]: Deployment('TUSD'),
+    [Network.BSC_TESTNET]: Deployment('TUSD'),
     [Network.BSC_MAINNET]: Address('0x14016E85a25aeb13065688cAFB43044C2ef86784'),
   },
   [Token.UNKNOWN]: {
@@ -299,6 +305,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.vUSDC]: {
     [Network.HARDHAT]: Deployment('vUSDC'),
+    [Network.LOCALHOST]: Deployment('vUSDC'),
     [Network.BSC_TESTNET]: Deployment('vUSDC'),
     [Network.AVALANCHE_TESTNET]: Deployment('vUSDC'),
   },
