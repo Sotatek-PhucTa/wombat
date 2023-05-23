@@ -60,7 +60,6 @@ import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
 import { Epochs } from './epoch'
 import { Token } from './token'
-import { asset } from '../build/typechain/contracts/wombat-core'
 
 export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
   [Network.HARDHAT]: ethers.constants.AddressZero,
@@ -189,12 +188,6 @@ export function injectForkNetwork<T>(config: PartialRecord<Network, T>): Partial
 }
 
 export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
-  [Network.BSC_MAINNET]: {
-    BUSD: ['Binance USD', 'BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 220],
-    USDC: ['USD Coin', 'USDC', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', 220],
-    USDT: ['Tether USD', 'USDT', '0x55d398326f99059ff775485246999027b3197955', 220],
-    DAI: ['Dai Stablecoin', 'DAI', '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3', 75],
-  },
   [Network.BSC_TESTNET]: {
     BUSD: ['Binance USD', 'BUSD', '18', 0],
     USDC: ['USD Coin', 'USDC', '18', 0],
@@ -207,14 +200,6 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInf
     BUSD: ['Binance USD', 'BUSD', '18', 0],
     vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
   },
-  [Network.LOCALHOST]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0],
-    USDC: ['USD Coin', 'USDC', '18', 0],
-    USDT: ['Tether USD', 'USDT', '18', 0],
-    TUSD: ['TrueUSD', 'TUSD', '18', 0],
-    DAI: ['Dai Stablecoin', 'DAI', '18', 0],
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
-  },
   [Network.HARDHAT]: {
     BUSD: ['Binance USD', 'BUSD', '18', 0],
     USDC: ['USD Coin', 'USDC', '18', 0],
@@ -222,11 +207,6 @@ export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInf
     TUSD: ['TrueUSD', 'TUSD', '18', 0],
     DAI: ['Dai Stablecoin', 'DAI', '18', 0],
     vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
-  },
-  [Network.ARBITRUM_MAINNET]: {
-    USDC: ['USD Coin', 'USDC', '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8', /*allocPoint=*/ '300'],
-    USDT: ['Tether USD', 'USDT', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9', /*allocPoint=*/ '300'],
-    DAI: ['Dai Stablecoin', 'DAI', '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1', /*allocPoint=*/ '300'],
   },
 })
 
@@ -524,6 +504,16 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.ARBITRUM_MAINNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig,
+      },
+      assets: {
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...DaiAsset(),
+      },
+    },
     USDPlus_Pool: {
       setting: {
         ...defaultFactoryPoolConfig,
