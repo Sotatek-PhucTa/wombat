@@ -187,16 +187,7 @@ export function injectForkNetwork<T>(config: PartialRecord<Network, T>): Partial
   })
 }
 
-export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
-  [Network.HARDHAT]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0],
-    USDC: ['USD Coin', 'USDC', '18', 0],
-    USDT: ['Tether USD', 'USDT', '18', 0],
-    TUSD: ['TrueUSD', 'TUSD', '18', 0],
-    DAI: ['Dai Stablecoin', 'DAI', '18', 0],
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
-  },
-})
+export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({})
 
 export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = injectForkNetwork<
   TokenMap<IMockTokenInfo>
@@ -602,6 +593,21 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.BSC_TESTNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig,
+      },
+      assets: {
+        ...BusdAsset(),
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...DaiAsset(),
+        ...TusdAsset(),
+        ...VusdcAsset(),
+      },
+    },
+  },
+  [Network.HARDHAT]: {
     MainPool: {
       setting: {
         ...defaultMainPoolConfig,
