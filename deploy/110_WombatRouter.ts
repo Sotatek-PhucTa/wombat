@@ -7,7 +7,6 @@ import {
   CROSS_CHAIN_POOL_TOKENS_MAP,
   DYNAMICPOOL_TOKENS_MAP,
   FACTORYPOOL_TOKENS_MAP,
-  USD_TOKENS_MAP,
   WRAPPED_NATIVE_TOKENS_MAP,
 } from '../config/tokens.config'
 import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
@@ -42,27 +41,11 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   const router = await ethers.getContractAt(contractName, deployResult.address)
-  await approveMainPool(router, owner)
   await approveForPools(router, FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}, owner)
   await approveForPools(router, DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}, owner)
   await approveForPools(router, CROSS_CHAIN_POOL_TOKENS_MAP[hre.network.name as Network] || {}, owner)
 
   return deployResult
-
-  async function approveMainPool(router: Contract, owner: SignerWithAddress) {
-    const tokens = []
-    const TOKENS = USD_TOKENS_MAP[hre.network.name]
-    for (const index in TOKENS) {
-      const maybeAddress = TOKENS[index][2] as string
-      const token = ethers.utils.isAddress(maybeAddress)
-        ? maybeAddress
-        : (await deployments.get(`${TOKENS[index][1]}`)).address
-      tokens.push(token)
-    }
-    const mainPoolDeployment = await deployments.getOrNull('Pool')
-    if (!mainPoolDeployment) return
-    await approveSpending(router, owner, tokens, mainPoolDeployment.address)
-  }
 }
 
 async function approveForPools(router: Contract, poolConfigs: NetworkPoolInfo<IPoolConfig>, owner: SignerWithAddress) {

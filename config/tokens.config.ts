@@ -8,8 +8,6 @@ import {
   IHighCovRatioFeePoolConfig,
   IMockTokenInfo,
   IRewarder,
-  ITokens,
-  ITokensInfo,
   IWormholeAdaptorConfig,
   IWormholeConfig,
   Network,
@@ -186,8 +184,6 @@ export function injectForkNetwork<T>(config: PartialRecord<Network, T>): Partial
     [Network.LOCALHOST]: config[forkNetwork as Network],
   })
 }
-
-export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({})
 
 export const MOCK_TOKEN_MAP: PartialRecord<Network, TokenMap<IMockTokenInfo>> = injectForkNetwork<
   TokenMap<IMockTokenInfo>

@@ -47,20 +47,6 @@ export function Unknown(): DeploymentOrAddress {
   return { deploymentOrAddress: 'unknown' }
 }
 
-/**
- * @deprecated use PartialRecord<Network, NetworkPoolInfo>
- */
-export interface ITokens<T> {
-  [network: string]: T
-}
-
-/**
- * @deprecated use PoolInfo
- */
-export interface ITokensInfo {
-  [token: string]: unknown[]
-}
-
 export interface IRewarder {
   lpToken: DeploymentOrAddress
   rewardTokens: Token[]

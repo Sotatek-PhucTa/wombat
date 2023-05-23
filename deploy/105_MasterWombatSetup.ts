@@ -3,7 +3,7 @@ import { Contract } from 'ethers'
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP, USD_TOKENS_MAP } from '../config/tokens.config'
+import { DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/tokens.config'
 import { Network } from '../types'
 import { confirmTxn, getDeployedContract } from '../utils'
 import { getAssetDeploymentName } from '../utils/deploy'
@@ -24,15 +24,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   if (voter != undefined && voter != (await masterWombat.voter())) {
     deployments.log(`set voter to ${voter.address}`)
     await confirmTxn(masterWombat.connect(owner).setVoter(voter.address))
-  }
-
-  deployments.log('Setting up main pool')
-  const USD_TOKENS = USD_TOKENS_MAP[hre.network.name as Network] || {}
-  for (const index in USD_TOKENS) {
-    const tokenSymbol = USD_TOKENS[index][1] as string
-    const assetContractName = `Asset_P01_${tokenSymbol}`
-    const assetContractAddress = (await deployments.get(assetContractName)).address as string
-    await addAsset(masterWombat, owner, assetContractAddress)
   }
 
   deployments.log('Setting up dynamic pool')
