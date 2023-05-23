@@ -4,9 +4,9 @@ import { BigNumber, Contract } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import { ethers, deployments } from 'hardhat'
 import { getDeployedContract } from '../utils'
-import { increase } from './helpers/time'
 import { restoreOrCreateSnapshot } from './fixtures/executions'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { time } from '@nomicfoundation/hardhat-network-helpers'
 
 describe('TimelockController', function () {
   const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726' // a random value
@@ -101,7 +101,7 @@ describe('TimelockController', function () {
         salt,
         timelockDelay
       )
-      await increase(timelockDelay)
+      await time.increase(timelockDelay)
 
       await timelockContract.executeBatch(
         [asset0.address, asset1.address],
@@ -132,7 +132,7 @@ describe('TimelockController', function () {
       // expect transferOwnership to be executed after setMaxSupply
       await timelockContract.schedule(asset0.address, BigNumber.from(0), ownershipPaylod, supplyId, salt, timelockDelay)
 
-      await increase(timelockDelay)
+      await time.increase(timelockDelay)
 
       // transferOwnership -> setMaxSupply, should revert
       await expect(
@@ -167,6 +167,39 @@ describe('TimelockController', function () {
     })
   })
 
+  describe('ProxyAdmin with Timelock', function () {
+    let proxyAdmin: Contract
+    let newImpl: Contract
+
+    beforeEach(async function () {
+      proxyAdmin = await getDeployedContract('ProxyAdmin', 'DefaultProxyAdmin')
+      expect(await proxyAdmin.owner()).to.be.equal(multisig.address)
+      await proxyAdmin.transferOwnership(timelockContract.address)
+      expect(await proxyAdmin.owner()).to.be.equal(timelockContract.address)
+
+      newImpl = await ethers.deployContract('DynamicPoolV2')
+      expect(await proxyAdmin.getProxyImplementation(poolContract.address)).to.not.eq(newImpl.address)
+    })
+
+    it('cannot be upgraded by multisig without timelock', async function () {
+      await expect(proxyAdmin.connect(multisig).upgrade(poolContract.address, newImpl.address)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      )
+    })
+
+    it('can transfer ownership back to multisig', async function () {
+      const payload = proxyAdmin.interface.encodeFunctionData('transferOwnership', [multisig.address])
+      await scheduleAndExecute(timelockContract, proxyAdmin.address, payload)
+      expect(await proxyAdmin.owner()).to.be.equal(multisig.address)
+    })
+
+    it('can upgrade through timelock', async function () {
+      const payload = proxyAdmin.interface.encodeFunctionData('upgrade', [poolContract.address, newImpl.address])
+      await scheduleAndExecute(timelockContract, proxyAdmin.address, payload)
+      expect(await proxyAdmin.getProxyImplementation(poolContract.address)).to.eq(newImpl.address)
+    })
+  })
+
   async function scheduleAndExecute(
     timelockContract: Contract,
     target: string,
@@ -175,7 +208,7 @@ describe('TimelockController', function () {
     delay: BigNumber = timelockDelay
   ) {
     await timelockContract.schedule(target, BigNumber.from(0), payload, predecessor, salt, delay)
-    await increase(delay)
+    await time.increase(delay)
     return timelockContract.execute(target, BigNumber.from(0), payload, predecessor, salt)
   }
 

@@ -172,7 +172,10 @@ const config: HardhatUserConfig = {
     except: ['/test/*', '/mock/*'],
   },
   dependencyCompiler: {
-    paths: ['@openzeppelin/contracts/governance/TimelockController.sol'],
+    paths: [
+      '@openzeppelin/contracts/governance/TimelockController.sol',
+      '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
+    ],
   },
 }
 
