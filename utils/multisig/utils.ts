@@ -114,8 +114,9 @@ export async function removeAssets(
       const currentPool = await ethers.getContractAt('PoolV2', poolAddress)
       return [
         Safe(currentPool).removeAsset(token),
-        Safe(standalonePool).addAsset(token, asset.address),
         Safe(asset).setPool(standalonePool.address),
+        Safe(standalonePool).addAsset(token, asset.address),
+        Safe(standalonePool).pauseAsset(token),
       ]
     })
   )

@@ -579,6 +579,12 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...WomAsset(),
       },
     },
+    StandalonePool: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+      },
+      assets: {},
+    },
   },
   [Network.OPTIMISM_MAINNET]: {
     Main_Pool: {
