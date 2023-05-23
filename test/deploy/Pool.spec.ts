@@ -9,8 +9,8 @@ describe('Main pool deployment', function () {
   let deployer: string
   let multisig: string
   beforeEach(async function () {
-    await deployments.fixture(['Pool', 'Asset', 'MockTokens'])
-    pool = await getDeployedContract('PoolV2', 'Pool')
+    await deployments.fixture(['HighCovRatioFeePoolAssets', 'MockTokens'])
+    pool = await getDeployedContract('HighCovRatioFeePoolV2', 'MainPool')
     ;({ deployer, multisig } = await getNamedAccounts())
   })
 
@@ -32,11 +32,11 @@ describe('Main pool deployment', function () {
     })
 
     it('retains all fee', async function () {
-      expect(await pool.retentionRatio()).to.eq(parseEther('1'))
+      expect(await pool.retentionRatio()).to.eq(parseEther('0.5'))
     })
 
     it('does not share fee', async function () {
-      expect(await pool.lpDividendRatio()).to.eq(0)
+      expect(await pool.lpDividendRatio()).to.eq(parseEther('0.5'))
     })
   })
 
