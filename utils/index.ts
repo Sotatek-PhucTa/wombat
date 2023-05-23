@@ -10,6 +10,7 @@ import { DeploymentOrAddress, IAssetInfo } from '../types'
 import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3 } from '../build/typechain'
 import { epoch_duration_seconds } from '../config/epoch'
+import hre from 'hardhat'
 
 export * as deploy from './deploy'
 export * as multisig from './multisig'
@@ -72,6 +73,16 @@ export function logVerifyCommand(network: string, deployment: Deployment) {
     const verifyArgs = deployment.args?.map((arg) => (typeof arg == 'string' ? `'${arg}'` : arg)).join(' ')
     console.log(`To verify, run: hh verify --network ${network} ${deployment.address} ${verifyArgs}`)
   }
+}
+
+// This is useful for when your constructor arguments are too complex for command line usage.
+// See https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-verify#complex-arguments
+export async function verifyDeployedContract(deploymentName: string) {
+  const deployment = await deployments.get(deploymentName)
+  return hre.run('verify:verify', {
+    address: deployment.address,
+    constructorArguments: deployment.args || [],
+  })
 }
 
 // Print all assets with some alloc points in MasterWombatV2
