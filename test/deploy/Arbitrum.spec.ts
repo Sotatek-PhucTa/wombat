@@ -19,13 +19,10 @@ describe('Arbitrum', function () {
   beforeEach(async function () {
     ;[multisig, user] = await ethers.getSigners()
     await deployments.fixture([
-      'Asset',
-      'HighCovRatioFeePool',
       'HighCovRatioFeePoolAssets',
       'MasterWombatV3',
       'MasterWombatV3Setup',
       'MockTokens',
-      'Pool',
       'VeWom',
       'VeWomSetup',
       'Voter',
@@ -36,9 +33,9 @@ describe('Arbitrum', function () {
       getDeployedContract('MasterWombatV3'),
       getDeployedContract('VeWom'),
       getDeployedContract('Voter'),
-      getDeployedContract('Pool'),
+      getDeployedContract('HighCovRatioFeePoolV2', 'MainPool'),
       getDeployedContract('TestERC20', 'BUSD'),
-      getDeployedContract('Asset', 'Asset_P01_BUSD'),
+      getDeployedContract('Asset', 'Asset_MainPool_BUSD'),
       getDeployedContract('WombatERC20', 'WombatToken'),
     ])
 
