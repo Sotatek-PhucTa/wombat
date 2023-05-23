@@ -15,8 +15,8 @@ describe('Files', function () {
   let pendingFile: string
 
   beforeEach(async function () {
-    await deployments.fixture(['Pool'])
-    pool = await getDeployedContract('PoolV2', 'Pool')
+    await deployments.fixture(['HighCovRatioFeePoolAssets'])
+    pool = await getDeployedContract('HighCovRatioFeePoolV2', 'MainPool')
     ;[owner, user] = await ethers.getSigners()
     pendingFile = createTempFile()
   })
