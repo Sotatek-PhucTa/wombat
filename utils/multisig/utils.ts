@@ -1,5 +1,5 @@
 import { deployments, ethers } from 'hardhat'
-import { concatAll, getDeployedContract } from '..'
+import { concatAll, getAddress, getDeployedContract } from '..'
 import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe } from './transactions'
@@ -12,6 +12,7 @@ import { epoch_duration_seconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
+import { DeploymentOrAddress } from '../../types'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -197,4 +198,26 @@ export async function setOperator(deploymentName: string, to: ExternalContract):
   const deployment = await deployments.get(deploymentName)
   const contract = await ethers.getContractAt(abi, deployment.address)
   return [Safe(contract).setOperator(await getContractAddress(to))]
+}
+
+export async function transferAssetsOwnership(
+  assetDeploymentNames: string[],
+  newOwner: DeploymentOrAddress
+): Promise<BatchTransaction[]> {
+  return concatAll(...assetDeploymentNames.map((name) => transferOwnership(name, newOwner)))
+}
+
+export async function transferProxyAdminOwnership(newOwner: DeploymentOrAddress): Promise<BatchTransaction[]> {
+  return transferOwnership('DefaultProxyAdmin', newOwner)
+}
+
+async function transferOwnership(deploymentName: string, newOwner: DeploymentOrAddress): Promise<BatchTransaction[]> {
+  const deployment = await deployments.get(deploymentName)
+  const ownable = await ethers.getContractAt('Ownable', deployment.address)
+  const newOwnerAddress = await getAddress(newOwner)
+  if (isSameAddress(await ownable.owner(), newOwnerAddress)) {
+    return []
+  } else {
+    return [Safe(ownable).transferOwnership(newOwnerAddress)]
+  }
 }
