@@ -20,9 +20,11 @@ describe('Arbitrum', function () {
     ;[multisig, user] = await ethers.getSigners()
     await deployments.fixture([
       'Asset',
-      'MockTokens',
+      'HighCovRatioFeePool',
+      'HighCovRatioFeePoolAssets',
       'MasterWombatV3',
       'MasterWombatV3Setup',
+      'MockTokens',
       'Pool',
       'VeWom',
       'VeWomSetup',

@@ -59,7 +59,7 @@ export async function setRewarder(masterWombat: Contract, owner: SignerWithAddre
 }
 
 export function logVerifyCommand(network: string, deployment: Deployment) {
-  if (network === 'hardhat') {
+  if (network === 'hardhat' || network == 'localhost') {
     return
   }
 
