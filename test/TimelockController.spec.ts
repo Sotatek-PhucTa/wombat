@@ -7,9 +7,12 @@ import { getDeployedContract } from '../utils'
 import { restoreOrCreateSnapshot } from './fixtures/executions'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
+import { Safe, encodeData, executeBatchTransaction } from '../utils/multisig/transactions'
 
 describe('TimelockController', function () {
   const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726' // a random value
+  const noPredecessor = ethers.constants.HashZero
+
   let multisig: SignerWithAddress
   let timelockDelay: BigNumber
   let timelockContract: Contract
@@ -29,6 +32,14 @@ describe('TimelockController', function () {
       timelockContract = await getDeployedContract('TimelockController')
       timelockDelay = await timelockContract.getMinDelay()
 
+      const tokens = await poolContract.getTokens()
+      const assetAddress0 = await poolContract.addressOfAsset(tokens[0])
+      const assetAddress1 = await poolContract.addressOfAsset(tokens[1])
+      asset0 = await ethers.getContractAt('Asset', assetAddress0, multisig)
+      asset1 = await ethers.getContractAt('Asset', assetAddress1, multisig)
+      await asset0.connect(multisig).transferOwnership(timelockContract.address)
+      await asset1.connect(multisig).transferOwnership(timelockContract.address)
+
       expect(await timelockContract.TIMELOCK_ADMIN_ROLE()).to.be.equal(TIMELOCK_ADMIN_ROLE)
       expect(await timelockContract.PROPOSER_ROLE()).to.be.equal(PROPOSER_ROLE)
       expect(await timelockContract.EXECUTOR_ROLE()).to.be.equal(EXECUTOR_ROLE)
@@ -38,20 +49,8 @@ describe('TimelockController', function () {
 
   describe('Asset with Timelock', async function () {
     beforeEach(async function () {
-      const tokens = await poolContract.getTokens()
-
-      // pick the first 2 assets for testing
-      const assetAddress0 = await poolContract.addressOfAsset(tokens[0])
-      const assetAddress1 = await poolContract.addressOfAsset(tokens[1])
-      asset0 = await ethers.getContractAt('Asset', assetAddress0, multisig)
-      asset1 = await ethers.getContractAt('Asset', assetAddress1, multisig)
-
-      expect(await asset0.owner()).to.be.equal(multisig.address)
-      expect(await asset1.owner()).to.be.equal(multisig.address)
-
-      // transfer ownership to Timelock contract
-      await asset0.connect(multisig).transferOwnership(timelockContract.address)
-      await asset1.connect(multisig).transferOwnership(timelockContract.address)
+      expect(await asset0.owner()).to.be.equal(timelockContract.address)
+      expect(await asset1.owner()).to.be.equal(timelockContract.address)
     })
 
     it('should initialize correctly', async function () {
@@ -97,7 +96,7 @@ describe('TimelockController', function () {
         [asset0.address, asset1.address],
         [BigNumber.from(0), BigNumber.from(0)],
         [payload, payload],
-        ethers.constants.HashZero,
+        noPredecessor,
         salt,
         timelockDelay
       )
@@ -107,7 +106,7 @@ describe('TimelockController', function () {
         [asset0.address, asset1.address],
         [BigNumber.from(0), BigNumber.from(0)],
         [payload, payload],
-        ethers.constants.HashZero,
+        noPredecessor,
         salt
       )
 
@@ -125,7 +124,7 @@ describe('TimelockController', function () {
         asset0.address,
         BigNumber.from(0),
         supplyPayload,
-        ethers.constants.HashZero,
+        noPredecessor,
         salt,
         timelockDelay
       )
@@ -136,7 +135,7 @@ describe('TimelockController', function () {
 
       // transferOwnership -> setMaxSupply, should revert
       await expect(
-        timelockContract.execute(asset0.address, BigNumber.from(0), ownershipPaylod, ethers.constants.HashZero, salt)
+        timelockContract.execute(asset0.address, BigNumber.from(0), ownershipPaylod, noPredecessor, salt)
       ).to.be.revertedWith('TimelockController: operation is not ready')
 
       // setMaxSupply -> transferOwnership, should be executed with correct order
@@ -144,7 +143,7 @@ describe('TimelockController', function () {
         asset0.address,
         BigNumber.from(0),
         supplyPayload,
-        ethers.constants.HashZero,
+        noPredecessor,
         salt
       )
       const receipt1 = await timelockContract.execute(
@@ -200,11 +199,30 @@ describe('TimelockController', function () {
     })
   })
 
+  describe('Multisig with timelock', async function () {
+    it('can run from script', async function () {
+      expect(await asset0.maxSupply()).to.eq(0)
+      expect(await asset0.owner()).to.eq(timelockContract.address)
+
+      const payload = encodeData(Safe(asset0).setMaxSupply(parseEther('101')))
+      await executeBatchTransaction(
+        multisig,
+        Safe(timelockContract).schedule(asset0.address, BigNumber.from(0), payload, noPredecessor, salt, timelockDelay)
+      )
+      await time.increase(timelockDelay)
+      await executeBatchTransaction(
+        multisig,
+        Safe(timelockContract).execute(asset0.address, BigNumber.from(0), payload, noPredecessor, salt)
+      )
+      expect(await asset0.maxSupply()).to.eq(parseEther('101'))
+    })
+  })
+
   async function scheduleAndExecute(
     timelockContract: Contract,
     target: string,
     payload: string,
-    predecessor: string = ethers.constants.HashZero,
+    predecessor: string = noPredecessor,
     delay: BigNumber = timelockDelay
   ) {
     await timelockContract.schedule(target, BigNumber.from(0), payload, predecessor, salt, delay)
@@ -217,7 +235,7 @@ describe('TimelockController', function () {
     target: string,
     data: string,
     value: BigNumber = BigNumber.from(0),
-    predecessor: string = ethers.constants.HashZero,
+    predecessor: string = noPredecessor,
     customSalt: string = salt
   ) {
     return await timelockContract.hashOperation(target, value, data, predecessor, customSalt)

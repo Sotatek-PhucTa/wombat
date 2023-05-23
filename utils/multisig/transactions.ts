@@ -42,7 +42,7 @@ export async function executeBatchTransaction(
   return signer.sendTransaction({ to: txn.to, data: txn.data || encodeData(txn), value: 0 })
 }
 
-function encodeData(txn: BatchTransaction): string {
+export function encodeData(txn: BatchTransaction): string {
   assert(txn.contractMethod && txn.contractInputsValues, 'Missing contract method or inputs')
   // This is a function, not other types: deploy, events, or errors.
   // https://docs.ethers.org/v5/api/utils/abi/interface/#Interface--properties
