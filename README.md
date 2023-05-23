@@ -381,6 +381,9 @@ To verify proxy contracts:
   - Bribe_Asset_ankrETH_Pool_WETH => `0x4ce537d187c97B7a5696B38f5de41aA4e57a08BA`
   - Bribe_Asset_ankrETH_Pool_ankrETH => `0x9f3F1e89831391214fAA57ee7e27667156140655`
 
+- Standalone Pool
+  - FactoryPools_StandalonePool_Proxy => `0xD64816Fbdf50a1C4AEa456A4006ad21A928305f3`
+
 ### Optimism mainnet deployed contracts:
 
 Wombat Governance
