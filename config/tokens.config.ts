@@ -188,18 +188,6 @@ export function injectForkNetwork<T>(config: PartialRecord<Network, T>): Partial
 }
 
 export const USD_TOKENS_MAP: ITokens<ITokensInfo> = injectForkNetwork<ITokensInfo>({
-  [Network.BSC_TESTNET]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0],
-    USDC: ['USD Coin', 'USDC', '18', 0],
-    USDT: ['Tether USD', 'USDT', '18', 0],
-    TUSD: ['TrueUSD', 'TUSD', '18', 0],
-    DAI: ['Dai Stablecoin', 'DAI', '18', 0],
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
-  },
-  [Network.AVALANCHE_TESTNET]: {
-    BUSD: ['Binance USD', 'BUSD', '18', 0],
-    vUSDC: ['Venus USDC', 'vUSDC', '8', 0],
-  },
   [Network.HARDHAT]: {
     BUSD: ['Binance USD', 'BUSD', '18', 0],
     USDC: ['USD Coin', 'USDC', '18', 0],
