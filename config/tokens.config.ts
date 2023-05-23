@@ -29,6 +29,7 @@ import {
   BtcAsset,
   BusdAsset,
   CusdAsset,
+  DaiAsset,
   DaiPlusAsset,
   EthAsset,
   FraxAsset,
@@ -59,6 +60,7 @@ import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
 import { Epochs } from './epoch'
 import { Token } from './token'
+import { asset } from '../build/typechain/contracts/wombat-core'
 
 export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
   [Network.HARDHAT]: ethers.constants.AddressZero,
@@ -281,6 +283,17 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
   NetworkPoolInfo<IHighCovRatioFeePoolConfig>
 > = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
   [Network.BSC_MAINNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig,
+      },
+      assets: {
+        ...BusdAsset(),
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...DaiAsset(),
+      },
+    },
     stables_01: {
       setting: {
         ...defaultFactoryPoolConfig,

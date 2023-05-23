@@ -45,6 +45,17 @@ export function UsdtAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   }
 }
 
+export function DaiAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    DAI: {
+      tokenName: 'Dai Stablecoin',
+      tokenSymbol: 'DAI',
+      underlyingToken: Token.DAI,
+      ...partial,
+    },
+  }
+}
+
 export function CusdAsset(): TokenMap<IAssetInfo> {
   return {
     CUSD: {
