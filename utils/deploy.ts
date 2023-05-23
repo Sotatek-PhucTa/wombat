@@ -41,6 +41,11 @@ export function getRewarderDeploymentName(assetDeployment: string) {
   return `MultiRewarderPerSec_V3_${assetDeployment}`
 }
 
+export async function getAllAssetsDeployments(): Promise<string[]> {
+  const allDeployements = await deployments.all()
+  return Object.keys(allDeployements).filter((name) => name.startsWith('Asset_'))
+}
+
 /**
  * Deploy a base pool contract. The caller should handle the pool specific setup.
  */

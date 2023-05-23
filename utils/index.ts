@@ -11,6 +11,7 @@ import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3 } from '../build/typechain'
 import { epoch_duration_seconds } from '../config/epoch'
 
+export * as deploy from './deploy'
 export * as multisig from './multisig'
 export * as addresses from './addresses'
 
