@@ -4,43 +4,18 @@ import { BigNumber, Contract } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import { ethers, deployments } from 'hardhat'
 import { getDeployedContract } from '../utils'
-import { duration, increase } from './helpers/time'
+import { increase } from './helpers/time'
 import { restoreOrCreateSnapshot } from './fixtures/executions'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
-const MIN_DELAY = duration.days(1)
-const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726' // a random value
-
-async function scheduleAndExecute(
-  timelockContract: Contract,
-  target: string,
-  payload: string,
-  predecessor: string = ethers.constants.HashZero,
-  delay: BigNumber = MIN_DELAY
-) {
-  await timelockContract.schedule(target, BigNumber.from(0), payload, predecessor, salt, delay)
-  await increase(MIN_DELAY)
-  return timelockContract.execute(target, BigNumber.from(0), payload, predecessor, salt)
-}
-
-async function genOperationId(
-  timelockContract: Contract,
-  target: string,
-  data: string,
-  value: BigNumber = BigNumber.from(0),
-  predecessor: string = ethers.constants.HashZero,
-  customSalt: string = salt
-) {
-  return await timelockContract.hashOperation(target, value, data, predecessor, customSalt)
-}
-
 describe('TimelockController', function () {
+  const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726' // a random value
+  let multisig: SignerWithAddress
+  let timelockDelay: BigNumber
   let timelockContract: Contract
   let poolContract: Contract
   let asset0: Contract
   let asset1: Contract
-
-  let multisig: SignerWithAddress
 
   const TIMELOCK_ADMIN_ROLE = ethers.utils.solidityKeccak256(['string'], ['TIMELOCK_ADMIN_ROLE'])
   const PROPOSER_ROLE = ethers.utils.solidityKeccak256(['string'], ['PROPOSER_ROLE'])
@@ -48,16 +23,11 @@ describe('TimelockController', function () {
   const CANCELLER_ROLE = ethers.utils.solidityKeccak256(['string'], ['CANCELLER_ROLE'])
   beforeEach(
     restoreOrCreateSnapshot(async function () {
-      await deployments.fixture(['HighCovRatioFeePoolAssets', 'MockTokens'])
+      await deployments.fixture(['HighCovRatioFeePoolAssets', 'MockTokens', 'TimelockController'])
       poolContract = await getDeployedContract('HighCovRatioFeePoolV2', 'MainPool')
       ;[multisig] = await ethers.getSigners()
-
-      timelockContract = await ethers.deployContract('TimelockController', [
-        MIN_DELAY,
-        [multisig.address],
-        [multisig.address],
-        multisig.address,
-      ])
+      timelockContract = await getDeployedContract('TimelockController')
+      timelockDelay = await timelockContract.getMinDelay()
 
       expect(await timelockContract.TIMELOCK_ADMIN_ROLE()).to.be.equal(TIMELOCK_ADMIN_ROLE)
       expect(await timelockContract.PROPOSER_ROLE()).to.be.equal(PROPOSER_ROLE)
@@ -85,7 +55,7 @@ describe('TimelockController', function () {
     })
 
     it('should initialize correctly', async function () {
-      expect(await timelockContract.getMinDelay()).to.be.equal(MIN_DELAY)
+      expect(await timelockContract.getMinDelay()).to.be.equal(timelockDelay)
       expect(await timelockContract.hasRole(TIMELOCK_ADMIN_ROLE, multisig.address)).to.be.equal(true)
       expect(await timelockContract.hasRole(CANCELLER_ROLE, multisig.address)).to.be.equal(true)
       expect(await timelockContract.hasRole(PROPOSER_ROLE, multisig.address)).to.be.equal(true)
@@ -129,9 +99,9 @@ describe('TimelockController', function () {
         [payload, payload],
         ethers.constants.HashZero,
         salt,
-        MIN_DELAY
+        timelockDelay
       )
-      await increase(MIN_DELAY)
+      await increase(timelockDelay)
 
       await timelockContract.executeBatch(
         [asset0.address, asset1.address],
@@ -157,12 +127,12 @@ describe('TimelockController', function () {
         supplyPayload,
         ethers.constants.HashZero,
         salt,
-        MIN_DELAY
+        timelockDelay
       )
       // expect transferOwnership to be executed after setMaxSupply
-      await timelockContract.schedule(asset0.address, BigNumber.from(0), ownershipPaylod, supplyId, salt, MIN_DELAY)
+      await timelockContract.schedule(asset0.address, BigNumber.from(0), ownershipPaylod, supplyId, salt, timelockDelay)
 
-      await increase(MIN_DELAY)
+      await increase(timelockDelay)
 
       // transferOwnership -> setMaxSupply, should revert
       await expect(
@@ -196,4 +166,27 @@ describe('TimelockController', function () {
       expect(await asset0.owner()).to.be.equal(multisig.address)
     })
   })
+
+  async function scheduleAndExecute(
+    timelockContract: Contract,
+    target: string,
+    payload: string,
+    predecessor: string = ethers.constants.HashZero,
+    delay: BigNumber = timelockDelay
+  ) {
+    await timelockContract.schedule(target, BigNumber.from(0), payload, predecessor, salt, delay)
+    await increase(delay)
+    return timelockContract.execute(target, BigNumber.from(0), payload, predecessor, salt)
+  }
+
+  async function genOperationId(
+    timelockContract: Contract,
+    target: string,
+    data: string,
+    value: BigNumber = BigNumber.from(0),
+    predecessor: string = ethers.constants.HashZero,
+    customSalt: string = salt
+  ) {
+    return await timelockContract.hashOperation(target, value, data, predecessor, customSalt)
+  }
 })
