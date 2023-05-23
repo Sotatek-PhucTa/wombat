@@ -8,8 +8,8 @@ describe('DeploymentOrAddress', function () {
 
   beforeEach(async function () {
     // Any deployed contract would have worked here.
-    await deployments.fixture(['Pool'])
-    pool = await getDeployedContract('PoolV2', 'Pool')
+    await deployments.fixture(['HighCovRatioFeePoolAssets'])
+    pool = await getDeployedContract('HighCovRatioFeePoolV2', 'MainPool')
   })
 
   it('works for address', async function () {
@@ -17,6 +17,6 @@ describe('DeploymentOrAddress', function () {
   })
 
   it('works for deployment', async function () {
-    expect(await getAddress({ deploymentOrAddress: 'Pool' })).to.eql(pool.address)
+    expect(await getAddress({ deploymentOrAddress: 'MainPool' })).to.eql(pool.address)
   })
 })
