@@ -4,19 +4,22 @@ import { expect } from 'chai'
 import { BigNumberish, Contract } from 'ethers'
 import _ from 'lodash'
 import { parseEther } from 'ethers/lib/utils'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
-describe.skip('RewarderBribe', function () {
+describe('RewarderBribe', function () {
   let wom: Contract
   let usdt: Contract
   let busd: Contract
 
-  beforeEach(async function () {
-    await deployments.fixture(['Asset', 'Bribe', 'MultiRewarderPerSec', 'Voter'])
-    ;[wom, usdt, busd] = await Promise.all([getTestERC20('WombatToken'), getTestERC20('USDT'), getTestERC20('BUSD')])
-  })
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      await deployments.fixture(['HighCovRatioFeePoolAssets', 'Bribe', 'MultiRewarderPerSec', 'Voter'])
+      ;[wom, usdt, busd] = await Promise.all([getTestERC20('WombatToken'), getTestERC20('USDT'), getTestERC20('BUSD')])
+    })
+  )
 
   it('deploys rewarder for LP-BUSD', async function () {
-    const rewardInfos = await getRewardInfos('MultiRewarderPerSec_V3_Asset_P01_BUSD')
+    const rewardInfos = await getRewardInfos('MultiRewarderPerSec_V3_Asset_MainPool_BUSD')
     expect(rewardInfos).to.eql([
       {
         rewardToken: wom.address,
@@ -26,7 +29,7 @@ describe.skip('RewarderBribe', function () {
   })
 
   it('deploys rewarder for LP-USDT', async function () {
-    const rewardInfos = await getRewardInfos('MultiRewarderPerSec_V3_Asset_P01_USDT')
+    const rewardInfos = await getRewardInfos('MultiRewarderPerSec_V3_Asset_MainPool_USDT')
     expect(rewardInfos).to.eql([
       {
         rewardToken: usdt.address,
@@ -40,7 +43,7 @@ describe.skip('RewarderBribe', function () {
   })
 
   it('deploys bribe for LP-BUSD', async function () {
-    const rewardInfos = await getRewardInfos('Bribe_Asset_P01_BUSD')
+    const rewardInfos = await getRewardInfos('Bribe_Asset_MainPool_BUSD')
     expect(rewardInfos).to.eql([
       {
         rewardToken: wom.address,
@@ -50,7 +53,7 @@ describe.skip('RewarderBribe', function () {
   })
 
   it('deploys rewarder for LP-USDT', async function () {
-    const rewardInfos = await getRewardInfos('Bribe_Asset_P01_USDT')
+    const rewardInfos = await getRewardInfos('Bribe_Asset_MainPool_USDT')
     expect(rewardInfos).to.eql([
       {
         rewardToken: usdt.address,

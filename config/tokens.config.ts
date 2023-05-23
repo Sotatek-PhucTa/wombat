@@ -837,11 +837,11 @@ export const VOLATILEPOOL_TOKENS_MAP: PartialRecord<
 
 export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
   [Network.HARDHAT]: {
-    ...createBribeConfigFromDeployedAsset('Asset_P01_BUSD', {
+    ...createBribeConfigFromDeployedAsset('Asset_MainPool_BUSD', {
       rewardTokens: [Token.WOM],
       tokenPerSec: [parseEther('100')],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_P01_USDT', {
+    ...createBribeConfigFromDeployedAsset('Asset_MainPool_USDT', {
       rewardTokens: [Token.USDT, Token.WOM],
       tokenPerSec: [parseEther('12.3'), parseEther('100')],
     }),
@@ -1057,11 +1057,11 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
 // IBribe reuses the interface of IRewarder
 export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
   [Network.HARDHAT]: {
-    ...createBribeConfigFromDeployedAsset('Asset_P01_BUSD', {
+    ...createBribeConfigFromDeployedAsset('Asset_MainPool_BUSD', {
       rewardTokens: [Token.WOM],
       tokenPerSec: [parseEther('100')],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_P01_USDT', {
+    ...createBribeConfigFromDeployedAsset('Asset_MainPool_USDT', {
       rewardTokens: [Token.USDT, Token.BUSD, Token.WOM],
       tokenPerSec: [parseEther('12.3'), parseEther('3.45'), parseEther('100')],
     }),
