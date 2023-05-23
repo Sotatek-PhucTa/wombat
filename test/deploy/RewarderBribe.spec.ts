@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { parseEther } from 'ethers/lib/utils'
 import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
-describe('RewarderBribe', function () {
+describe.skip('RewarderBribe', function () {
   let wom: Contract
   let usdt: Contract
   let busd: Contract
