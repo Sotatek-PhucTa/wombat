@@ -14,7 +14,8 @@ import './DynamicAsset.sol';
  * For example, the ratio of staked BNB : BNB increases as staking reward accrues.
  */
 contract WstETHAsset is DynamicAsset {
-    AggregatorV3Interface exchangeRateOracle; // chainlink price feed
+    AggregatorV3Interface public exchangeRateOracle; // chainlink price feed
+    uint256 public maxAge;
 
     constructor(
         address underlyingToken_,
@@ -23,6 +24,12 @@ contract WstETHAsset is DynamicAsset {
         AggregatorV3Interface _exchangeRateOracle
     ) DynamicAsset(underlyingToken_, name_, symbol_) {
         exchangeRateOracle = _exchangeRateOracle;
+        // Adding 5 minutes buffer to chainlink's trigger parameter (1 day).
+        maxAge = 1 days + 5 minutes;
+    }
+
+    function setMaxAge(uint96 _maxAge) external onlyOwner {
+        maxAge = _maxAge;
     }
 
     /**
@@ -37,8 +44,7 @@ contract WstETHAsset is DynamicAsset {
             uint256 updatedAt,
             /* uint80 answeredInRound */
         ) = exchangeRateOracle.latestRoundData();
-        require(block.timestamp - updatedAt <= 1 days, 'WstETHAsset: chainlink price too old');
-
+        require(block.timestamp - updatedAt <= maxAge, 'WstETHAsset: chainlink price too old');
         return uint256(answer);
     }
 }
