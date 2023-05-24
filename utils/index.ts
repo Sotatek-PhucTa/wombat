@@ -1,8 +1,8 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { BigNumber, Contract } from 'ethers'
-import { formatEther, formatUnits } from 'ethers/lib/utils'
-import { deployments, ethers, upgrades } from 'hardhat'
+import { formatEther, formatUnits, parseEther } from 'ethers/lib/utils'
+import { deployments, ethers, getNamedAccounts, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
@@ -11,10 +11,25 @@ import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3 } from '../build/typechain'
 import { epoch_duration_seconds } from '../config/epoch'
 import hre from 'hardhat'
+import { setBalance, impersonateAccount, stopImpersonatingAccount } from '@nomicfoundation/hardhat-network-helpers'
 
 export * as deploy from './deploy'
 export * as multisig from './multisig'
 export * as addresses from './addresses'
+
+export function isForkedNetwork() {
+  // See .env for the default value
+  return process.env.FORK_NETWORK != 'false'
+}
+
+export async function impersonateAsMultisig(fn: (signer: SignerWithAddress) => Promise<unknown>) {
+  const { multisig } = await getNamedAccounts()
+  setBalance(multisig, parseEther('10')) // for gas
+  impersonateAccount(multisig)
+  const signer = await ethers.getSigner(multisig)
+  await fn(signer)
+  stopImpersonatingAccount(multisig)
+}
 
 export async function concatAll<T>(...promises: Promise<T[]>[]): Promise<T[]> {
   const txns = await Promise.all(promises)

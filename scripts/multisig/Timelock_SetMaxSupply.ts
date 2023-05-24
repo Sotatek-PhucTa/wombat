@@ -10,10 +10,11 @@ async function batchTransactions() {
   ]
 }
 
-runScript('Timelock_Schedule_SetMaxSupply', async () => {
-  return [await multisig.utils.scheduleTimelock(await batchTransactions())]
-})
-
-runScript('Timelock_Execute_SetMaxSupply', async () => {
-  return [await multisig.utils.executeTimelock(await batchTransactions())]
-})
+;(async function () {
+  await runScript('Timelock_Schedule_SetMaxSupply', async () => {
+    return [await multisig.utils.scheduleTimelock(await batchTransactions())]
+  })
+  await runScript('Timelock_Execute_SetMaxSupply', async () => {
+    return [await multisig.utils.executeTimelock(await batchTransactions())]
+  })
+})()

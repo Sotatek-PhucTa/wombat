@@ -1,8 +1,8 @@
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
-import { concatAll, getAddress, getDeployedContract } from '..'
+import { concatAll, getAddress, getDeployedContract, impersonateAsMultisig, isForkedNetwork } from '..'
 import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
-import { Safe, encodeData } from './transactions'
+import { Safe, encodeData, executeBatchTransaction } from './transactions'
 import assert from 'assert'
 import { Token, getTokenAddress } from '../../config/token'
 import { BigNumberish, Contract } from 'ethers'
@@ -13,7 +13,7 @@ import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
 import { DeploymentOrAddress } from '../../types'
-import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
+import { time } from '@nomicfoundation/hardhat-network-helpers'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -270,26 +270,17 @@ async function deployerSalt() {
   return ethers.utils.hexZeroPad(deployer, 32)
 }
 
-export async function setAllocPercent(assetDeployment: string, allocationPercent: number): Promise<BatchTransaction[]> {
-  assert(allocationPercent >= 0 && allocationPercent <= 100, 'invalid allocation percent')
-  const allocPoint = ethers.utils.parseEther(String(allocationPercent * 10))
-  const asset = await getDeployedContract('Asset', assetDeployment)
-  const voter = await getDeployedContract('Voter')
-  return [Safe(voter).setAllocPoint(asset.address, allocPoint.toString())]
-}
-
-export async function setWomMonthlyEmissionRate(womPerMonth: number): Promise<BatchTransaction[]> {
-  assert(womPerMonth >= 0, 'invalid wom emission rate')
-  const womPerSec = convertTokenPerMonthToTokenPerSec(ethers.utils.parseEther(String(womPerMonth)))
-  const voter = await getDeployedContract('Voter')
-  return [Safe(voter).setWomPerSec(womPerSec.toString())]
-}
-
-export async function setBribeAllocPercent(bribeAllocationPercent: number): Promise<BatchTransaction[]> {
-  assert(bribeAllocationPercent >= 0 && bribeAllocationPercent <= 100, 'invalid bribe allocation percent')
-  const baseAllocationPercent = 100 - bribeAllocationPercent
-  // convert from percentage to a base 1000 number (for example, 10% -> 100)
-  const baseAllocPoint = Math.floor(baseAllocationPercent * 10)
-  const voter = await getDeployedContract('Voter')
-  return [Safe(voter).setBaseAllocation(baseAllocPoint.toString())]
+// Simulate multisig proposals in a forked network.
+// Will auto-advance if the transaction is a timelock execution.
+export async function simulate(txns: BatchTransaction[]) {
+  assert(isForkedNetwork(), 'Must simulate on a forked network.')
+  const timelock = await deployments.getOrNull('TimelockController')
+  for await (const txn of txns) {
+    if (txn.to == timelock?.address && txn.contractMethod?.name.includes('execute')) {
+      console.info('Advancing time to simulate executing a timelock transaction')
+      const timelockController = await getDeployedContract('TimelockController')
+      await time.increase(await timelockController.getMinDelay())
+    }
+    await impersonateAsMultisig((signer) => executeBatchTransaction(signer, txn))
+  }
 }
