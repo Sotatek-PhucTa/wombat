@@ -223,6 +223,11 @@ async function transferOwnership(deploymentName: string, newOwner: DeploymentOrA
   }
 }
 
+export async function setMaxSupply(assetDeployment: string, maxSupply: BigNumberish): Promise<BatchTransaction> {
+  const asset = await getDeployedContract('Asset', assetDeployment)
+  return Safe(asset).setMaxSupply(maxSupply)
+}
+
 export async function scheduleTimelock(txns: BatchTransaction[]): Promise<BatchTransaction> {
   const timelockController = await getDeployedContract('TimelockController')
   const delay = await timelockController.getMinDelay()
