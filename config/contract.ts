@@ -70,7 +70,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   },
   [ExternalContract.ChainlinkOracleWstETH]: {
     // https://data.chain.link/arbitrum/mainnet/crypto-eth/wsteth-steth%20exchangerate
-    [Network.ARBITRUM_MAINNET]: Address('0xb1552c5e96b312d0bf8b554186f846c40614a540'),
+    [Network.ARBITRUM_MAINNET]: Address('0xB1552C5e96B312d0Bf8b554186F846C40614a540'),
   },
   [ExternalContract.FraxBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
