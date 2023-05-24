@@ -77,8 +77,7 @@ export async function deployBasePool(
     from: deployer,
     log: true,
     contract: poolContract,
-    // Deploy the new implementation if it has changed.
-    skipIfAlreadyDeployed: false,
+    skipIfAlreadyDeployed: true,
     libraries,
     proxy: {
       owner: await getProxyAdminOwner(),
