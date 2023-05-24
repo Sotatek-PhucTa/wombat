@@ -223,6 +223,16 @@ async function transferOwnership(deploymentName: string, newOwner: DeploymentOrA
   }
 }
 
+export async function upgradeProxy(proxy: string, impl: string): Promise<BatchTransaction> {
+  assert(proxy.includes('_Proxy'), 'Must use proxy')
+  assert(impl.includes('_Implementation'), 'Must use implementation')
+
+  const proxyDeployment = await deployments.get(proxy)
+  const implDeployment = await deployments.get(impl)
+  const proxyAdmin = await getDeployedContract('ProxyAdmin', 'DefaultProxyAdmin')
+  return Safe(proxyAdmin).upgrade(proxyDeployment.address, implDeployment.address)
+}
+
 export async function setMaxSupply(assetDeployment: string, maxSupply: BigNumberish): Promise<BatchTransaction> {
   const asset = await getDeployedContract('Asset', assetDeployment)
   return Safe(asset).setMaxSupply(maxSupply)

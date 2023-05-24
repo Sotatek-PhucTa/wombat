@@ -8,7 +8,7 @@ import { restoreOrCreateSnapshot } from './fixtures/executions'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { Safe, executeBatchTransaction } from '../utils/multisig/transactions'
-import { executeTimelock, scheduleTimelock } from '../utils/multisig/utils'
+import { executeTimelock, scheduleTimelock, upgradeProxy } from '../utils/multisig/utils'
 
 describe('TimelockController', function () {
   const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726' // a random value
@@ -201,7 +201,7 @@ describe('TimelockController', function () {
   })
 
   describe('Multisig with timelock', async function () {
-    it('can run from script', async function () {
+    it('can setMaxSupply', async function () {
       expect(await asset0.maxSupply()).to.eq(0)
       expect(await asset0.owner()).to.eq(timelockContract.address)
 
@@ -209,6 +209,20 @@ describe('TimelockController', function () {
       await time.increase(timelockDelay)
       await executeBatchTransaction(multisig, await executeTimelock([Safe(asset0).setMaxSupply(parseEther('101'))]))
       expect(await asset0.maxSupply()).to.eq(parseEther('101'))
+    })
+
+    it('can upgrade proxy', async function () {
+      const proxyAdmin = await getDeployedContract('ProxyAdmin', 'DefaultProxyAdmin')
+      await proxyAdmin.transferOwnership(timelockContract.address)
+      await executeBatchTransaction(
+        multisig,
+        await scheduleTimelock([await upgradeProxy('MainPool_Proxy', 'HighCovRatioFeePoolV2_Implementation')])
+      )
+      await time.increase(timelockDelay)
+      await executeBatchTransaction(
+        multisig,
+        await executeTimelock([await upgradeProxy('MainPool_Proxy', 'HighCovRatioFeePoolV2_Implementation')])
+      )
     })
   })
 
