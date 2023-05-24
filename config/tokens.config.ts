@@ -921,6 +921,15 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       lpToken: Address('0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E'),
       rewardTokens: [Token.WOM],
     },
+    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_frxETH', {
+      rewardTokens: [Token.WOM],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+      rewardTokens: [Token.WOM],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_FRAX', {
+      rewardTokens: [Token.WOM],
+    }),
     ...createBribeConfigFromDeployedAsset('Asset_qWOMPool_WOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.QUO],
