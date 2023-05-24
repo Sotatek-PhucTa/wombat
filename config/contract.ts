@@ -59,7 +59,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   },
   [ExternalContract.AnkrETHOracle]: {
     [Network.BSC_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
-    [Network.ARBITRUM_MAINNET]: Unknown(),
+    [Network.ARBITRUM_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
   },
   [ExternalContract.BNBxOracle]: {
     [Network.BSC_MAINNET]: Address('0x7276241a669489E4BBB76f63d2A43Bfe63080F2F'),
