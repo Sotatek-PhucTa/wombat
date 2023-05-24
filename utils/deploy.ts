@@ -46,6 +46,18 @@ export async function getAllAssetsDeployments(): Promise<string[]> {
   return Object.keys(allDeployements).filter((name) => name.startsWith('Asset_'))
 }
 
+export async function getProxyAdminOwner(): Promise<string> {
+  const { multisig } = await getNamedAccounts()
+  // First deployment. Use multisig as owner.
+  if ((await deployments.getOrNull('DefaultProxyAdmin')) == undefined) {
+    return multisig
+  }
+
+  // The ProxyAdmin may now be owned by multisig or timelock.
+  const proxyAdmin = await getDeployedContract('ProxyAdmin', 'DefaultProxyAdmin')
+  return proxyAdmin.owner()
+}
+
 /**
  * Deploy a base pool contract. The caller should handle the pool specific setup.
  */
@@ -59,9 +71,9 @@ export async function deployBasePool(
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const { deploy } = deployments
   const setting = pooInfo.setting
-  const contractName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)
+  const deploymentName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)
 
-  const deployResult = await deploy(contractName, {
+  const deployResult = await deploy(deploymentName, {
     from: deployer,
     log: true,
     contract: poolContract,
@@ -69,7 +81,7 @@ export async function deployBasePool(
     skipIfAlreadyDeployed: false,
     libraries,
     proxy: {
-      owner: multisig,
+      owner: await getProxyAdminOwner(),
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       implementationName: getImplementationName(poolContract),
@@ -125,7 +137,7 @@ export async function deployBasePool(
 
     logVerifyCommand(network.name, deployResult)
   } else {
-    deployments.log(`${contractName} Contract already deployed.`)
+    deployments.log(`${deploymentName} Contract already deployed.`)
   }
 
   return { deployResult, contract: pool }
