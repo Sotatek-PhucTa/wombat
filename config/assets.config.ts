@@ -308,6 +308,19 @@ export function AnkrEthAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo
   }
 }
 
+export function WstETHAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    wstETH: {
+      tokenName: 'Wrapped liquid staked Ether 2.0',
+      tokenSymbol: 'wstETH',
+      underlyingToken: Token.wstETH,
+      assetContractName: 'WstETHAsset',
+      oracle: ExternalContract.ChainlinkOracleWstETH,
+      ...partial,
+    },
+  }
+}
+
 export function EthAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     ETH: {

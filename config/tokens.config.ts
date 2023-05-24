@@ -53,6 +53,7 @@ import {
   WethAsset,
   WmxWomAsset,
   WomAsset,
+  WstETHAsset,
 } from './assets.config'
 import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
@@ -382,6 +383,19 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.BSC_TESTNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig,
+      },
+      assets: {
+        ...BusdAsset(),
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...DaiAsset(),
+        ...TusdAsset(),
+        ...VusdcAsset(),
+      },
+    },
     stables_01: {
       setting: {
         ...defaultFactoryPoolConfig,
@@ -588,21 +602,6 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
-  [Network.BSC_TESTNET]: {
-    MainPool: {
-      setting: {
-        ...defaultMainPoolConfig,
-      },
-      assets: {
-        ...BusdAsset(),
-        ...UsdtAsset(),
-        ...UsdcAsset(),
-        ...DaiAsset(),
-        ...TusdAsset(),
-        ...VusdcAsset(),
-      },
-    },
-  },
   [Network.HARDHAT]: {
     MainPool: {
       setting: {
@@ -753,6 +752,17 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       },
       assets: {
         ...AnkrEthAsset({ maxSupply: parseEther('1600') }),
+        ...WethAsset({ maxSupply: parseEther('1600') }),
+      },
+    },
+    WstETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        haircut: parseEther('0.0001'),
+        supportNativeToken: true,
+      },
+      assets: {
+        ...WstETHAsset({ maxSupply: parseEther('1600') }),
         ...WethAsset({ maxSupply: parseEther('1600') }),
       },
     },

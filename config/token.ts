@@ -40,7 +40,7 @@ export enum Token {
   WETH,
   WMX,
   WOM,
-  WstETH,
+  wstETH,
   ankrBNB,
   ankrETH,
   axlUSDC,
@@ -254,7 +254,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),
   },
-  [Token.WstETH]: {
+  [Token.wstETH]: {
     // https://www.coingecko.com/en/coins/wrapped-steth
     [Network.ARBITRUM_MAINNET]: Address('0x5979D7b546E38E414F7E9822514be443A4800529'),
   },
