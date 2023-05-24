@@ -10,6 +10,7 @@ export enum ExternalContract {
   AnkrETHOracle,
   BNBxOracle,
   BNByOracle,
+  ChainlinkOracleWstETH,
   FraxBribeOperator,
   JonesDaoBribeOperator,
   MagpieBribeOperator,
@@ -66,6 +67,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.BNByOracle]: {
     // https://bscscan.com/address/0x5e259cdbC6A3b7CeA735C906E585cba36Cca7f44
     [Network.BSC_MAINNET]: Address('0x5e259cdbC6A3b7CeA735C906E585cba36Cca7f44'),
+  },
+  [ExternalContract.ChainlinkOracleWstETH]: {
+    // https://data.chain.link/arbitrum/mainnet/crypto-eth/wsteth-steth%20exchangerate
+    [Network.ARBITRUM_MAINNET]: Address('0xb1552c5e96b312d0bf8b554186f846c40614a540'),
   },
   [ExternalContract.FraxBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
