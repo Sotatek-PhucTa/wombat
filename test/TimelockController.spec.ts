@@ -7,7 +7,8 @@ import { getDeployedContract } from '../utils'
 import { restoreOrCreateSnapshot } from './fixtures/executions'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
-import { Safe, encodeData, executeBatchTransaction } from '../utils/multisig/transactions'
+import { Safe, executeBatchTransaction } from '../utils/multisig/transactions'
+import { executeTimelock, scheduleTimelock } from '../utils/multisig/utils'
 
 describe('TimelockController', function () {
   const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726' // a random value
@@ -204,16 +205,9 @@ describe('TimelockController', function () {
       expect(await asset0.maxSupply()).to.eq(0)
       expect(await asset0.owner()).to.eq(timelockContract.address)
 
-      const payload = encodeData(Safe(asset0).setMaxSupply(parseEther('101')))
-      await executeBatchTransaction(
-        multisig,
-        Safe(timelockContract).schedule(asset0.address, BigNumber.from(0), payload, noPredecessor, salt, timelockDelay)
-      )
+      await executeBatchTransaction(multisig, await scheduleTimelock([Safe(asset0).setMaxSupply(parseEther('101'))]))
       await time.increase(timelockDelay)
-      await executeBatchTransaction(
-        multisig,
-        Safe(timelockContract).execute(asset0.address, BigNumber.from(0), payload, noPredecessor, salt)
-      )
+      await executeBatchTransaction(multisig, await executeTimelock([Safe(asset0).setMaxSupply(parseEther('101'))]))
       expect(await asset0.maxSupply()).to.eq(parseEther('101'))
     })
   })

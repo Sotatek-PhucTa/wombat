@@ -22,12 +22,9 @@ export function Safe(contract: Contract): Safe {
   Object.keys(contract.interface.functions).map((name: string) => {
     const fn = name.split('(')[0]
     assert(!safe[fn], `Function ${fn} already exists on Safe`)
-    safe[fn] = (...args: { toString: () => string }[]) => {
-      return createTransaction(
-        contract,
-        name,
-        args.map((arg) => arg.toString())
-      )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    safe[fn] = (...args: any[]) => {
+      return createTransaction(contract, name, args)
     }
   })
 
@@ -50,7 +47,8 @@ export function encodeData(txn: BatchTransaction): string {
   return iface.encodeFunctionData(txn.contractMethod.name, Object.values(txn.contractInputsValues))
 }
 
-function createTransaction(contract: Contract, method: string, args: string[]): BatchTransaction {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createTransaction(contract: Contract, method: string, args: any[]): BatchTransaction {
   const fragment = contract.interface.getFunction(method)
   assert(fragment.inputs.length === args.length, 'Invalid number of arguments')
   const values = fragment.inputs.reduce((acc, param, index) => {

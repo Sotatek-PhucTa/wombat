@@ -1,8 +1,8 @@
-import { deployments, ethers } from 'hardhat'
+import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { concatAll, getAddress, getDeployedContract } from '..'
 import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
-import { Safe } from './transactions'
+import { Safe, encodeData } from './transactions'
 import assert from 'assert'
 import { Token, getTokenAddress } from '../../config/token'
 import { BigNumberish, Contract } from 'ethers'
@@ -221,4 +221,35 @@ async function transferOwnership(deploymentName: string, newOwner: DeploymentOrA
   } else {
     return [Safe(ownable).transferOwnership(newOwnerAddress)]
   }
+}
+
+export async function scheduleTimelock(txns: BatchTransaction[]): Promise<BatchTransaction> {
+  const timelockController = await getDeployedContract('TimelockController')
+  const delay = await timelockController.getMinDelay()
+  const data = encodeBatchTransactionsForTimelock(txns)
+  const salt = await deployerSalt()
+  const noPredecessor = ethers.constants.HashZero
+  return Safe(timelockController).scheduleBatch(data.tos, data.values, data.payloads, noPredecessor, salt, delay)
+}
+
+export async function executeTimelock(txns: BatchTransaction[]): Promise<BatchTransaction> {
+  const timelockController = await getDeployedContract('TimelockController')
+  const data = encodeBatchTransactionsForTimelock(txns)
+  const salt = await deployerSalt()
+  const noPredecessor = ethers.constants.HashZero
+  return Safe(timelockController).executeBatch(data.tos, data.values, data.payloads, noPredecessor, salt)
+}
+
+function encodeBatchTransactionsForTimelock(txns: BatchTransaction[]) {
+  return {
+    tos: txns.map((txn) => txn.to),
+    payloads: txns.map((txn) => encodeData(txn)),
+    values: txns.map((txn) => txn.value),
+  }
+}
+
+async function deployerSalt() {
+  // address is only 20 bytes. we need a bytes32.
+  const { deployer } = await getNamedAccounts()
+  return ethers.utils.hexZeroPad(deployer, 32)
 }
