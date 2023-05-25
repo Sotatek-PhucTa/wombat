@@ -275,14 +275,14 @@ export async function setAllocPercent(assetDeployment: string, allocationPercent
   const allocPoint = ethers.utils.parseEther(String(allocationPercent * 10))
   const asset = await getDeployedContract('Asset', assetDeployment)
   const voter = await getDeployedContract('Voter')
-  return [Safe(voter).setAllocPoint(asset.address, allocPoint)]
+  return [Safe(voter).setAllocPoint(asset.address, allocPoint.toString())]
 }
 
 export async function setWomMonthlyEmissionRate(womPerMonth: number): Promise<BatchTransaction[]> {
   assert(womPerMonth >= 0, 'invalid wom emission rate')
-  const womPerSec = convertTokenPerMonthToTokenPerSec(womPerMonth)
+  const womPerSec = convertTokenPerMonthToTokenPerSec(ethers.utils.parseEther(String(womPerMonth)))
   const voter = await getDeployedContract('Voter')
-  return [Safe(voter).setWomPerSec(womPerSec)]
+  return [Safe(voter).setWomPerSec(womPerSec.toString())]
 }
 
 export async function setBribeAllocPercent(bribeAllocationPercent: number): Promise<BatchTransaction[]> {
@@ -291,5 +291,5 @@ export async function setBribeAllocPercent(bribeAllocationPercent: number): Prom
   // convert from percentage to a base 1000 number (for example, 10% -> 100)
   const baseAllocPoint = Math.floor(baseAllocationPercent * 10)
   const voter = await getDeployedContract('Voter')
-  return [Safe(voter).setBaseAllocation(baseAllocPoint)]
+  return [Safe(voter).setBaseAllocation(baseAllocPoint.toString())]
 }
