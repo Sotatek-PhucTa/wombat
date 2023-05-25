@@ -4,6 +4,7 @@ import { BatchTransaction, validateTransactionsInBatch, BatchFile, ContractMetho
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { TransactionResponse } from '@ethersproject/providers'
+import { decodeParam, encodeParam } from './params'
 
 // A Safe generates BatchTransaction instead of signing on-chain transactions.
 export interface Safe {
@@ -44,9 +45,16 @@ export function encodeData(txn: BatchTransaction): string {
   // This is a function, not other types: deploy, events, or errors.
   // https://docs.ethers.org/v5/api/utils/abi/interface/#Interface--properties
   const iface = new ethers.utils.Interface(`["function ${txn.contractMethod.name}"]`)
-  return iface.encodeFunctionData(txn.contractMethod.name, Object.values(txn.contractInputsValues))
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const values = txn.contractMethod.inputs.reduce<any>((acc, input) => {
+    assert(txn.contractInputsValues, 'Missing contract inputs')
+    const value = decodeParam(input.type, txn.contractInputsValues[input.name])
+    // Do not use .concat here since it will flatten the value if the value is an array.
+    return [...acc, value]
+  }, [])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return iface.encodeFunctionData(txn.contractMethod.name, values as unknown as any[])
 }
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createTransaction(contract: Contract, method: string, args: any[]): BatchTransaction {
   const fragment = contract.interface.getFunction(method)
@@ -54,7 +62,7 @@ function createTransaction(contract: Contract, method: string, args: any[]): Bat
   const values = fragment.inputs.reduce((acc, param, index) => {
     return {
       ...acc,
-      [param.name]: args[index],
+      [param.name]: encodeParam(param.baseType, args[index]),
     }
   }, {})
 
@@ -80,7 +88,7 @@ function getContractMethod(contract: Contract, name: string): ContractMethod {
       ({
         internalType: paramType.type,
         name: paramType.name,
-        type: paramType.baseType,
+        type: paramType.type,
       } as ContractInput)
   )
 
