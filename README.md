@@ -166,7 +166,7 @@ To verify proxy contracts:
 
 #### Wombat Side Pool (WOM-wmxWom)
   - Pool Proxy (Main entry) => `0xeEB5a751E0F5231Fc21c7415c4A4c6764f67ce2e`
-  - Asset_wmxWOMPool_wmxWom (LP-wmxWom) => `0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688`
+  - Asset_wmxWOMPool_wmxWOM (LP-wmxWom) => `0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688`
   - Asset_wmxWOMPool_WOM (LP-WOM) => `0xF9BdC872D75f76B946E0770f96851b1f2F653caC`
   - Bribe_wmxWom => `0x08401FDb51D7C53e5A1Ee22186f030354B8880eD`
   - Bribe_wmxWOMPool_WOM => `0xE2a60C52C4abB9fbc3f711da3cb9E633269DBC67`

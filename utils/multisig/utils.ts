@@ -13,6 +13,7 @@ import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
 import { DeploymentOrAddress } from '../../types'
+import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -267,4 +268,28 @@ async function deployerSalt() {
   // address is only 20 bytes. we need a bytes32.
   const { deployer } = await getNamedAccounts()
   return ethers.utils.hexZeroPad(deployer, 32)
+}
+
+export async function setAllocPercent(assetDeployment: string, allocationPercent: number): Promise<BatchTransaction[]> {
+  assert(allocationPercent >= 0 && allocationPercent <= 100, 'invalid allocation percent')
+  const allocPoint = ethers.utils.parseEther(String(allocationPercent * 10))
+  const asset = await getDeployedContract('Asset', assetDeployment)
+  const voter = await getDeployedContract('Voter')
+  return [Safe(voter).setAllocPoint(asset.address, allocPoint)]
+}
+
+export async function setWomMonthlyEmissionRate(womPerMonth: number): Promise<BatchTransaction[]> {
+  assert(womPerMonth >= 0, 'invalid wom emission rate')
+  const womPerSec = convertTokenPerMonthToTokenPerSec(womPerMonth)
+  const voter = await getDeployedContract('Voter')
+  return [Safe(voter).setWomPerSec(womPerSec)]
+}
+
+export async function setBribeAllocPercent(bribeAllocationPercent: number): Promise<BatchTransaction[]> {
+  assert(bribeAllocationPercent >= 0 && bribeAllocationPercent <= 100, 'invalid bribe allocation percent')
+  const baseAllocationPercent = 100 - bribeAllocationPercent
+  // convert from percentage to a base 1000 number (for example, 10% -> 100)
+  const baseAllocPoint = Math.floor(baseAllocationPercent * 10)
+  const voter = await getDeployedContract('Voter')
+  return [Safe(voter).setBaseAllocation(baseAllocPoint)]
 }
