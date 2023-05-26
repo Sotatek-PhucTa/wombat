@@ -1,4 +1,4 @@
-import { assert } from 'chai'
+import assert from 'assert'
 
 // Copied from tx-builder at https://github.com/safe-global/safe-react-apps/blob/HEAD/apps/tx-builder/src/typings/models.ts
 export interface BatchFile {
