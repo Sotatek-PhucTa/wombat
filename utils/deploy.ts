@@ -228,9 +228,11 @@ export async function deployAssetV2(
 
     // transfer asset LP token contract ownership to Gnosis Safe
     // The owner of the asset contract can change our pool address and change asset max supply
-    deployments.log(`Transferring ownership of asset ${asset.address} to ${multisig}...`)
-    await confirmTxn(asset.connect(deployerSigner).transferOwnership(multisig))
-    deployments.log(`Transferred ownership of asset ${asset.address} to ${multisig}...`)
+    // Transfer ownership to timelock controller if it is deployed; otherwise, multisig.
+    const owner = await getProxyAdminOwner()
+    deployments.log(`Transferring ownership of asset ${asset.address} to ${owner}...`)
+    await confirmTxn(asset.connect(deployerSigner).transferOwnership(owner))
+    deployments.log(`Transferred ownership of asset ${asset.address} to ${owner}...`)
 
     logVerifyCommand(network, deployResult)
   } else {
