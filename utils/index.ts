@@ -141,46 +141,11 @@ export async function printMasterWombatV2Rewarders() {
 
 export async function printMultiRewarderV3Balances() {
   const names = Object.keys(await deployments.all()).filter((name) => name.includes('MultiRewarderPerSec_V3'))
-
-  return Promise.all(
-    names.map(async (name) => {
-      const contract = await getDeployedContract('MultiRewarderPerSec', name)
-      const balances = await contract.balances()
-      const tokens = await contract.rewardTokens()
-      return {
-        rewarder: name,
-        rewarderAddress: contract.address,
-        lpToken: await contract.lpToken(),
-        balances: balances.map((balance: BigNumber) => formatEther(balance)),
-        rewardTokens: tokens,
-      }
-    })
-  )
-}
-
-export async function printBribeBalances() {
-  const names = Object.keys(await deployments.all()).filter((name) => name.includes('Bribe'))
   const data = await Promise.all(
     names.flatMap(async (name) => {
-      const contract = await getDeployedContract('Bribe', name)
+      const contract = await getDeployedContract('MultiRewarderPerSec', name)
       const lpToken = await contract.lpToken()
-
-      const rewardInfos = await Promise.all(
-        _.range(0, await contract.rewardLength()).map(async (i) => {
-          const { rewardToken, tokenPerSec } = await contract.rewardInfo(i)
-          const token = await ethers.getContractAt('ERC20', rewardToken)
-          const decimals = await token.decimals()
-          const balance = await token.balanceOf(contract.address)
-          const daysLeft = !tokenPerSec.isZero() ? balance.div(tokenPerSec).toNumber() / (24 * 3600) : NaN
-          return {
-            symbol: await token.symbol(),
-            tokenPerEpoch: formatUnits(tokenPerSec.mul(epoch_duration_seconds), decimals),
-            daysLeft,
-            balance: formatUnits(balance, decimals),
-          }
-        })
-      )
-
+      const rewardInfos = await getRewardInfos(contract)
       return rewardInfos.map((info) => {
         return {
           rewarder: name,
@@ -192,6 +157,45 @@ export async function printBribeBalances() {
     })
   )
   console.table(data.flat())
+}
+
+export async function printBribeBalances() {
+  const names = Object.keys(await deployments.all()).filter((name) => name.includes('Bribe'))
+  const data = await Promise.all(
+    names.flatMap(async (name) => {
+      const contract = await getDeployedContract('Bribe', name)
+      const lpToken = await contract.lpToken()
+      const rewardInfos = await getRewardInfos(contract)
+      return rewardInfos.map((info) => {
+        return {
+          rewarder: name,
+          ...info,
+          rewarderAddress: contract.address,
+          lpToken,
+        }
+      })
+    })
+  )
+  console.table(data.flat())
+}
+
+// contract must be rewarder or bribe
+async function getRewardInfos(contract: Contract) {
+  return Promise.all(
+    _.range(0, await contract.rewardLength()).map(async (i) => {
+      const { rewardToken, tokenPerSec } = await contract.rewardInfo(i)
+      const token = await ethers.getContractAt('ERC20', rewardToken)
+      const decimals = await token.decimals()
+      const balance = await token.balanceOf(contract.address)
+      const daysLeft = !tokenPerSec.isZero() ? balance.div(tokenPerSec).toNumber() / (24 * 3600) : NaN
+      return {
+        symbol: await token.symbol(),
+        tokenPerEpoch: formatUnits(tokenPerSec.mul(epoch_duration_seconds), decimals),
+        daysLeft,
+        balance: formatUnits(balance, decimals),
+      }
+    })
+  )
 }
 
 function printBigNumber(num: BigNumber) {
