@@ -25,7 +25,7 @@ abstract contract Adaptor is
     /// Instead of a security feature, this is a sanity check in case user uses an invalid token address
     mapping(uint256 => mapping(address => bool)) public validToken;
 
-    uint256[50] private _gap;
+    uint256[50] private __gap;
 
     event LogError(uint256 emitterChainId, address emitterAddress, uint256 nonce, bytes data);
 

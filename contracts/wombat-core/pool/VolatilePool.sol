@@ -11,7 +11,7 @@ contract VolatilePool is DynamicPoolV3 {
     /// @notice Whether to cap the global equilibrium coverage ratio at 1 for deposit and withdrawal
     bool public shouldCapEquilCovRatio;
 
-    uint256[50] private _gap;
+    uint256[50] private __gap;
 
     function initialize(uint256 ampFactor_, uint256 haircutRate_) public override {
         super.initialize(ampFactor_, haircutRate_);

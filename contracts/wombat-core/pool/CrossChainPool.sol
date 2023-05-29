@@ -36,7 +36,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
 
     mapping(address => uint256) public creditBalance;
 
-    uint256[50] private _gap;
+    uint256[50] private __gap;
 
     /**
      * Events
@@ -177,6 +177,10 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     /**
      * Internal functions
      */
+
+    function _onlyAdaptor() internal view {
+        if (msg.sender != address(adaptor)) revert WOMBAT_FORBIDDEN();
+    }
 
     function _swapTokensForCredit(
         IAsset fromAsset,
@@ -353,7 +357,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         address receiver,
         uint256 trackingId
     ) external override whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
-        require(msg.sender == address(adaptor));
+        _onlyAdaptor();
         // Note: `_checkAddress(receiver)` could be skipped at it is called at the `fromChain`
         (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver, trackingId);
     }
@@ -364,7 +368,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
      * Also, this function should work even if the pool is paused
      */
     function mintCredit(uint256 creditAmount, address receiver, uint256 trackingId) external override {
-        require(msg.sender == address(adaptor));
+        _onlyAdaptor();
         creditBalance[receiver] += creditAmount;
         emit MintCredit(receiver, creditAmount, trackingId);
     }

@@ -178,6 +178,7 @@ contract PoolV3 is
         __ReentrancyGuard_init_unchained();
         __Pausable_init_unchained();
 
+        if (ampFactor_ > WAD || haircutRate_ > WAD) revert WOMBAT_INVALID_VALUE();
         ampFactor = ampFactor_;
         haircutRate = haircutRate_;
 
@@ -198,6 +199,7 @@ contract PoolV3 is
     function addAsset(address token, address asset) external onlyOwner {
         _checkAddress(asset);
         _checkAddress(token);
+        _checkSameAddress(token, asset);
 
         if (_containsAsset(token)) revert WOMBAT_ASSET_ALREADY_EXIST();
         _assets.values[token] = IAsset(asset);

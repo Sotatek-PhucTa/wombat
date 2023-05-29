@@ -532,7 +532,7 @@ library CoreV3 {
      * @return The quadratic equation b coefficient ("b")
      */
     function _coefficientFunc(int256 Lx, int256 Ly, int256 rx_, int256 D, int256 A) internal pure returns (int256) {
-        return Lx.wmul(rx_ - A.wdiv(rx_)).wdiv(Ly) - D.wdiv(Ly);
+        return (Lx * (rx_ - A.wdiv(rx_))) / Ly - D.wdiv(Ly);
     }
 
     function _targetedCovRatio(
