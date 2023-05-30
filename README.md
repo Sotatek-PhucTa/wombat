@@ -66,6 +66,7 @@ To verify proxy contracts:
   - VeWom Proxy => `0x3DA62816dD31c56D9CdF22C6771ddb892cB5b0Cc`
   - Voter Proxy => `0x04D4e1C1F3D6539071b6D3849fDaED04d48D563d`
   - Whitelist => `0xD61C53dcd6F3b4258E28c7Eb1C328789fa71B591`
+  - TimelockController => `0x9f3F1e89831391214fAA57ee7e27667156140655`
 
 #### Wombat Token
   - WOM (BEP20) => `0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1`
