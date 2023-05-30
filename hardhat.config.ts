@@ -18,6 +18,9 @@ const config: HardhatUserConfig = {
   defaultNetwork: Network.HARDHAT,
   networks: {
     [Network.HARDHAT]: {
+      // Use free gas so any test account works.
+      gasPrice: 0,
+      initialBaseFeePerGas: 0,
       allowUnlimitedContractSize: false,
     },
     [Network.LOCALHOST]: {},
@@ -140,25 +143,25 @@ const config: HardhatUserConfig = {
     timeout: 200000,
   },
   namedAccounts: {
+    // These github users are both multisig owners and deployers.
+    jack: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
+    drop19: '0xc92b4ceF4BFA0EeFE16eDA4689da10df9Fe9e801',
+    tj: '0x9e031064ce7C3E9b6dda1FfCF9E5D41AFBbdfEEa',
     deployer: {
-      default: 0, // use default for hardhat and localhost
+      default: 'jack',
+      // Keep hardhat and localhost network using the first signers in ethers.getSigners().
+      // Some test code assumes owner, deployer, and multisig are the same.
+      [Network.HARDHAT]: 0,
+      [Network.LOCALHOST]: 0,
       [Network.BSC_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
-      [Network.BSC_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
-      [Network.ARBITRUM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
-      [Network.OPTIMISM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
-      [Network.ETHEREUM_MAINNET]: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
-    },
-    user1: {
-      default: 1,
-    },
-    user2: {
-      default: 2,
     },
     multisig: {
-      default: 0, // use default for hardhat and localhost
-      [Network.BSC_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452', // same as deployer
-      [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452', // same as deployer
+      // No default to fail if used without initialization. Error singature: `Error: invalid address`.
+      [Network.HARDHAT]: 'deployer',
+      [Network.LOCALHOST]: 'deployer',
+      [Network.BSC_TESTNET]: 'deployer',
+      [Network.AVALANCHE_TESTNET]: 'deployer',
       [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe
@@ -199,8 +202,8 @@ if (Object.values(Network).includes(network as Network)) {
   // override deployer and multisig as well
   // caveat: localhost won't work without deployer credential
   // hardhat network bypass the credential check
-  config.namedAccounts.deployer.default = config.namedAccounts.deployer[network]
-  config.namedAccounts.multisig.default = config.namedAccounts.multisig[network]
+  config.namedAccounts.deployer = config.namedAccounts.deployer[network] ?? config.namedAccounts.deployer.default
+  config.namedAccounts.multisig = config.namedAccounts.multisig[network] ?? config.namedAccounts.multisig.default
   console.log(`Network hardhat is forking ${network}`)
 }
 
