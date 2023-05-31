@@ -36,7 +36,7 @@
     "bignumber.js": "^9.1.1",
     "chai": "^4.3.7",
     "dedent": "^0.7.0",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.1.0",
     "eslint": "^8.41.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
