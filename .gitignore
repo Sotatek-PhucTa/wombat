@@ -13,6 +13,7 @@ artifacts
 deployments/**/solcInputs
 deployments/localhost
 build
+contracts/hardhat-dependency-compiler
 
 # Docs
 docs/

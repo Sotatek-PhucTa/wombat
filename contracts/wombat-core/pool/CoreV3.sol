@@ -39,7 +39,7 @@ library CoreV3 {
         uint256 amount,
         uint256 ampFactor,
         int256 _equilCovRatio
-    ) public view returns (uint256 lpTokenToMint, uint256 liabilityToMint) {
+    ) external view returns (uint256 lpTokenToMint, uint256 liabilityToMint) {
         liabilityToMint = _equilCovRatio == WAD_I
             ? exactDepositLiquidityInEquilImpl(
                 int256(amount),
@@ -113,7 +113,7 @@ library CoreV3 {
         uint256 endCovRatio,
         int256 _equilCovRatio,
         uint256 withdrawalHaircutRate
-    ) public view returns (uint256 finalAmount, uint256 withdrewAmount) {
+    ) external view returns (uint256 finalAmount, uint256 withdrewAmount) {
         // quote withdraw
         uint256 withdrawalHaircut;
         uint256 liabilityToBurn;
@@ -178,7 +178,7 @@ library CoreV3 {
         uint256 ampFactor,
         uint256 scaleFactor,
         uint256 haircutRate
-    ) public view returns (uint256 actualToAmount, uint256 haircut) {
+    ) external view returns (uint256 actualToAmount, uint256 haircut) {
         // exact output swap quote should count haircut before swap
         if (fromAmount < 0) {
             fromAmount = fromAmount.wdiv(WAD_I - int256(haircutRate));
@@ -228,7 +228,7 @@ library CoreV3 {
         uint256 haircutRate,
         uint256 startCovRatio,
         uint256 endCovRatio
-    ) public view returns (uint256 creditAmount, uint256 feeInFromToken) {
+    ) external view returns (uint256 creditAmount, uint256 feeInFromToken) {
         if (fromAmount == 0) return (0, 0);
         // haircut
         feeInFromToken = fromAmount.wmul((haircutRate));
@@ -270,7 +270,7 @@ library CoreV3 {
         uint256 ampFactor,
         uint256 scaleFactor,
         uint256 haircutRate
-    ) public view returns (uint256 actualToAmount, uint256 haircut) {
+    ) external view returns (uint256 actualToAmount, uint256 haircut) {
         if (fromAmount == 0) return (0, 0);
         uint256 toCash = toAsset.cash();
         uint256 toLiability = toAsset.liability();

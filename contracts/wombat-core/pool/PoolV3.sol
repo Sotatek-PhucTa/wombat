@@ -438,6 +438,7 @@ contract PoolV3 is
      * @notice Deposits asset in Pool
      * @param asset The asset to be deposited
      * @param amount The amount to be deposited
+     * @param minimumLiquidity The minimum amount of liquidity to receive
      * @param to The user accountable for deposit, receiving the Wombat assets (lp)
      * @return liquidity Total asset liquidity minted
      */
@@ -471,8 +472,10 @@ contract PoolV3 is
      * @dev Asset needs to be created and added to pool before any operation. This function assumes tax free token.
      * @param token The token address to be deposited
      * @param amount The amount to be deposited
+     * @param minimumLiquidity The minimum amount of liquidity to receive
      * @param to The user accountable for deposit, receiving the Wombat assets (lp)
      * @param deadline The deadline to be respected
+     * @param shouldStake Whether to stake LP tokens automatically after deposit
      * @return liquidity Total asset liquidity minted
      */
     function deposit(
@@ -533,6 +536,7 @@ contract PoolV3 is
      * @param liquidity The liquidity to be withdrawn
      * @param minimumAmount The minimum amount that will be accepted by user
      * @return amount The total amount withdrawn
+     * @return withdrawalHaircut The amount of withdrawn haircut
      */
     function _withdraw(
         IAsset asset,

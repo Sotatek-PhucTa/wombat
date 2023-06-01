@@ -11,12 +11,11 @@ import './OraclePriceFeed.sol';
  */
 contract ChainlinkPriceFeed is OraclePriceFeed {
     mapping(IERC20 => AggregatorV3Interface) public usdPriceFeeds;
+    mapping(IERC20 => uint256) public maxPriceAge;
 
-    event UpdatePriceFeed(IERC20 token, AggregatorV3Interface priceFeed);
+    event UpdatePriceFeed(IERC20 token, AggregatorV3Interface priceFeed, uint256 maxPriceAge);
 
-    function initialize() public initializer {
-        __Ownable_init();
-    }
+    constructor(uint256 _maxPriceAgeBound) OraclePriceFeed(_maxPriceAgeBound) {}
 
     /**
      * Returns the latest price.
@@ -32,7 +31,7 @@ contract ChainlinkPriceFeed is OraclePriceFeed {
             /* uint80 answeredInRound */
         ) = priceFeed.latestRoundData();
 
-        if (block.timestamp - updatedAt > maxPriceAge) {
+        if (block.timestamp - updatedAt > maxPriceAge[_token]) {
             return _getFallbackPrice(_token);
         } else {
             require(answer > 0);
@@ -40,8 +39,14 @@ contract ChainlinkPriceFeed is OraclePriceFeed {
         }
     }
 
-    function setChainlinkUsdPriceFeed(IERC20 _token, AggregatorV3Interface _priceFeed) external onlyOwner {
+    function setChainlinkUsdPriceFeed(
+        IERC20 _token,
+        AggregatorV3Interface _priceFeed,
+        uint256 _maxPriceAge
+    ) external onlyOwner {
+        require(_maxPriceAge <= maxPriceAgeBound, 'invalid _maxPriceAge');
         usdPriceFeeds[_token] = _priceFeed;
-        emit UpdatePriceFeed(_token, _priceFeed);
+        maxPriceAge[_token] = _maxPriceAge;
+        emit UpdatePriceFeed(_token, _priceFeed, _maxPriceAge);
     }
 }

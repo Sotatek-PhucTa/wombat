@@ -13,11 +13,11 @@ import './OraclePriceFeed.sol';
 contract PythPriceFeed is OraclePriceFeed {
     IPyth pyth;
     mapping(IERC20 => bytes32) public priceIDs;
+    mapping(IERC20 => uint256) public maxPriceAge;
 
-    event UpdatepriceID(IERC20 token, bytes32 priceID);
+    event UpdatepriceID(IERC20 token, bytes32 priceID, uint256 maxPriceAge);
 
-    function initialize(IPyth _pyth) public initializer {
-        __Ownable_init();
+    constructor(IPyth _pyth, uint256 _maxPriceAgeBound) OraclePriceFeed(_maxPriceAgeBound) {
         pyth = _pyth;
     }
 
@@ -29,7 +29,7 @@ contract PythPriceFeed is OraclePriceFeed {
         PythStructs.Price memory priceStruct = pyth.getPrice(priceID);
 
         // If the price is too old, use the fallback price feed
-        if (block.timestamp - priceStruct.publishTime > maxPriceAge) {
+        if (block.timestamp - priceStruct.publishTime > maxPriceAge[_token]) {
             return _getFallbackPrice(_token);
         } else {
             require(priceStruct.price > 0);
@@ -37,8 +37,10 @@ contract PythPriceFeed is OraclePriceFeed {
         }
     }
 
-    function setPriceID(IERC20 _token, bytes32 _priceID) external onlyOwner {
+    function setPriceID(IERC20 _token, bytes32 _priceID, uint256 _maxPriceAge) external onlyOwner {
+        require(_maxPriceAge <= maxPriceAgeBound, 'invalid _maxPriceAge');
         priceIDs[_token] = _priceID;
-        emit UpdatepriceID(_token, _priceID);
+        maxPriceAge[_token] = _maxPriceAge;
+        emit UpdatepriceID(_token, _priceID, _maxPriceAge);
     }
 }

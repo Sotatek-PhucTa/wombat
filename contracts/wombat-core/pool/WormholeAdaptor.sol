@@ -28,6 +28,7 @@ contract WormholeAdaptor is Adaptor {
     mapping(bytes32 => bool) public deliveredMessage;
 
     event UnknownEmitter(address emitterAddress);
+    event SetAdaptorAddress(uint16 wormholeChainId, address adaptorAddress);
 
     error ADAPTOR__MESSAGE_ALREADY_DELIVERED(bytes32 _hash);
 
@@ -140,6 +141,7 @@ contract WormholeAdaptor is Adaptor {
 
     function setAdaptorAddress(uint16 wormholeChainId, address addr) external onlyOwner {
         adaptorAddress[wormholeChainId] = addr;
+        emit SetAdaptorAddress(wormholeChainId, addr);
     }
 
     /**
