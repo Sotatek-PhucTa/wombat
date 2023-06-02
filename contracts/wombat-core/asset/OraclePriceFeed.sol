@@ -12,8 +12,8 @@ import '../interfaces/IPriceFeed.sol';
  */
 abstract contract OraclePriceFeed is IPriceFeed, Ownable {
     /// @notice the fallback price feed in case the price is not available on Pyth
-    IPriceFeed fallbackPriceFeed;
-    uint256 maxPriceAgeBound;
+    IPriceFeed public fallbackPriceFeed;
+    uint256 public maxPriceAgeBound;
 
     event SetMaxPriceAgeBound(uint256 maxPriceAgeBound);
     event UpdateFallbackPriceFeed(IPriceFeed priceFeed);

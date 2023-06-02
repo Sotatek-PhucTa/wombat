@@ -33,7 +33,7 @@ contract PythPriceFeed is OraclePriceFeed {
             return _getFallbackPrice(_token);
         } else {
             require(priceStruct.price > 0);
-            return (uint256(int256(priceStruct.price)) * 1e18) / 10 ** uint256(int256(priceStruct.expo));
+            return uint256(int256(priceStruct.price)) * (10 ** uint256(int256(priceStruct.expo + 18)));
         }
     }
 

@@ -89,6 +89,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   },
   [ExternalContract.PythOracle]: {
     // https://docs.pyth.network/pythnet-price-feeds/evm
+    [Network.BSC_MAINNET]: Address('0x4D7E825f80bDf85e913E0DD2A2D54927e9dE1594'),
     [Network.BSC_TESTNET]: Address('0xd7308b14BF4008e7C7196eC35610B1427C5702EA'),
   },
   [ExternalContract.QuollBribeOperator]: {

@@ -12,7 +12,7 @@ const contractName = 'VolatilePool'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
-  const { deployer, multisig } = await getNamedAccounts()
+  const { deployer } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const coreV3Deployment = await getDeployedContract('CoreV3')
 
@@ -20,14 +20,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const POOL_TOKENS = VOLATILEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, pooInfo] of Object.entries(POOL_TOKENS)) {
-    const { contract: pool, deployResult } = await deployBasePool(
-      'VolatilePool',
-      poolName,
-      pooInfo,
-      deployer,
-      multisig,
-      { CoreV3: coreV3Deployment.address }
-    )
+    const { contract: pool, deployResult } = await deployBasePool('VolatilePool', poolName, pooInfo, {
+      CoreV3: coreV3Deployment.address,
+    })
 
     const setting = pooInfo.setting
     if (deployResult.newlyDeployed) {
