@@ -5,6 +5,7 @@ import { getCurrentNetwork } from '../types/network'
 // style note: sort alphabetically.
 export enum Token {
   ANKR,
+  ARB,
   BNBx,
   BNBy,
   BOB,
@@ -78,6 +79,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/ankr-network
     [Network.BSC_MAINNET]: Address('0xf307910A4c7bbc79691fD374889b36d8531B08e3'),
     [Network.ARBITRUM_MAINNET]: Address('0x46F74778b265Df3a15EC9695CCd2fD3869ca848c'),
+  },
+  [Token.ARB]: {
+    [Network.ARBITRUM_MAINNET]: Address('0x912CE59144191C1204E64559FE8253a0e49E6548'),
   },
   [Token.BNBx]: {
     [Network.BSC_MAINNET]: Address('0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275'),

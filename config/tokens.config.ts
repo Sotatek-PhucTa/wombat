@@ -1078,6 +1078,12 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
+    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_WETH', {
+      rewardTokens: [Token.ARB],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_wstETH', {
+      rewardTokens: [Token.ARB],
+    }),
   },
 })
 
@@ -1397,6 +1403,12 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       startTimestamp: Epochs.May17,
       rewardTokens: [Token.ANKR],
       operator: ExternalContract.AnkrBribeOperator,
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_WETH', {
+      rewardTokens: [Token.ARB],
+    }),
+    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_wstETH', {
+      rewardTokens: [Token.ARB],
     }),
   },
 })

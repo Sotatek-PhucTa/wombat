@@ -387,6 +387,10 @@ To verify proxy contracts:
   - DynamicPools_WstETH_Pool_Proxy => `0xe14302040c0A1eb6fB5A4A79EfA46D60029358d9`
   - Asset_WstETH_Pool_wstETH => `0xEB7e2f8Efac7Ab8079837417b65cD927f05F7465`
   - Asset_WstETH_Pool_WETH => `0x90971596f486521F496dC05fAEb90837a5F19108`
+  - Bribe_Asset_WstETH_Pool_wstETH => `0xcE2bb46e4121819d5Bf77e28480393083738549A`
+  - Bribe_Asset_WstETH_Pool_WETH => `0x8e16b6c0C6121c58733Af331B07F1C2fda7F8561`
+  - MultiRewarderPerSec_V3_Asset_WstETH_Pool_wstETH => `0x1C18Aa903f8DEA0d237EDe4cf0413668b9bA7Dfe`
+  - MultiRewarderPerSec_V3_Asset_WstETH_Pool_WETH => `0x0e2D70ac977E3435403efB46159315E8aBa78278`
 
 ### Optimism mainnet deployed contracts:
 
