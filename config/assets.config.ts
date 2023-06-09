@@ -34,6 +34,17 @@ export function UsdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   }
 }
 
+export function UsdceAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    'USDC.e': {
+      tokenName: 'Bridged USDC',
+      tokenSymbol: 'USDC.e',
+      underlyingToken: Token.USDCe,
+      ...partial,
+    },
+  }
+}
+
 export function UsdtAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     USDT: {

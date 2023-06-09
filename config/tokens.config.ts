@@ -44,6 +44,7 @@ import {
   TusdAsset,
   UsdPlusAsset,
   UsdcAsset,
+  UsdceAsset,
   UsddAsset,
   UsdtAsset,
   UsdtPlusAsset,
@@ -500,6 +501,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdtAsset(),
         ...UsdcAsset(),
+        ...UsdceAsset(),
         ...DaiAsset(),
       },
     },
@@ -511,7 +513,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdPlusAsset(),
         ...DaiPlusAsset(),
-        ...UsdcAsset(),
+        ...UsdceAsset(),
       },
     },
     MIM_Pool: {
@@ -534,7 +536,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...FraxAsset(),
         ...MaiAsset(),
         ...UsdPlusAsset(),
-        ...UsdcAsset(),
+        ...UsdceAsset(),
       },
     },
     BOB_Pool: {
@@ -543,7 +545,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
       assets: {
         ...BobAsset(),
-        ...UsdcAsset(),
+        ...UsdceAsset(),
       },
     },
     mWOM_Pool: {
@@ -729,7 +731,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ...JusdcAsset({
           maxSupply: parseEther('10000000'),
         }),
-        ...UsdcAsset({
+        ...UsdceAsset({
           tokenName: 'USD Coin (Arb1)',
           assetContractName: 'DynamicAsset',
           maxSupply: parseEther('10000000'),

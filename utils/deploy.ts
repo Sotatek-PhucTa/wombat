@@ -30,7 +30,8 @@ export function getImplementationName(contract: string) {
 }
 
 export function getAssetDeploymentName(poolName: string, tokenSymbol: string) {
-  return `Asset_${poolName}_${tokenSymbol}`
+  // remove any '.' from asset name
+  return `Asset_${poolName}_${tokenSymbol.replace('.', '')}`
 }
 
 export function getBribeDeploymentName(assetDeployment: string) {
