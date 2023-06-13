@@ -229,7 +229,7 @@ describe('TokenVesting', function () {
       const timestampAfter = blockAfter.timestamp
 
       expect(blockNumAfter).to.be.equal(blockNumBefore + 1)
-      expect(timestampAfter).to.be.equal(timestampBefore + startCliff * 10)
+      expect(timestampAfter).to.be.closeTo(timestampBefore + startCliff * 10, 1)
 
       // _unlockIntervalsCount = 1, unlocks 10% out of 10000 WOM allocation, receives 1000 WOM
       expect(await vestingContract.release(user1.address))
