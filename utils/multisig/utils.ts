@@ -284,3 +284,23 @@ export async function simulate(txns: BatchTransaction[]) {
     await impersonateAsMultisig((signer) => executeBatchTransaction(signer, txn))
   }
 }
+
+export async function pauseVoteEmission(assetDeployments: string[]): Promise<BatchTransaction[]> {
+  const voter = Safe(await getDeployedContract('Voter'))
+  return Promise.all(
+    assetDeployments.map(async (name) => {
+      const lpToken = await getDeployedContract('Asset', name)
+      return voter.pauseVoteEmission(lpToken.address)
+    })
+  )
+}
+
+export async function resumeVoteEmission(assetDeployments: string[]): Promise<BatchTransaction[]> {
+  const voter = Safe(await getDeployedContract('Voter'))
+  return Promise.all(
+    assetDeployments.map(async (name) => {
+      const lpToken = await getDeployedContract('Asset', name)
+      return voter.resumeVoteEmission(lpToken.address)
+    })
+  )
+}
