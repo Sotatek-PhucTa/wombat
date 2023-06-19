@@ -285,7 +285,26 @@ export async function simulate(txns: BatchTransaction[]) {
   }
 }
 
-export async function pauseVoteEmission(assetDeployments: string[]): Promise<BatchTransaction[]> {
+export async function pauseRewarderFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
+  return concatAll(
+    ...assetDeployments.flatMap(async (name) => {
+      const rewarder = await getDeployedContract('MultiRewarderPerSec', getRewarderDeploymentName(name))
+      const length = await rewarder.rewardLength()
+      return concatAll(
+        ..._.range(0, length).map(async (i) => {
+          const { tokenPerSec } = await rewarder.rewardInfo(i)
+          if (tokenPerSec > 0) {
+            return [Safe(rewarder).setRewardRate(i, 0)]
+          } else {
+            return []
+          }
+        })
+      )
+    })
+  )
+}
+
+export async function pauseBribeFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
   const voter = Safe(await getDeployedContract('Voter'))
   return Promise.all(
     assetDeployments.map(async (name) => {
@@ -295,7 +314,7 @@ export async function pauseVoteEmission(assetDeployments: string[]): Promise<Bat
   )
 }
 
-export async function resumeVoteEmission(assetDeployments: string[]): Promise<BatchTransaction[]> {
+export async function unpauseBribeFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
   const voter = Safe(await getDeployedContract('Voter'))
   return Promise.all(
     assetDeployments.map(async (name) => {
