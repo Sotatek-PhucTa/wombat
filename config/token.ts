@@ -1,4 +1,4 @@
-import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
 import { getAddress } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 

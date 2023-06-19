@@ -1,17 +1,30 @@
 import { parseEther, parseUnits } from 'ethers/lib/utils'
-import { Address, Deployment, IRewarder, Network, PartialRecord, TokenMap, Unknown } from '../types'
+import { Address, Deployment, IRewarder, Network, TokenMap, Unknown } from '../types'
 import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
 import { Epochs } from './epoch'
 import { Token } from './token'
+import { getCurrentNetwork } from '../types/network'
+import assert from 'assert'
 
-export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
+export async function getRewarders(): Promise<TokenMap<IRewarder>> {
+  const network = await getCurrentNetwork()
+  return REWARDERS_MAP[network]
+}
+
+export async function getBribes(): Promise<TokenMap<IRewarder>> {
+  const network = await getCurrentNetwork()
+  return BRIBE_MAPS[network]
+}
+
+// Private. Do not export.
+const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.HARDHAT]: {
-    ...createBribeConfigFromDeployedAsset('Asset_MainPool_BUSD', {
+    ...createRewarderForDeployedAsset('Asset_MainPool_BUSD', {
       rewardTokens: [Token.WOM],
       tokenPerSec: [parseEther('100')],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_MainPool_USDT', {
+    ...createRewarderForDeployedAsset('Asset_MainPool_USDT', {
       rewardTokens: [Token.USDT, Token.WOM],
       tokenPerSec: [parseEther('12.3'), parseEther('100')],
     }),
@@ -19,51 +32,51 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
   [Network.BSC_MAINNET]: {
     HAY: {
       ...defaultRewarder(),
-      lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // HAY-LP
+      lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'),
       rewardTokens: [Token.HAY],
-      startTimestamp: 1674021600, // 01/18/2023 2pm HKT
+      startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.005708').toBigInt()],
     },
     wmxWom: {
       ...defaultRewarder(),
-      lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'), // wmxWOM-LP
+      lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'),
       rewardTokens: [Token.WMX],
-      startTimestamp: 1674021600, // 01/18/2023 2pm HKT
+      startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.027').toBigInt()],
     },
     wmxWOMPool_WOM: {
       ...defaultRewarder(),
-      lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'), // WOM-LP
+      lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'),
       rewardTokens: [Token.WMX],
-      startTimestamp: 1674021600, // 01/18/2023 2pm HKT
+      startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.0116').toBigInt()],
     },
     mWOM: {
       ...defaultRewarder(),
-      lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'), // mWOM-LP TBD
+      lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'),
       rewardTokens: [Token.MGP],
-      startTimestamp: 1674021600, // 01/18/2023 2pm HKT
+      startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.375').toBigInt()],
     },
     mWOMPool_WOM: {
       ...defaultRewarder(),
-      lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'), // mWOMPool_WOM-LP TBD
+      lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'),
       rewardTokens: [Token.MGP],
-      startTimestamp: 1674021600, // 01/18/2023 2pm HKT
+      startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.075').toBigInt()],
     },
     qWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x87073ba87517E7ca981AaE3636754bCA95C120E4'),
       rewardTokens: [Token.QUO],
-      startTimestamp: 1674021600, // 01/18/2023 2pm HKT
+      startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.13').toBigInt()],
     },
     qWOMPool_WOM: {
       ...defaultRewarder(),
       lpToken: Address('0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8'),
       rewardTokens: [Token.QUO],
-      startTimestamp: 1674021600, // 01/18/2023 2pm HKT
+      startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.1').toBigInt()],
     },
     BNBx: {
@@ -91,49 +104,49 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
       lpToken: Address('0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E'),
       rewardTokens: [Token.WOM],
     },
-    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_frxETH', {
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_FRAX', {
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_FRAX', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_qWOMPool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_qWOMPool_WOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.QUO],
       operator: ExternalContract.QuollBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_qWOMPool_qWOM', {
+    ...createRewarderForDeployedAsset('Asset_qWOMPool_qWOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.QUO],
       operator: ExternalContract.QuollBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_mWOMPool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_mWOMPool_WOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_mWOMPool_mWOM', {
+    ...createRewarderForDeployedAsset('Asset_mWOMPool_mWOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wmxWOMPool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_wmxWOMPool_WOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wmxWOMPool_wmxWom', {
+    ...createRewarderForDeployedAsset('Asset_wmxWOMPool_wmxWom', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_wBETH', {
+    ...createRewarderForDeployedAsset('Asset_wBETH_Pool_wBETH', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_ETH', {
+    ...createRewarderForDeployedAsset('Asset_wBETH_Pool_ETH', {
       rewardTokens: [Token.WOM],
     }),
   },
@@ -192,60 +205,69 @@ export const REWARDERS_MAP: PartialRecord<Network, TokenMap<IRewarder>> = inject
     },
   },
   [Network.ARBITRUM_MAINNET]: {
-    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USDC', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDC', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_qWOM_Pool_WOM', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.QUO],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('40000'))],
       operator: ExternalContract.QuollBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_qWOM', {
+    ...createRewarderForDeployedAsset('Asset_qWOM_Pool_qWOM', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.QUO],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('60000'))],
       operator: ExternalContract.QuollBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_mWOM_Pool_WOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_mWOM', {
+    ...createRewarderForDeployedAsset('Asset_mWOM_Pool_mWOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_wmxWOM_Pool_WOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
+    ...createRewarderForDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_WETH', {
+    ...createRewarderForDeployedAsset('Asset_WstETH_Pool_WETH', {
       rewardTokens: [Token.ARB],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_wstETH', {
+    ...createRewarderForDeployedAsset('Asset_WstETH_Pool_wstETH', {
       rewardTokens: [Token.ARB],
     }),
   },
-})
+  [Network.LOCALHOST]: {},
+  [Network.POLYGON_MAINNET]: {},
+  [Network.POLYGON_TESTNET]: {},
+  [Network.AVALANCHE_TESTNET]: {},
+  [Network.ARBITRUM_TESTNET]: {},
+  [Network.OPTIMISM_MAINNET]: {},
+  [Network.OPTIMISM_TESTNET]: {},
+  [Network.ETHEREUM_MAINNET]: {},
+}
 
-export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectForkNetwork<TokenMap<IRewarder>>({
+// Private. Do not export.
+const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
   [Network.HARDHAT]: {
-    ...createBribeConfigFromDeployedAsset('Asset_MainPool_BUSD', {
+    ...createRewarderForDeployedAsset('Asset_MainPool_BUSD', {
       rewardTokens: [Token.WOM],
       tokenPerSec: [parseEther('100')],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_MainPool_USDT', {
+    ...createRewarderForDeployedAsset('Asset_MainPool_USDT', {
       rewardTokens: [Token.USDT, Token.BUSD, Token.WOM],
       tokenPerSec: [parseEther('12.3'), parseEther('3.45'), parseEther('100')],
     }),
@@ -253,17 +275,17 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
   [Network.BSC_MAINNET]: {
     HAY: {
       ...defaultRewarder(),
-      lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'), // LP-HAY
+      lpToken: Address('0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b'),
       rewardTokens: [Token.HAY],
     },
     BNBx: {
       ...defaultRewarder(),
-      lpToken: Address('0x16B37225889A038FAD42efdED462821224A509A7'), // LP-BNBx
+      lpToken: Address('0x16B37225889A038FAD42efdED462821224A509A7'),
       rewardTokens: [Token.SD],
     },
     BnbxPool_WBNB: {
       ...defaultRewarder(),
-      lpToken: Address('0x0321D1D769cc1e81Ba21a157992b635363740f86'), // LP-BnbxPool_WBNB pid: 16
+      lpToken: Address('0x0321D1D769cc1e81Ba21a157992b635363740f86'),
       rewardTokens: [Token.SD],
     },
     stkBnb: {
@@ -278,32 +300,32 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     },
     wmxWom: {
       ...defaultRewarder(),
-      lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'), // LP-wmxWOM pid:7
+      lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'),
       rewardTokens: [Token.WMX],
     },
     wmxWOMPool_WOM: {
       ...defaultRewarder(),
-      lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'), // LP-WOM pid:6
+      lpToken: Address('0xF9BdC872D75f76B946E0770f96851b1f2F653caC'),
       rewardTokens: [Token.WMX],
     },
     mWOM: {
       ...defaultRewarder(),
-      lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'), // LP-mWOM pid:9
+      lpToken: Address('0x1f502fF26dB12F8e41B373f36Dc0ABf2D7F6723E'),
       rewardTokens: [Token.MGP],
     },
     mWOMPool_WOM: {
       ...defaultRewarder(),
-      lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'), // LP-mWOMPool_WOM pid:8
+      lpToken: Address('0xEABa290B154aF45DE72FDf2a40E56349e4E68AC2'),
       rewardTokens: [Token.MGP],
     },
     qWOM: {
       ...defaultRewarder(),
-      lpToken: Address('0x87073ba87517E7ca981AaE3636754bCA95C120E4'), // LP-qWOM pid:11
+      lpToken: Address('0x87073ba87517E7ca981AaE3636754bCA95C120E4'),
       rewardTokens: [Token.QUO],
     },
     qWOMPool_WOM: {
       ...defaultRewarder(),
-      lpToken: Address('0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8'), // LP-qWOMPool_WOM pid:10
+      lpToken: Address('0xB5c9368545A26b91d5f7340205e5d9559f48Bcf8'),
       rewardTokens: [Token.QUO],
     },
     IUSDPool_iUSD: {
@@ -356,93 +378,93 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
       lpToken: Address('0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB'),
       rewardTokens: [Token.FXS],
     },
-    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_MIM', {
+    ...createRewarderForDeployedAsset('Asset_MIM_Pool_MIM', {
       rewardTokens: [Token.SPELL],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_USDT', {
+    ...createRewarderForDeployedAsset('Asset_MIM_Pool_USDT', {
       rewardTokens: [Token.SPELL],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_USD+', {
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_USD+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_USDT+', {
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_USDT+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_USDC', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('300', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_CUSD', {
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_CUSD', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_HAY', {
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_HAY', {
       rewardTokens: [Token.WOM],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_Mixed_Pool_FRAX', {
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_FRAX', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.FXS],
       operator: ExternalContract.FraxBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_WBNB', {
+    ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR],
       startTimestamp: Epochs.Apr12,
       operator: ExternalContract.AnkrBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
+    ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR],
       startTimestamp: Epochs.Apr12,
       operator: ExternalContract.AnkrBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       startTimestamp: Epochs.Apr19,
       rewardTokens: [Token.FXS],
       operator: ExternalContract.FraxBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_BNBy_Pool_WBNB', {
+    ...createRewarderForDeployedAsset('Asset_BNBy_Pool_WBNB', {
       startTimestamp: Epochs.Apr19,
       rewardTokens: [Token.TENFI],
       operator: ExternalContract.TenFiBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_BNBy_Pool_BNBy', {
+    ...createRewarderForDeployedAsset('Asset_BNBy_Pool_BNBy', {
       startTimestamp: Epochs.Apr19,
       rewardTokens: [Token.TENFI],
       operator: ExternalContract.TenFiBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ETH', {
+    ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ETH', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.ANKR],
       operator: ExternalContract.AnkrBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
+    ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.ANKR],
       operator: ExternalContract.AnkrBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_HAY_Pool_HAY', {
+    ...createRewarderForDeployedAsset('Asset_HAY_Pool_HAY', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.HAY],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_HAY_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_HAY_Pool_USDC', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.HAY],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_HAY_Pool_USDT', {
+    ...createRewarderForDeployedAsset('Asset_HAY_Pool_USDT', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.HAY],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_wBETH', {
+    ...createRewarderForDeployedAsset('Asset_wBETH_Pool_wBETH', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.wBETH],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wBETH_Pool_ETH', {
+    ...createRewarderForDeployedAsset('Asset_wBETH_Pool_ETH', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.wBETH],
     }),
@@ -467,110 +489,120 @@ export const BRIBE_MAPS: PartialRecord<Network, TokenMap<IRewarder>> = injectFor
     },
   },
   [Network.ARBITRUM_MAINNET]: {
-    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USD+', {
+    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USD+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('6500', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_DAI+', {
+    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_DAI+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('3500', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_USDPlus_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDC', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_MIM', {
+    ...createRewarderForDeployedAsset('Asset_MIM_Pool_MIM', {
       rewardTokens: [Token.SPELL],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_MIM_Pool_USDT', {
+    ...createRewarderForDeployedAsset('Asset_MIM_Pool_USDT', {
       rewardTokens: [Token.SPELL],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_FRAX', {
+    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_FRAX', {
       rewardTokens: [Token.FXS],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_MAI', {
+    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_MAI', {
       rewardTokens: [Token.QI],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_FRAX_Pool_USD+', {
+    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USD+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('1000', 6))],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_BOB', {
+    ...createRewarderForDeployedAsset('Asset_BOB_Pool_BOB', {
       rewardTokens: [Token.BOB],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_BOB_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_BOB_Pool_USDC', {
       rewardTokens: [Token.BOB],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_mWOM', {
+    ...createRewarderForDeployedAsset('Asset_mWOM_Pool_mWOM', {
       rewardTokens: [Token.MGP, Token.USDC],
       tokenPerSec: [0n, 0n],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_mWOM_Pool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_mWOM_Pool_WOM', {
       rewardTokens: [Token.MGP, Token.USDC],
       tokenPerSec: [0n, 0n],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
+    ...createRewarderForDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
       rewardTokens: [Token.WMX],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_wmxWOM_Pool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_wmxWOM_Pool_WOM', {
       rewardTokens: [Token.WMX],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_frxETH', {
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
       rewardTokens: [Token.FXS],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_WETH', {
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
       rewardTokens: [Token.FXS],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_qWOM', {
+    ...createRewarderForDeployedAsset('Asset_qWOM_Pool_qWOM', {
       rewardTokens: [Token.QUO],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_qWOM_Pool_WOM', {
+    ...createRewarderForDeployedAsset('Asset_qWOM_Pool_WOM', {
       rewardTokens: [Token.QUO],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       startTimestamp: Epochs.Apr19,
       rewardTokens: [Token.FXS],
       operator: ExternalContract.FraxBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_jUSDC_Pool_jUSDC', {
+    ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_jUSDC', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_jUSDC_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_USDC', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_WETH', {
+    ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_WETH', {
       startTimestamp: Epochs.May17,
       rewardTokens: [Token.ANKR],
       operator: ExternalContract.AnkrBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
+    ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
       startTimestamp: Epochs.May17,
       rewardTokens: [Token.ANKR],
       operator: ExternalContract.AnkrBribeOperator,
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_WETH', {
+    ...createRewarderForDeployedAsset('Asset_WstETH_Pool_WETH', {
       rewardTokens: [Token.ARB],
     }),
-    ...createBribeConfigFromDeployedAsset('Asset_WstETH_Pool_wstETH', {
+    ...createRewarderForDeployedAsset('Asset_WstETH_Pool_wstETH', {
       rewardTokens: [Token.ARB],
     }),
   },
-})
+  [Network.LOCALHOST]: {},
+  [Network.POLYGON_MAINNET]: {},
+  [Network.POLYGON_TESTNET]: {},
+  [Network.AVALANCHE_TESTNET]: {},
+  [Network.ARBITRUM_TESTNET]: {},
+  [Network.OPTIMISM_MAINNET]: {},
+  [Network.OPTIMISM_TESTNET]: {},
+  [Network.ETHEREUM_MAINNET]: {},
+}
 
-function createBribeConfigFromDeployedAsset(deploymentName: string, config: Partial<IRewarder>): TokenMap<IRewarder> {
+function createRewarderForDeployedAsset(deploymentName: string, config: Partial<IRewarder>): TokenMap<IRewarder> {
+  const rewarder: IRewarder = {
+    ...defaultRewarder(),
+    lpToken: Deployment(deploymentName),
+    ...config,
+  }
+  assert(isValid(rewarder), `Invalid rewarder config: ${rewarder}`)
   return {
-    [deploymentName]: {
-      ...defaultRewarder(),
-      lpToken: Deployment(deploymentName),
-      ...config,
-    },
+    [deploymentName]: rewarder,
   }
 }
 
@@ -584,20 +616,10 @@ function defaultRewarder(): IRewarder {
   }
 }
 
-// @deprecated
-function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<Network, T> {
-  const forkNetwork = process.env.FORK_NETWORK || ''
-  // default value in .env
-  if (forkNetwork == 'false') {
-    return config
-  }
-
-  if (!Object.values(Network).includes(forkNetwork as Network)) {
-    throw new Error(`Unrecognized network: ${forkNetwork}`)
-  }
-
-  return Object.assign(config, {
-    [Network.HARDHAT]: config[forkNetwork as Network],
-    [Network.LOCALHOST]: config[forkNetwork as Network],
-  })
+function isValid(rewarder: IRewarder) {
+  return (
+    rewarder.rewardTokens.length > 0 &&
+    (rewarder.secondsToStart || rewarder.startTimestamp) &&
+    rewarder.tokenPerSec.length == rewarder.rewardTokens.length
+  )
 }

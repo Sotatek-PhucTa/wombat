@@ -1,9 +1,8 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { REWARDERS_MAP } from '../config/emissions.config'
+import { getRewarders } from '../config/emissions.config'
 import { getAddress, getDeployedContract, isOwner, setRewarder } from '../utils'
-import { Network } from '../types'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -11,7 +10,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const owner = await ethers.getSigner(deployer)
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
-  for await (const [token, rewarderConfig] of Object.entries(REWARDERS_MAP[hre.network.name as Network] || {})) {
+  for await (const [token, rewarderConfig] of Object.entries(await getRewarders())) {
     const name = `MultiRewarderPerSec_V3_${token}`
     deployments.log(`Setting up ${name}`)
     const lpTokenAddress = await getAddress(rewarderConfig.lpToken)

@@ -1,9 +1,8 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { REWARDERS_MAP } from '../config/emissions.config'
+import { getRewarders } from '../config/emissions.config'
 import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, logVerifyCommand } from '../utils'
-import { Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
 import { getContractAddressOrDefault } from '../config/contract'
@@ -21,7 +20,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 120. Deploying on: ${hre.network.name}...`)
 
-  for await (const [token, rewarderConfig] of Object.entries(REWARDERS_MAP[hre.network.name as Network] || {})) {
+  for await (const [token, rewarderConfig] of Object.entries(await getRewarders())) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const startTimestamp = rewarderConfig?.startTimestamp || getDeadlineFromNow(rewarderConfig.secondsToStart!)
 

@@ -3,9 +3,8 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { BRIBE_MAPS } from '../config/emissions.config'
+import { getBribes } from '../config/emissions.config'
 import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
-import { Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { assert } from 'chai'
 import { getContractAddressOrDefault } from '../config/contract'
@@ -21,7 +20,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   // Deploy all Bribe
   const voter = await getDeployedContract('Voter')
-  for await (const [token, bribeConfig] of Object.entries(BRIBE_MAPS[hre.network.name as Network] || {})) {
+  for await (const [token, bribeConfig] of Object.entries(await getBribes())) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const startTimestamp = bribeConfig?.startTimestamp || getDeadlineFromNow(bribeConfig.secondsToStart!)
     const name = getBribeDeploymentName(token)
