@@ -6,15 +6,20 @@ import { Network } from '../../types'
 
 runScript('PauseVoteEmission', async () => {
   const network = await getCurrentNetwork()
-  assert(network == Network.ARBITRUM_MAINNET, 'Wrong network')
-  return multisig.utils.pauseVoteEmission([
-    'Asset_MIM_Pool_MIM',
-    'Asset_MIM_Pool_USDT',
-    'Asset_mWOM_Pool_mWOM',
-    'Asset_mWOM_Pool_WOM',
-    'Asset_wmxWOM_Pool_wmxWOM',
-    'Asset_wmxWOM_Pool_WOM',
-    'Asset_qWOM_Pool_qWOM',
-    'Asset_qWOM_Pool_WOM',
-  ])
+  if (network === Network.ARBITRUM_MAINNET) {
+    return multisig.utils.pauseVoteEmission([
+      'Asset_MIM_Pool_MIM',
+      'Asset_MIM_Pool_USDT',
+      'Asset_mWOM_Pool_mWOM',
+      'Asset_mWOM_Pool_WOM',
+      'Asset_wmxWOM_Pool_wmxWOM',
+      'Asset_wmxWOM_Pool_WOM',
+      'Asset_qWOM_Pool_qWOM',
+      'Asset_qWOM_Pool_WOM',
+    ])
+  } else if (network == Network.BSC_MAINNET) {
+    return multisig.utils.pauseVoteEmission(['Asset_wBETH_Pool_wBETH', 'Asset_wBETH_Pool_ETH'])
+  } else {
+    throw new Error('Wrong network')
+  }
 })
