@@ -12,7 +12,7 @@ import { epoch_duration_seconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
-import { DeploymentOrAddress } from '../../types'
+import { DeploymentOrAddress, IRewarder, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 
 // This function will create two transactions:
@@ -322,4 +322,25 @@ export async function unpauseBribeFor(assetDeployments: string[]): Promise<Batch
       return voter.resumeVoteEmission(lpToken.address)
     })
   )
+}
+
+export async function updateEmissions(
+  config: TokenMap<IRewarder>,
+  getDeploymentName: (key: string) => string
+): Promise<BatchTransaction[]> {
+  await Promise.all(
+    Object.entries(config).map(async ([token, info]) => {
+      const name = getDeploymentName(token)
+      const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
+      return Promise.all(
+        info.rewardTokens.map(async (rewardToken, i) => {
+          const expected = info.tokenPerSec[i]
+          const { tokenPerSec: actual } = await rewarder.rewardInfo(i)
+          assert(expected == actual, `${name}: Expected ${expected} but got ${actual} for ${rewardToken as Token}`)
+        })
+      )
+    })
+  )
+
+  return []
 }
