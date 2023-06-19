@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { BRIBE_MAPS, REWARDERS_MAP } from '../../config/tokens.config'
+import { BRIBE_MAPS, REWARDERS_MAP } from '../../config/emissions.config'
 import { IRewarder, Network, TokenMap } from '../../types'
 
 describe('RewarderBribeConfig', function () {

@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { REWARDERS_MAP } from '../config/tokens.config'
+import { REWARDERS_MAP } from '../config/emissions.config'
 import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, logVerifyCommand } from '../utils'
 import { Network } from '../types'
 import { getTokenAddress } from '../config/token'

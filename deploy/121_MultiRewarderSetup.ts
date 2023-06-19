@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { REWARDERS_MAP } from '../config/tokens.config'
+import { REWARDERS_MAP } from '../config/emissions.config'
 import { getAddress, getDeployedContract, isOwner, setRewarder } from '../utils'
 import { Network } from '../types'
 
