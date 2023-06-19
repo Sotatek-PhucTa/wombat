@@ -208,7 +208,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USDC', {
       rewardTokens: [Token.WOM],
     }),
-    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDCe', {
       rewardTokens: [Token.WOM],
     }),
     ...createRewarderForDeployedAsset('Asset_qWOM_Pool_WOM', {
@@ -245,9 +245,11 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_WETH', {
       rewardTokens: [Token.ARB],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('500'))],
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_wstETH', {
       rewardTokens: [Token.ARB],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2000'))],
     }),
   },
   [Network.LOCALHOST]: {},
@@ -499,7 +501,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.USDPlus],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('3500', 6))],
     }),
-    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDCe', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
     }),
@@ -523,7 +525,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_BOB_Pool_BOB', {
       rewardTokens: [Token.BOB],
     }),
-    ...createRewarderForDeployedAsset('Asset_BOB_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_BOB_Pool_USDCe', {
       rewardTokens: [Token.BOB],
     }),
     ...createRewarderForDeployedAsset('Asset_mWOM_Pool_mWOM', {
@@ -562,7 +564,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
-    ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_USDCe', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
@@ -579,9 +581,11 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_WETH', {
       rewardTokens: [Token.ARB],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_wstETH', {
       rewardTokens: [Token.ARB],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('5000'))],
     }),
   },
   [Network.LOCALHOST]: {},

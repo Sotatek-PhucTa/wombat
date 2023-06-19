@@ -328,19 +328,22 @@ export async function updateEmissions(
   config: TokenMap<IRewarder>,
   getDeploymentName: (key: string) => string
 ): Promise<BatchTransaction[]> {
-  await Promise.all(
-    Object.entries(config).map(async ([token, info]) => {
+  return concatAll(
+    ...Object.entries(config).map(async ([token, info]) => {
       const name = getDeploymentName(token)
       const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
-      return Promise.all(
-        info.rewardTokens.map(async (rewardToken, i) => {
+      return concatAll(
+        ...info.rewardTokens.map(async (rewardToken, i) => {
           const expected = info.tokenPerSec[i]
           const { tokenPerSec: actual } = await rewarder.rewardInfo(i)
-          assert(expected == actual, `${name}: Expected ${expected} but got ${actual} for ${rewardToken as Token}`)
+          if (expected == actual) {
+            console.log(`${name}: ${Token[rewardToken]} does not need to be updated.`)
+            return []
+          }
+          console.log(`${name}: Expected ${Token[rewardToken]} to be ${expected} but got ${actual}.`)
+          return [Safe(rewarder).setRewardRate(i, expected)]
         })
       )
     })
   )
-
-  return []
 }
