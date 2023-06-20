@@ -1,10 +1,10 @@
 import { deployments, getNamedAccounts } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { MOCK_TOKEN_MAP } from '../config/tokens.config'
 import { IMockTokenInfo, Network } from '../types'
 import { logVerifyCommand } from '../utils'
 import { getCurrentNetwork } from '../types/network'
+import { getMockTokens } from '../config/mockTokens.config'
 
 const contractName = 'MockTokens'
 
@@ -22,8 +22,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   ].includes(await getCurrentNetwork())
 
   if (shouldDeployMockTokens) {
-    const MOCK_TOKENS = MOCK_TOKEN_MAP[hre.network.name as Network] || {}
-    for (const [, mockTokenInfo] of Object.entries(MOCK_TOKENS)) {
+    for (const mockTokenInfo of await getMockTokens()) {
       await deployMockToken(mockTokenInfo, deployer, hre.network.name)
     }
   }
