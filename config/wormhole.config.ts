@@ -1,6 +1,6 @@
 import { Deployment, IWormholeAdaptorConfig, IWormholeConfig, Network, PartialRecord, PoolName } from '../types'
 import { Token } from './token'
-import { injectForkNetwork } from './tokens.config'
+import { injectForkNetwork } from './pools.config'
 
 export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = injectForkNetwork<IWormholeConfig>({
   [Network.BSC_TESTNET]: {

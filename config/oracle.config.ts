@@ -1,6 +1,6 @@
 import { Network, PartialRecord } from '../types'
 import { Token } from './token'
-import { injectForkNetwork } from './tokens.config'
+import { injectForkNetwork } from './pools.config'
 
 export interface ChainlinkFeed {
   contract: string
