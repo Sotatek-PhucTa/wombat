@@ -238,7 +238,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C'),
   },
   [Token.WAVAX]: {
-    [Network.AVALANCHE_TESTNET]: Address('0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3'),
+    [Network.AVALANCHE_TESTNET]: Address('0x1D308089a2D1Ced3f1Ce36B1FcaF815b07217be3'),
   },
   [Token.WBNB]: {
     [Network.BSC_TESTNET]: Address('0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd'),
@@ -254,8 +254,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ETHEREUM_MAINNET]: Address('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'),
   },
   [Token.WMATIC]: {
-    [Network.POLYGON_MAINNET]: Address('0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'),
-    [Network.POLYGON_TESTNET]: Address('0x4bab602423c8a009ca8c25ef6e3d64367789c8a9'),
+    [Network.POLYGON_MAINNET]: Address('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'),
+    [Network.POLYGON_TESTNET]: Address('0x4Bab602423C8a009ca8c25eF6e3D64367789C8a9'),
   },
   [Token.WMX]: {
     // https://www.coingecko.com/en/coins/wombex
