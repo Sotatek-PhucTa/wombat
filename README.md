@@ -87,12 +87,7 @@ To verify proxy contracts:
   - FactoryPools_StandalonePool_Proxy => `0x6569DDC1Cc2648c89BC8025046A7dd65EB8940F3`
   - Asset_stables_01_TUSD (LP-TUSD) => `0x3C8e744f6c4Ed2c9D82e33D69DDcC5961Aa05367`
   - Asset_frxETH_Pool_WETH (deprecated) => `0xb268c3181921747379271B9BFfCE8B16311656e3`
-
-#### Wombat Side Pool
-  - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
-  - Asset_SP01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
-  - Asset_SP01_HAY (LP-HAY) => `0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b`
-  - Bribe_HAY => `0x6dD7116B2640f4FA7a2AAD3fA6a6126bFA782B0B`
+  - Asset_HAY_Pool_HAY (LP-HAY) => `0xa393D61fE1532257B69b753aF7d1EfB0e22f1A6E`
 
 #### Factory Pool Stables 01
   - Pool Proxy (Main entry) => `0x48f6A8a0158031BaF8ce3e45344518f1e69f2A14`
@@ -156,7 +151,6 @@ To verify proxy contracts:
   - MultiRewarderPerSec_V3_frxETH_Pool_ETH => `0x1cBb0f9ce44F024B47E5f7c07D72F6044DEf4497`
   - MultiRewarderPerSec_V3_Asset_frxETH_Pool_frxETH => `0x44B597258b4bf87762F22C99b3D9a6E3fA7068E4`
   - MultiRewarderPerSec_V3_Asset_frxETH_Pool_sfrxETH => `0x5Ab8f02aca0ed53A1aad6150F19048F539c6A62d`
-
 
 #### Wombat Dynamic Pool (Deprecated)
   - Pool Proxy (Main entry) => `0x0029b7e8e9eD8001c868AA09c74A1ac6269D4183`
@@ -245,14 +239,19 @@ To verify proxy contracts:
   - Bribe_Asset_ankrETH_Pool_ETH => `0xc7a6bA5F28993BaDb566007bD2E0CB253c431974`
   - Bribe_Asset_ankrETH_Pool_ankrETH => `0x8Dc7B0a98fC1A70e07cb2efEe6e339Bf9FE87B47`
 
-#### HAY Pool
-  - HAY_Pool_Proxy => `0xa61dccC6c6E34C8Fbf14527386cA35589e9b8C27`
-  - Asset_HAY_Pool_HAY => `0xa393D61fE1532257B69b753aF7d1EfB0e22f1A6E`
+#### Smart HAY Pool
+  - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
+  - Asset_SidePool_01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
+  - Asset_SidePool_01_HAY (LP-HAY) => `0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b`
   - Asset_HAY_Pool_USDC => `0x681124f5BDD9aCDA19d1721063254189903CD685`
   - Asset_HAY_Pool_USDT => `0x184EB7DDE8c00fad900120235b534AABc1d96F75`
+  - Bribe_HAY => `0x6dD7116B2640f4FA7a2AAD3fA6a6126bFA782B0B`
   - Bribe_Asset_HAY_Pool_HAY => `0xD8e4FD44F43C46427338A9b8c946E7D57AF22c10`
   - Bribe_Asset_HAY_Pool_USDC => `0x8E926C7792635362ACf425DcB3dCb2bf42167826`
   - Bribe_Asset_HAY_Pool_USDT => `0xD80356F64c0693BAd4844250527B144cDf382915`
+
+#### HAY Pool (deprecated)
+  - HAY_Pool_Proxy (removed) => `0xa61dccC6c6E34C8Fbf14527386cA35589e9b8C27`
 
 #### Wombat Rewarders
   - MultiRewarderPerSec_V3_HAY (deprecated) => `0x7903289B0122f3F4E0fF532D1D8A300D19bFd46f`
