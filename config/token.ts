@@ -38,8 +38,10 @@ export enum Token {
   USDPlus,
   USDT,
   USDTPlus,
+  WAVAX,
   WBNB,
   WETH,
+  WMATIC,
   WMX,
   WOM,
   wstETH,
@@ -235,6 +237,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://bscscan.com/address/0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C
     [Network.BSC_MAINNET]: Address('0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C'),
   },
+  [Token.WAVAX]: {
+    [Network.AVALANCHE_TESTNET]: Address('0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3'),
+  },
   [Token.WBNB]: {
     [Network.BSC_TESTNET]: Address('0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd'),
     // https://www.coingecko.com/en/coins/wbnb
@@ -247,6 +252,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.OPTIMISM_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
     // https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
     [Network.ETHEREUM_MAINNET]: Address('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'),
+  },
+  [Token.WMATIC]: {
+    [Network.POLYGON_MAINNET]: Address('0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'),
+    [Network.POLYGON_TESTNET]: Address('0x4bab602423c8a009ca8c25ef6e3d64367789c8a9'),
   },
   [Token.WMX]: {
     // https://www.coingecko.com/en/coins/wombex

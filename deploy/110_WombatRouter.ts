@@ -3,15 +3,12 @@ import { assert } from 'chai'
 import { Contract } from 'ethers'
 import { deployments, ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import {
-  CROSS_CHAIN_POOL_TOKENS_MAP,
-  DYNAMICPOOL_TOKENS_MAP,
-  FACTORYPOOL_TOKENS_MAP,
-  WRAPPED_NATIVE_TOKENS_MAP,
-} from '../config/tokens.config'
+import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/tokens.config'
+import { getWrappedNativeToken } from '../config/router.config'
 import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
 import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, logVerifyCommand } from '../utils'
 import { getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
+import { Token, getTokenAddress } from '../config/token'
 
 const contractName = 'WombatRouter'
 
@@ -24,13 +21,13 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   deployments.log(`Step 110. Deploying on : ${hre.network.name}...`)
 
   /// Deploy pool
-  const wrappedNativeToken = WRAPPED_NATIVE_TOKENS_MAP[hre.network.name as Network]
-  assert(wrappedNativeToken != ethers.constants.AddressZero, 'Wrapped native token is not set')
+  const wrappedNativeToken = await getWrappedNativeToken()
+  assert(wrappedNativeToken != Token.UNKNOWN, 'Wrapped native token is not set')
   const deployResult = await deploy('WombatRouter', {
     from: deployer,
     contract: 'WombatRouter',
     log: true,
-    args: [wrappedNativeToken],
+    args: [await getTokenAddress(wrappedNativeToken)],
     skipIfAlreadyDeployed: true,
     deterministicDeployment: false, // will adopt bridging protocols/ wrapped addresses instead of CREATE2
   })

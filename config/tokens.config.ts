@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
-import { ethers } from 'hardhat'
 import {
   Deployment,
   IGovernedPriceFeed,
@@ -54,21 +53,6 @@ import {
   WstETHAsset,
 } from './assets.config'
 import { Token } from './token'
-
-export const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, string> = injectForkNetwork({
-  [Network.HARDHAT]: ethers.constants.AddressZero,
-  [Network.LOCALHOST]: ethers.constants.AddressZero,
-  [Network.BSC_MAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-  [Network.BSC_TESTNET]: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
-  [Network.POLYGON_MAINNET]: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
-  [Network.POLYGON_TESTNET]: '0x4bab602423c8a009ca8c25ef6e3d64367789c8a9',
-  [Network.AVALANCHE_TESTNET]: '0x1d308089a2d1ced3f1ce36b1fcaf815b07217be3',
-  [Network.ARBITRUM_MAINNET]: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-  [Network.ARBITRUM_TESTNET]: '0xDa01302C86ECcd5bc94c1086777acF3c3Af7EF63',
-  [Network.OPTIMISM_MAINNET]: '0x4200000000000000000000000000000000000006',
-  [Network.OPTIMISM_TESTNET]: ethers.constants.AddressZero,
-  [Network.ETHEREUM_MAINNET]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-}) as Record<Network, string>
 
 function defaultGovernedPriceFeed(): IGovernedPriceFeed {
   return {
