@@ -305,21 +305,33 @@ export async function pauseRewarderFor(assetDeployments: string[]): Promise<Batc
 }
 
 export async function pauseBribeFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
-  const voter = Safe(await getDeployedContract('Voter'))
-  return Promise.all(
-    assetDeployments.map(async (name) => {
+  const voter = await getDeployedContract('Voter')
+  const safe = Safe(voter)
+  return concatAll(
+    ...assetDeployments.map(async (name) => {
       const lpToken = await getDeployedContract('Asset', name)
-      return voter.pauseVoteEmission(lpToken.address)
+      const { whitelist } = await voter.infos(lpToken.address)
+      if (whitelist) {
+        return [safe.pauseVoteEmission(lpToken.address)]
+      } else {
+        return []
+      }
     })
   )
 }
 
 export async function unpauseBribeFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
-  const voter = Safe(await getDeployedContract('Voter'))
-  return Promise.all(
-    assetDeployments.map(async (name) => {
+  const voter = await getDeployedContract('Voter')
+  const safe = Safe(voter)
+  return concatAll(
+    ...assetDeployments.map(async (name) => {
       const lpToken = await getDeployedContract('Asset', name)
-      return voter.resumeVoteEmission(lpToken.address)
+      const { whitelist } = await voter.infos(lpToken.address)
+      if (whitelist) {
+        return []
+      } else {
+        return [safe.resumeVoteEmission(lpToken.address)]
+      }
     })
   )
 }
