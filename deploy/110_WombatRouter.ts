@@ -34,7 +34,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
   if (deployResult.newlyDeployed) {
     deployments.log(`Deployment complete.`)
-    logVerifyCommand(hre.network.name, deployResult)
+    logVerifyCommand(deployResult)
   }
 
   const router = await ethers.getContractAt(contractName, deployResult.address)

@@ -33,7 +33,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const pricefeed = (await ethers.getContractAt('PythPriceFeed', deployResult.address)) as PythPriceFeed
 
   if (deployResult.newlyDeployed) {
-    logVerifyCommand(hre.network.name, deployResult)
+    logVerifyCommand(deployResult)
 
     deployments.log(`Transferring ownership of ${deployResult.address} to multisig(${multisig})...`)
     // The owner of the rewarder contract can add new reward tokens and withdraw them

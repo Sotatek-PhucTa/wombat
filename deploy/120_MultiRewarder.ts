@@ -58,7 +58,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       deployments.log(`${name} Deployment complete.`)
     }
 
-    logVerifyCommand(hre.network.name, deployResult)
+    logVerifyCommand(deployResult)
   }
 }
 

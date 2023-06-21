@@ -67,7 +67,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       deployments.log('Bribe transferred to multisig')
     }
 
-    logVerifyCommand(hre.network.name, deployResult)
+    logVerifyCommand(deployResult)
   }
 }
 

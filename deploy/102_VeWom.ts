@@ -41,7 +41,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
   deployments.log('Contract address:', deployResult.address)
   deployments.log('Implementation address:', implAddr)
-  logVerifyCommand(hre.network.name, deployResult)
+  logVerifyCommand(deployResult)
 
   if (deployResult.newlyDeployed) {
     if (await isOwner(masterWombat, owner.address)) {

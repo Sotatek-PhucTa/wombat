@@ -37,7 +37,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   } else {
     deployments.log(`${contractName} Contract already deployed.`)
   }
-  logVerifyCommand(hre.network.name, deployResult)
+  logVerifyCommand(deployResult)
   return deployResult
 }
 

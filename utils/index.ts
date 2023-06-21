@@ -6,12 +6,13 @@ import { deployments, ethers, getNamedAccounts, upgrades } from 'hardhat'
 import { Deployment } from 'hardhat-deploy/types'
 import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
-import { DeploymentOrAddress, IAssetInfo } from '../types'
+import { DeploymentOrAddress, IAssetInfo, Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3 } from '../build/typechain'
 import { epoch_duration_seconds } from '../config/epoch'
 import hre from 'hardhat'
 import { setBalance, impersonateAccount, stopImpersonatingAccount } from '@nomicfoundation/hardhat-network-helpers'
+import { getCurrentNetwork } from '../types/network'
 
 export * as deploy from './deploy'
 export * as multisig from './multisig'
@@ -75,8 +76,9 @@ export async function setRewarder(masterWombat: Contract, owner: SignerWithAddre
   await confirmTxn(masterWombat.connect(owner).setRewarder(pid, rewarder))
 }
 
-export function logVerifyCommand(network: string, deployment: Deployment) {
-  if (network === 'hardhat' || network == 'localhost') {
+export function logVerifyCommand(deployment: Deployment) {
+  const network = getCurrentNetwork()
+  if (!isForkedNetwork() && [Network.HARDHAT, Network.LOCALHOST].includes(network)) {
     return
   }
 

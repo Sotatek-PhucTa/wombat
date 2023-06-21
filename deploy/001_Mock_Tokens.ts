@@ -37,7 +37,7 @@ async function deployMockToken(mockTokenInfo: IMockTokenInfo, deployer: string, 
     args: [mockTokenInfo.tokenName, mockTokenInfo.tokenSymbol, mockTokenInfo.decimalForMockToken, 0],
     skipIfAlreadyDeployed: true,
   })
-  logVerifyCommand(network, deployment)
+  logVerifyCommand(deployment)
 }
 
 export default deployFunc

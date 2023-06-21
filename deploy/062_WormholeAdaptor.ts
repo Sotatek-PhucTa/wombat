@@ -61,7 +61,7 @@ const deployFunc = async function () {
     deployments.log('Please update WORMHOLE_ADAPTOR_CONFIG_MAP after deployment')
 
     if (deployResult.newlyDeployed) {
-      logVerifyCommand(network.name, deployResult)
+      logVerifyCommand(deployResult)
 
       // Check setup config values
 

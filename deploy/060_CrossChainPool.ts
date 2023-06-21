@@ -49,7 +49,7 @@ const deployFunc = async function () {
       await setUpPool(deployerSigner, pool, multisig)
       await configureCrossChainPool(deployerSigner, pool)
 
-      logVerifyCommand(network.name, deployResult)
+      logVerifyCommand(deployResult)
     } else {
       deployments.log(`${contractNamePrefix} Contract already deployed.`)
     }

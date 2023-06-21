@@ -135,7 +135,7 @@ export async function deployBasePool(
     deployments.log(`setMintFeeThreshold to ${formatEther(setting.mintFeeThreshold)}...`)
     await confirmTxn(pool.connect(deployerSigner).setMintFeeThreshold(setting.mintFeeThreshold))
 
-    logVerifyCommand(network.name, deployResult)
+    logVerifyCommand(deployResult)
   } else {
     deployments.log(`${deploymentName} Contract already deployed.`)
   }
@@ -235,7 +235,7 @@ export async function deployAssetV2(
     await confirmTxn(asset.connect(deployerSigner).transferOwnership(owner))
     deployments.log(`Transferred ownership of asset ${asset.address} to ${owner}...`)
 
-    logVerifyCommand(network, deployResult)
+    logVerifyCommand(deployResult)
   } else {
     // Sanity check for already deployed assets
 
@@ -297,7 +297,7 @@ export async function deployPriceFeed(
       deployments.log('Setting price feed for asset...')
       await confirmTxn(asset.connect(deployerSigner).setPriceFeed(deployResult.address))
     }
-    logVerifyCommand(network.name, deployResult)
+    logVerifyCommand(deployResult)
   } else if (['ChainlinkPriceFeed', 'PythPriceFeed'].includes(assetInfo.priceFeed.contract)) {
     const priceFeedContract = await getDeployedContract(assetInfo.priceFeed.contract)
     deployments.log('Latest price for the underlying token is...')

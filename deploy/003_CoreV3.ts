@@ -10,7 +10,7 @@ const deployFunc = async function () {
   deployments.log(`Step 003. Deploying on : ${network.name} with account : ${deployer}`)
   const coreV3DeployResult = await deploy('CoreV3', { from: deployer, log: true, skipIfAlreadyDeployed: false })
 
-  logVerifyCommand(network.name, coreV3DeployResult)
+  logVerifyCommand(coreV3DeployResult)
 }
 
 export default deployFunc

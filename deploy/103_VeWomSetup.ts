@@ -36,7 +36,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     deployments.log(`Whitelist deployed to ${deployResult.address}`)
     deployments.log('Setting whitelist contract for VeWom')
     await confirmTxn(vewom.connect(owner).setWhitelist(deployResult.address))
-    logVerifyCommand(hre.network.name, deployResult)
+    logVerifyCommand(deployResult)
     return deployResult
   } else {
     deployments.log(`${contractName} Contract already deployed.`)

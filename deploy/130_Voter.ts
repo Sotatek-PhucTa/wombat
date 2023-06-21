@@ -50,7 +50,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     deployments.log(`Voter Deployment complete.`)
   }
 
-  logVerifyCommand(hre.network.name, deployResult)
+  logVerifyCommand(deployResult)
 }
 
 export default deployFunc
