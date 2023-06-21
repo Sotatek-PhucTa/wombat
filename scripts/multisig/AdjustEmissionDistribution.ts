@@ -12,7 +12,7 @@ import * as multisig from '../../utils/multisig'
  * - base / vote split (baseAllocation) in Voter
  */
 runScript('AdjustEmissionDistribution', async () => {
-  const network: Network = await getCurrentNetwork()
+  const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
   let WOM_MONTHLY_EMISSION_RATE
   let BRIBE_ALLOC_PERCENT

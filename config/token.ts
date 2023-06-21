@@ -61,8 +61,8 @@ export enum Token {
   wmxWOM,
 }
 
-export async function getTokenDeploymentOrAddress(token: Token): Promise<DeploymentOrAddress> {
-  const network = await getCurrentNetwork()
+export function getTokenDeploymentOrAddress(token: Token): DeploymentOrAddress {
+  const network = getCurrentNetwork()
   const deploymentOrAddress = tokenRegistry[token][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for token ${Token[token]} in network ${network}`)
@@ -72,7 +72,7 @@ export async function getTokenDeploymentOrAddress(token: Token): Promise<Deploym
 }
 
 export async function getTokenAddress(token: Token): Promise<string> {
-  return getAddress(await getTokenDeploymentOrAddress(token))
+  return getAddress(getTokenDeploymentOrAddress(token))
 }
 
 // registry of token address. Used by getTokenAddress only. Do not export.

@@ -14,7 +14,7 @@ describe('CodeGen', function () {
 
     it('has asset', async function () {
       const asset: Asset = {
-        underlyingToken: await getTokenDeploymentOrAddress(Token.WOM),
+        underlyingToken: getTokenDeploymentOrAddress(Token.WOM),
         name: 'name',
         symbol: 'symbol',
       }

@@ -6,7 +6,7 @@ import { concatAll } from '../../utils'
 import * as multisig from '../../utils/multisig'
 
 runScript('Timelock_TransferOwnership', async () => {
-  assert((await getCurrentNetwork()) == Network.BSC_MAINNET, 'Only bsc mainnet is supported.')
+  assert(getCurrentNetwork() == Network.BSC_MAINNET, 'Only bsc mainnet is supported.')
   return concatAll(
     multisig.utils.transferAssetsOwnership(
       ['Asset_BnbxPool_BNBx', 'Asset_BnbxPool_WBNB'],

@@ -41,6 +41,7 @@ import {
   WstETHAsset,
 } from './assets.config'
 import { Token } from './token'
+import { getCurrentNetwork, isForkNetwork } from '../types/network'
 
 function defaultGovernedPriceFeed(): IGovernedPriceFeed {
   return {
@@ -128,16 +129,11 @@ const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
 // @deprecated: Please expose the value type directly using getCurrentNetwork().
 // inject forkNetwork to hardhat and localhost
 export function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<Network, T> {
-  const forkNetwork = process.env.FORK_NETWORK || ''
-  // default value in .env
-  if (forkNetwork == 'false') {
+  if (isForkNetwork()) {
     return config
   }
 
-  if (!Object.values(Network).includes(forkNetwork as Network)) {
-    throw new Error(`Unrecognized network: ${forkNetwork}`)
-  }
-
+  const forkNetwork = getCurrentNetwork()
   return Object.assign(config, {
     [Network.HARDHAT]: config[forkNetwork as Network],
     [Network.LOCALHOST]: config[forkNetwork as Network],

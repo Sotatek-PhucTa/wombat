@@ -2,8 +2,8 @@ import { Network } from '../types'
 import { getCurrentNetwork } from '../types/network'
 import { Token } from './token'
 
-export async function getWrappedNativeToken(): Promise<Token> {
-  const network = await getCurrentNetwork()
+export function getWrappedNativeToken(): Token {
+  const network = getCurrentNetwork()
   return WRAPPED_NATIVE_TOKENS_MAP[network]
 }
 

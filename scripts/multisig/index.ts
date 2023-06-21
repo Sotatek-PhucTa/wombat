@@ -13,7 +13,7 @@ export async function runScript(id: string, script: () => Promise<BatchTransacti
     return
   }
 
-  const network = await getCurrentNetwork()
+  const network = getCurrentNetwork()
   const file = `proposals/${network}/${id}.json`
   if (fs.existsSync(file)) {
     console.warn(`Overwriting existing file ${file}`)

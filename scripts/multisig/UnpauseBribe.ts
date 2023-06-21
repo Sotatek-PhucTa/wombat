@@ -5,7 +5,7 @@ import * as multisig from '../../utils/multisig'
 import { Network } from '../../types'
 
 runScript('UnpauseBribe', async () => {
-  const network = await getCurrentNetwork()
+  const network = getCurrentNetwork()
   assert(network == Network.BSC_MAINNET, 'Wrong network')
   return multisig.utils.unpauseBribeFor(['Asset_iUSD_Pool_BUSD', 'Asset_iUSD_Pool_iUSD'])
 })

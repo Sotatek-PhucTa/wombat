@@ -7,13 +7,13 @@ import { Token } from './token'
 import { getCurrentNetwork } from '../types/network'
 import assert from 'assert'
 
-export async function getRewarders(): Promise<TokenMap<IRewarder>> {
-  const network = await getCurrentNetwork()
+export function getRewarders(): TokenMap<IRewarder> {
+  const network = getCurrentNetwork()
   return REWARDERS_MAP[network]
 }
 
-export async function getBribes(): Promise<TokenMap<IRewarder>> {
-  const network = await getCurrentNetwork()
+export function getBribes(): TokenMap<IRewarder> {
+  const network = getCurrentNetwork()
   return BRIBE_MAPS[network]
 }
 

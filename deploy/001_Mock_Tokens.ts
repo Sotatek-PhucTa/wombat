@@ -19,7 +19,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     Network.BSC_TESTNET,
     Network.LOCALHOST,
     Network.HARDHAT,
-  ].includes(await getCurrentNetwork())
+  ].includes(getCurrentNetwork())
 
   if (shouldDeployMockTokens) {
     for (const mockTokenInfo of await getMockTokens()) {

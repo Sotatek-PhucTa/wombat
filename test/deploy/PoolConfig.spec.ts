@@ -10,7 +10,7 @@ import { getPoolDeploymentName } from '../../utils/deploy'
 
 // Run with `FORK_NETWORK=bsc_mainnet yarn test test/deploy/PoolConfig.spec.ts`
 describe('Verify Pool Config', async function () {
-  if ([Network.HARDHAT, Network.LOCALHOST].includes(await getCurrentNetwork())) {
+  if ([Network.HARDHAT, Network.LOCALHOST].includes(getCurrentNetwork())) {
     return
   }
 
@@ -21,7 +21,7 @@ describe('Verify Pool Config', async function () {
   })
 
   describe('HighCovRatioFeePool', async function () {
-    const POOL_TOKENS = FACTORYPOOL_TOKENS_MAP[await getCurrentNetwork()] || {}
+    const POOL_TOKENS = FACTORYPOOL_TOKENS_MAP[getCurrentNetwork()] || {}
 
     Object.entries(POOL_TOKENS).forEach(([poolName, poolInfo]) => {
       const setting = poolInfo.setting
@@ -35,7 +35,7 @@ describe('Verify Pool Config', async function () {
   })
 
   describe('DynamicPool', async function () {
-    const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[await getCurrentNetwork()] || {}
+    const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[getCurrentNetwork()] || {}
 
     Object.entries(POOL_TOKENS).forEach(([poolName, poolInfo]) => {
       const setting = poolInfo.setting
@@ -49,7 +49,7 @@ describe('Verify Pool Config', async function () {
   })
 
   describe('CrossChainPool', async function () {
-    const POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[await getCurrentNetwork()] || {}
+    const POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[getCurrentNetwork()] || {}
 
     Object.entries(POOL_TOKENS).forEach(([poolName, poolInfo]) => {
       const setting = poolInfo.setting

@@ -1,4 +1,4 @@
-import { Address, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
+import { Address, DeploymentOrAddress, Network, PartialRecord } from '../types'
 import { getCurrentNetwork } from '../types/network'
 import { getAddress } from '../utils'
 
@@ -28,7 +28,7 @@ export enum ExternalContract {
 }
 
 export async function getContractAddress(contract: ExternalContract): Promise<string> {
-  const network = await getCurrentNetwork()
+  const network = getCurrentNetwork()
   const deploymentOrAddress = contractRegistry[contract][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for contract ${ExternalContract[contract]} in network ${network}`)

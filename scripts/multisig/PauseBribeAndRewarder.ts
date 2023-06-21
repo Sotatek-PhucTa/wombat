@@ -5,7 +5,7 @@ import { Network } from '../../types'
 import { concatAll } from '../../utils'
 
 runScript('PauseBribeAndRewarder', async () => {
-  const network = await getCurrentNetwork()
+  const network = getCurrentNetwork()
   if (network === Network.ARBITRUM_MAINNET) {
     return multisig.utils.pauseBribeFor([
       'Asset_MIM_Pool_MIM',

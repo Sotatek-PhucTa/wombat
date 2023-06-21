@@ -1,8 +1,8 @@
 import { IMockTokenInfo, Network, TokenMap } from '../types'
 import { getCurrentNetwork } from '../types/network'
 
-export async function getMockTokens(): Promise<IMockTokenInfo[]> {
-  const network = await getCurrentNetwork()
+export function getMockTokens(): IMockTokenInfo[] {
+  const network = getCurrentNetwork()
   return Object.values(MOCK_TOKEN_MAP[network])
 }
 
