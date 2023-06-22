@@ -6,10 +6,22 @@ import { getBribeDeploymentName, getRewarderDeploymentName } from '../../utils/d
 import _ from 'lodash'
 
 runScript('UpdateEmission', async () => {
-  // Assets whose rewarders and bribes managed by us
-  const assets = ['Asset_WstETH_Pool_WETH', 'Asset_WstETH_Pool_wstETH']
   return concatAll(
-    multisig.utils.updateEmissions(_.pick(await getBribes(), assets), getBribeDeploymentName),
-    multisig.utils.updateEmissions(_.pick(await getRewarders(), assets), getRewarderDeploymentName)
+    multisig.utils.updateEmissions(
+      _.pick(await getBribes(), ['Asset_WstETH_Pool_WETH', 'Asset_WstETH_Pool_wstETH']),
+      getBribeDeploymentName
+    ),
+    multisig.utils.updateEmissions(
+      _.pick(await getRewarders(), [
+        'Asset_WstETH_Pool_WETH',
+        'Asset_WstETH_Pool_wstETH',
+        'Asset_frxETH_Pool_ETH',
+        'Asset_frxETH_Pool_frxETH',
+        'Asset_frxETH_Pool_sfrxETH',
+        'Asset_Mixed_Pool_FRAX',
+        'Asset_stables_01_FRAX',
+      ]),
+      getRewarderDeploymentName
+    )
   )
 })

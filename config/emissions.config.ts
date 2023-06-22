@@ -99,19 +99,21 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       lpToken: Address('0x6C7B407411b3DB90DfA25DA4aA66605438D378CE'),
       rewardTokens: [Token.WOM],
     },
-    frxETH_Pool_ETH: {
-      ...defaultRewarder(),
-      lpToken: Address('0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E'),
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_ETH', {
       rewardTokens: [Token.WOM],
-    },
+      tokenPerSec: [0],
+    }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
       rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('3738'))],
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       rewardTokens: [Token.WOM],
+      tokenPerSec: [0],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_FRAX', {
       rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('11215'))],
     }),
     ...createRewarderForDeployedAsset('Asset_qWOMPool_WOM', {
       startTimestamp: Epochs.May3,
@@ -148,6 +150,10 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_wBETH_Pool_ETH', {
       rewardTokens: [Token.WOM],
+    }),
+    ...createRewarderForDeployedAsset('Asset_stables_01_FRAX', {
+      rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2355'))],
     }),
   },
   [Network.BSC_TESTNET]: {
