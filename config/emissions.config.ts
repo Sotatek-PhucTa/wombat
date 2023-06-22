@@ -37,7 +37,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       startTimestamp: 1674021600,
       tokenPerSec: [parseEther('0.005708').toBigInt()],
     },
-    wmxWom: {
+    wmxWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'),
       rewardTokens: [Token.WMX],
@@ -140,7 +140,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
-    ...createRewarderForDeployedAsset('Asset_wmxWOMPool_wmxWom', {
+    ...createRewarderForDeployedAsset('Asset_wmxWOMPool_wmxWOM', {
       startTimestamp: Epochs.May3,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
@@ -306,7 +306,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       lpToken: Address('0x6C7B407411b3DB90DfA25DA4aA66605438D378CE'),
       rewardTokens: [Token.PSTAKE],
     },
-    wmxWom: {
+    wmxWOM: {
       ...defaultRewarder(),
       lpToken: Address('0x3C42E4F84573aB8c88c8E479b7dC38A7e678D688'),
       rewardTokens: [Token.WMX],
