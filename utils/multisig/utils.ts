@@ -141,11 +141,32 @@ export async function setBribe(bribeDeployment: string): Promise<BatchTransactio
   return [Safe(voter).setBribe(lpToken, bribe.address)]
 }
 
-async function hasActiveRewards(bribe: Contract): Promise<boolean> {
-  const length = await bribe.rewardLength()
+// Requires: rewarder.master() == voter.address
+// Requires: no existing rewarder or it has no active emission
+export async function setRewarder(rewarderDeployment: string): Promise<BatchTransaction[]> {
+  const rewarder = await getDeployedContract('MultiRewarderPerSec', rewarderDeployment)
+  const masterWombat = await getDeployedContract('MasterWombatV3')
+  const master = await rewarder.master()
+  assert(
+    masterWombat.address == master,
+    `MasterWombat does not own rewarder. MasterWombat: ${masterWombat.address}, Rewarder master: ${master}`
+  )
+  const lpToken = await rewarder.lpToken()
+  const pid = await masterWombat.getAssetPid(lpToken)
+
+  // Make sure existing bribe is not emitting
+  const { rewarder: currentRewarder } = await masterWombat.poolInfoV3(pid)
+  if (currentRewarder != ethers.constants.AddressZero) {
+    assert(await !hasActiveRewards(rewarder), 'Bribe is still emitting rewards')
+  }
+  return [Safe(masterWombat).setRewarder(pid, rewarder.address)]
+}
+
+async function hasActiveRewards(rewarderOrBribe: Contract): Promise<boolean> {
+  const length = await rewarderOrBribe.rewardLength()
   const tokenRates = await Promise.all(
     _.range(0, length).map(async (i) => {
-      const { tokenPerSec } = await bribe.rewardInfo(i)
+      const { tokenPerSec } = await rewarderOrBribe.rewardInfo(i)
       return tokenPerSec
     })
   )
