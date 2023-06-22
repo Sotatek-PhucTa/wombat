@@ -20,7 +20,12 @@ runScript('PauseBribeAndRewarder', async () => {
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
       multisig.utils.pauseBribeFor(['Asset_wBETH_Pool_wBETH', 'Asset_wBETH_Pool_ETH']),
-      multisig.utils.pauseRewarderFor(['Asset_wBETH_Pool_wBETH', 'Asset_wBETH_Pool_ETH'])
+      multisig.utils.pauseRewarderFor([
+        'Asset_wBETH_Pool_wBETH',
+        'Asset_wBETH_Pool_ETH',
+        'Asset_frxETH_Pool_sfrxETH',
+        'Asset_frxETH_Pool_ETH',
+      ])
     )
   } else {
     throw new Error('Wrong network')
