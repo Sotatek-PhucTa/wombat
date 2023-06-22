@@ -2,13 +2,14 @@ import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Token, getTokenAddress } from '../config/token'
 import { logVerifyCommand } from '../utils'
+import { getProxyAdminOwner } from '../utils/deploy'
 
 const contractName = 'MasterWombatV3'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer, multisig } = await getNamedAccounts()
+  const { deployer } = await getNamedAccounts()
 
   deployments.log(`Step 104. Deploying on : ${hre.network.name} with account : ${deployer}`)
 
@@ -19,7 +20,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: multisig,
+      owner: await getProxyAdminOwner(),
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
