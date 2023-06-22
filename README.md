@@ -94,6 +94,7 @@ To verify proxy contracts:
   - Asset_stables_01_BUSD (LP-BUSD) => `0xcF434949c242C2D32514BA971947bD3700EFB015`
   - Asset_stables_01_FRAX (LP-FRAX) => `0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB`
   - Bribe_frax => `0x966c3729366294829911A2fc651DD88378E71C01`
+  - MultiRewarderPerSec_V3_Asset_stables_01_FRAX => `0x1f770175649236eF45d8Fe029949EC9119EFBD3d`
 
 #### iUSD Pool
   - Pool Proxy (Main entry) => `0x277E777F7687239B092c8845D4d2cd083a33C903`
