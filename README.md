@@ -223,6 +223,8 @@ To verify proxy contracts:
   - Asset_BNBy_Pool_BNBy => `0x5d64eD5f5121d0A3452ad36D8aeFA554D4060F4a`
   - Bribe_Asset_BNBy_Pool_WBNB => `0x8779D3887b029F4005a4C5B6aDBC6589bEA301b1`
   - Bribe_Asset_BNBy_Pool_BNBy => `0xc007e84D995e49f68AEA51D7f6E3aDD21b73676f`
+  - MultiRewarderPerSec_V3_Asset_BNBy_Pool_WBNB => `0x36D775d270cc4ABD392cC5C6db12D0A7E0f2e47F`
+  - MultiRewarderPerSec_V3_Asset_BNBy_Pool_BNBy => `0x2e14E0b0df067c2882205F2781b02d4d6Dd7E3BC`
 
 #### wBETH Pool
   - DynamicPools_wBETH_Pool_Proxy => `0x8b892b6Ea1d0e5B29b719d6Bd6eb9354f1cDE060`
