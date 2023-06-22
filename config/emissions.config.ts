@@ -155,6 +155,14 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.WOM],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2355'))],
     }),
+    ...createRewarderForDeployedAsset('Asset_BNBy_Pool_WBNB', {
+      rewardTokens: [Token.TENFI],
+      operator: ExternalContract.TenFiBribeOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_BNBy_Pool_BNBy', {
+      rewardTokens: [Token.TENFI],
+      operator: ExternalContract.TenFiBribeOperator,
+    }),
   },
   [Network.BSC_TESTNET]: {
     BUSD: {
