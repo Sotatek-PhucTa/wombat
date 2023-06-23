@@ -414,3 +414,25 @@ export function VusdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> 
     },
   }
 }
+
+export function PendleAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    PENDLE: {
+      tokenName: 'Pendle',
+      tokenSymbol: 'PENDLE',
+      underlyingToken: Token.PENDLE,
+      ...partial,
+    },
+  }
+}
+
+export function MpendleAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    mPendle: {
+      tokenName: 'mPendle',
+      tokenSymbol: 'mPendle',
+      underlyingToken: Token.mPendle,
+      ...partial,
+    },
+  }
+}

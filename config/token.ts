@@ -22,6 +22,7 @@ export enum Token {
   MAI,
   MGP,
   MIM,
+  PENDLE,
   PSTAKE,
   QI,
   QUO,
@@ -51,6 +52,7 @@ export enum Token {
   frxETH,
   iUSD,
   jUSDC,
+  mPendle,
   mWOM,
   qWOM,
   sfrxETH,
@@ -156,6 +158,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/magic-internet-money
     [Network.BSC_MAINNET]: Address('0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba'),
     [Network.ARBITRUM_MAINNET]: Address('0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A'),
+  },
+  [Token.PENDLE]: {
+    // https://arbiscan.io/address/0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8
+    [Network.ARBITRUM_MAINNET]: Address('0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8'),
   },
   [Token.PSTAKE]: {
     // https://www.coingecko.com/en/coins/pstake-finance
@@ -303,6 +309,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.jUSDC]: {
     // https://arbiscan.io/address/0xe66998533a1992ecE9eA99cDf47686F4fc8458E0
     [Network.ARBITRUM_MAINNET]: Address('0xe66998533a1992ecE9eA99cDf47686F4fc8458E0'),
+  },
+  [Token.mPendle]: {
+    // https://arbiscan.io/address/0xB688BA096b7Bb75d7841e47163Cd12D18B36A5bF
+    [Network.ARBITRUM_MAINNET]: Address('0xB688BA096b7Bb75d7841e47163Cd12D18B36A5bF'),
   },
   [Token.mWOM]: {
     // https://bscscan.com/address/0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c

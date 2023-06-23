@@ -21,7 +21,9 @@ import {
   JusdcAsset,
   MaiAsset,
   MimAsset,
+  MpendleAsset,
   MwomAsset,
+  PendleAsset,
   QwomAsset,
   SfrxEthAsset,
   StkBnbAsset,
@@ -491,6 +493,15 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig,
       },
       assets: {},
+    },
+    mPendle_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+      },
+      assets: {
+        ...PendleAsset(),
+        ...MpendleAsset(),
+      },
     },
   },
   [Network.OPTIMISM_MAINNET]: {
