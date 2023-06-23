@@ -1,4 +1,4 @@
-import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
 import { getAddress } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 
@@ -23,6 +23,7 @@ export enum Token {
   MGP,
   MIM,
   PENDLE,
+  PNP,
   PSTAKE,
   QI,
   QUO,
@@ -162,6 +163,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.PENDLE]: {
     // https://arbiscan.io/address/0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8
     [Network.ARBITRUM_MAINNET]: Address('0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8'),
+  },
+  [Token.PNP]: {
+    [Network.ARBITRUM_MAINNET]: Unknown(),
   },
   [Token.PSTAKE]: {
     // https://www.coingecko.com/en/coins/pstake-finance

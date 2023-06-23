@@ -265,6 +265,16 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.ARB],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2000'))],
     }),
+    ...createRewarderForDeployedAsset('Asset_mPendle_Pool_PENDLE', {
+      rewardTokens: [Token.USDC, Token.PNP],
+      tokenPerSec: [0, 0],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_mPendle_Pool_mPendle', {
+      rewardTokens: [Token.USDC, Token.PNP],
+      tokenPerSec: [0, 0],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
   },
   [Network.LOCALHOST]: {},
   [Network.POLYGON_MAINNET]: {},
