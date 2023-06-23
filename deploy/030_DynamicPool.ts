@@ -7,6 +7,7 @@ import { DYNAMICPOOL_TOKENS_MAP } from '../config/pools.config'
 import { Network } from '../types'
 import { confirmTxn } from '../utils'
 import { deployBasePool } from '../utils/deploy'
+import { getCurrentNetwork } from '../types/network'
 
 export const contractName = 'DynamicPool'
 
@@ -15,9 +16,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 030. Deploying on : ${hre.network.name}...`)
+  const network = getCurrentNetwork()
+  deployments.log(`Step 030. Deploying on : ${network}...`)
 
-  const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[network as Network] || {}
   for (const [poolName, pooInfo] of Object.entries(POOL_TOKENS)) {
     const { contract: pool, deployResult } = await deployBasePool('DynamicPoolV2', poolName, pooInfo)
 

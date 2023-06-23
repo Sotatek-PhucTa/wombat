@@ -3,9 +3,9 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DYNAMICPOOL_TOKENS_MAP } from '../config/pools.config'
-import { Network } from '../types'
 import { confirmTxn, getDeployedContract, isOwner } from '../utils'
 import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'DynamicPoolAssets'
 
@@ -14,10 +14,11 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer, multisig } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 031. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  const network = getCurrentNetwork()
+  deployments.log(`Step 031. Deploying on : ${network} with account : ${deployer}`)
 
   // create asset contracts, e.g. LP-USDC, LP-BUSD, etc. for the ERC20 stablecoins list
-  const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const POOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[getCurrentNetwork()] || {}
   for (const [poolName, poolInfo] of Object.entries(POOL_TOKENS)) {
     const setting = poolInfo.setting
     const poolContractName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)

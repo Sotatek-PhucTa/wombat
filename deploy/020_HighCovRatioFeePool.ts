@@ -7,6 +7,7 @@ import { FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
 import { Network } from '../types'
 import { confirmTxn } from '../utils'
 import { deployBasePool } from '../utils/deploy'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'HighCovRatioFeePool'
 
@@ -14,10 +15,10 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments, getNamedAccounts } = hre
   const { deployer } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const network = getCurrentNetwork()
+  deployments.log(`Step 020. Deploying on : ${network}...`)
 
-  deployments.log(`Step 020. Deploying on : ${hre.network.name}...`)
-
-  const POOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const POOL_TOKENS = FACTORYPOOL_TOKENS_MAP[network as Network] || {}
   for (const [poolName, pooInfo] of Object.entries(POOL_TOKENS)) {
     const { contract: pool, deployResult } = await deployBasePool('HighCovRatioFeePoolV2', poolName, pooInfo)
 
