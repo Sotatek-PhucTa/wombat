@@ -394,6 +394,11 @@ To verify proxy contracts:
   - MultiRewarderPerSec_V3_Asset_WstETH_Pool_wstETH => `0x1C18Aa903f8DEA0d237EDe4cf0413668b9bA7Dfe`
   - MultiRewarderPerSec_V3_Asset_WstETH_Pool_WETH => `0x0e2D70ac977E3435403efB46159315E8aBa78278`
 
+#### mPendle Pool
+  - FactoryPools_mPendle_Pool_Proxy => `0xe7159f15e7b1d6045506B228A1ed2136dcc56F48`
+  - Asset_mPendle_Pool_PENDLE => `0xb4bEb0fDf0163a39D39b175942E7973da2c336Fb`
+  - Asset_mPendle_Pool_mPendle => `0x5aD0b68c8544D475ee73ffd4c8dfe7E273b01266`
+
 ### Optimism mainnet deployed contracts:
 
 #### Wombat Governance
