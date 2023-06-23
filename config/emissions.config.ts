@@ -220,7 +220,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     },
   },
   [Network.ARBITRUM_MAINNET]: {
-    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USDC', {
+    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USDCe', {
       rewardTokens: [Token.WOM],
     }),
     ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDCe', {
@@ -267,13 +267,11 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2000'))],
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_PENDLE', {
-      rewardTokens: [Token.USDC, Token.PNP],
-      tokenPerSec: [0, 0],
+      rewardTokens: [Token.PNP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_mPendle', {
-      rewardTokens: [Token.USDC, Token.PNP],
-      tokenPerSec: [0, 0],
+      rewardTokens: [Token.PNP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
   },
