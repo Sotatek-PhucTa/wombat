@@ -40,6 +40,7 @@ contract PoolV3 is
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
+    using SignedSafeMath for uint256;
 
     /// @notice Asset Map struct holds assets
     struct AssetMap {
@@ -750,7 +751,7 @@ contract PoolV3 is
         uint256 fromAmount,
         uint256 minimumToAmount
     ) internal returns (uint256 actualToAmount, uint256 haircut) {
-        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, int256(fromAmount));
+        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount.toInt256());
         _checkAmount(minimumToAmount, actualToAmount);
 
         _feeCollected[toAsset] += haircut;
@@ -877,7 +878,7 @@ contract PoolV3 is
     function globalEquilCovRatio() public view returns (int256 equilCovRatio, int256 invariant) {
         int256 SL;
         (invariant, SL) = _globalInvariantFunc();
-        equilCovRatio = CoreV3.equilCovRatio(invariant, SL, int256(ampFactor));
+        equilCovRatio = CoreV3.equilCovRatio(invariant, SL, ampFactor.toInt256());
     }
 
     function tipBucketBalance(address token) public view returns (uint256 balance) {
@@ -892,7 +893,7 @@ contract PoolV3 is
      * @dev to be overriden by DynamicPool to weight assets by the price of underlying token
      */
     function _globalInvariantFunc() internal view virtual returns (int256 D, int256 SL) {
-        int256 A = int256(ampFactor);
+        int256 A = ampFactor.toInt256();
 
         for (uint256 i; i < _sizeOfAssetList(); ++i) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));

@@ -37,4 +37,11 @@ contract FakeCrossChainPool is CrossChainPool {
         haircut = haircut1 + haircut2;
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
     }
+
+    // Override and pass, to reduce contract size
+    function quotePotentialWithdrawFromOtherAsset(
+        address fromToken,
+        address toToken,
+        uint256 liquidity
+    ) external view override returns (uint256 finalAmount, uint256 withdrewAmount) {}
 }

@@ -17,6 +17,7 @@ import './HighCovRatioFeePoolV3.sol';
 contract DynamicPoolV3 is HighCovRatioFeePoolV3 {
     using DSMath for uint256;
     using SignedSafeMath for int256;
+    using SignedSafeMath for uint256;
 
     uint256[50] private gap;
 
@@ -37,7 +38,7 @@ contract DynamicPoolV3 is HighCovRatioFeePoolV3 {
      * @dev Invariant: D = Sum of P_i * L_i * (r_i - A / r_i)
      */
     function _globalInvariantFunc() internal view override returns (int256 D, int256 SL) {
-        int256 A = int256(ampFactor);
+        int256 A = ampFactor.toInt256();
 
         for (uint256 i; i < _sizeOfAssetList(); ++i) {
             IAsset asset = _getAsset(_getKeyAtIndex(i));
@@ -45,7 +46,7 @@ contract DynamicPoolV3 is HighCovRatioFeePoolV3 {
             // overflow is unrealistic
             int256 A_i = int256(uint256(asset.cash()));
             int256 L_i = int256(uint256(asset.liability()));
-            int256 P_i = int256(IRelativePriceProvider(address(asset)).getRelativePrice());
+            int256 P_i = IRelativePriceProvider(address(asset)).getRelativePrice().toInt256();
 
             // Assume when L_i == 0, A_i always == 0
             if (L_i == 0) {

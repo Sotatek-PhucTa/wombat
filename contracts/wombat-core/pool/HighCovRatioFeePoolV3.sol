@@ -13,6 +13,7 @@ import './PoolV3.sol';
  */
 contract HighCovRatioFeePoolV3 is PoolV3 {
     using DSMath for uint256;
+    using SignedSafeMath for uint256;
 
     uint128 public startCovRatio; // 1.5
     uint128 public endCovRatio; // 1.8
@@ -72,7 +73,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             // reverse quote: cov ratio of the to-asset exceed endCovRatio. direct reverse quote is not supported
             // we binary search for a upper bound
             actualToAmount = _findUpperBound(toAsset, fromAsset, uint256(-fromAmount));
-            (, haircut) = _quoteFrom(toAsset, fromAsset, int256(actualToAmount));
+            (, haircut) = _quoteFrom(toAsset, fromAsset, actualToAmount.toInt256());
         }
     }
 
@@ -93,13 +94,13 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
 
         // verify `high` is a valid upper bound
         uint256 quote;
-        (quote, ) = _quoteFrom(fromAsset, toAsset, int256(high * toWadFactor));
+        (quote, ) = _quoteFrom(fromAsset, toAsset, (high * toWadFactor).toInt256());
         if (quote < toAmount) revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
 
         // Note: we might limit the maximum number of rounds if the request is always rejected by the RPC server
         while (low < high) {
             uint256 mid = (low + high) / 2;
-            (quote, ) = _quoteFrom(fromAsset, toAsset, int256(mid * toWadFactor));
+            (quote, ) = _quoteFrom(fromAsset, toAsset, (mid * toWadFactor).toInt256());
             if (quote >= toAmount) {
                 high = mid;
             } else {

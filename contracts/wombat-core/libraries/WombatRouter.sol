@@ -4,6 +4,7 @@ pragma solidity ^0.8.5;
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
+import '../libraries/SignedSafeMath.sol';
 import '../interfaces/IPool.sol';
 import '../interfaces/IWombatRouter.sol';
 
@@ -22,6 +23,7 @@ interface IWNative {
  */
 contract WombatRouter is Ownable, IWombatRouter {
     using SafeERC20 for IERC20;
+    using SignedSafeMath for uint256;
 
     IWNative public immutable wNative;
 
@@ -233,7 +235,7 @@ contract WombatRouter is Ownable, IWombatRouter {
                 tokenPath[i + 1],
                 nextamountIn
             );
-            nextamountIn = int256(amountOut);
+            nextamountIn = amountOut.toInt256();
         }
     }
 
@@ -256,7 +258,7 @@ contract WombatRouter is Ownable, IWombatRouter {
         require(poolPath.length == tokenPath.length - 1, 'invalid pool path');
 
         // next from amount, starts with amountIn in arg
-        int256 nextAmountOut = int256(amountOut);
+        int256 nextAmountOut = amountOut.toInt256();
         haircuts = new uint256[](poolPath.length);
 
         for (uint256 i = poolPath.length; i > 0; --i) {
@@ -265,7 +267,7 @@ contract WombatRouter is Ownable, IWombatRouter {
                 tokenPath[i],
                 nextAmountOut
             );
-            nextAmountOut = int256(amountIn);
+            nextAmountOut = amountIn.toInt256();
         }
     }
 

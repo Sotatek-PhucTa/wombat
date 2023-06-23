@@ -15,6 +15,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     using DSMath for uint256;
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
+    using SignedSafeMath for uint256;
 
     /**
      * Storage
@@ -331,10 +332,10 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         (invariant, SL) = _globalInvariantFunc();
         // oustanding credit = totalCreditBurned - totalCreditMinted
         int256 creditOffset = (int256(uint256(totalCreditBurned)) - int256(uint256(totalCreditMinted))).wmul(
-            int256(WAD + ampFactor)
+            (WAD + ampFactor).toInt256()
         );
         invariant += creditOffset;
-        equilCovRatio = uint256(CoreV3.equilCovRatio(invariant, SL, int256(ampFactor)));
+        equilCovRatio = uint256(CoreV3.equilCovRatio(invariant, SL, ampFactor.toInt256()));
         invariantInUint = uint256(invariant);
     }
 

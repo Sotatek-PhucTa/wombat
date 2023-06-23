@@ -16,6 +16,7 @@ import '../libraries/SignedSafeMath.sol';
 library CoreV3 {
     using DSMath for uint256;
     using SignedSafeMath for int256;
+    using SignedSafeMath for uint256;
 
     int256 internal constant WAD_I = 10 ** 18;
     uint256 internal constant WAD = 10 ** 18;
@@ -42,16 +43,16 @@ library CoreV3 {
     ) external view returns (uint256 lpTokenToMint, uint256 liabilityToMint) {
         liabilityToMint = _equilCovRatio == WAD_I
             ? exactDepositLiquidityInEquilImpl(
-                int256(amount),
+                amount.toInt256(),
                 int256(uint256(asset.cash())),
                 int256(uint256(asset.liability())),
-                int256(ampFactor)
+                ampFactor.toInt256()
             ).toUint256()
             : exactDepositLiquidityImpl(
-                int256(amount),
+                amount.toInt256(),
                 int256(uint256(asset.cash())),
                 int256(uint256(asset.liability())),
-                int256(ampFactor),
+                ampFactor.toInt256(),
                 _equilCovRatio
             ).toUint256();
 
@@ -82,16 +83,16 @@ library CoreV3 {
 
         amount = _equilCovRatio == WAD_I
             ? withdrawalAmountInEquilImpl(
-                -int256(liabilityToBurn),
+                -liabilityToBurn.toInt256(),
                 int256(uint256(asset.cash())),
                 int256(uint256(asset.liability())),
-                int256(ampFactor)
+                ampFactor.toInt256()
             ).toUint256()
             : withdrawalAmountImpl(
-                -int256(liabilityToBurn),
+                -liabilityToBurn.toInt256(),
                 int256(uint256(asset.cash())),
                 int256(uint256(asset.liability())),
-                int256(ampFactor),
+                ampFactor.toInt256(),
                 _equilCovRatio
             ).toUint256();
 
@@ -137,12 +138,12 @@ library CoreV3 {
         }
 
         uint256 idealToAmount = swapQuoteFunc(
-            int256(fromCash),
+            fromCash.toInt256(),
             int256(uint256(toAsset.cash())),
-            int256(fromLiability),
+            fromLiability.toInt256(),
             int256(uint256(toAsset.liability())),
-            int256(withdrewAmount),
-            int256(ampFactor)
+            withdrewAmount.toInt256(),
+            ampFactor.toInt256()
         );
 
         // remove haircut
@@ -192,16 +193,16 @@ library CoreV3 {
             // apply scale factor on from-amounts
             fromCash = (fromCash * scaleFactor) / 1e18;
             fromLiability = (fromLiability * scaleFactor) / 1e18;
-            fromAmount = (fromAmount * int256(scaleFactor)) / 1e18;
+            fromAmount = (fromAmount * scaleFactor.toInt256()) / 1e18;
         }
 
         uint256 idealToAmount = swapQuoteFunc(
-            int256(fromCash),
-            int256(toCash),
-            int256(fromLiability),
+            fromCash.toInt256(),
+            toCash.toInt256(),
+            fromLiability.toInt256(),
             int256(uint256(toAsset.liability())),
             fromAmount,
-            int256(ampFactor)
+            ampFactor.toInt256()
         );
         if ((fromAmount > 0 && toCash < idealToAmount) || (fromAmount < 0 && fromAsset.cash() < uint256(-fromAmount))) {
             revert CORE_CASH_NOT_ENOUGH();
@@ -256,10 +257,10 @@ library CoreV3 {
         }
 
         creditAmount = swapToCreditQuote(
-            int256(fromCash),
-            int256(fromLiability),
-            int256(fromAmount),
-            int256(ampFactor)
+            fromCash.toInt256(),
+            fromLiability.toInt256(),
+            fromAmount.toInt256(),
+            ampFactor.toInt256()
         );
     }
 
@@ -281,10 +282,10 @@ library CoreV3 {
         }
 
         uint256 idealToAmount = swapFromCreditQuote(
-            int256(toCash),
-            int256(toLiability),
-            int256(fromAmount),
-            int256(ampFactor)
+            toCash.toInt256(),
+            toLiability.toInt256(),
+            fromAmount.toInt256(),
+            ampFactor.toInt256()
         );
         if (fromAmount > 0 && toCash < idealToAmount) {
             revert CORE_CASH_NOT_ENOUGH();
