@@ -16,6 +16,8 @@ runScript('PauseBribeAndRewarder', async () => {
       'Asset_wmxWOM_Pool_WOM',
       'Asset_qWOM_Pool_qWOM',
       'Asset_qWOM_Pool_WOM',
+      'Asset_mPendle_Pool_PENDLE',
+      'Asset_mPendle_Pool_mPendle',
     ])
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
