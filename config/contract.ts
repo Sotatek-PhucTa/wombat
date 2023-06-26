@@ -1,4 +1,4 @@
-import { Address, DeploymentOrAddress, Network, PartialRecord } from '../types'
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
 import { getCurrentNetwork } from '../types/network'
 import { getAddress } from '../utils'
 
@@ -15,6 +15,7 @@ export enum ExternalContract {
   JonesDaoBribeOperator,
   MagpieBribeOperator,
   MagpieVeWomProxy,
+  MockContract,
   PythOracle,
   QuollBribeOperator,
   QuollVeWomProxy,
@@ -86,6 +87,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
     [Network.ARBITRUM_MAINNET]: Address('0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc'),
+  },
+  [ExternalContract.MockContract]: {
+    [Network.HARDHAT]: Deployment('BUSD'),
+    [Network.LOCALHOST]: Deployment('BUSD'),
   },
   [ExternalContract.PythOracle]: {
     // https://docs.pyth.network/pythnet-price-feeds/evm

@@ -51,7 +51,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       const operator = await getContractAddressOrDefault(rewarderConfig.operator, deployer)
       deployments.log(`Transferring operator of ${deployResult.address} to ${operator}...`)
       // The operator of the rewarder contract can set and update reward rates
-      await confirmTxn(rewarder.connect(owner).setOperator(owner.address))
+      await confirmTxn(rewarder.connect(owner).setOperator(operator))
       deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
       // The owner of the rewarder contract can add new reward tokens and withdraw them
       await confirmTxn(rewarder.connect(owner).transferOwnership(multisig))

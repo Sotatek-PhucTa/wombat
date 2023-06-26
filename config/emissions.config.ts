@@ -23,6 +23,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_MainPool_BUSD', {
       rewardTokens: [Token.WOM],
       tokenPerSec: [parseEther('100')],
+      operator: ExternalContract.MockContract,
     }),
     ...createRewarderForDeployedAsset('Asset_MainPool_USDT', {
       rewardTokens: [Token.USDT, Token.WOM],
@@ -292,6 +293,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_MainPool_BUSD', {
       rewardTokens: [Token.WOM],
       tokenPerSec: [parseEther('100')],
+      operator: ExternalContract.MockContract,
     }),
     ...createRewarderForDeployedAsset('Asset_MainPool_USDT', {
       rewardTokens: [Token.USDT, Token.BUSD, Token.WOM],
