@@ -8,6 +8,7 @@ import { confirmTxn, isOwner, logVerifyCommand } from '../utils'
 import { ChainlinkPriceFeed } from '../build/typechain'
 import { getTokenAddress } from '../config/token'
 import assert from 'assert'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'ChainlinkPriceFeed'
 
@@ -64,3 +65,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.dependencies = ['MockTokens']
+deployFunc.skip = async () => {
+  return [Network.HARDHAT, Network.LOCALHOST].includes(getCurrentNetwork())
+}

@@ -13,6 +13,8 @@ import { epoch_duration_seconds } from '../config/epoch'
 import hre from 'hardhat'
 import { setBalance, impersonateAccount, stopImpersonatingAccount } from '@nomicfoundation/hardhat-network-helpers'
 import { getCurrentNetwork } from '../types/network'
+import { time } from '@nomicfoundation/hardhat-network-helpers'
+import { seconds } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time/duration'
 
 export * as deploy from './deploy'
 export * as multisig from './multisig'
@@ -257,8 +259,9 @@ export async function validateUpgrade(oldContract: string, newContract: string, 
   console.log('validate succeeeds')
 }
 
-export function getDeadlineFromNow(secondSince: string | number): number {
-  return Math.round(Date.now() / 1000) + Number(secondSince)
+export async function getDeadlineFromNow(secondSince: number): Promise<number> {
+  const now = await time.latest()
+  return now + secondSince
 }
 
 // Print governance param of a pool. This includes:

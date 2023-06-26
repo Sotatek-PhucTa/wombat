@@ -22,7 +22,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   for await (const [token, rewarderConfig] of Object.entries(await getRewarders())) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const startTimestamp = rewarderConfig?.startTimestamp || getDeadlineFromNow(rewarderConfig.secondsToStart!)
+    const startTimestamp = rewarderConfig?.startTimestamp || (await getDeadlineFromNow(rewarderConfig.secondsToStart!))
 
     /// Deploy rewarder
     const name = getRewarderDeploymentName(token)

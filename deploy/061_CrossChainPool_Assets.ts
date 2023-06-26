@@ -57,7 +57,7 @@ async function faucetToken(tokenSymbol: string, pool: Contract, deployer: string
   await confirmTxn(token0.approve(pool.address, parseEther('100000000')))
   deployments.log('deposit tokens...')
   await confirmTxn(
-    pool.deposit(token0.address, parseUnits('10000', decimals), 0, deployer, getDeadlineFromNow(3600), false)
+    pool.deposit(token0.address, parseUnits('10000', decimals), 0, deployer, await getDeadlineFromNow(3600), false)
   )
 }
 

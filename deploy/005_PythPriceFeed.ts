@@ -9,6 +9,7 @@ import { confirmTxn, isOwner, logVerifyCommand } from '../utils'
 import { getTokenAddress } from '../config/token'
 import { ExternalContract, getContractAddress } from '../config/contract'
 import assert from 'assert'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'PythPriceFeed'
 
@@ -65,3 +66,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.dependencies = ['MockTokens']
+deployFunc.skip = async () => {
+  return [Network.HARDHAT, Network.LOCALHOST].includes(getCurrentNetwork())
+}
