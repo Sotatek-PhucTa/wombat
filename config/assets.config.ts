@@ -436,3 +436,14 @@ export function MpendleAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo
     },
   }
 }
+
+export function FUsdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    fUSDC: {
+      tokenName: 'Fluid USDC ',
+      tokenSymbol: 'fUSDC',
+      underlyingToken: Token.fUSDC,
+      ...partial,
+    },
+  }
+}

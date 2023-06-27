@@ -274,6 +274,14 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.PNP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
+    ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_fUSDC', {
+      rewardTokens: [Token.fUSDC],
+      operator: ExternalContract.fUSDCBribeOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_USDCe', {
+      rewardTokens: [Token.fUSDC],
+      operator: ExternalContract.fUSDCBribeOperator,
+    }),
   },
   [Network.LOCALHOST]: {},
   [Network.POLYGON_MAINNET]: {},

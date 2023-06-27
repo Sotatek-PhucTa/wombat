@@ -16,6 +16,7 @@ import {
   EthAsset,
   FraxAsset,
   FrxEthAsset,
+  FUsdcAsset,
   HayAsset,
   IusdAsset,
   JusdcAsset,
@@ -501,6 +502,15 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...PendleAsset(),
         ...MpendleAsset(),
+      },
+    },
+    fUSDC_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+      },
+      assets: {
+        ...FUsdcAsset(),
+        ...UsdceAsset(),
       },
     },
   },

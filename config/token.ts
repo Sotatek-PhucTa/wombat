@@ -50,6 +50,7 @@ export enum Token {
   ankrBNB,
   ankrETH,
   axlUSDC,
+  fUSDC,
   frxETH,
   iUSD,
   jUSDC,
@@ -298,6 +299,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.axlUSDC]: {
     // https://www.coingecko.com/en/coins/axelar-usdc
     [Network.BSC_MAINNET]: Address('0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3'),
+  },
+  [Token.fUSDC]: {
+    // https://arbiscan.io/address/0x4cfa50b7ce747e2d61724fcac57f24b748ff2b2a
+    [Network.ARBITRUM_MAINNET]: Address('0x4CFA50B7Ce747e2D61724fcAc57f24B748FF2b2A'),
   },
   [Token.frxETH]: {
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses

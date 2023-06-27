@@ -35,6 +35,13 @@ export async function addAssetToMasterWombatAndVoter(assetDeployment: string): P
   ]
 }
 
+export async function addAssetToMasterWombat(assetDeployment: string): Promise<BatchTransaction[]> {
+  const lpToken = await getDeployedContract('Asset', assetDeployment)
+  const rewarder = await deployments.getOrNull(getRewarderDeploymentName(assetDeployment))
+  const masterWombat = await getDeployedContract('MasterWombatV3')
+  return [Safe(masterWombat).add(lpToken.address, rewarder?.address || ethers.constants.AddressZero)]
+}
+
 export async function addAssetToPool(assetDeployment: string, poolDeployment: string): Promise<BatchTransaction[]> {
   const asset = await getDeployedContract('Asset', assetDeployment)
   const token = await asset.underlyingToken()

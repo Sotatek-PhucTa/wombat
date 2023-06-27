@@ -24,6 +24,7 @@ export enum ExternalContract {
   TenFiBribeOperator,
   WombexBribeOperator,
   WombexVeWomProxy,
+  fUSDCBribeOperator,
   jUSDCOracle,
   wBETHOracle,
 }
@@ -125,6 +126,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.jUSDCOracle]: {
     // https://arbiscan.io/address/0xEE5828181aFD52655457C2793833EbD7ccFE86Ac
     [Network.ARBITRUM_MAINNET]: Address('0xEE5828181aFD52655457C2793833EbD7ccFE86Ac'),
+  },
+  [ExternalContract.fUSDCBribeOperator]: {
+    [Network.ARBITRUM_MAINNET]: Address('0x429Dc27be907e16EF40329503F501361879510e0'),
   },
   [ExternalContract.wBETHOracle]: {
     // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1
