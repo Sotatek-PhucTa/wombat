@@ -398,6 +398,8 @@ To verify proxy contracts:
   - FactoryPools_mPendle_Pool_Proxy => `0xe7159f15e7b1d6045506B228A1ed2136dcc56F48`
   - Asset_mPendle_Pool_PENDLE => `0xb4bEb0fDf0163a39D39b175942E7973da2c336Fb`
   - Asset_mPendle_Pool_mPendle => `0x5aD0b68c8544D475ee73ffd4c8dfe7E273b01266`
+  - MultiRewarderPerSec_V3_Asset_mPendle_Pool_PENDLE => `0x7cB260008891F8D5dF230F20758C6be46C17E154`
+  - MultiRewarderPerSec_V3_Asset_mPendle_Pool_mPendle => `0x4e811C2Cf56F63f1762bcB70110FA6FB83dCa968`
 
 ### Optimism mainnet deployed contracts:
 
