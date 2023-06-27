@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
 import { BigNumber } from 'ethers'
-import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils'
+import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import {
   Asset,
@@ -1085,16 +1085,16 @@ describe('Voter', async function () {
     it('pendingBribes', async function () {
       const bribeToken2 = await TestERC20.deploy('Partner Token 2', 'PARTNER', 18, parseEther('1000000'))
       await bribeToken2.transfer(bribe.address, parseEther('1000000'))
-      await owner.sendTransaction({ value: parseEther('10'), to: bribe.address })
+      await owner.sendTransaction({ value: parseEther('7000'), to: bribe.address })
       await bribe.addRewardToken(bribeToken2.address, parseEther('1.23'))
-      await bribe.addRewardToken(AddressZero, parseEther('2'))
+      await bribe.addRewardToken(AddressZero, parseEther('1'))
       await voter.connect(users[0]).vote([lpToken1.address], [parseEther('10')])
       await advanceTimeAndBlock(6000)
 
       const pendingTokens = await bribe.pendingTokens(users[0].address)
       expect(pendingTokens[0]).roughlyNear(parseEther('2283'))
       expect(pendingTokens[1]).roughlyNear(parseEther('7381'))
-      expect(pendingTokens[2]).roughlyNear(parseEther('12008'))
+      expect(pendingTokens[2]).roughlyNear(parseEther('6000'))
       expect(await bribe.rewardTokens()).to.eql([bribeToken.address, bribeToken2.address, AddressZero])
 
       const pendingBribes = await voter.pendingBribes([lpToken1.address], users[0].address)
