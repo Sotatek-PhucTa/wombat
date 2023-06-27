@@ -260,7 +260,9 @@ export async function validateUpgrade(oldContract: string, newContract: string, 
 }
 
 export async function getDeadlineFromNow(secondSince: number): Promise<number> {
-  const now = await time.latest()
+  const now = [Network.HARDHAT, Network.LOCALHOST].includes(getCurrentNetwork())
+    ? await time.latest()
+    : Math.round(Date.now() / 1000)
   return now + secondSince
 }
 
