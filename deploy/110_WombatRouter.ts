@@ -9,6 +9,7 @@ import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
 import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, logVerifyCommand } from '../utils'
 import { getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 import { Token, getTokenAddress } from '../config/token'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'WombatRouter'
 
@@ -17,8 +18,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
   const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const network = getCurrentNetwork()
 
-  deployments.log(`Step 110. Deploying on : ${hre.network.name}...`)
+  deployments.log(`Step 110. Deploying on : ${network}...`)
 
   /// Deploy pool
   const wrappedNativeToken = await getWrappedNativeToken()
@@ -38,9 +40,9 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   const router = await ethers.getContractAt(contractName, deployResult.address)
-  await approveForPools(router, FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}, owner)
-  await approveForPools(router, DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}, owner)
-  await approveForPools(router, CROSS_CHAIN_POOL_TOKENS_MAP[hre.network.name as Network] || {}, owner)
+  await approveForPools(router, FACTORYPOOL_TOKENS_MAP[network] || {}, owner)
+  await approveForPools(router, DYNAMICPOOL_TOKENS_MAP[network] || {}, owner)
+  await approveForPools(router, CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}, owner)
 
   return deployResult
 }
