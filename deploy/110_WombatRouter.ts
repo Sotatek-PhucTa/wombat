@@ -5,7 +5,7 @@ import { deployments, ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
 import { getWrappedNativeToken } from '../config/router.config'
-import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
+import { IPoolConfig, NetworkPoolInfo } from '../types'
 import { confirmTxn, getDeployedContract, getUnderlyingTokenAddr, logVerifyCommand } from '../utils'
 import { getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 import { Token, getTokenAddress } from '../config/token'
@@ -67,8 +67,7 @@ async function approveForPools(router: Contract, poolConfigs: NetworkPoolInfo<IP
       continue // this pool only holds deprecated tokens
     }
 
-    // approve by poolName
-    deployments.log(`Approving pool tokens for Pool: ${deploymentName}...`)
+    deployments.log(`Checking Pool ${deploymentName}...`)
     await approveSpending(router, owner, tokens, poolDeployment.address)
   }
 }
@@ -80,11 +79,7 @@ async function approveSpending(
   poolAddress: string
 ) {
   assert(tokenAddresses.length > 0, `tokenAddresses is empty for ${poolAddress}`)
-  // We only sample the last token here. This is a heuristics that changes are append to config. We already verified
-  // tokenAddresses exist. So at(-1) can't be null, but linter is stupid.
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const erc20 = await ethers.getContractAt('ERC20', tokenAddresses.at(-1)!)
-  if ((await erc20.allowance(router.address, poolAddress)) > 0) {
+  if (await isAllApproved(tokenAddresses, router.address, poolAddress)) {
     deployments.log(
       `Skip approving spending on ${poolAddress} since it is already approved for token ${tokenAddresses[0]}`
     )
@@ -92,6 +87,17 @@ async function approveSpending(
     deployments.log(`Approving spending on ${poolAddress} for ${tokenAddresses}`)
     await confirmTxn(router.connect(owner).approveSpendingByPool(tokenAddresses, poolAddress))
   }
+}
+
+async function isAllApproved(tokens: string[], owner: string, spender: string) {
+  const isTokenApproved = await Promise.all(tokens.map((token) => isApproved(token, owner, spender)))
+  return isTokenApproved.every((t) => t)
+}
+
+async function isApproved(token: string, owner: string, spender: string) {
+  const erc20 = await ethers.getContractAt('ERC20', token)
+  const allowance = await erc20.allowance(owner, spender)
+  return allowance > 0
 }
 
 export default deployFunc
