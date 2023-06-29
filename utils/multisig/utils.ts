@@ -180,16 +180,19 @@ async function hasActiveRewards(rewarderOrBribe: Contract): Promise<boolean> {
   return tokenRates.every((tokenPerSec) => tokenPerSec == 0)
 }
 
-// Top up the bribe token by one epoch. Optionally set a new rate.
-export async function topUpBribe(
-  bribeDeployment: string,
+// Top up the rewarder or bribe token by one epoch. Optionally set a new rate.
+export async function topUpRewarder(
+  rewarderOrBribeDeployment: string,
   token: Token,
   epochAmount?: BigNumberish
 ): Promise<BatchTransaction[]> {
-  const bribe = await getDeployedContract('Bribe', bribeDeployment)
-  const length = await bribe.rewardLength()
+  const rewarder = await getDeployedContract('MultiRewarderPerSec', rewarderOrBribeDeployment)
+  const length = await rewarder.rewardLength()
   const tokenAddress = await getTokenAddress(token)
-  const allRewardRates = await Promise.all(_.range(0, length).map(async (i) => ({ i, ...(await bribe.rewardInfo(i)) })))
+  const allRewardRates = await Promise.all(
+    _.range(0, length).map(async (i) => ({ i, ...(await rewarder.rewardInfo(i)) }))
+  )
+
   const currentRewardRate = allRewardRates.find(({ rewardToken }) => isSameAddress(rewardToken, tokenAddress))
   if (currentRewardRate != undefined) {
     const txns = []
@@ -197,10 +200,10 @@ export async function topUpBribe(
     const newTokenRate = epochAmount != undefined ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
     if (newTokenRate > 0) {
       const erc20 = await ethers.getContractAt('ERC20', rewardToken)
-      txns.push(Safe(erc20).transfer(bribe.address, newTokenRate.mul(epoch_duration_seconds)))
+      txns.push(Safe(erc20).transfer(rewarder.address, newTokenRate.mul(epoch_duration_seconds)))
     }
-    if (newTokenRate != tokenPerSec) {
-      txns.push(Safe(bribe).setRewardRate(i, newTokenRate))
+    if (!newTokenRate.eq(tokenPerSec)) {
+      txns.push(Safe(rewarder).setRewardRate(i, newTokenRate))
     }
     return txns
   } else {
@@ -208,8 +211,8 @@ export async function topUpBribe(
     assert(epochAmount != undefined && Zero.lt(epochAmount), 'Cannot add new token without epoch amount')
     const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
     const newTokenRate = convertTokenPerEpochToTokenPerSec(epochAmount)
-    txns.push(Safe(erc20).transfer(bribe.address, epochAmount))
-    txns.push(Safe(bribe).addRewardToken(tokenAddress, newTokenRate))
+    txns.push(Safe(erc20).transfer(rewarder.address, epochAmount))
+    txns.push(Safe(rewarder).addRewardToken(tokenAddress, newTokenRate))
     return txns
   }
 }

@@ -1,4 +1,4 @@
-import { parseEther, parseUnits } from 'ethers/lib/utils'
+import { parseEther } from 'ethers/lib/utils'
 import { runScript } from '.'
 import { Network } from '../../types'
 import { getCurrentNetwork } from '../../types/network'
@@ -11,30 +11,14 @@ runScript('WeeklyBribe', async () => {
   console.log(`Running against network: ${network}`)
   if (network == Network.ARBITRUM_MAINNET) {
     return concatAll(
-      // USD+ pool
-      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_USD+', Token.USDPlus, 0),
-      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_DAI+', Token.USDPlus, 0),
-      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_USD+', Token.DAI, parseEther('3900')),
-      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_DAI+', Token.DAI, parseEther('2100')),
-      multisig.utils.topUpBribe('Bribe_Asset_USDPlus_Pool_USDC', Token.DAI, parseEther('1000')),
-      // FRAX-USD+ pool
-      multisig.utils.topUpBribe('Bribe_Asset_FRAX_Pool_USD+', Token.USDPlus, 0)
+      // Lido wstETH pool
+      multisig.utils.topUpRewarder('MultiRewarderPerSec_V3_Asset_WstETH_Pool_wstETH', Token.WOM, parseEther('40000')),
+      multisig.utils.topUpRewarder('Bribe_Asset_WstETH_Pool_wstETH', Token.ARB, parseEther('5000'))
     )
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
-      // HAY-USDC-USDT pool
-      multisig.utils.topUpBribe('Bribe_Asset_HAY_Pool_HAY', Token.HAY, parseEther('1000')),
-      multisig.utils.topUpBribe('Bribe_Asset_HAY_Pool_USDC', Token.HAY, parseEther('1000')),
-      multisig.utils.topUpBribe('Bribe_Asset_HAY_Pool_USDT', Token.HAY, parseEther('1000')),
-
-      // Mixed pool
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_HAY', Token.HAY, parseEther('1500')),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USD+', Token.USDPlus, 0),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USDT+', Token.USDPlus, 0),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USD+', Token.DAI, parseEther('3000')),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USDT+', Token.DAI, parseEther('3000')),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_CUSD', Token.CUSD, parseEther('1000')),
-      multisig.utils.topUpBribe('Bribe_Asset_Mixed_Pool_USDC', Token.USDC, parseEther('600'))
+      // frxETH pool
+      multisig.utils.topUpRewarder('MultiRewarderPerSec_V3_Asset_frxETH_Pool_frxETH', Token.WOM, parseEther('3000'))
     )
   } else {
     return []
