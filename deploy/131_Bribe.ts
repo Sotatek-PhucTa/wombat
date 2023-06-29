@@ -4,50 +4,31 @@ import { Contract } from 'ethers'
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getBribes } from '../config/emissions.config'
-import { confirmTxn, getAddress, getDeadlineFromNow, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
-import { getTokenAddress } from '../config/token'
-import { assert } from 'chai'
-import { getContractAddressOrDefault } from '../config/contract'
-import { getBribeDeploymentName } from '../utils/deploy'
+import { confirmTxn, getAddress, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { deployRewarderOrBribe, getBribeDeploymentName } from '../utils/deploy'
+import { getCurrentNetwork } from '../types/network'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
-  const { deploy } = deployments
-  const { deployer, multisig } = await getNamedAccounts()
+  const { deployer } = await getNamedAccounts()
   const deployerSigner = await ethers.getSigner(deployer)
 
-  deployments.log(`Step 131. Deploying on: ${hre.network.name}...`)
-
-  // Deploy all Bribe
+  deployments.log(`Step 131. Deploying on: ${getCurrentNetwork()}...`)
   const voter = await getDeployedContract('Voter')
-  for await (const [token, bribeConfig] of Object.entries(await getBribes())) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const startTimestamp = bribeConfig?.startTimestamp || (await getDeadlineFromNow(bribeConfig.secondsToStart!))
-    const name = getBribeDeploymentName(token)
-    const lpTokenAddress = await getAddress(bribeConfig.lpToken)
-    const rewardTokens = await Promise.all(bribeConfig.rewardTokens.map((t) => getTokenAddress(t)))
-    assert(rewardTokens.length > 0, `Empty rewardTokens for bribe at ${token}`)
-    const deployResult = await deploy(name, {
-      from: deployer,
-      contract: 'Bribe',
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: [voter.address, lpTokenAddress, startTimestamp, rewardTokens[0], bribeConfig.tokenPerSec[0]],
-    })
+  for await (const [lpToken, bribeConfig] of Object.entries(await getBribes())) {
+    const deployResult = await deployRewarderOrBribe(
+      'Bribe',
+      getBribeDeploymentName,
+      lpToken,
+      voter.address,
+      bribeConfig
+    )
 
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
-      /// Add remaining reward tokens
-      for (let i = 1; i < rewardTokens.length; i++) {
-        const bribe = await getDeployedContract('Bribe', name)
-        const address = rewardTokens[i]
-        deployments.log(`${name} adding rewardToken: ${address}`)
-        await confirmTxn(bribe.connect(deployerSigner).addRewardToken(address, bribeConfig.tokenPerSec[i]))
-      }
-
-      deployments.log(`${name} Deployment complete.`)
       if (await isOwner(voter, deployerSigner.address)) {
         const masterWombat = await deployments.get('MasterWombatV3')
+        const lpTokenAddress = await getAddress(bribeConfig.lpToken)
         await addBribe(voter, deployerSigner, masterWombat.address, lpTokenAddress, deployResult.address, deployments)
         deployments.log(`addBribe for ${lpTokenAddress} complete.`)
       } else {
@@ -55,16 +36,6 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
           `User ${deployerSigner.address} does not own Voter. Please call add/setBribe in multi-sig. Bribe: ${deployResult.address}. LP: ${bribeConfig.lpToken.deploymentOrAddress}.`
         )
       }
-
-      const bribe = await getDeployedContract('Bribe', name)
-      const operator = await getContractAddressOrDefault(bribeConfig.operator, deployer)
-      deployments.log(`Transferring operator of ${deployResult.address} to ${operator}...`)
-      // The operator of the rewarder contract can set and update reward rates
-      await confirmTxn(bribe.connect(deployerSigner).setOperator(operator))
-      deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
-      // The owner of the rewarder contract can add new reward tokens and withdraw them
-      await confirmTxn(bribe.connect(deployerSigner).transferOwnership(multisig))
-      deployments.log('Bribe transferred to multisig')
     }
 
     logVerifyCommand(deployResult)

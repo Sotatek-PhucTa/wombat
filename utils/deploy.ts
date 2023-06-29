@@ -1,18 +1,22 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
-import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardhat'
-import { getContractAddress } from '../config/contract'
+import { deployments, ethers, getNamedAccounts, upgrades } from 'hardhat'
+import { getContractAddress, getContractAddressOrDefault } from '../config/contract'
 import { getTokenAddress } from '../config/token'
-import { DeploymentResult, IAssetInfo, IGovernedPriceFeed, IPoolConfig, PoolInfo } from '../types'
+import { DeploymentResult, IAssetInfo, IGovernedPriceFeed, IPoolConfig, IRewarder, PoolInfo } from '../types'
 import {
   confirmTxn,
+  getAddress,
+  getDeadlineFromNow,
   getDeployedContract,
   getTestERC20,
   getUnderlyingTokenAddr,
   isOwner,
   logVerifyCommand,
 } from '../utils'
+import assert from 'assert'
+import { DeployResult } from 'hardhat-deploy/types'
 
 export async function deployTestAsset(tokenSymbol: string) {
   const erc20 = await getTestERC20(tokenSymbol)
@@ -313,4 +317,54 @@ export async function deployPriceFeed(
       await confirmTxn(asset.connect(deployerSigner).setPriceFeed(priceFeedDeployment.address))
     }
   }
+}
+
+export async function deployRewarderOrBribe(
+  contract: 'Bribe' | 'MultiRewarderPerSec',
+  getDeploymentName: (lpToken: string) => string,
+  lpToken: string,
+  master: string,
+  config: IRewarder
+): Promise<DeployResult> {
+  assert(config.rewardTokens.length > 0, `Empty rewardTokens for ${lpToken}`)
+
+  const { deployer, multisig } = await getNamedAccounts()
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const { deploy } = deployments
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const startTimestamp = config?.startTimestamp || (await getDeadlineFromNow(config.secondsToStart!))
+  const name = getDeploymentName(lpToken)
+  const lpTokenAddress = await getAddress(config.lpToken)
+  const rewardTokens = await Promise.all(config.rewardTokens.map((t) => getTokenAddress(t)))
+  const deployResult = await deploy(name, {
+    from: deployer,
+    contract,
+    log: true,
+    skipIfAlreadyDeployed: true,
+    args: [master, lpTokenAddress, startTimestamp, rewardTokens[0], config.tokenPerSec[0]],
+  })
+
+  const rewarderOrBribe = await getDeployedContract(contract, name)
+  if (deployResult.newlyDeployed) {
+    /// Add remaining reward tokens
+    for (let i = 1; i < rewardTokens.length; i++) {
+      const address = rewardTokens[i]
+      deployments.log(`${name} adding rewardToken: ${address}`)
+      await confirmTxn(rewarderOrBribe.connect(deployerSigner).addRewardToken(address, config.tokenPerSec[i]))
+    }
+
+    const operator = await getContractAddressOrDefault(config.operator, deployer)
+    deployments.log(`Transferring operator of ${deployResult.address} to ${operator}...`)
+    // The operator of the rewarder contract can set and update reward rates
+    await confirmTxn(rewarderOrBribe.connect(deployerSigner).setOperator(operator))
+    deployments.log(`Transferring ownership of ${deployResult.address} to ${multisig}...`)
+    // The owner of the rewarder contract can add new reward tokens and withdraw them
+    await confirmTxn(rewarderOrBribe.connect(deployerSigner).transferOwnership(multisig))
+    deployments.log(`${contract} transferred to multisig`)
+
+    deployments.log(`${name} Deployment complete.`)
+  }
+
+  return deployResult
 }
