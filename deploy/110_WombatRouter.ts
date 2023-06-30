@@ -81,7 +81,7 @@ async function approveSpending(
   assert(tokenAddresses.length > 0, `tokenAddresses is empty for ${poolAddress}`)
   if (await isAllApproved(tokenAddresses, router.address, poolAddress)) {
     deployments.log(
-      `Skip approving spending on ${poolAddress} since it is already approved for token ${tokenAddresses[0]}`
+      `Skip approving spending on ${poolAddress} since it is already approved for token ${tokenAddresses}`
     )
   } else {
     deployments.log(`Approving spending on ${poolAddress} for ${tokenAddresses}`)
