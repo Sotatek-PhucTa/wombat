@@ -4,14 +4,14 @@ import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe, encodeData, executeBatchTransaction } from './transactions'
 import assert from 'assert'
-import { Token, getTokenAddress } from '../../config/token'
+import { Token, getTokenAddress, getTokenDeploymentOrAddress } from '../../config/token'
 import { BigNumberish, Contract } from 'ethers'
 import { Zero } from '@ethersproject/constants'
 import _ from 'lodash'
 import { epoch_duration_seconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
-import { isSameAddress } from '../addresses'
+import { isChecksumAddress, isSameAddress } from '../addresses'
 import { DeploymentOrAddress, IRewarder, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 
@@ -105,6 +105,30 @@ export async function setPool(assetDeployment: string, poolDeployment: string): 
   const asset = await getDeployedContract('Asset', assetDeployment)
   const pool = await getDeployedContract('PoolV2', poolDeployment)
   return [Safe(asset).setPool(pool.address)]
+}
+
+// 1. asset set pool to multisig
+// 2. multisig transfer erc20 to asset
+// 3. multisig addcash to asset
+// 4. multisig set pool to pool
+export async function addCash(
+  assetDeployment: string,
+  token: Token,
+  amount: BigNumberish
+): Promise<BatchTransaction[]> {
+  const { multisig } = await getNamedAccounts()
+  const asset = await getDeployedContract('Asset', assetDeployment)
+  const originalPool = await asset.pool()
+
+  const tokenAddress = await getAddress(getTokenDeploymentOrAddress(token))
+  const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
+
+  return [
+    Safe(asset).setPool(multisig),
+    Safe(erc20).transfer(asset.address, amount),
+    Safe(asset).addCash(amount),
+    Safe(asset).setPool(originalPool),
+  ]
 }
 
 // Remove asset from current pool and add it to the standalone pool.

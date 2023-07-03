@@ -5,10 +5,17 @@ import { isForkedNetwork } from '../../utils'
 import { simulate } from '../../utils/multisig/utils'
 import { getCurrentNetwork } from '../../types/network'
 
-export async function runScript(id: string, script: () => Promise<BatchTransaction[]>) {
+export async function runScript(
+  id: string,
+  script: () => Promise<BatchTransaction[]>,
+  postCondition = async () => {
+    /*no-op*/
+  }
+) {
   const txns = await script()
   if (isForkedNetwork()) {
     await simulate(txns)
+    await postCondition()
     console.log(`Simulation success for id: ${id}`)
     return
   }
