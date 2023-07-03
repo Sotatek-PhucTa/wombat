@@ -42,6 +42,7 @@ import {
   WmxWomAsset,
   WomAsset,
   WstETHAsset,
+  EPendleAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -99,6 +100,11 @@ const defaultWomPoolConfig: IHighCovRatioFeePoolConfig = {
   deploymentNamePrefix: 'WomSidePools',
   startCovRatio: parseEther('2'),
   endCovRatio: parseEther('2.5'),
+}
+
+const defaultPendlePoolConfig: IHighCovRatioFeePoolConfig = {
+  ...defaultWomPoolConfig,
+  deploymentNamePrefix: 'PendleSidePools',
 }
 
 const defaultDynamicPoolConfig: IHighCovRatioFeePoolConfig = {
@@ -497,7 +503,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
     mPendle_Pool: {
       setting: {
-        ...defaultFactoryPoolConfig,
+        ...defaultPendlePoolConfig,
       },
       assets: {
         ...PendleAsset(),
@@ -511,6 +517,15 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...FUsdcAsset(),
         ...UsdceAsset(),
+      },
+    },
+    ePendle_Pool: {
+      setting: {
+        ...defaultPendlePoolConfig,
+      },
+      assets: {
+        ...PendleAsset(),
+        ...EPendleAsset(),
       },
     },
   },

@@ -440,9 +440,31 @@ export function MpendleAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo
 export function FUsdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     fUSDC: {
-      tokenName: 'Fluid USDC ',
+      tokenName: 'Fluid USDC',
       tokenSymbol: 'fUSDC',
       underlyingToken: Token.fUSDC,
+      ...partial,
+    },
+  }
+}
+
+export function EPendleAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    ePendle: {
+      tokenName: 'Equilibria Pendle',
+      tokenSymbol: 'ePendle',
+      underlyingToken: Token.ePendle,
+      ...partial,
+    },
+  }
+}
+
+export function XEqbAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    xEQB: {
+      tokenName: 'max EQB',
+      tokenSymbol: 'xEQB',
+      underlyingToken: Token.xEQB,
       ...partial,
     },
   }

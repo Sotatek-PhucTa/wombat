@@ -117,32 +117,32 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('11215'))],
     }),
     ...createRewarderForDeployedAsset('Asset_qWOMPool_WOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.QUO],
       operator: ExternalContract.QuollBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_qWOMPool_qWOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.QUO],
       operator: ExternalContract.QuollBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mWOMPool_WOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mWOMPool_mWOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_wmxWOMPool_WOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_wmxWOMPool_wmxWOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
@@ -239,22 +239,22 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       operator: ExternalContract.QuollBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mWOM_Pool_WOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mWOM_Pool_mWOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.MGP],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_wmxWOM_Pool_WOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.WMX],
       operator: ExternalContract.WombexBribeOperator,
     }),
@@ -281,6 +281,16 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_USDCe', {
       rewardTokens: [Token.fUSDC],
       operator: ExternalContract.fUSDCBribeOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_ePendle_Pool_PENDLE', {
+      rewardTokens: [Token.xEQB],
+      startTimestamp: Epochs.Jul05,
+      operator: ExternalContract.EquilibriaFiOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_ePendle_Pool_ePendle', {
+      rewardTokens: [Token.xEQB],
+      startTimestamp: Epochs.Jul05,
+      operator: ExternalContract.EquilibriaFiOperator,
     }),
   },
   [Network.LOCALHOST]: {},
@@ -592,12 +602,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_jUSDC', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_USDCe', {
-      startTimestamp: Epochs.May3,
+      startTimestamp: Epochs.May03,
       rewardTokens: [Token.USDC],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),

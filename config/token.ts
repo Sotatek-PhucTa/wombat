@@ -46,10 +46,10 @@ export enum Token {
   WMATIC,
   WMX,
   WOM,
-  wstETH,
   ankrBNB,
   ankrETH,
   axlUSDC,
+  ePendle,
   fUSDC,
   frxETH,
   iUSD,
@@ -63,6 +63,8 @@ export enum Token {
   vUSDC,
   wBETH,
   wmxWOM,
+  wstETH,
+  xEQB,
 }
 
 export function getTokenDeploymentOrAddress(token: Token): DeploymentOrAddress {
@@ -283,10 +285,6 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),
   },
-  [Token.wstETH]: {
-    // https://www.coingecko.com/en/coins/wrapped-steth
-    [Network.ARBITRUM_MAINNET]: Address('0x5979D7b546E38E414F7E9822514be443A4800529'),
-  },
   [Token.ankrBNB]: {
     // https://bscscan.com/address/0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827
     [Network.BSC_MAINNET]: Address('0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827'),
@@ -299,6 +297,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.axlUSDC]: {
     // https://www.coingecko.com/en/coins/axelar-usdc
     [Network.BSC_MAINNET]: Address('0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3'),
+  },
+  [Token.ePendle]: {
+    // https://arbiscan.io/address/0xd4848211b699503c772aa1bc7d33b433c4242ac3
+    [Network.ARBITRUM_MAINNET]: Address('0xd4848211B699503C772aA1Bc7D33b433C4242Ac3'),
   },
   [Token.fUSDC]: {
     // https://arbiscan.io/address/0x4cfa50b7ce747e2d61724fcac57f24b748ff2b2a
@@ -360,5 +362,13 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x0415023846Ff1C6016c4d9621de12b24B2402979'),
     // https://arbiscan.io/address/0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24
     [Network.ARBITRUM_MAINNET]: Address('0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24'),
+  },
+  [Token.wstETH]: {
+    // https://www.coingecko.com/en/coins/wrapped-steth
+    [Network.ARBITRUM_MAINNET]: Address('0x5979D7b546E38E414F7E9822514be443A4800529'),
+  },
+  [Token.xEQB]: {
+    // https://arbiscan.io/address/0x96C4A48Abdf781e9c931cfA92EC0167Ba219ad8E
+    [Network.ARBITRUM_MAINNET]: Address('0x96C4A48Abdf781e9c931cfA92EC0167Ba219ad8E'),
   },
 }

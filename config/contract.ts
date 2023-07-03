@@ -11,6 +11,7 @@ export enum ExternalContract {
   BNBxOracle,
   BNByOracle,
   ChainlinkOracleWstETH,
+  EquilibriaFiOperator,
   FraxBribeOperator,
   JonesDaoBribeOperator,
   MagpieBribeOperator,
@@ -73,6 +74,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.ChainlinkOracleWstETH]: {
     // https://data.chain.link/arbitrum/mainnet/crypto-eth/wsteth-steth%20exchangerate
     [Network.ARBITRUM_MAINNET]: Address('0xB1552C5e96B312d0Bf8b554186F846C40614a540'),
+  },
+  [ExternalContract.EquilibriaFiOperator]: {
+    [Network.ARBITRUM_MAINNET]: Address('0x2de0637a9B3BBa9972514290B90685CeBB3828C1'),
   },
   [ExternalContract.FraxBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
