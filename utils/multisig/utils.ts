@@ -11,7 +11,7 @@ import _ from 'lodash'
 import { epoch_duration_seconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
-import { isChecksumAddress, isSameAddress } from '../addresses'
+import { isSameAddress } from '../addresses'
 import { DeploymentOrAddress, IRewarder, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 
@@ -29,6 +29,7 @@ export async function addAssetToMasterWombatAndVoter(assetDeployment: string): P
   const bribe = await deployments.getOrNull(getBribeDeploymentName(assetDeployment))
   const masterWombat = await getDeployedContract('MasterWombatV3')
   const voter = await getDeployedContract('Voter')
+
   return [
     Safe(masterWombat).add(lpToken.address, rewarder?.address || ethers.constants.AddressZero),
     Safe(voter).add(masterWombat.address, lpToken.address, bribe?.address || ethers.constants.AddressZero),
