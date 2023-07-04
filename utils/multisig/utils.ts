@@ -32,6 +32,8 @@ export async function addAssetToMasterWombatAndVoter(assetDeployment: string): P
   return [
     Safe(masterWombat).add(lpToken.address, rewarder?.address || ethers.constants.AddressZero),
     Safe(voter).add(masterWombat.address, lpToken.address, bribe?.address || ethers.constants.AddressZero),
+    // Bribe emission is disabled by default and only enabled by governance.
+    Safe(voter).pauseVoteEmission(lpToken.address),
   ]
 }
 
