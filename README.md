@@ -242,6 +242,11 @@ To verify proxy contracts:
   - Bribe_Asset_ankrETH_Pool_ETH => `0xc7a6bA5F28993BaDb566007bD2E0CB253c431974`
   - Bribe_Asset_ankrETH_Pool_ankrETH => `0x8Dc7B0a98fC1A70e07cb2efEe6e339Bf9FE87B47`
 
+#### SnBNB Pool
+  - SnBNB_Pool_Proxy => `0xF1e604e9A31c3b575f91CF008445B7ce06BF3fef`
+  - Asset_SnBNB_Pool_SnBNB => `0xaA0811AfF60Fbe2d7D7D0A18F26e584b8C148Ee8`
+  - Asset_SnBNB_Pool_WBNB => `0x5d38a3B0f04F6C6026c24FFa78CcDf421F91df38`
+
 #### Smart HAY Pool
   - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
   - Asset_SidePool_01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
