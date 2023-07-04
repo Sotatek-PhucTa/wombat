@@ -408,6 +408,13 @@ To verify proxy contracts:
   - MultiRewarderPerSec_V3_Asset_fUSDC_Pool_fUSDC => `0xF37F7835f2C214AC678F2f3C5147026907d88836`
   - MultiRewarderPerSec_V3_Asset_fUSDC_Pool_USDCe => `0x2201EAFcbE5f4bddf14206A319C51B86E8E0c138`
 
+#### ePendle Pool
+  - PendleSidePools_ePendle_Pool_Proxy => `0x3257EaA9C919fe01EF628fe9031BA2Cd8927A3b1`
+  - Asset_ePendle_Pool_PENDLE => `0x625b37bbBb725d168Fdc94FE1e73b200dD01F08b`
+  - Asset_ePendle_Pool_ePendle => `0x1Bd8cE3BA10F7C299793da3A146917da5eA18EeB`
+  - MultiRewarderPerSec_V3_Asset_ePendle_Pool_PENDLE => `0x1242FB2bDc110b0F228E6348220aB6c3fd4837d0`
+  - MultiRewarderPerSec_V3_Asset_ePendle_Pool_ePendle => `0x49Ea553c102b595E798689af2b4663A8d33Eac51`
+
 ### Optimism mainnet deployed contracts:
 
 #### Wombat Governance
