@@ -14,7 +14,7 @@ interface IStakeManager {
  * @dev The relative price of an asset may change over time.
  * For example, the ratio of staked BNB : BNB increases as staking reward accrues.
  */
-contract SnBnbAsset is DynamicAsset {
+contract SnBNBAsset is DynamicAsset {
     IStakeManager exchangeRateOracle;
 
     constructor(

@@ -58,6 +58,7 @@ export enum Token {
   mWOM,
   qWOM,
   sfrxETH,
+  SnBNB,
   stkBNB,
   testFRAX,
   vUSDC,
@@ -310,6 +311,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
     [Network.BSC_MAINNET]: Address('0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e'),
     [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63B33F733770c2A'),
+  },
+  [Token.SnBNB]: {
+    [Network.BSC_MAINNET]: Address('0xB0b84D294e0C75A6abe60171b70edEb2EFd14A1B'),
   },
   [Token.stkBNB]: {
     [Network.BSC_MAINNET]: Address('0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16'),

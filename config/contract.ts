@@ -21,6 +21,7 @@ export enum ExternalContract {
   QuollBribeOperator,
   QuollVeWomProxy,
   SkimAdmin,
+  SnBNBOracle,
   StkBNBOracle,
   TenFiBribeOperator,
   WombexBribeOperator,
@@ -112,6 +113,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.SkimAdmin]: {
     [Network.BSC_MAINNET]: Address('0xa772b0BA6042b9416a619f6638dcfEaC4a8B31fF'),
     [Network.ARBITRUM_MAINNET]: Address('0x3ca375b8107cB2c7f520cA87b2DeF8dC5040aeb4'),
+  },
+  [ExternalContract.SnBNBOracle]: {
+    [Network.BSC_MAINNET]: Address('0x1adB950d8bB3dA4bE104211D5AB038628e477fE6'),
   },
   [ExternalContract.StkBNBOracle]: {
     [Network.BSC_MAINNET]: Address('0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8'),

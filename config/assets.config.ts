@@ -267,6 +267,19 @@ export function BnbyAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   }
 }
 
+export function SnBNBAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    SnBNB: {
+      tokenName: 'Synclub Staked BNB',
+      tokenSymbol: 'SnBNB',
+      underlyingToken: Token.SnBNB,
+      oracle: ExternalContract.SnBNBOracle,
+      assetContractName: 'SnBNBAsset',
+      ...partial,
+    },
+  }
+}
+
 export function JusdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     jUSDC: {
