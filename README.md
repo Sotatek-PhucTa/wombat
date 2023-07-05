@@ -209,6 +209,7 @@ To verify proxy contracts:
   - Bribe_Asset_Mixed_Pool_CUSD => `0x52Eb70A364FE86B8286a5E076Be6c8f816B2E3D9`
   - Bribe_Asset_Mixed_Pool_HAY => `0x861C5005754f26ab955899721b531B3922fE2320`
   - MultiRewarderPerSec_V3_Asset_Mixed_Pool_FRAX => `0xf3acb264090f7CeC38b88Af7071a36a718D80B14`
+  - MultiRewarderPerSec_V3_Asset_Mixed_Pool_CUSD => `0x9d4816D27Da9421f52A7D62E82CE7F2415F88BA2`
 
 #### AnkrBNB Pool
   - Pool Proxy (DynamicPoolV2) => `0x6F1c689235580341562cdc3304E923cC8fad5bFa`

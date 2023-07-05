@@ -116,6 +116,10 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.WOM],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('11215'))],
     }),
+    ...createRewarderForDeployedAsset('Asset_Mixed_Pool_CUSD', {
+      rewardTokens: [Token.CUSD],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+    }),
     ...createRewarderForDeployedAsset('Asset_qWOMPool_WOM', {
       startTimestamp: Epochs.May03,
       rewardTokens: [Token.QUO],
