@@ -923,17 +923,17 @@
     lodash "^4.17.19"
     node-fetch "^2.6.0"
 
-"@openzeppelin/hardhat-defender@^1.9.0":
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-defender/-/hardhat-defender-1.9.0.tgz#8773a41137642e9287e4350a4970e7fb3e56d004"
-  integrity sha512-dl2pQyBvwEZVq1sgw/i+mLQiu4ZD7iKn2/ghD9RbAGHIM8hZQ4ou8cXl1S6wCA92prpeO1rPGQ+NcJajbY4MCw==
+"@openzeppelin/hardhat-defender@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-defender/-/hardhat-defender-2.0.0.tgz#80f9dcc6fc3b9312a9d47aff6b665db290915ae9"
+  integrity sha512-fpY7mmcgBWDW82R+/pY/C1+LMjyUo6c8kwtMbUZlnnD98cTVGUgqm9via82mjTFgbfC/3hyljVAzCYctR5bOnQ==
   dependencies:
     "@openzeppelin/defender-admin-client" "^1.46.0"
     "@openzeppelin/defender-base-client" "^1.46.0"
-    "@openzeppelin/hardhat-upgrades" "^1.20.0"
+    "@openzeppelin/hardhat-upgrades" "^2.0.0"
     ethereumjs-util "^7.1.5"
 
-"@openzeppelin/hardhat-upgrades@^1.20.0", "@openzeppelin/hardhat-upgrades@^1.28.0":
+"@openzeppelin/hardhat-upgrades@^1.28.0":
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.28.0.tgz#6361f313a8a879d8a08a5e395acf0933bc190950"
   integrity sha512-7sb/Jf+X+uIufOBnmHR0FJVWuxEs2lpxjJnLNN6eCJCP8nD0v+Ot5lTOW2Qb/GFnh+fLvJtEkhkowz4ZQ57+zQ==
@@ -944,6 +944,19 @@
     chalk "^4.1.0"
     debug "^4.1.1"
     proper-lockfile "^4.1.1"
+
+"@openzeppelin/hardhat-upgrades@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-2.0.0.tgz#60e60042404af9ccc97df27fb1eb1847469461d6"
+  integrity sha512-v4xKeWxBUlsdR7hQP2zK9BMqsLMnEswo4Rc7xQMipqc5+GdB/NuS0pUJarHbYXchrsVX2RmA70nXfbpLO3Nn7A==
+  dependencies:
+    "@openzeppelin/defender-base-client" "^1.46.0"
+    "@openzeppelin/platform-deploy-client" "^0.8.0"
+    "@openzeppelin/upgrades-core" "^1.27.0"
+    chalk "^4.1.0"
+    debug "^4.1.1"
+    proper-lockfile "^4.1.1"
+    undici "^5.14.0"
 
 "@openzeppelin/platform-deploy-client@^0.8.0":
   version "0.8.0"
