@@ -61,7 +61,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             // reverse quote
             uint256 toAssetCash = toAsset.cash();
             uint256 toAssetLiability = toAsset.liability();
-            uint256 finalToAssetCovRatio = (toAssetCash + uint256(actualToAmount)).wdiv(toAssetLiability);
+            uint256 finalToAssetCovRatio = (toAssetCash + actualToAmount).wdiv(toAssetLiability);
             if (finalToAssetCovRatio <= startCovRatio) {
                 // happy path: no high cov ratio fee is charged
                 return (actualToAmount, haircut);
