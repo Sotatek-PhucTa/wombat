@@ -19,7 +19,7 @@ runScript('epoch-20230705', async () => {
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
       // pause rewarder for frxETH pool's frxETH LP
-      multisig.utils.pauseRewarderFor(['Asset_frxETH_Pool_frxETH']),
+      multisig.utils.pauseRewardRateFor('Rewarder', ['Asset_frxETH_Pool_frxETH']),
       // top up frax pool's frax rewarder
       multisig.utils.topUpRewarder('MultiRewarderPerSec_V3_Asset_stables_01_FRAX', Token.WOM, parseEther('2355')),
       // top up stable guild pool's frax rewarder

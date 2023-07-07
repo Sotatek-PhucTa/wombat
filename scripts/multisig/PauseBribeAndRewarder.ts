@@ -7,16 +7,17 @@ import { concatAll } from '../../utils'
 runScript('PauseBribeAndRewarder', async () => {
   const network = getCurrentNetwork()
   if (network === Network.ARBITRUM_MAINNET) {
-    return multisig.utils.pauseBribeFor(['Asset_fUSDC_Pool_fUSDC', 'Asset_fUSDC_Pool_USDCe'])
+    return multisig.utils.pauseRewardRateFor('Bribe', ['Asset_FRAX_Pool_FRAX'])
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
-      multisig.utils.pauseBribeFor(['Asset_wBETH_Pool_wBETH', 'Asset_wBETH_Pool_ETH']),
-      multisig.utils.pauseRewarderFor([
-        'Asset_wBETH_Pool_wBETH',
-        'Asset_wBETH_Pool_ETH',
-        'Asset_frxETH_Pool_sfrxETH',
+      multisig.utils.pauseRewardRateFor('Bribe', [
+        'Asset_frxETH_Pool_frxETH',
         'Asset_frxETH_Pool_ETH',
-      ])
+        'Asset_frxETH_Pool_sfrxETH',
+        'Asset_Mixed_Pool_FRAX',
+        'Asset_Mixed_Pool_HAY',
+      ]),
+      multisig.utils.pauseRewardRateFor('Rewarder', ['Asset_Mixed_Pool_FRAX'])
     )
   } else {
     throw new Error('Wrong network')

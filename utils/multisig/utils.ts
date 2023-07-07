@@ -343,10 +343,14 @@ export async function simulate(txns: BatchTransaction[]) {
   }
 }
 
-export async function pauseRewarderFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
+export async function pauseRewardRateFor(
+  type: 'Bribe' | 'Rewarder',
+  assetDeployments: string[]
+): Promise<BatchTransaction[]> {
   return concatAll(
     ...assetDeployments.flatMap(async (name) => {
-      const rewarder = await getDeployedContract('MultiRewarderPerSec', getRewarderDeploymentName(name))
+      const deploymentName = type === 'Bribe' ? getBribeDeploymentName(name) : getRewarderDeploymentName(name)
+      const rewarder = await getDeployedContract('MultiRewarderPerSec', deploymentName)
       const length = await rewarder.rewardLength()
       return concatAll(
         ..._.range(0, length).map(async (i) => {
@@ -362,7 +366,7 @@ export async function pauseRewarderFor(assetDeployments: string[]): Promise<Batc
   )
 }
 
-export async function pauseBribeFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
+export async function pauseVoteEmissionFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
   const voter = await getDeployedContract('Voter')
   const safe = Safe(voter)
   return concatAll(
@@ -378,7 +382,7 @@ export async function pauseBribeFor(assetDeployments: string[]): Promise<BatchTr
   )
 }
 
-export async function unpauseBribeFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
+export async function unpauseVoteEmissionFor(assetDeployments: string[]): Promise<BatchTransaction[]> {
   const voter = await getDeployedContract('Voter')
   const safe = Safe(voter)
   return concatAll(

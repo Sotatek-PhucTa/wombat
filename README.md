@@ -145,9 +145,9 @@ To verify proxy contracts:
   - Asset_frxETH_Pool_ETH => `0x4d41E9EDe1783b85756D3f5Bd136C50c4Fb8E67E`
   - Asset_frxETH_Pool_sfrxETH => `0xa9a08133af8241e36193b57E4dFE43D147Cd23cC`
   - PriceFeed_GovernedPriceFeed_Asset_frxETH_Pool_sfrxETH => `0xDD29f25A64eb824E1FF37948FD2485D9E073fA01`
-  - Bribe_frxETH_Pool_frxETH => `0xDfba6A2A516AB5d46f60fE61E023C8B371b20f1D`
-  - Bribe_frxETH_Pool_WETH (deprecated) => `0x18022e971e47575BEB749C8ee675e7b7F4229c51`
-  - Bribe_frxETH_Pool_ETH => `0x015542b048C4711c52791346247187B5CcbecE5e`
+  - Bribe_Asset_frxETH_Pool_frxETH => `0xDfba6A2A516AB5d46f60fE61E023C8B371b20f1D`
+  - Bribe_Asset_frxETH_Pool_WETH (deprecated) => `0x18022e971e47575BEB749C8ee675e7b7F4229c51`
+  - Bribe_Asset_frxETH_Pool_ETH => `0x015542b048C4711c52791346247187B5CcbecE5e`
   - Bribe_Asset_frxETH_Pool_sfrxETH => `0xab7700961aa1adc72a2b32c396eCa4F9ec3aB145`
   - MultiRewarderPerSec_V3_frxETH_Pool_ETH => `0x1cBb0f9ce44F024B47E5f7c07D72F6044DEf4497`
   - MultiRewarderPerSec_V3_Asset_frxETH_Pool_frxETH => `0x44B597258b4bf87762F22C99b3D9a6E3fA7068E4`
