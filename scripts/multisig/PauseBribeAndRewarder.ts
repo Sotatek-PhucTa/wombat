@@ -7,7 +7,11 @@ import { concatAll } from '../../utils'
 runScript('PauseBribeAndRewarder', async () => {
   const network = getCurrentNetwork()
   if (network === Network.ARBITRUM_MAINNET) {
-    return multisig.utils.pauseRewardRateFor('Bribe', ['Asset_FRAX_Pool_FRAX'])
+    return concatAll(
+      multisig.utils.pauseRewardRateFor('Bribe', ['Asset_WstETH_Pool_wstETH']),
+      multisig.utils.pauseRewardRateFor('Rewarder', ['Asset_WstETH_Pool_WETH', 'Asset_WstETH_Pool_wstETH']),
+      multisig.utils.pauseVoteEmissionFor(['Asset_WstETH_Pool_WETH', 'Asset_WstETH_Pool_wstETH'])
+    )
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
       multisig.utils.pauseRewardRateFor('Bribe', [
