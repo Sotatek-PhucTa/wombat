@@ -19,13 +19,14 @@ runScript('AdjustEmissionDistribution', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 1200000
-    BRIBE_ALLOC_PERCENT = 60
+    WOM_MONTHLY_EMISSION_RATE = 800_000
+    BRIBE_ALLOC_PERCENT = 26
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
-      Asset_MainPool_USDC: 18.75,
-      Asset_MainPool_USDT: 14.7,
-      Asset_MainPool_DAI: 4.05,
+      Asset_MainPool_USDCe: 30,
+      Asset_MainPool_USDT: 23,
+      Asset_MainPool_DAI: 7,
+      Asset_MainPool_USDC: 11.5,
       // wmxWOM Pool
       Asset_wmxWOM_Pool_wmxWOM: 0.6,
       Asset_wmxWOM_Pool_WOM: 0.6,
@@ -37,7 +38,7 @@ runScript('AdjustEmissionDistribution', async () => {
       Asset_qWOM_Pool_WOM: 0.2,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 1500000
+    WOM_MONTHLY_EMISSION_RATE = 1_500_000
     BRIBE_ALLOC_PERCENT = 70
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
@@ -72,7 +73,7 @@ runScript('AdjustEmissionDistribution', async () => {
 
     // TODO: check that after tx, the totalAllocPoint == baseAllocation.
 
-    return concatAll(
+    return Promise.all([
       // emission rate (womPerSec)
       multisig.utils.setWomMonthlyEmissionRate(WOM_MONTHLY_EMISSION_RATE),
       // base / vote split (baseAllocation)
@@ -80,8 +81,8 @@ runScript('AdjustEmissionDistribution', async () => {
       // allocation point
       ...Object.entries(GAUGE_ALLOC_PERCENTS).map(([gauge, allocPercent]) =>
         multisig.utils.setAllocPercent(gauge, allocPercent)
-      )
-    )
+      ),
+    ])
   } else {
     return []
   }

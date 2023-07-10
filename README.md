@@ -85,6 +85,7 @@ To verify proxy contracts:
 
 #### Standalone Pool (for removed assets)
   - FactoryPools_StandalonePool_Proxy => `0x6569DDC1Cc2648c89BC8025046A7dd65EB8940F3`
+  - Asset_SidePool_01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
   - Asset_stables_01_TUSD (LP-TUSD) => `0x3C8e744f6c4Ed2c9D82e33D69DDcC5961Aa05367`
   - Asset_frxETH_Pool_WETH (deprecated) => `0xb268c3181921747379271B9BFfCE8B16311656e3`
   - Asset_HAY_Pool_HAY (LP-HAY) => `0xa393D61fE1532257B69b753aF7d1EfB0e22f1A6E`
@@ -250,7 +251,6 @@ To verify proxy contracts:
 
 #### Smart HAY Pool
   - Pool Proxy (Main entry) => `0x0520451B19AD0bb00eD35ef391086A692CFC74B2`
-  - Asset_SidePool_01_BUSD (LP-BUSD) => `0xA649Be04619a8F3B3475498E1ac15C90C9661C1A`
   - Asset_SidePool_01_HAY (LP-HAY) => `0x1fa71DF4b344ffa5755726Ea7a9a56fbbEe0D38b`
   - Asset_HAY_Pool_USDC => `0x681124f5BDD9aCDA19d1721063254189903CD685`
   - Asset_HAY_Pool_USDT => `0x184EB7DDE8c00fad900120235b534AABc1d96F75`

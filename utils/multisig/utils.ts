@@ -14,6 +14,7 @@ import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
 import { DeploymentOrAddress, IRewarder, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
+import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -420,4 +421,29 @@ export async function updateEmissions(
       )
     })
   )
+}
+
+export async function setAllocPercent(assetDeployment: string, allocationPercent: number): Promise<BatchTransaction> {
+  assert(allocationPercent >= 0 && allocationPercent <= 100, 'invalid allocation percent')
+  const allocPoint = ethers.utils.parseEther(String(allocationPercent * 10))
+  const asset = await getDeployedContract('Asset', assetDeployment)
+  const voter = await getDeployedContract('Voter')
+  return Safe(voter).setAllocPoint(asset.address, allocPoint.toString())
+}
+
+export async function setWomMonthlyEmissionRate(womPerMonth: number): Promise<BatchTransaction> {
+  assert(womPerMonth >= 0, 'invalid wom emission rate')
+  assert(womPerMonth < 10_000_000, "likely an error. WOM emission rate shouldn't be 10M or higher")
+  const womPerSec = convertTokenPerMonthToTokenPerSec(ethers.utils.parseEther(String(womPerMonth)))
+  const voter = await getDeployedContract('Voter')
+  return Safe(voter).setWomPerSec(womPerSec.toString())
+}
+
+export async function setBribeAllocPercent(bribeAllocationPercent: number): Promise<BatchTransaction> {
+  assert(bribeAllocationPercent >= 0 && bribeAllocationPercent <= 100, 'invalid bribe allocation percent')
+  const baseAllocationPercent = 100 - bribeAllocationPercent
+  // convert from percentage to a base 1000 number (for example, 10% -> 100)
+  const baseAllocPoint = Math.floor(baseAllocationPercent * 10)
+  const voter = await getDeployedContract('Voter')
+  return Safe(voter).setBaseAllocation(baseAllocPoint.toString())
 }
