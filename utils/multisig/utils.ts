@@ -15,6 +15,7 @@ import { isSameAddress } from '../addresses'
 import { DeploymentOrAddress, IRewarder, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
+import { MasterWombatV3 } from '../../build/typechain'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
