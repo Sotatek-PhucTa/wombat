@@ -32,7 +32,7 @@
     "@types/tmp": "^0.2.3",
     "@types/utf8": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.61.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "bignumber.js": "^9.1.1",
     "chai": "^4.3.7",
     "dedent": "^1.0.1",
