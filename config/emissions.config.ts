@@ -426,6 +426,16 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       lpToken: Address('0x47aB513f97e1CC7D7d1a4DB4563F1a0fa5C371EB'),
       rewardTokens: [Token.FXS],
     },
+    ...createRewarderForDeployedAsset('Asset_SnBNB_Pool_SnBNB', {
+      startTimestamp: Epochs.Jul12,
+      rewardTokens: [Token.HAY],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('320'))],
+    }),
+    ...createRewarderForDeployedAsset('Asset_SnBNB_Pool_WBNB', {
+      startTimestamp: Epochs.Jul12,
+      rewardTokens: [Token.HAY],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('480'))],
+    }),
     ...createRewarderForDeployedAsset('Asset_MIM_Pool_MIM', {
       rewardTokens: [Token.SPELL],
     }),

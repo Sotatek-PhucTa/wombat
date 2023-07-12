@@ -8,6 +8,7 @@ export enum Epochs {
   May10 = atEpochStart('2023-05-10T05:55Z'),
   May17 = atEpochStart('2023-05-17T05:55Z'),
   Jul05 = atEpochStart('2023-07-05T05:55Z'),
+  Jul12 = atEpochStart('2023-07-12T05:55Z'),
 }
 
 // Utility to create timestamp in seconds at the start of the epoch given by the iso string
