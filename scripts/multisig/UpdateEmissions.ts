@@ -1,27 +1,24 @@
 import { runScript } from '.'
+import { Network } from '../../types'
 import * as multisig from '../../utils/multisig'
-import { getBribes, getRewarders } from '../../config/emissions.config'
+import { getCurrentNetwork } from '../../types/network'
+import { getBribes } from '../../config/emissions.config'
 import { concatAll } from '../../utils'
-import { getBribeDeploymentName, getRewarderDeploymentName } from '../../utils/deploy'
+import { getBribeDeploymentName } from '../../utils/deploy'
 import _ from 'lodash'
 
 runScript('UpdateEmission', async () => {
-  return concatAll(
-    multisig.utils.updateEmissions(
-      _.pick(await getBribes(), ['Asset_WstETH_Pool_WETH', 'Asset_WstETH_Pool_wstETH']),
-      getBribeDeploymentName
-    ),
-    multisig.utils.updateEmissions(
-      _.pick(await getRewarders(), [
-        'Asset_WstETH_Pool_WETH',
-        'Asset_WstETH_Pool_wstETH',
-        'Asset_frxETH_Pool_ETH',
-        'Asset_frxETH_Pool_frxETH',
-        'Asset_frxETH_Pool_sfrxETH',
-        'Asset_Mixed_Pool_FRAX',
-        'Asset_stables_01_FRAX',
-      ]),
-      getRewarderDeploymentName
+  const network: Network = getCurrentNetwork()
+  console.log(`Running against network: ${network}`)
+  if (network == Network.BSC_MAINNET) {
+    return concatAll(
+      multisig.utils.updateEmissions(
+        _.pick(await getBribes(), ['Asset_Mixed_Pool_USDC', 'Asset_Mixed_Pool_HAY']),
+        getBribeDeploymentName
+      )
+      // multisig.utils.updateEmissions(_.pick(await getRewarders(), ['Asset_stables_01_FRAX']), getRewarderDeploymentName)
     )
-  )
+  } else {
+    return []
+  }
 })

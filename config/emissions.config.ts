@@ -453,15 +453,20 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_USDC', {
-      startTimestamp: Epochs.Apr12,
-      rewardTokens: [Token.USDPlus],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('300', 6))],
+      rewardTokens: [Token.USDPlus, Token.USDC],
+      tokenPerSec: [parseEther('0'), convertTokenPerEpochToTokenPerSec(parseEther('200'))],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_CUSD', {
       rewardTokens: [Token.WOM],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_HAY', {
-      rewardTokens: [Token.WOM],
+      rewardTokens: [Token.WOM, Token.BUSD, Token.CUSD, Token.HAY],
+      tokenPerSec: [
+        parseEther('0'),
+        parseEther('0'),
+        parseEther('0'),
+        convertTokenPerEpochToTokenPerSec(parseEther('1500')),
+      ],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_FRAX', {
       startTimestamp: Epochs.May10,

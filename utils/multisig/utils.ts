@@ -5,7 +5,7 @@ import { BatchTransaction } from './tx-builder'
 import { Safe, encodeData, executeBatchTransaction } from './transactions'
 import assert from 'assert'
 import { Token, getTokenAddress, getTokenDeploymentOrAddress } from '../../config/token'
-import { BigNumberish, Contract } from 'ethers'
+import { BigNumberish, Contract, BigNumber } from 'ethers'
 import { Zero } from '@ethersproject/constants'
 import _ from 'lodash'
 import { epoch_duration_seconds } from '../../config/epoch'
@@ -209,7 +209,6 @@ async function hasActiveRewards(rewarderOrBribe: Contract): Promise<boolean> {
   return tokenRates.every((tokenPerSec) => tokenPerSec == 0)
 }
 
-// Top up the rewarder or bribe token by one epoch. Optionally set a new rate.
 export async function topUpRewarder(
   rewarderOrBribeDeployment: string,
   token: Token,
@@ -227,7 +226,7 @@ export async function topUpRewarder(
     const txns = []
     const { i, rewardToken, tokenPerSec } = currentRewardRate
     const newTokenRate = epochAmount != undefined ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
-    if (newTokenRate > 0) {
+    if (BigNumber.from(newTokenRate).gt(0)) {
       const erc20 = await ethers.getContractAt('ERC20', rewardToken)
       txns.push(Safe(erc20).transfer(rewarder.address, newTokenRate.mul(epoch_duration_seconds)))
     }
@@ -424,7 +423,7 @@ export async function updateEmissions(
         ...info.rewardTokens.map(async (rewardToken, i) => {
           const expected = info.tokenPerSec[i]
           const { tokenPerSec: actual } = await rewarder.rewardInfo(i)
-          if (expected == actual) {
+          if (BigNumber.from(expected).eq(actual)) {
             console.log(`${name}: ${Token[rewardToken]} does not need to be updated.`)
             return []
           }
