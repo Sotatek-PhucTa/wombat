@@ -246,6 +246,18 @@ export async function topUpRewarder(
   }
 }
 
+// addRewardToken to a bribe or rewarder
+export async function addRewardToken(
+  rewarderOrBribeDeployment: string,
+  token: Token,
+  epochAmount: BigNumberish
+): Promise<BatchTransaction[]> {
+  const rewarder = await getDeployedContract('MultiRewarderPerSec', rewarderOrBribeDeployment)
+  const tokenAddress = await getTokenAddress(token)
+  const newTokenRate = convertTokenPerEpochToTokenPerSec(epochAmount)
+  return [Safe(rewarder).addRewardToken(tokenAddress, newTokenRate)]
+}
+
 export async function setOperator(deploymentName: string, to: ExternalContract): Promise<BatchTransaction[]> {
   // Note: use abi for set operator since many contracts have this method.
   const abi = [

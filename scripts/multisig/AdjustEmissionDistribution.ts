@@ -19,14 +19,14 @@ runScript('AdjustEmissionDistribution', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 800_000
-    BRIBE_ALLOC_PERCENT = 26
+    WOM_MONTHLY_EMISSION_RATE = 1_000_000
+    BRIBE_ALLOC_PERCENT = 47.5
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
-      Asset_MainPool_USDCe: 30,
-      Asset_MainPool_USDT: 23,
-      Asset_MainPool_DAI: 7,
-      Asset_MainPool_USDC: 11.5,
+      Asset_MainPool_USDCe: 20,
+      Asset_MainPool_USDT: 16,
+      Asset_MainPool_DAI: 5,
+      Asset_MainPool_USDC: 9,
       // wmxWOM Pool
       Asset_wmxWOM_Pool_wmxWOM: 0.6,
       Asset_wmxWOM_Pool_WOM: 0.6,

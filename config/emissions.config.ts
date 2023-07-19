@@ -470,12 +470,14 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR],
-      startTimestamp: Epochs.Apr12,
+      // TODO: token per epoch to be confirmed
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR],
-      startTimestamp: Epochs.Apr12,
+      // TODO: token per epoch to be confirmed
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
@@ -494,13 +496,15 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       operator: ExternalContract.TenFiBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ETH', {
-      startTimestamp: Epochs.May10,
       rewardTokens: [Token.ANKR],
+      // TODO: token per epoch to be confirmed
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
-      startTimestamp: Epochs.May10,
       rewardTokens: [Token.ANKR],
+      // TODO: token per epoch to be confirmed
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_HAY_Pool_HAY', {
