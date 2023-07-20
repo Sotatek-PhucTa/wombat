@@ -475,14 +475,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR],
-      // TODO: token per epoch to be confirmed
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('3980'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR],
-      // TODO: token per epoch to be confirmed
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('9335'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
@@ -502,14 +500,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ETH', {
       rewardTokens: [Token.ANKR],
-      // TODO: token per epoch to be confirmed
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('18000'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
       rewardTokens: [Token.ANKR],
-      // TODO: token per epoch to be confirmed
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('9426'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_HAY_Pool_HAY', {
@@ -635,13 +631,19 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_WETH', {
-      startTimestamp: Epochs.May17,
-      rewardTokens: [Token.ANKR],
+      rewardTokens: [Token.ANKR, Token.ankrETH],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0.2115')),
+      ],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
-      startTimestamp: Epochs.May17,
-      rewardTokens: [Token.ANKR],
+      rewardTokens: [Token.ANKR, Token.ankrETH],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0.141')),
+      ],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_WETH', {
