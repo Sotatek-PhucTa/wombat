@@ -12,6 +12,11 @@ runScript('SetBribe', async function () {
       multisig.utils.setBribe('Bribe_Asset_SnBNB_Pool_SnBNB'),
       multisig.utils.setBribe('Bribe_Asset_SnBNB_Pool_WBNB')
     )
+  } else if (network == Network.ARBITRUM_MAINNET) {
+    return concatAll(
+      multisig.utils.setBribe('Bribe_Asset_mPendle_Pool_PENDLE'),
+      multisig.utils.setBribe('Bribe_Asset_mPendle_Pool_mPendle')
+    )
   } else {
     return []
   }

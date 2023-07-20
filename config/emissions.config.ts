@@ -652,6 +652,16 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.ARB],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('5000'))],
     }),
+    ...createRewarderForDeployedAsset('Asset_mPendle_Pool_PENDLE', {
+      rewardTokens: [Token.PNP],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_mPendle_Pool_mPendle', {
+      rewardTokens: [Token.PNP],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      operator: ExternalContract.MagpieBribeOperator,
+    }),
   },
   [Network.LOCALHOST]: {},
   [Network.POLYGON_MAINNET]: {},

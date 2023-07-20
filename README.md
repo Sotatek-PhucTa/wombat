@@ -408,6 +408,8 @@ To verify proxy contracts:
   - Asset_mPendle_Pool_mPendle => `0x5aD0b68c8544D475ee73ffd4c8dfe7E273b01266`
   - MultiRewarderPerSec_V3_Asset_mPendle_Pool_PENDLE => `0x7cB260008891F8D5dF230F20758C6be46C17E154`
   - MultiRewarderPerSec_V3_Asset_mPendle_Pool_mPendle => `0x4e811C2Cf56F63f1762bcB70110FA6FB83dCa968`
+  - Bribe_Asset_mPendle_Pool_PENDLE => `0x2badccf259bD2A97Cf0f1a2aaE901092012020f2`
+  - Bribe_Asset_mPendle_Pool_mPendle => `0xB02035DEa7e775beFb407C1D831aD5F9948d481D`
 
 #### fUSDC Pool
   - FactoryPools_fUSDC_Pool_Proxy => `0x956454C7BE9318863297309183C79b793D370401`
