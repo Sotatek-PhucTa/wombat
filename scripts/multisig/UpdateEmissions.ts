@@ -13,12 +13,7 @@ runScript('UpdateEmission', async () => {
   if (network == Network.BSC_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissions(
-        _.pick(await getBribes(), [
-          'Asset_ankrETH_Pool_ETH',
-          'Asset_ankrETH_Pool_ankrETH',
-          'Asset_AnkrBNBPool_WBNB',
-          'Asset_AnkrBNBPool_ankrBNB',
-        ]),
+        _.pick(await getBribes(), ['Asset_AnkrBNBPool_WBNB', 'Asset_AnkrBNBPool_ankrBNB']),
         getBribeDeploymentName
       )
       // multisig.utils.updateEmissions(_.pick(await getRewarders(), ['Asset_stables_01_FRAX']), getRewarderDeploymentName)
