@@ -57,7 +57,7 @@ const config: HardhatUserConfig = {
     },
     [Network.ARBITRUM_MAINNET]: {
       chainId: 42161,
-      url: 'https://arb1.arbitrum.io/rpc',
+      url: secrets.alchemy_arbitrum_url || 'https://arb1.arbitrum.io/rpc',
       accounts: [secrets.deployer.privateKey],
     },
     [Network.ARBITRUM_TESTNET]: {
