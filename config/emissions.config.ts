@@ -1,4 +1,5 @@
 import { parseEther, parseUnits } from 'ethers/lib/utils'
+
 import { Address, Deployment, IRewarder, Network, TokenMap, Unknown } from '../types'
 import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
@@ -264,26 +265,30 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_WETH', {
       rewardTokens: [Token.ARB],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('500'))],
+      tokenPerSec: [0],
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_wstETH', {
-      rewardTokens: [Token.ARB],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2000'))],
+      rewardTokens: [Token.ARB, Token.WOM],
+      tokenPerSec: [0, 0],
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_PENDLE', {
       rewardTokens: [Token.PNP],
+      tokenPerSec: ['4867724860000000'],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_mPendle', {
       rewardTokens: [Token.PNP],
+      tokenPerSec: ['2433862430000000'],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_fUSDC', {
       rewardTokens: [Token.fUSDC],
+      tokenPerSec: ['257'],
       operator: ExternalContract.fUSDCBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_USDCe', {
       rewardTokens: [Token.fUSDC],
+      tokenPerSec: ['257'],
       operator: ExternalContract.fUSDCBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ePendle_Pool_PENDLE', {
@@ -453,7 +458,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('600', 6))],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_USDC', {
-      rewardTokens: [Token.USDPlus, Token.USDC],
+      rewardTokens: [Token.USDPlus, Token.USDCe],
       tokenPerSec: [parseEther('0'), convertTokenPerEpochToTokenPerSec(parseEther('200'))],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_CUSD', {
@@ -554,17 +559,18 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
   [Network.ARBITRUM_MAINNET]: {
     ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USD+', {
       startTimestamp: Epochs.Apr12,
-      rewardTokens: [Token.USDPlus],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('6500', 6))],
+      rewardTokens: [Token.USDPlus, Token.DAI],
+      tokenPerSec: [0, 0],
     }),
     ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_DAI+', {
       startTimestamp: Epochs.Apr12,
-      rewardTokens: [Token.USDPlus],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('3500', 6))],
+      rewardTokens: [Token.USDPlus, Token.DAI],
+      tokenPerSec: [0, 0],
     }),
     ...createRewarderForDeployedAsset('Asset_USDPlus_Pool_USDCe', {
       startTimestamp: Epochs.Apr12,
-      rewardTokens: [Token.USDPlus],
+      rewardTokens: [Token.USDPlus, Token.DAI],
+      tokenPerSec: [0, 0],
     }),
     ...createRewarderForDeployedAsset('Asset_MIM_Pool_MIM', {
       rewardTokens: [Token.SPELL],
@@ -581,21 +587,23 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USD+', {
       startTimestamp: Epochs.Apr12,
       rewardTokens: [Token.USDPlus],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseUnits('1000', 6))],
+      tokenPerSec: [0],
     }),
     ...createRewarderForDeployedAsset('Asset_BOB_Pool_BOB', {
       rewardTokens: [Token.BOB],
+      tokenPerSec: ['413359788000000'],
     }),
     ...createRewarderForDeployedAsset('Asset_BOB_Pool_USDCe', {
       rewardTokens: [Token.BOB],
+      tokenPerSec: ['413359788000000'],
     }),
     ...createRewarderForDeployedAsset('Asset_mWOM_Pool_mWOM', {
-      rewardTokens: [Token.MGP, Token.USDC],
-      tokenPerSec: [0n, 0n],
+      rewardTokens: [Token.MGP, Token.USDCe, Token.DAI],
+      tokenPerSec: [0, 0, 0],
     }),
     ...createRewarderForDeployedAsset('Asset_mWOM_Pool_WOM', {
-      rewardTokens: [Token.MGP, Token.USDC],
-      tokenPerSec: [0n, 0n],
+      rewardTokens: [Token.MGP, Token.USDCe, Token.DAI],
+      tokenPerSec: [0, 0, 0],
     }),
     ...createRewarderForDeployedAsset('Asset_wmxWOM_Pool_wmxWOM', {
       rewardTokens: [Token.WMX],
@@ -622,12 +630,14 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_jUSDC', {
       startTimestamp: Epochs.May03,
-      rewardTokens: [Token.USDC],
+      rewardTokens: [Token.USDCe, Token.JONES],
+      tokenPerSec: [0, '103339947089947'],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_jUSDC_Pool_USDCe', {
       startTimestamp: Epochs.May03,
-      rewardTokens: [Token.USDC],
+      rewardTokens: [Token.USDCe, Token.JONES],
+      tokenPerSec: [0, '103339947089947'],
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_WETH', {
@@ -648,20 +658,20 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_WETH', {
       rewardTokens: [Token.ARB],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      tokenPerSec: [0],
     }),
     ...createRewarderForDeployedAsset('Asset_WstETH_Pool_wstETH', {
       rewardTokens: [Token.ARB],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('5000'))],
+      tokenPerSec: [0],
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_PENDLE', {
       rewardTokens: [Token.PNP],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      tokenPerSec: ['2016389210000000'],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_mPendle', {
       rewardTokens: [Token.PNP],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      tokenPerSec: ['1008194600000000'],
       operator: ExternalContract.MagpieBribeOperator,
     }),
   },
@@ -681,7 +691,7 @@ function createRewarderForDeployedAsset(deploymentName: string, config: Partial<
     lpToken: Deployment(deploymentName),
     ...config,
   }
-  assert(isValid(rewarder), `Invalid rewarder config: ${rewarder}`)
+  assert(isValid(rewarder), `Invalid rewarder config: ${JSON.stringify(rewarder)}`)
   return {
     [deploymentName]: rewarder,
   }

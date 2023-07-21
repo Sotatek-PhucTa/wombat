@@ -489,18 +489,21 @@ async function loopRewarder(
   return concatAll(
     ...Object.entries(config).map(async ([token, info]) => {
       const name = getDeploymentName(token)
-      console.info(`looking at ${name}`)
       const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
       const rewardLength = await rewarder.rewardLength()
+      const rewardInfos = await Promise.all(_.range(0, rewardLength).map((i) => rewarder.rewardInfo(i)))
       assert(
         rewardLength == info.rewardTokens.length,
-        `rewarder config for ${name} does not match rewardLength on chain at ${rewarder.address}`
+        `rewarder config for ${name} does not match rewardLength on chain at ${rewarder.address}: [${rewardInfos
+          .map((i) => i.rewardToken)
+          .join(', ')}]`
       )
-      const rewardInfos = await Promise.all(_.range(0, rewardLength).map((i) => rewarder.rewardInfo(i)))
       for (let i = 0; i < rewardLength; i++) {
         assert(
           isSameAddress(rewardInfos[i].rewardToken, await getTokenAddress(info.rewardTokens[i])),
-          'rewardToken mismatch'
+          `rewardToken mismatch for ${name}, expected: ${Token[info.rewardTokens[i]]}, actual: ${
+            rewardInfos[i].rewardToken
+          }`
         )
       }
       return handler(name, rewarder, info, rewardInfos)
