@@ -12,10 +12,10 @@ import { epoch_duration_seconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
-import { DeploymentOrAddress, IRewarder, TokenMap } from '../../types'
+import { DeploymentOrAddress, IRewardInfoStruct, IRewarder, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
-import { MasterWombatV3 } from '../../build/typechain'
+import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -415,22 +415,95 @@ export async function updateEmissions(
   config: TokenMap<IRewarder>,
   getDeploymentName: (key: string) => string
 ): Promise<BatchTransaction[]> {
+  return loopRewarder(config, getDeploymentName, async (name, rewarder, info, rewardInfos) => {
+    return concatAll(
+      ..._.range(0, rewardInfos.length).map(async (i) => {
+        const rewardToken = info.rewardTokens[i]
+        const expected = info.tokenPerSec[i]
+        const actual = rewardInfos[i].tokenPerSec
+        if (BigNumber.from(expected).eq(actual)) {
+          console.log(`${name}: ${Token[rewardToken]} does not need to be updated.`)
+          return []
+        }
+        console.log(`${name}: Expected ${Token[rewardToken]} to be ${expected} but got ${actual}.`)
+        return [Safe(rewarder).setRewardRate(i, expected)]
+      })
+    )
+  })
+}
+
+// Pause a rewarder if it has less than N hours worth of emissions.
+// Otherwise, resumt it if it has been paused.
+export async function pauseOrResumeRewardRate(
+  config: TokenMap<IRewarder>,
+  getDeploymentName: (key: string) => string,
+  timeLeftThresholdSec = duration.hours(8)
+): Promise<BatchTransaction[]> {
+  return loopRewarder(config, getDeploymentName, async (name, rewarder, info, rewardInfos) => {
+    return concatAll(
+      ..._.range(0, rewardInfos.length).map(async (i) => {
+        const expected = BigNumber.from(info.tokenPerSec[i])
+        const actual = rewardInfos[i].tokenPerSec
+        // Identify the state transition based on (expected, actual)
+        if (expected.eq(0) && actual.eq(0)) {
+          // inactive (0, 0)
+          return []
+        } else if (expected.eq(0) && actual.gt(0)) {
+          // out of sync (0, >0)
+          console.error(
+            `${name}: ${Token[info.rewardTokens[i]]} emission rate is not in sync. Expected ${actual.toString()}.`
+          )
+          return []
+        } else {
+          // paused (>0, 0) or active (>0, >0)
+          assert(expected.gt(0))
+          const hasEmission = actual.eq(0)
+          const erc20 = await ethers.getContractAt('ERC20', rewardInfos[i].rewardToken)
+          const balance = await erc20.balanceOf(rewarder.address)
+          const hasEnoughToken = balance.div(expected).gte(timeLeftThresholdSec)
+          if (hasEmission) {
+            if (!expected.eq(actual))
+              console.error(
+                `${name}: ${Token[info.rewardTokens[i]]} emission rate is not in sync. Expected ${actual.toString()}.`
+              )
+            return hasEnoughToken ? [] : [Safe(rewarder).setRewardRate(i, 0)]
+          } else {
+            return hasEnoughToken ? [Safe(rewarder).setRewardRate(i, expected)] : []
+          }
+        }
+      })
+    )
+  })
+}
+
+async function loopRewarder(
+  config: TokenMap<IRewarder>,
+  getDeploymentName: (key: string) => string,
+  handler: (
+    name: string,
+    rewarder: Contract,
+    config: IRewarder,
+    rewardInfos: IRewardInfoStruct[]
+  ) => Promise<BatchTransaction[]>
+): Promise<BatchTransaction[]> {
   return concatAll(
     ...Object.entries(config).map(async ([token, info]) => {
       const name = getDeploymentName(token)
+      console.info(`looking at ${name}`)
       const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
-      return concatAll(
-        ...info.rewardTokens.map(async (rewardToken, i) => {
-          const expected = info.tokenPerSec[i]
-          const { tokenPerSec: actual } = await rewarder.rewardInfo(i)
-          if (BigNumber.from(expected).eq(actual)) {
-            console.log(`${name}: ${Token[rewardToken]} does not need to be updated.`)
-            return []
-          }
-          console.log(`${name}: Expected ${Token[rewardToken]} to be ${expected} but got ${actual}.`)
-          return [Safe(rewarder).setRewardRate(i, expected)]
-        })
+      const rewardLength = await rewarder.rewardLength()
+      assert(
+        rewardLength == info.rewardTokens.length,
+        `rewarder config for ${name} does not match rewardLength on chain at ${rewarder.address}`
       )
+      const rewardInfos = await Promise.all(_.range(0, rewardLength).map((i) => rewarder.rewardInfo(i)))
+      for (let i = 0; i < rewardLength; i++) {
+        assert(
+          isSameAddress(rewardInfos[i].rewardToken, await getTokenAddress(info.rewardTokens[i])),
+          'rewardToken mismatch'
+        )
+      }
+      return handler(name, rewarder, info, rewardInfos)
     })
   )
 }

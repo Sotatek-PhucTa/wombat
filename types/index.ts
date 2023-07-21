@@ -4,7 +4,6 @@ import { DeployResult } from 'hardhat-deploy/types'
 import { ExternalContract } from '../config/contract'
 import { Token } from '../config/token'
 import { isChecksumAddress, toChecksumAddress } from '../utils/addresses'
-import { add } from 'lodash'
 
 export enum Network {
   HARDHAT = 'hardhat',
@@ -56,6 +55,12 @@ export interface IRewarder {
   // see https://github.com/wighawag/hardhat-deploy/issues/439
   tokenPerSec: BigNumberish[]
   operator?: ExternalContract
+}
+
+// interface for RewardInfo struct in solidity
+export interface IRewardInfoStruct {
+  rewardToken: string
+  tokenPerSec: BigNumber
 }
 
 export interface IMockTokenInfo {
