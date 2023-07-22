@@ -9,38 +9,38 @@ import { ethers } from 'hardhat'
 import {
   Asset,
   Asset__factory,
-  MasterWombatV3,
-  MasterWombatV3__factory,
-  TestERC20__factory,
+  BoostedMasterWombat,
+  BoostedMasterWombat__factory,
   MockVeWom,
   MockVeWom__factory,
+  TestERC20__factory,
   Voter,
   Voter__factory,
   WombatERC20,
   WombatERC20__factory,
-} from '../build/typechain'
-import { near } from './assertions/near'
-import { roughlyNear } from './assertions/roughlyNear'
-import { advanceTimeAndBlock, latest, sqrt } from './helpers'
+} from '../../build/typechain'
+import { near } from '../assertions/near'
+import { roughlyNear } from '../assertions/roughlyNear'
+import { advanceTimeAndBlock, latest, sqrt } from '../helpers'
 
 chai.use(near)
 chai.use(roughlyNear)
 
-describe('MasterWombatV3', async function () {
+describe('BoostedMasterWombat', async function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
   let womPerSec: BigNumber
 
   let Wom: WombatERC20__factory
-  let MasterWombat: MasterWombatV3__factory
+  let MasterWombat: BoostedMasterWombat__factory
   let TestERC20: TestERC20__factory
   let Asset: Asset__factory
   let VeWom: MockVeWom__factory
   let Voter: Voter__factory
 
   let wom: WombatERC20
-  let mw: MasterWombatV3
+  let mw: BoostedMasterWombat
   let voter: Voter
   let dummyAsset: Asset
   let veWom: MockVeWom
@@ -53,7 +53,7 @@ describe('MasterWombatV3', async function () {
   before(async function () {
     ;[owner, ...users] = await ethers.getSigners()
 
-    MasterWombat = (await ethers.getContractFactory('MasterWombatV3')) as MasterWombatV3__factory
+    MasterWombat = (await ethers.getContractFactory('BoostedMasterWombat')) as BoostedMasterWombat__factory
     Wom = (await ethers.getContractFactory('WombatERC20')) as WombatERC20__factory
     TestERC20 = (await ethers.getContractFactory('TestERC20')) as TestERC20__factory
     Asset = (await ethers.getContractFactory('Asset')) as Asset__factory
@@ -198,13 +198,15 @@ describe('MasterWombatV3', async function () {
     it('should check rewarder added and set properly', async function () {
       // Try to add rewarder that is neither zero address or contract address
       await expect(mw.add(this.lp.address, users[1].address)).to.be.revertedWith(
-        'add: rewarder must be contract or zero'
+        'add: boostedRewarder must be contract or zero'
       )
 
       await mw.add(this.lp.address, dummyAsset.address)
 
       // Try to set rewarder that is neither zero address or contract address
-      await expect(mw.setRewarder('0', users[1].address)).to.be.revertedWith('set: rewarder must be contract or zero')
+      await expect(mw.setRewarder('0', users[1].address)).to.be.revertedWith(
+        'set: boostedRewarder must be contract or zero'
+      )
 
       mw.setRewarder('0', dummyAsset.address)
     })
@@ -221,6 +223,10 @@ describe('MasterWombatV3', async function () {
       await mw.connect(users[1]).emergencyWithdraw(0)
 
       expect(await this.lp.balanceOf(users[1].address)).to.equal(parseEther('1000'))
+    })
+
+    it('emergency withdraw', async function () {
+      // TODO: implement
     })
   })
 

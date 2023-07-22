@@ -8,7 +8,7 @@ import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
 import { DeploymentOrAddress, IAssetInfo, Network } from '../types'
 import { getTokenAddress } from '../config/token'
-import { HighCovRatioFeePoolV3 } from '../build/typechain'
+import { HighCovRatioFeePoolV3, TestERC20 } from '../build/typechain'
 import { epoch_duration_seconds } from '../config/epoch'
 import hre from 'hardhat'
 import { setBalance, impersonateAccount, stopImpersonatingAccount } from '@nomicfoundation/hardhat-network-helpers'
@@ -53,8 +53,8 @@ export async function getDeployedContract(contract: string, deploymentName = con
   return ethers.getContractAt(contract, deployment.address)
 }
 
-export async function getTestERC20(tokenSymbol: string): Promise<Contract> {
-  return getDeployedContract('TestERC20', tokenSymbol)
+export async function getTestERC20(tokenSymbol: string): Promise<TestERC20> {
+  return getDeployedContract('TestERC20', tokenSymbol) as Promise<TestERC20>
 }
 
 export function getUnderlyingTokenAddr(assetInfo: IAssetInfo): Promise<string> {

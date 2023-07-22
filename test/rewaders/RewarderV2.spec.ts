@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, Contract } from 'ethers'
 import { deployments, ethers } from 'hardhat'
-import { getTestERC20 } from '../utils'
+import { getTestERC20 } from '../../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'

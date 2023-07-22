@@ -9,8 +9,8 @@ import {
   Bribe,
   Bribe__factory,
   ERC20,
-  MasterWombatV3,
-  MasterWombatV3__factory,
+  BoostedMasterWombat,
+  BoostedMasterWombat__factory,
   TestERC20__factory,
   MockVeWom,
   MockVeWom__factory,
@@ -36,7 +36,7 @@ describe('Voter', async function () {
   let Wom: WombatERC20__factory
   let VeWom: MockVeWom__factory
   let Voter: Voter__factory
-  let MasterWombat: MasterWombatV3__factory
+  let MasterWombat: BoostedMasterWombat__factory
   let Asset: Asset__factory
   let Bribe: Bribe__factory
   let TestERC20: TestERC20__factory
@@ -44,7 +44,7 @@ describe('Voter', async function () {
   let wom: WombatERC20
   let veWom: MockVeWom
   let voter: Voter
-  let mw: MasterWombatV3
+  let mw: BoostedMasterWombat
   let token1: ERC20
   let token2: ERC20
   let token3: ERC20
@@ -61,7 +61,7 @@ describe('Voter', async function () {
     ;[owner, ...users] = await ethers.getSigners()
 
     Wom = (await ethers.getContractFactory('WombatERC20')) as WombatERC20__factory
-    MasterWombat = (await ethers.getContractFactory('MasterWombatV3')) as MasterWombatV3__factory
+    MasterWombat = (await ethers.getContractFactory('BoostedMasterWombat')) as BoostedMasterWombat__factory
     VeWom = (await ethers.getContractFactory('MockVeWom')) as MockVeWom__factory
     Voter = (await ethers.getContractFactory('Voter')) as Voter__factory
     Asset = (await ethers.getContractFactory('Asset')) as Asset__factory
