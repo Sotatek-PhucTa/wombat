@@ -9,8 +9,8 @@ export enum Token {
   BNBx,
   BNBy,
   BOB,
-  BUSD,
   BTC,
+  BUSD,
   CUSD,
   DAI,
   DAIPlus,
@@ -31,6 +31,7 @@ export enum Token {
   RT2,
   SD,
   SPELL,
+  SnBNB,
   TENFI,
   TUSD,
   UNKNOWN,
@@ -57,8 +58,8 @@ export enum Token {
   mPendle,
   mWOM,
   qWOM,
+  rBNB,
   sfrxETH,
-  SnBNB,
   stkBNB,
   testFRAX,
   vUSDC,
@@ -104,6 +105,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B'),
     [Network.ARBITRUM_MAINNET]: Address('0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B'),
   },
+  [Token.BTC]: {
+    [Network.BSC_TESTNET]: Deployment('BTC'),
+    [Network.BSC_MAINNET]: Address('0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c'),
+  },
   [Token.BUSD]: {
     [Network.HARDHAT]: Deployment('BUSD'),
     [Network.LOCALHOST]: Deployment('BUSD'),
@@ -111,10 +116,6 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.AVALANCHE_TESTNET]: Deployment('BUSD'),
     // https://bscscan.com/address/0xe9e7cea3dedca5984780bafc599bd69add087d56
     [Network.BSC_MAINNET]: Address('0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'),
-  },
-  [Token.BTC]: {
-    [Network.BSC_TESTNET]: Deployment('BTC'),
-    [Network.BSC_MAINNET]: Address('0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c'),
   },
   [Token.CUSD]: {
     [Network.BSC_MAINNET]: Address('0xFa4BA88Cf97e282c505BEa095297786c16070129'),
@@ -202,6 +203,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/spell-token
     [Network.BSC_MAINNET]: Address('0x9Fe28D11ce29E340B7124C493F59607cbAB9ce48'),
     [Network.ARBITRUM_MAINNET]: Address('0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF'),
+  },
+  [Token.SnBNB]: {
+    [Network.BSC_MAINNET]: Address('0xB0b84D294e0C75A6abe60171b70edEb2EFd14A1B'),
   },
   [Token.TENFI]: {
     // https://www.coingecko.com/en/coins/ten
@@ -312,9 +316,6 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e'),
     [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63B33F733770c2A'),
   },
-  [Token.SnBNB]: {
-    [Network.BSC_MAINNET]: Address('0xB0b84D294e0C75A6abe60171b70edEb2EFd14A1B'),
-  },
   [Token.stkBNB]: {
     [Network.BSC_MAINNET]: Address('0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16'),
   },
@@ -341,6 +342,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x0fE34B8aaAf3f522A6088E278936D10F934c0b19'),
     // https://arbiscan.io/address/0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e
     [Network.ARBITRUM_MAINNET]: Address('0x388D157F0BFdc1d30357AF63a8be10BfF8474f4e'),
+  },
+  [Token.rBNB]: {
+    // https://bscscan.com/address/0xF027E525D491ef6ffCC478555FBb3CFabB3406a6
+    [Network.BSC_MAINNET]: Address('0xF027E525D491ef6ffCC478555FBb3CFabB3406a6'),
   },
   [Token.sfrxETH]: {
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses

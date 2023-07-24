@@ -313,7 +313,7 @@ export function AnkrBnbAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo
       tokenSymbol: 'ankrBNB',
       underlyingToken: Token.ankrBNB,
       oracle: ExternalContract.AnkrBNBOracle,
-      assetContractName: 'ABnbcAsset',
+      assetContractName: 'AnkrStakingAsset',
       ...partial,
     },
   }
@@ -478,6 +478,19 @@ export function XEqbAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
       tokenName: 'max EQB',
       tokenSymbol: 'xEQB',
       underlyingToken: Token.xEQB,
+      ...partial,
+    },
+  }
+}
+
+export function RBnbAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    rBNB: {
+      tokenName: 'StaFi rBNB',
+      tokenSymbol: 'rBNB',
+      underlyingToken: Token.rBNB,
+      oracle: ExternalContract.rBNBOracle,
+      assetContractName: 'rBNBAsset',
       ...partial,
     },
   }

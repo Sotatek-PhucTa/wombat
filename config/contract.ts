@@ -28,6 +28,7 @@ export enum ExternalContract {
   WombexVeWomProxy,
   fUSDCBribeOperator,
   jUSDCOracle,
+  rBNBOracle,
   wBETHOracle,
 }
 
@@ -137,6 +138,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   },
   [ExternalContract.fUSDCBribeOperator]: {
     [Network.ARBITRUM_MAINNET]: Address('0x429Dc27be907e16EF40329503F501361879510e0'),
+  },
+  [ExternalContract.rBNBOracle]: {
+    // https://bscscan.com/address/0x7cF64B27c95f856584fd4eF389f2646Cfdc9FAbF
+    [Network.BSC_MAINNET]: Address('0x7cF64B27c95f856584fd4eF389f2646Cfdc9FAbF'),
   },
   [ExternalContract.wBETHOracle]: {
     // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1

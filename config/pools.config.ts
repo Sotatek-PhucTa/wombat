@@ -44,6 +44,7 @@ import {
   WstETHAsset,
   EPendleAsset,
   SnBNBAsset,
+  RBnbAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -670,6 +671,18 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...WbnbAsset({ maxSupply: parseEther('10000') }),
         ...SnBNBAsset({ maxSupply: parseEther('10000') }),
+      },
+    },
+    rBNB_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        mintFeeThreshold: parseEther('0.03'),
+        deploymentNamePrefix: '',
+        supportNativeToken: true,
+      },
+      assets: {
+        ...WbnbAsset({ maxSupply: parseEther('10000') }),
+        ...RBnbAsset({ maxSupply: parseEther('10000') }),
       },
     },
   },
