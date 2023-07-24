@@ -17,17 +17,7 @@ runScript('PauseBribeAndRewarder', async () => {
       ])
     )
   } else if (network == Network.BSC_MAINNET) {
-    return concatAll(
-      multisig.utils.pauseRewardRateFor('Bribe', [
-        'Asset_stables_01_FRAX',
-        'Asset_Mixed_Pool_USDC',
-        'Asset_ankrETH_Pool_ETH',
-        'Asset_ankrETH_Pool_ankrETH',
-        'Asset_AnkrBNBPool_WBNB',
-        'Asset_AnkrBNBPool_ankrBNB',
-      ]),
-      multisig.utils.pauseRewardRateFor('Rewarder', ['Asset_stables_01_FRAX'])
-    )
+    return concatAll(multisig.utils.pauseRewardRateFor('Rewarder', ['Asset_BNBy_Pool_WBNB', 'Asset_BNBy_Pool_BNBy']))
   } else {
     throw new Error('Wrong network')
   }
