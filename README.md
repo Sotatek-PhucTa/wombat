@@ -585,6 +585,9 @@ To verify proxy contracts:
 
 #### Wombat Proxy Admin
   - Default Proxy Admin (Proxy Admin) => `0x6ad9C3C1670CEE303309bC82e7a5754dCb831205`
+  - WombatToken => `0x33CeE941cdce68a0aF9fe36aEB669aaa1C3442ED`
+  - WombatRouter => `0xd744936A68642f7D96F394Dd59Cb214885FF8A06`
+  - MasterWombatV3_Proxy => `0xBA3A9EC587722BB78De2860beaFb880daFB0fD3D`
 
 #### Wombat Mega Pool
   - Mega Pool Proxy (Main entry) => `0x4dF91022B08C4bD9B2cE54D0799E7a9Db801df2c`
