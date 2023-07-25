@@ -290,6 +290,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.HARDHAT]: Deployment('WombatToken'),
     [Network.LOCALHOST]: Deployment('WombatToken'),
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
+    [Network.AVALANCHE_TESTNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),
