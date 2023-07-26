@@ -507,12 +507,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR, Token.ANKR],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('3980')), 0],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('9335')), 0],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR, Token.ANKR],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('9335')), 0],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('3980')), 0],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_BNBy_Pool_WBNB', {

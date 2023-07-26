@@ -458,7 +458,7 @@ export async function pauseOrResumeRewardRate(
         } else {
           // paused (>0, 0) or active (>0, >0)
           assert(expected.gt(0))
-          const hasEmission = actual.eq(0)
+          const hasEmission = actual.gt(0)
           const erc20 = await ethers.getContractAt('ERC20', rewardInfos[i].rewardToken)
           const balance = await erc20.balanceOf(rewarder.address)
           const hasEnoughToken = balance.div(expected).gte(timeLeftThresholdSec)
@@ -487,29 +487,31 @@ async function loopRewarder(
     rewardInfos: IRewardInfoStruct[]
   ) => Promise<BatchTransaction[]>
 ): Promise<BatchTransaction[]> {
-  return concatAll(
-    ...Object.entries(config).map(async ([token, info]) => {
-      const name = getDeploymentName(token)
-      const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
-      const rewardLength = await rewarder.rewardLength()
-      const rewardInfos = await Promise.all(_.range(0, rewardLength).map((i) => rewarder.rewardInfo(i)))
+  const txns = []
+  // Run this in a await for-loop to avoid creating too many RPCs at the same time.
+  for await (const [token, info] of Object.entries(config)) {
+    const name = getDeploymentName(token)
+    const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
+    const rewardLength = await rewarder.rewardLength()
+    const rewardInfos = await Promise.all(_.range(0, rewardLength).map((i) => rewarder.rewardInfo(i)))
+    assert(
+      rewardLength == info.rewardTokens.length,
+      `rewarder config for ${name} does not match rewardLength on chain at ${rewarder.address}: [${rewardInfos
+        .map((i) => i.rewardToken)
+        .join(', ')}]`
+    )
+    for (let i = 0; i < rewardLength; i++) {
       assert(
-        rewardLength == info.rewardTokens.length,
-        `rewarder config for ${name} does not match rewardLength on chain at ${rewarder.address}: [${rewardInfos
-          .map((i) => i.rewardToken)
-          .join(', ')}]`
+        isSameAddress(rewardInfos[i].rewardToken, await getTokenAddress(info.rewardTokens[i])),
+        `rewardToken mismatch for ${name}, expected: ${Token[info.rewardTokens[i]]}, actual: ${
+          rewardInfos[i].rewardToken
+        }`
       )
-      for (let i = 0; i < rewardLength; i++) {
-        assert(
-          isSameAddress(rewardInfos[i].rewardToken, await getTokenAddress(info.rewardTokens[i])),
-          `rewardToken mismatch for ${name}, expected: ${Token[info.rewardTokens[i]]}, actual: ${
-            rewardInfos[i].rewardToken
-          }`
-        )
-      }
-      return handler(name, rewarder, info, rewardInfos)
-    })
-  )
+    }
+    txns.push(...(await handler(name, rewarder, info, rewardInfos)))
+  }
+
+  return txns
 }
 
 export async function setAllocPercent(assetDeployment: string, allocationPercent: number): Promise<BatchTransaction[]> {
