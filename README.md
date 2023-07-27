@@ -123,8 +123,8 @@ To verify proxy contracts:
   - Pool Proxy (Main entry) => `0xeA6cDd9e8819BbF7f8791E7D084d9F0a6Afa7892`
   - Asset_BOB_Pool_BOB (LP-BOB) => `0x4968E21be7Bb0ced1bd3859d3dB993ad3a05d2E6`
   - Asset_BOB_Pool_USDC (LP-USDC) => `0x6b98d2B6ed0131338C7945Db8588DA43323d1b8C`
-  - Bribe_BOBPool_BOB => `0xbeFB02dC4863Bd4B2803c32d75CA5DfeFa6f6091`
-  - Bribe_BOBPool_USDC => `0x25157762a68FA8061fa800Ee3b53C593967A5c9b`
+  - Bribe_Asset_BOB_Pool_BOB => `0xbeFB02dC4863Bd4B2803c32d75CA5DfeFa6f6091`
+  - Bribe_Asset_BOB_Pool_USDC => `0x25157762a68FA8061fa800Ee3b53C593967A5c9b`
 
 #### BNBx Pool
   - Pool Proxy (Main entry) => `0x8df1126de13bcfef999556899F469d64021adBae`
