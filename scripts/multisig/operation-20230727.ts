@@ -1,13 +1,8 @@
-import { parseEther } from 'ethers/lib/utils'
 import { runScript } from '.'
 import { Network } from '../../types'
 import { getCurrentNetwork } from '../../types/network'
 import { concatAll } from '../../utils'
 import * as multisig from '../../utils/multisig'
-import { Token } from '../../config/token'
-import { getBribes, getRewarders } from '../../config/emissions.config'
-import { getBribeDeploymentName, getRewarderDeploymentName } from '../../utils/deploy'
-import _ from 'lodash'
 
 runScript('operation-20230727', async () => {
   const network: Network = getCurrentNetwork()
