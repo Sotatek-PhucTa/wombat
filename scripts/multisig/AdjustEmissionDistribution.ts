@@ -2,7 +2,6 @@ import assert from 'assert'
 import { runScript } from '.'
 import { Network } from '../../types'
 import { getCurrentNetwork } from '../../types/network'
-import { concatAll } from '../../utils'
 import * as multisig from '../../utils/multisig'
 
 /**
@@ -19,13 +18,13 @@ runScript('AdjustEmissionDistribution', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 1_000_000
-    BRIBE_ALLOC_PERCENT = 47.5
+    WOM_MONTHLY_EMISSION_RATE = 820_000
+    BRIBE_ALLOC_PERCENT = 44.5
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
-      Asset_MainPool_USDCe: 20,
-      Asset_MainPool_USDT: 16,
-      Asset_MainPool_DAI: 5,
+      Asset_MainPool_USDCe: 21,
+      Asset_MainPool_USDT: 17,
+      Asset_MainPool_DAI: 6,
       Asset_MainPool_USDC: 9,
       // wmxWOM Pool
       Asset_wmxWOM_Pool_wmxWOM: 0.6,
@@ -39,15 +38,15 @@ runScript('AdjustEmissionDistribution', async () => {
     }
   } else if (network == Network.BSC_MAINNET) {
     WOM_MONTHLY_EMISSION_RATE = 1_500_000
-    BRIBE_ALLOC_PERCENT = 70
+    BRIBE_ALLOC_PERCENT = 72
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
-      Asset_MainPool_USDC: 11.7,
-      Asset_MainPool_USDT: 11.7,
-      Asset_MainPool_DAI: 1.6,
+      Asset_MainPool_USDC: 11,
+      Asset_MainPool_USDT: 11,
+      Asset_MainPool_DAI: 1,
       // TODO: standardize pool names. i.e. Asset_wmxWOMPool_wmxWOM is used here but for bsc it is Asset_wmxWOM_Pool_wmxWOM
       // wmxWOM Pool
-      Asset_wmxWOMPool_wmxWom: 0.6,
+      Asset_wmxWOMPool_wmxWOM: 0.6,
       Asset_wmxWOMPool_WOM: 0.6,
       // mWOM Pool
       Asset_mWOMPool_mWOM: 0.45,
