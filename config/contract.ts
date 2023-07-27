@@ -29,6 +29,7 @@ export enum ExternalContract {
   fUSDCBribeOperator,
   jUSDCOracle,
   rBNBOracle,
+  StafiOperator,
   wBETHOracle,
 }
 
@@ -146,5 +147,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.wBETHOracle]: {
     // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1
     [Network.BSC_MAINNET]: Address('0xa2E3356610840701BDf5611a53974510Ae27E2e1'),
+  },
+  [ExternalContract.StafiOperator]: {
+    // https://bscscan.com/address/0x5fD0eBdFe0b70E70487FC0BebA82131F3FE8C65F
+    [Network.BSC_MAINNET]: Address('0x5fD0eBdFe0b70E70487FC0BebA82131F3FE8C65F'),
   },
 }

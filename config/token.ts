@@ -15,6 +15,7 @@ export enum Token {
   DAI,
   DAIPlus,
   ETH,
+  FIS,
   FRAX,
   FXS,
   HAY,
@@ -134,6 +135,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_TESTNET]: Deployment('ETH'),
     // https://bscscan.com/address/0x2170Ed0880ac9A755fd29B2688956BD959F933F8
     [Network.BSC_MAINNET]: Address('0x2170Ed0880ac9A755fd29B2688956BD959F933F8'),
+  },
+  [Token.FIS]: {
+    [Network.BSC_MAINNET]: Address('0xF4bafAEAE73a4A7C8b6479970075e91e641fB1FC'),
   },
   [Token.FRAX]: {
     [Network.BSC_MAINNET]: Address('0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40'),

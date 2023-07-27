@@ -173,6 +173,18 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: ['165343915340000000'],
       operator: ExternalContract.TenFiBribeOperator,
     }),
+    ...createRewarderForDeployedAsset('Asset_rBNB_Pool_rBNB', {
+      startTimestamp: Epochs.Jul26,
+      rewardTokens: [Token.FIS],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      operator: ExternalContract.StafiOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_rBNB_Pool_WBNB', {
+      startTimestamp: Epochs.Jul26,
+      rewardTokens: [Token.FIS],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      operator: ExternalContract.StafiOperator,
+    }),
   },
   [Network.BSC_TESTNET]: {
     BUSD: {
