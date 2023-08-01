@@ -522,7 +522,7 @@ To verify proxy contracts:
   - BUSD (6 d.p.) => `0x39A800Dd250D11BC543829De82ad384fA62A089f`
   - vUSDC (6 d.p.) => `0xB342efA326a7F3475FDcC35e4aF236ED46fc310a`
   - Asset (LP-BUSD) => `0x14caa782145Ad3381040BEF3606a4c2900Cd2dcC`
-  - Asset (LP-vUSDC) => `0xbb225C3CB08Adc582cE52CAd4Ef7d4CB0D9D2a7E`
+  - Asset (LP-vUSDC) => `0xE42b4e663fdEc68e3744de07ef54519102De5b1e`
 
 #### Wombat Side Pool
   - Pool Proxy (Main entry) => `0x32997A613FBabE911887e296c27f55d735D55084`
