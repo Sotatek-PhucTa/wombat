@@ -4,8 +4,9 @@ import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe, encodeData, executeBatchTransaction } from './transactions'
 import assert from 'assert'
+import chalk from 'chalk'
 import { Token, getTokenAddress, getTokenDeploymentOrAddress } from '../../config/token'
-import { BigNumberish, Contract, BigNumber } from 'ethers'
+import { BigNumberish, Contract, BigNumber, utils } from 'ethers'
 import { Zero } from '@ethersproject/constants'
 import _ from 'lodash'
 import { epoch_duration_seconds } from '../../config/epoch'
@@ -511,27 +512,58 @@ async function loopRewarder(
   )
 }
 
-export async function setAllocPercent(assetDeployment: string, allocationPercent: number): Promise<BatchTransaction> {
+export async function setAllocPercent(assetDeployment: string, allocationPercent: number): Promise<BatchTransaction[]> {
   assert(allocationPercent >= 0 && allocationPercent <= 100, 'invalid allocation percent')
   const allocPoint = ethers.utils.parseEther(String(allocationPercent * 10))
   const asset = await getDeployedContract('Asset', assetDeployment)
   const voter = await getDeployedContract('Voter')
-  return Safe(voter).setAllocPoint(asset.address, allocPoint.toString())
+  const currentAllocPoint = (await voter.weights(asset.address)).allocPoint as BigNumber
+  if (!currentAllocPoint.eq(allocPoint)) {
+    console.log(
+      `${assetDeployment} allocation point: current ${chalk.red(currentAllocPoint)} updating to: ${chalk.green(
+        allocPoint
+      )}.`
+    )
+    return [Safe(voter).setAllocPoint(asset.address, allocPoint.toString())]
+  } else {
+    console.log(`${assetDeployment} allocation point: current ${currentAllocPoint} does not need to be updated.`)
+    return []
+  }
 }
 
-export async function setWomMonthlyEmissionRate(womPerMonth: number): Promise<BatchTransaction> {
+export async function setWomMonthlyEmissionRate(womPerMonth: number): Promise<BatchTransaction[]> {
   assert(womPerMonth >= 0, 'invalid wom emission rate')
   assert(womPerMonth < 10_000_000, "likely an error. WOM emission rate shouldn't be 10M or higher")
   const womPerSec = convertTokenPerMonthToTokenPerSec(ethers.utils.parseEther(String(womPerMonth)))
   const voter = await getDeployedContract('Voter')
-  return Safe(voter).setWomPerSec(womPerSec.toString())
+  const currentwomPerSec = (await voter.womPerSec()) as BigNumber
+  if (!womPerSec.eq(currentwomPerSec)) {
+    console.log(
+      `Wom per second: current ${chalk.red(utils.formatEther(currentwomPerSec))} updating to: ${chalk.green(
+        utils.formatEther(womPerSec)
+      )}.`
+    )
+    return [Safe(voter).setWomPerSec(womPerSec.toString())]
+  } else {
+    console.log(`Wom per second: ${utils.formatEther(currentwomPerSec)} does not need to be updated.`)
+    return []
+  }
 }
 
-export async function setBribeAllocPercent(bribeAllocationPercent: number): Promise<BatchTransaction> {
+export async function setBribeAllocPercent(bribeAllocationPercent: number): Promise<BatchTransaction[]> {
   assert(bribeAllocationPercent >= 0 && bribeAllocationPercent <= 100, 'invalid bribe allocation percent')
   const baseAllocationPercent = 100 - bribeAllocationPercent
   // convert from percentage to a base 1000 number (for example, 10% -> 100)
   const baseAllocPoint = Math.floor(baseAllocationPercent * 10)
   const voter = await getDeployedContract('Voter')
-  return Safe(voter).setBaseAllocation(baseAllocPoint.toString())
+  const currentBaseAllocPoint = (await voter.baseAllocation()) as number
+  if (currentBaseAllocPoint !== baseAllocPoint) {
+    console.log(
+      `Bribe allocation: current ${chalk.red(currentBaseAllocPoint)} updating to: ${chalk.green(baseAllocPoint)}.`
+    )
+    return [Safe(voter).setBaseAllocation(baseAllocPoint.toString())]
+  } else {
+    console.log(`Bribe allocation: ${currentBaseAllocPoint} does not need to be updated.`)
+    return []
+  }
 }

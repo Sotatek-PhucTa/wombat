@@ -3,6 +3,7 @@ import { runScript } from '.'
 import { Network } from '../../types'
 import { getCurrentNetwork } from '../../types/network'
 import * as multisig from '../../utils/multisig'
+import { concatAll } from '../../utils'
 
 /**
  * This script adjust the emission distribution for the pools by changing:
@@ -38,7 +39,7 @@ runScript('AdjustEmissionDistribution', async () => {
     }
   } else if (network == Network.BSC_MAINNET) {
     WOM_MONTHLY_EMISSION_RATE = 1_500_000
-    BRIBE_ALLOC_PERCENT = 72
+    BRIBE_ALLOC_PERCENT = 74.5
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
       Asset_MainPool_USDC: 11,
@@ -55,8 +56,8 @@ runScript('AdjustEmissionDistribution', async () => {
       Asset_qWOMPool_qWOM: 0.2,
       Asset_qWOMPool_WOM: 0.2,
       // wBETH Pool
-      Asset_wBETH_Pool_wBETH: 1.75,
-      Asset_wBETH_Pool_ETH: 0.75,
+      Asset_wBETH_Pool_wBETH: 0,
+      Asset_wBETH_Pool_ETH: 0,
     }
   }
 
@@ -72,7 +73,7 @@ runScript('AdjustEmissionDistribution', async () => {
 
     // TODO: check that after tx, the totalAllocPoint == baseAllocation.
 
-    return Promise.all([
+    return concatAll(
       // emission rate (womPerSec)
       multisig.utils.setWomMonthlyEmissionRate(WOM_MONTHLY_EMISSION_RATE),
       // base / vote split (baseAllocation)
@@ -80,8 +81,8 @@ runScript('AdjustEmissionDistribution', async () => {
       // allocation point
       ...Object.entries(GAUGE_ALLOC_PERCENTS).map(([gauge, allocPercent]) =>
         multisig.utils.setAllocPercent(gauge, allocPercent)
-      ),
-    ])
+      )
+    )
   } else {
     return []
   }
