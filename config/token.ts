@@ -40,6 +40,7 @@ export enum Token {
   USDCe,
   USDD,
   USDPlus,
+  USDS,
   USDT,
   USDTPlus,
   WAVAX,
@@ -249,6 +250,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/usdplus
     [Network.BSC_MAINNET]: Address('0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65'),
     [Network.ARBITRUM_MAINNET]: Address('0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65'),
+  },
+  [Token.USDS]: {
+    [Network.BSC_MAINNET]: Address('0x0c6Ed1E73BA73B8441868538E210ebD5DD240FA0'),
   },
   [Token.USDT]: {
     [Network.HARDHAT]: Deployment('USDT'),

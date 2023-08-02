@@ -33,6 +33,7 @@ import {
   UsdcAsset,
   UsdceAsset,
   UsddAsset,
+  UsdsAsset,
   UsdtAsset,
   UsdtPlusAsset,
   VusdcAsset,
@@ -290,6 +291,16 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...WomAsset(),
         ...QwomAsset(),
+      },
+    },
+    USDS_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+        deploymentNamePrefix: '',
+      },
+      assets: {
+        ...UsdsAsset(),
+        ...UsdtAsset(),
       },
     },
     StandalonePool: {

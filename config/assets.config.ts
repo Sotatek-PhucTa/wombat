@@ -45,6 +45,17 @@ export function UsdceAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> 
   }
 }
 
+export function UsdsAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    USDS: {
+      tokenName: 'USDS',
+      tokenSymbol: 'USDS',
+      underlyingToken: Token.USDS,
+      ...partial,
+    },
+  }
+}
+
 export function UsdtAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     USDT: {
