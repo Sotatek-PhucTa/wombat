@@ -17,6 +17,7 @@ import { DeploymentOrAddress, IRewardInfoStruct, IRewarder, TokenMap } from '../
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
+import { parseEther } from 'ethers/lib/utils'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -329,6 +330,17 @@ export async function executeTimelock(txns: BatchTransaction[]): Promise<BatchTr
   const salt = await deployerSalt()
   const noPredecessor = ethers.constants.HashZero
   return Safe(timelockController).executeBatch(data.tos, data.values, data.payloads, noPredecessor, salt)
+}
+
+export async function setCovRatioFeeParam(
+  poolDeployment: string,
+  param: { startCovRatio: BigNumber; endCovRatio: BigNumber }
+): Promise<BatchTransaction> {
+  assert(poolDeployment.includes('Proxy'), 'Must use proxy')
+  assert(param.startCovRatio.gt(parseEther('1')), 'startCovRatio must be greater than 100%')
+  assert(param.endCovRatio.gt(param.startCovRatio), 'endCovRatio must be greater than startCovRatio')
+  const pool = await getDeployedContract('HighCovRatioFeePoolV2', poolDeployment)
+  return Safe(pool).setCovRatioFeeParam(param.startCovRatio, param.endCovRatio)
 }
 
 function encodeBatchTransactionsForTimelock(txns: BatchTransaction[]) {
