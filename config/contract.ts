@@ -31,6 +31,7 @@ export enum ExternalContract {
   fUSDCBribeOperator,
   jUSDCOracle,
   rBNBOracle,
+  sfrxETHStakingManager,
   wBETHOracle,
 }
 
@@ -152,6 +153,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.rBNBOracle]: {
     // https://bscscan.com/address/0x7cF64B27c95f856584fd4eF389f2646Cfdc9FAbF
     [Network.BSC_MAINNET]: Address('0x7cF64B27c95f856584fd4eF389f2646Cfdc9FAbF'),
+  },
+  [ExternalContract.sfrxETHStakingManager]: {
+    [Network.ETHEREUM_MAINNET]: Address('0xac3E018457B222d93114458476f3E3416Abbe38F'),
   },
   [ExternalContract.wBETHOracle]: {
     // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1

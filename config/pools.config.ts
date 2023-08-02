@@ -52,6 +52,7 @@ import {
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
+import { ExternalContract } from './contract'
 
 function defaultGovernedPriceFeed(): IGovernedPriceFeed {
   return {
@@ -616,12 +617,11 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       },
       assets: {
         ...SfrxEthAsset({
+          assetContractName: 'PriceFeedAsset',
           priceFeed: sfrxETHGovernedPriceFeed(),
           maxSupply: parseEther('1600'),
         }),
-        ...FrxEthAsset({
-          assetContractName: 'DynamicAsset',
-        }),
+        ...FrxEthAsset(),
         ...EthAsset(),
       },
     },
@@ -737,11 +737,10 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         supportNativeToken: true,
       },
       assets: {
-        ...FrxEthAsset({
-          assetContractName: 'DynamicAsset',
-        }),
+        ...FrxEthAsset(),
         ...WethAsset(),
         ...SfrxEthAsset({
+          assetContractName: 'PriceFeedAsset',
           priceFeed: sfrxETHGovernedPriceFeed(),
           maxSupply: parseEther('1600'),
         }),
@@ -779,17 +778,11 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...WethAsset({ maxSupply: parseEther('11000') }),
         ...FrxEthAsset({
-          assetContractName: 'PriceFeedAsset',
-          priceFeed: {
-            contract: 'ChainlinkPriceFeed',
-          },
           maxSupply: parseEther('11000'),
         }),
         ...SfrxEthAsset({
-          assetContractName: 'PriceFeedAsset',
-          priceFeed: {
-            contract: 'ChainlinkPriceFeed',
-          },
+          assetContractName: 'ERC4626Asset',
+          oracle: ExternalContract.sfrxETHStakingManager,
           maxSupply: parseEther('11000'),
         }),
       },

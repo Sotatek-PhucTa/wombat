@@ -375,6 +375,7 @@ export function FrxEthAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo>
       tokenName: 'Frax Ether',
       tokenSymbol: 'frxETH',
       underlyingToken: Token.frxETH,
+      assetContractName: 'DynamicAsset',
       ...partial,
     },
   }
@@ -386,7 +387,6 @@ export function SfrxEthAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo
       tokenName: 'Staked Frax Ether',
       tokenSymbol: 'sfrxETH',
       underlyingToken: Token.sfrxETH,
-      assetContractName: 'PriceFeedAsset',
       ...partial,
     },
   }
