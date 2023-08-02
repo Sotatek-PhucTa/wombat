@@ -176,6 +176,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...BusdAsset({ allocPoint: 5 }),
         ...TusdAsset(),
         ...FraxAsset(),
+        ...UsdtAsset(),
       },
     },
     SidePool_01: {

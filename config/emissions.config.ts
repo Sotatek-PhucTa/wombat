@@ -558,6 +558,11 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.wBETH],
     }),
+    ...createRewarderForDeployedAsset('Asset_stables_01_USDT', {
+      rewardTokens: [Token.FXS],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      operator: ExternalContract.FraxBribeOperator,
+    }),
   },
   [Network.BSC_TESTNET]: {
     BUSD: {
