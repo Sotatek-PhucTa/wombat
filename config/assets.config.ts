@@ -506,3 +506,38 @@ export function RBnbAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
     },
   }
 }
+
+export function EthxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    ETHx: {
+      tokenName: 'ETHx',
+      tokenSymbol: 'ETHx',
+      underlyingToken: Token.ETHx,
+      assetContractName: 'ERC4626Asset',
+      oracle: ExternalContract.StaderETHxStakingManager,
+      ...partial,
+    },
+  }
+}
+
+export function AgEURAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    agEUR: {
+      tokenName: 'agEUR',
+      tokenSymbol: 'agEUR',
+      underlyingToken: Token.agEUR,
+      ...partial,
+    },
+  }
+}
+
+export function EuroCAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    EUROC: {
+      tokenName: 'Euro Coin',
+      tokenSymbol: 'EUROC',
+      underlyingToken: Token.EUROC,
+      ...partial,
+    },
+  }
+}

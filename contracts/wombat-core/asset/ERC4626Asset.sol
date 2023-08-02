@@ -4,32 +4,32 @@ pragma solidity ^0.8.18;
 import '../interfaces/IRelativePriceProvider.sol';
 import './DynamicAsset.sol';
 
-interface IStakeManager {
-    function getStETHByWstETH(uint256 _wstETHAmount) external view returns (uint256);
+interface IVault {
+    function convertToAssets(uint256 shares) external view returns (uint256);
 }
 
 /**
  * @title Asset with Dynamic Price
  * @notice Contract presenting an asset in a pool
  * @dev The relative price of an asset may change over time.
- * On mainnet, we can directly get the ratio from wstETH contract, without oracles.
+ * See ERC-4626: https://ethereum.org/en/developers/docs/standards/tokens/erc-4626/
  */
-contract WstETHAsset_Mainnet is DynamicAsset {
-    IStakeManager stakeManager;
+contract ERC4626Asset is DynamicAsset {
+    IVault vault;
 
     constructor(
         address underlyingToken_,
         string memory name_,
         string memory symbol_,
-        IStakeManager _stakeManager
+        IVault _vault
     ) DynamicAsset(underlyingToken_, name_, symbol_) {
-        stakeManager = _stakeManager;
+        vault = _vault;
     }
 
     /**
      * @notice get the relative price in WAD
      */
     function getRelativePrice() external view override returns (uint256) {
-        return stakeManager.getStETHByWstETH(1e18);
+        return vault.convertToAssets(1e18);
     }
 }

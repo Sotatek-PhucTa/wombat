@@ -4,6 +4,7 @@ import { getCurrentNetwork } from '../types/network'
 
 // style note: sort alphabetically.
 export enum Token {
+  ANGLE,
   ANKR,
   ARB,
   BNBx,
@@ -15,6 +16,8 @@ export enum Token {
   DAI,
   DAIPlus,
   ETH,
+  ETHx,
+  EUROC,
   FIS,
   FRAX,
   FXS,
@@ -49,6 +52,7 @@ export enum Token {
   WMATIC,
   WMX,
   WOM,
+  agEUR,
   ankrBNB,
   ankrETH,
   axlUSDC,
@@ -88,6 +92,10 @@ export async function getTokenAddress(token: Token): Promise<string> {
 
 // registry of token address. Used by getTokenAddress only. Do not export.
 const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> = {
+  [Token.ANGLE]: {
+    // https://developers.angle.money/overview/smart-contracts/mainnet-contracts
+    [Network.ETHEREUM_MAINNET]: Address('0x31429d1856aD1377A8A0079410B297e1a9e214c2'),
+  },
   [Token.ANKR]: {
     // https://www.coingecko.com/en/coins/ankr-network
     [Network.BSC_MAINNET]: Address('0xf307910A4c7bbc79691fD374889b36d8531B08e3'),
@@ -137,6 +145,14 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_TESTNET]: Deployment('ETH'),
     // https://bscscan.com/address/0x2170Ed0880ac9A755fd29B2688956BD959F933F8
     [Network.BSC_MAINNET]: Address('0x2170Ed0880ac9A755fd29B2688956BD959F933F8'),
+  },
+  [Token.ETHx]: {
+    // https://staderlabs.gitbook.io/ethereum/smart-contracts
+    [Network.ETHEREUM_MAINNET]: Address('0xA35b1B31Ce002FBF2058D22F30f95D405200A15b'),
+  },
+  [Token.EUROC]: {
+    // https://www.coingecko.com/en/coins/euro-coin
+    [Network.ETHEREUM_MAINNET]: Address('0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c'),
   },
   [Token.FIS]: {
     [Network.BSC_MAINNET]: Address('0xF4bafAEAE73a4A7C8b6479970075e91e641fB1FC'),
@@ -210,6 +226,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.SD]: {
     // https://www.coingecko.com/en/coins/stader
     [Network.BSC_MAINNET]: Address('0x3BC5AC0dFdC871B365d159f728dd1B9A0B5481E8'),
+    [Network.ETHEREUM_MAINNET]: Address('0x30D20208d987713f46DFD34EF128Bb16C404D10f'),
   },
   [Token.SPELL]: {
     // https://www.coingecko.com/en/coins/spell-token
@@ -305,6 +322,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),
+  },
+  [Token.agEUR]: {
+    // https://developers.angle.money/overview/smart-contracts/mainnet-contracts
+    [Network.ETHEREUM_MAINNET]: Address('0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8'),
   },
   [Token.ankrBNB]: {
     // https://bscscan.com/address/0x52F24a5e03aee338Da5fd9Df68D2b6FAe1178827

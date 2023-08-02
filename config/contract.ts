@@ -22,6 +22,8 @@ export enum ExternalContract {
   QuollVeWomProxy,
   SkimAdmin,
   SnBNBOracle,
+  StaderETHxStakingManager,
+  StafiOperator,
   StkBNBOracle,
   TenFiBribeOperator,
   WombexBribeOperator,
@@ -29,7 +31,6 @@ export enum ExternalContract {
   fUSDCBribeOperator,
   jUSDCOracle,
   rBNBOracle,
-  StafiOperator,
   wBETHOracle,
 }
 
@@ -120,6 +121,13 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.SnBNBOracle]: {
     [Network.BSC_MAINNET]: Address('0x1adB950d8bB3dA4bE104211D5AB038628e477fE6'),
   },
+  [ExternalContract.StaderETHxStakingManager]: {
+    [Network.ETHEREUM_MAINNET]: Address('0xcf5EA1b38380f6aF39068375516Daf40Ed70D299'),
+  },
+  [ExternalContract.StafiOperator]: {
+    // https://bscscan.com/address/0x5fD0eBdFe0b70E70487FC0BebA82131F3FE8C65F
+    [Network.BSC_MAINNET]: Address('0x5fD0eBdFe0b70E70487FC0BebA82131F3FE8C65F'),
+  },
   [ExternalContract.StkBNBOracle]: {
     [Network.BSC_MAINNET]: Address('0xC228CefDF841dEfDbD5B3a18dFD414cC0dbfa0D8'),
   },
@@ -148,9 +156,5 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.wBETHOracle]: {
     // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1
     [Network.BSC_MAINNET]: Address('0xa2E3356610840701BDf5611a53974510Ae27E2e1'),
-  },
-  [ExternalContract.StafiOperator]: {
-    // https://bscscan.com/address/0x5fD0eBdFe0b70E70487FC0BebA82131F3FE8C65F
-    [Network.BSC_MAINNET]: Address('0x5fD0eBdFe0b70E70487FC0BebA82131F3FE8C65F'),
   },
 }

@@ -46,6 +46,9 @@ import {
   EPendleAsset,
   SnBNBAsset,
   RBnbAsset,
+  EthxAsset,
+  EuroCAsset,
+  AgEURAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -555,13 +558,22 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.ETHEREUM_MAINNET]: {
-    Frax_Pool: {
+    FRAX_Pool: {
       setting: {
         ...defaultFactoryPoolConfig,
       },
       assets: {
         ...FraxAsset({ maxSupply: parseEther('20000000') }),
         ...UsdtAsset({ maxSupply: parseUnits('20000000', 6) }),
+      },
+    },
+    agEUR_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig,
+      },
+      assets: {
+        ...AgEURAsset({ maxSupply: parseEther('20000000') }),
+        ...EuroCAsset({ maxSupply: parseUnits('20000000', 6) }),
       },
     },
   },
@@ -782,7 +794,7 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         }),
       },
     },
-    WstETH_Pool: {
+    wstETH_Pool: {
       setting: {
         ...defaultDynamicPoolConfig,
         supportNativeToken: true,
@@ -792,6 +804,16 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           assetContractName: 'WstETHAsset_Mainnet',
           maxSupply: parseEther('11000'),
         }),
+        ...WethAsset({ maxSupply: parseEther('11000') }),
+      },
+    },
+    ETHx_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        supportNativeToken: true,
+      },
+      assets: {
+        ...EthxAsset({ maxSupply: parseEther('11000') }),
         ...WethAsset({ maxSupply: parseEther('11000') }),
       },
     },
