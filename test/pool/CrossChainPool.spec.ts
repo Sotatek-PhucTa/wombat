@@ -1,7 +1,7 @@
 import { AddressZero } from '@ethersproject/constants'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import chai, { expect } from 'chai'
+import { expect } from 'chai'
 
 import { BigNumber, Contract } from 'ethers'
 import { ethers } from 'hardhat'
