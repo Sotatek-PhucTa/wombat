@@ -23,12 +23,27 @@ export const CHAINLINK_PRICE_FEEDS = injectForkNetwork<PartialRecord<Token, Chai
       maxPriceAge: 86400,
     },
   },
+  [Network.ETHEREUM_MAINNET]: {
+    [Token.frxETH]: {
+      // frxETH/ETH
+      // https://etherscan.io/address/0xC58F3385FBc1C8AD2c0C9a061D7c13b141D7A5Df
+      contract: '0xC58F3385FBc1C8AD2c0C9a061D7c13b141D7A5Df',
+      maxPriceAge: 90000, // maximumOracleDelay()
+    },
+    [Token.sfrxETH]: {
+      // sfrxETH/ETH
+      // https://etherscan.io/address/0xB9af7723CfBd4469A7E8aa60B93428D648Bda99d
+      contract: '0xB9af7723CfBd4469A7E8aa60B93428D648Bda99d',
+      maxPriceAge: 90000, // maximumOracleDelay()
+    },
+  },
 })
 
 // maximum age of the price feed until it is considered stale
 export const CHAINLINK_MAX_PRICE_AGE_BOUND = injectForkNetwork<number>({
   [Network.BSC_MAINNET]: 86400,
   [Network.BSC_TESTNET]: 86400,
+  [Network.ETHEREUM_MAINNET]: 90000,
 })
 
 export interface PythFeed {

@@ -142,8 +142,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xF4bafAEAE73a4A7C8b6479970075e91e641fB1FC'),
   },
   [Token.FRAX]: {
+    // https://www.coingecko.com/en/coins/frax
     [Network.BSC_MAINNET]: Address('0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40'),
     [Network.ARBITRUM_MAINNET]: Address('0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F'),
+    [Network.ETHEREUM_MAINNET]: Address('0x853d955aCEf822Db058eb8505911ED77F175b99e'),
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share
@@ -329,6 +331,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
     [Network.BSC_MAINNET]: Address('0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e'),
     [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63B33F733770c2A'),
+    [Network.ETHEREUM_MAINNET]: Address('0x5E8422345238F34275888049021821E8E08CAa1f'),
   },
   [Token.stkBNB]: {
     [Network.BSC_MAINNET]: Address('0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16'),
@@ -365,6 +368,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://docs.frax.finance/smart-contracts/frxeth-and-sfrxeth-contract-addresses
     [Network.BSC_MAINNET]: Address('0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53'),
     [Network.ARBITRUM_MAINNET]: Address('0x95aB45875cFFdba1E5f451B950bC2E42c0053f39'),
+    [Network.ETHEREUM_MAINNET]: Address('0xac3E018457B222d93114458476f3E3416Abbe38F'),
   },
   [Token.testFRAX]: {
     // TestERC20
@@ -389,6 +393,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.wstETH]: {
     // https://www.coingecko.com/en/coins/wrapped-steth
     [Network.ARBITRUM_MAINNET]: Address('0x5979D7b546E38E414F7E9822514be443A4800529'),
+    [Network.ETHEREUM_MAINNET]: Address('0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'),
   },
   [Token.xEQB]: {
     // https://arbiscan.io/address/0x96C4A48Abdf781e9c931cfA92EC0167Ba219ad8E

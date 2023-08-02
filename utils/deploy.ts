@@ -306,9 +306,11 @@ export async function deployPriceFeed(
     const priceFeedContract = await getDeployedContract(assetInfo.priceFeed.contract)
     deployments.log('Latest price for the underlying token is...')
     try {
-      deployments.log(formatEther(await priceFeedContract.getLatestPrice(await getUnderlyingTokenAddr(assetInfo))))
+      const tokenAddress = await getUnderlyingTokenAddr(assetInfo)
+      const latestPrice = await priceFeedContract.getLatestPrice(tokenAddress)
+      deployments.log(formatEther(latestPrice))
     } catch (e) {
-      deployments.log('Failed to get latest price. Is the price feed configured?')
+      deployments.log('Failed to get latest price. Is the price feed configured?', e)
     }
 
     if (assetNewlyDeployed) {

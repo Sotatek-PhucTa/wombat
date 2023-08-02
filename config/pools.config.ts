@@ -555,13 +555,13 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.ETHEREUM_MAINNET]: {
-    Main_Pool: {
+    Frax_Pool: {
       setting: {
-        ...defaultMainPoolConfig,
+        ...defaultFactoryPoolConfig,
       },
       assets: {
-        ...UsdcAsset({ maxSupply: parseUnits('1000000', 6) }),
-        ...UsdtAsset({ maxSupply: parseUnits('1000000', 6) }),
+        ...FraxAsset({ maxSupply: parseEther('20000000') }),
+        ...UsdtAsset({ maxSupply: parseUnits('20000000', 6) }),
       },
     },
   },
@@ -607,7 +607,9 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
           priceFeed: sfrxETHGovernedPriceFeed(),
           maxSupply: parseEther('1600'),
         }),
-        ...FrxEthAsset(),
+        ...FrxEthAsset({
+          assetContractName: 'DynamicAsset',
+        }),
         ...EthAsset(),
       },
     },
@@ -723,7 +725,9 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         supportNativeToken: true,
       },
       assets: {
-        ...FrxEthAsset(),
+        ...FrxEthAsset({
+          assetContractName: 'DynamicAsset',
+        }),
         ...WethAsset(),
         ...SfrxEthAsset({
           priceFeed: sfrxETHGovernedPriceFeed(),
@@ -751,6 +755,44 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...WstETHAsset({ maxSupply: parseEther('1600') }),
         ...WethAsset({ maxSupply: parseEther('1600') }),
+      },
+    },
+  },
+  [Network.ETHEREUM_MAINNET]: {
+    frxETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        supportNativeToken: true,
+      },
+      assets: {
+        ...WethAsset({ maxSupply: parseEther('11000') }),
+        ...FrxEthAsset({
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            contract: 'ChainlinkPriceFeed',
+          },
+          maxSupply: parseEther('11000'),
+        }),
+        ...SfrxEthAsset({
+          assetContractName: 'PriceFeedAsset',
+          priceFeed: {
+            contract: 'ChainlinkPriceFeed',
+          },
+          maxSupply: parseEther('11000'),
+        }),
+      },
+    },
+    WstETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig,
+        supportNativeToken: true,
+      },
+      assets: {
+        ...WstETHAsset({
+          assetContractName: 'WstETHAsset_Mainnet',
+          maxSupply: parseEther('11000'),
+        }),
+        ...WethAsset({ maxSupply: parseEther('11000') }),
       },
     },
   },

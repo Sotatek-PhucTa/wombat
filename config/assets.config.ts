@@ -121,12 +121,13 @@ export function DaiPlusAsset(): TokenMap<IAssetInfo> {
   }
 }
 
-export function FraxAsset(): TokenMap<IAssetInfo> {
+export function FraxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     FRAX: {
       tokenName: 'Frax',
       tokenSymbol: 'FRAX',
       underlyingToken: Token.FRAX,
+      ...partial,
     },
   }
 }
@@ -374,7 +375,6 @@ export function FrxEthAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo>
       tokenName: 'Frax Ether',
       tokenSymbol: 'frxETH',
       underlyingToken: Token.frxETH,
-      assetContractName: 'DynamicAsset',
       ...partial,
     },
   }
