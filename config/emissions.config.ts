@@ -664,18 +664,20 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       operator: ExternalContract.JonesDaoBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_WETH', {
-      rewardTokens: [Token.ANKR, Token.ankrETH],
+      rewardTokens: [Token.multiANKR, Token.ankrETH, Token.ANKR],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('0')),
         convertTokenPerEpochToTokenPerSec(parseEther('0.2115')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
       ],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
-      rewardTokens: [Token.ANKR, Token.ankrETH],
+      rewardTokens: [Token.multiANKR, Token.ankrETH, Token.ANKR],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('0')),
         convertTokenPerEpochToTokenPerSec(parseEther('0.141')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
       ],
       operator: ExternalContract.AnkrBribeOperator,
     }),

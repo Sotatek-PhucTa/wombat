@@ -58,6 +58,7 @@ export enum Token {
   jUSDC,
   mPendle,
   mWOM,
+  multiANKR,
   qWOM,
   rBNB,
   sfrxETH,
@@ -89,7 +90,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.ANKR]: {
     // https://www.coingecko.com/en/coins/ankr-network
     [Network.BSC_MAINNET]: Address('0xf307910A4c7bbc79691fD374889b36d8531B08e3'),
-    [Network.ARBITRUM_MAINNET]: Address('0x46F74778b265Df3a15EC9695CCd2fD3869ca848c'),
+    [Network.ARBITRUM_MAINNET]: Address('0xAeAeeD23478c3a4b798e4ed40D8B7F41366Ae861'),
   },
   [Token.ARB]: {
     [Network.ARBITRUM_MAINNET]: Address('0x912CE59144191C1204E64559FE8253a0e49E6548'),
@@ -168,6 +169,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/magic-internet-money
     [Network.BSC_MAINNET]: Address('0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba'),
     [Network.ARBITRUM_MAINNET]: Address('0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A'),
+  },
+  [Token.multiANKR]: {
+    // deprecated ANKR that was bridged from multichain
+    [Network.ARBITRUM_MAINNET]: Address('0x46F74778b265Df3a15EC9695CCd2fD3869ca848c'),
   },
   [Token.PENDLE]: {
     // https://arbiscan.io/address/0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8
