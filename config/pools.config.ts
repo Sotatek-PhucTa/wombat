@@ -49,6 +49,7 @@ import {
   EthxAsset,
   EuroCAsset,
   AgEURAsset,
+  EureAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -571,10 +572,11 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     agEUR_Pool: {
       setting: {
         ...defaultFactoryPoolConfig,
+        ampFactor: parseEther('0.0025'),
       },
       assets: {
         ...AgEURAsset({ maxSupply: parseEther('20000000') }),
-        ...EuroCAsset({ maxSupply: parseUnits('20000000', 6) }),
+        ...EureAsset({ maxSupply: parseEther('20000000') }),
       },
     },
   },

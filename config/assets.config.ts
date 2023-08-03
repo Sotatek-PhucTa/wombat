@@ -541,3 +541,14 @@ export function EuroCAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> 
     },
   }
 }
+
+export function EureAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    EURe: {
+      tokenName: 'Monerium EUR emoney',
+      tokenSymbol: 'EURe',
+      underlyingToken: Token.EURe,
+      ...partial,
+    },
+  }
+}

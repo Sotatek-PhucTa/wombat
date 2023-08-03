@@ -18,6 +18,7 @@ export enum Token {
   ETH,
   ETHx,
   EUROC,
+  EURe,
   FIS,
   FRAX,
   FXS,
@@ -154,6 +155,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/euro-coin
     [Network.ETHEREUM_MAINNET]: Address('0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c'),
   },
+  [Token.EURe]: {
+    // https://etherscan.io/address/0x3231cb76718cdef2155fc47b5286d82e6eda273f
+    [Network.ETHEREUM_MAINNET]: Address('0x3231Cb76718CDeF2155FC47b5286d82e6eDA273f'),
+  },
   [Token.FIS]: {
     [Network.BSC_MAINNET]: Address('0xF4bafAEAE73a4A7C8b6479970075e91e641fB1FC'),
   },
@@ -167,6 +172,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/frax-share
     [Network.BSC_MAINNET]: Address('0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE'),
     [Network.ARBITRUM_MAINNET]: Address('0x9d2F299715D94d8A7E6F5eaa8E654E8c74a988A7'),
+    [Network.ETHEREUM_MAINNET]: Address('0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0'),
   },
   [Token.HAY]: {
     // https://www.coingecko.com/en/coins/destablecoin-hay
