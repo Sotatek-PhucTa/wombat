@@ -3,6 +3,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getRewarders } from '../config/emissions.config'
 import { getAddress, getDeployedContract, isOwner, setRewarder } from '../utils'
+import { getRewarderDeploymentName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -11,12 +12,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
   for await (const [token, rewarderConfig] of Object.entries(await getRewarders())) {
-    const name = `MultiRewarderPerSec_V3_${token}`
+    const name = getRewarderDeploymentName(token)
     deployments.log(`Setting up ${name}`)
     const lpTokenAddress = await getAddress(rewarderConfig.lpToken)
     const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
     if (await isOwner(masterWombat, owner.address)) {
-      deployments.log('rewarder', rewarder.address, rewarderConfig.lpToken)
+      deployments.log('rewarder', rewarder.address, 'for lp', rewarderConfig.lpToken)
       await setRewarder(masterWombat, owner, lpTokenAddress, rewarder.address)
       deployments.log(`setRewarder for ${name} (${rewarder.address}) complete.`)
     } else {

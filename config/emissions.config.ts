@@ -2,7 +2,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { Address, Deployment, IRewarder, Network, TokenMap, Unknown } from '../types'
 import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
-import { Epochs } from './epoch'
+import { ETH_LAUNCH_DATE, Epochs } from './epoch'
 import { Token } from './token'
 import { getCurrentNetwork } from '../types/network'
 import assert from 'assert'
@@ -324,7 +324,63 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.ARBITRUM_TESTNET]: {},
   [Network.OPTIMISM_MAINNET]: {},
   [Network.OPTIMISM_TESTNET]: {},
-  [Network.ETHEREUM_MAINNET]: {},
+  [Network.ETHEREUM_MAINNET]: {
+    ...createRewarderForDeployedAsset('Asset_ETHx_Pool_WETH', {
+      rewardTokens: [Token.SD, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_ETHx_Pool_ETHx', {
+      rewardTokens: [Token.SD, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_FRAX', {
+      rewardTokens: [Token.FXS, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USDT', {
+      rewardTokens: [Token.FXS, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_agEUR_Pool_EURe', {
+      rewardTokens: [Token.ANGLE, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_agEUR_Pool_agEUR', {
+      rewardTokens: [Token.ANGLE, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
+      rewardTokens: [Token.FXS, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
+      rewardTokens: [Token.FXS, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+      rewardTokens: [Token.FXS, Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_wstETH_Pool_WETH', {
+      rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+    ...createRewarderForDeployedAsset('Asset_wstETH_Pool_wstETH', {
+      rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0)],
+      startTimestamp: ETH_LAUNCH_DATE,
+    }),
+  },
 }
 
 // Private. Do not export.
