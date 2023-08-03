@@ -9,12 +9,11 @@ import _ from 'lodash'
 import { DeploymentOrAddress, IAssetInfo, Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3, TestERC20 } from '../build/typechain'
-import { epoch_duration_seconds } from '../config/epoch'
 import hre from 'hardhat'
 import { setBalance, impersonateAccount, stopImpersonatingAccount } from '@nomicfoundation/hardhat-network-helpers'
 import { getCurrentNetwork } from '../types/network'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
-import { seconds } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time/duration'
+import { convertTokenPerSecToTokenPerEpoch } from '../config/emission'
 
 export * as deploy from './deploy'
 export * as multisig from './multisig'
@@ -194,7 +193,7 @@ async function getRewardInfos(contract: Contract) {
       const daysLeft = !tokenPerSec.isZero() ? balance.div(tokenPerSec).toNumber() / (24 * 3600) : NaN
       return {
         symbol: await token.symbol(),
-        tokenPerEpoch: formatUnits(tokenPerSec.mul(epoch_duration_seconds), decimals),
+        tokenPerEpoch: formatUnits(convertTokenPerSecToTokenPerEpoch(tokenPerSec), decimals),
         daysLeft,
         balance: formatUnits(balance, decimals),
       }

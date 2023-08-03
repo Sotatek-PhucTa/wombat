@@ -9,8 +9,7 @@ import { Token, getTokenAddress, getTokenDeploymentOrAddress } from '../../confi
 import { BigNumberish, Contract, BigNumber, utils } from 'ethers'
 import { Zero } from '@ethersproject/constants'
 import _ from 'lodash'
-import { epoch_duration_seconds } from '../../config/epoch'
-import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
+import { convertTokenPerEpochToTokenPerSec, convertTokenPerSecToTokenPerEpoch } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
 import { DeploymentOrAddress, IRewardInfoStruct, IRewarder, TokenMap } from '../../types'
@@ -233,7 +232,7 @@ export async function topUpRewarder(
     const newTokenRate = epochAmount != undefined ? convertTokenPerEpochToTokenPerSec(epochAmount) : tokenPerSec
     if (BigNumber.from(newTokenRate).gt(0)) {
       const erc20 = await ethers.getContractAt('ERC20', rewardToken)
-      txns.push(Safe(erc20).transfer(rewarder.address, newTokenRate.mul(epoch_duration_seconds)))
+      txns.push(Safe(erc20).transfer(rewarder.address, convertTokenPerSecToTokenPerEpoch(newTokenRate)))
     }
     if (!newTokenRate.eq(tokenPerSec)) {
       txns.push(Safe(rewarder).setRewardRate(i, newTokenRate))

@@ -1,5 +1,4 @@
 import { parseEther, parseUnits } from 'ethers/lib/utils'
-
 import { Address, Deployment, IRewarder, Network, TokenMap, Unknown } from '../types'
 import { ExternalContract } from './contract'
 import { convertTokenPerEpochToTokenPerSec } from './emission'
