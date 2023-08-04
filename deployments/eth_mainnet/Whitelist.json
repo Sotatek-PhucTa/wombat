@@ -1,0 +1,259 @@
+{
+  "address": "0xF84c5999cD8667Fa54006Aca7FEF6c31F75cc9dE",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "ApproveWallet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "RevokeWallet",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        }
+      ],
+      "name": "approveWallet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        }
+      ],
+      "name": "check",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        }
+      ],
+      "name": "revokeWallet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x2e58abb76aa5699b042796fa54dd2f25bfb23749c0e21111cd5abb80a1005764",
+  "receipt": {
+    "to": null,
+    "from": "0xcB3Bb767104e0b3235520fafB182e005D7efD045",
+    "contractAddress": "0xF84c5999cD8667Fa54006Aca7FEF6c31F75cc9dE",
+    "transactionIndex": 65,
+    "gasUsed": "283041",
+    "logsBloom": "0x08000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000001000000000400000000000000000000000000020000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000080000000000000020100000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x203a2f9f92853cc309dc4844c4207e8400589b11ac74082eb08171b1e4a9629b",
+    "transactionHash": "0x2e58abb76aa5699b042796fa54dd2f25bfb23749c0e21111cd5abb80a1005764",
+    "logs": [
+      {
+        "transactionIndex": 65,
+        "blockNumber": 17840165,
+        "transactionHash": "0x2e58abb76aa5699b042796fa54dd2f25bfb23749c0e21111cd5abb80a1005764",
+        "address": "0xF84c5999cD8667Fa54006Aca7FEF6c31F75cc9dE",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000cb3bb767104e0b3235520fafb182e005d7efd045"
+        ],
+        "data": "0x",
+        "logIndex": 100,
+        "blockHash": "0x203a2f9f92853cc309dc4844c4207e8400589b11ac74082eb08171b1e4a9629b"
+      }
+    ],
+    "blockNumber": 17840165,
+    "cumulativeGasUsed": "5368291",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "7ccea1f6c2be7855eda1dbed82eba483",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"ApproveWallet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"RevokeWallet\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"}],\"name\":\"approveWallet\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"}],\"name\":\"check\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"}],\"name\":\"revokeWallet\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"approveWallet(address)\":{\"params\":{\"_wallet\":\"the wallet to approve\"}},\"check(address)\":{\"params\":{\"_wallet\":\"the wallet to check\"},\"returns\":{\"_0\":\"true if wallet is whitelisted\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"revokeWallet(address)\":{\"params\":{\"_wallet\":\"the wallet to revoke\"}},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"Whitelist\",\"version\":1},\"userdoc\":{\"events\":{\"ApproveWallet(address)\":{\"notice\":\"events of approval and revoking wallets\"}},\"kind\":\"user\",\"methods\":{\"approveWallet(address)\":{\"notice\":\"approves wallet\"},\"check(address)\":{\"notice\":\"checks if _wallet is whitelisted\"},\"revokeWallet(address)\":{\"notice\":\"revokes wallet\"}},\"notice\":\"contains a list of wallets allowed to perform a certain operation\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/wombat-governance/Whitelist.sol\":\"Whitelist\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[],\"viaIR\":true},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    constructor() {\\n        _transferOwnership(_msgSender());\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        require(owner() == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(newOwner != address(0), \\\"Ownable: new owner is the zero address\\\");\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xba43b97fba0d32eb4254f6a5a297b39a19a247082a02d6e69349e071e2946218\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\"},\"contracts/wombat-governance/Whitelist.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\npragma solidity ^0.8.5;\\n\\nimport '@openzeppelin/contracts/access/Ownable.sol';\\n\\n/// @title Whitelist\\n/// @notice contains a list of wallets allowed to perform a certain operation\\ncontract Whitelist is Ownable {\\n    mapping(address => bool) internal wallets;\\n\\n    /// @notice events of approval and revoking wallets\\n    event ApproveWallet(address);\\n    event RevokeWallet(address);\\n\\n    /// @notice approves wallet\\n    /// @param _wallet the wallet to approve\\n    function approveWallet(address _wallet) external onlyOwner {\\n        if (!wallets[_wallet]) {\\n            wallets[_wallet] = true;\\n            emit ApproveWallet(_wallet);\\n        }\\n    }\\n\\n    /// @notice revokes wallet\\n    /// @param _wallet the wallet to revoke\\n    function revokeWallet(address _wallet) external onlyOwner {\\n        if (wallets[_wallet]) {\\n            wallets[_wallet] = false;\\n            emit RevokeWallet(_wallet);\\n        }\\n    }\\n\\n    /// @notice checks if _wallet is whitelisted\\n    /// @param _wallet the wallet to check\\n    /// @return true if wallet is whitelisted\\n    function check(address _wallet) external view returns (bool) {\\n        return wallets[_wallet];\\n    }\\n}\\n\",\"keccak256\":\"0x994c82773e2a0b229b2014f40a00859338f9ea5af145da919adb602a4371b403\",\"license\":\"BUSL-1.1\"}},\"version\":1}",
+  "bytecode": "0x6080806040523461005b5760008054336001600160a01b0319821681178355916001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a36103b590816100618239f35b600080fdfe60406080815260048036101561001457600080fd5b600091823560e01c80630fcb0ae5146102a2578063715018a614610239578063808a9d40146101b85780638da5cb5b1461018e578063c23697a8146101505763f2fde38b1461006257600080fd5b3461014c57602036600319011261014c578135916001600160a01b039182841680940361014857610091610327565b83156100df57505082548273ffffffffffffffffffffffffffffffffffffffff198216178455167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08380a380f35b906020608492519162461bcd60e51b8352820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201527f64647265737300000000000000000000000000000000000000000000000000006064820152fd5b8480fd5b8280fd5b50903461014c57602036600319011261014c57356001600160a01b03811680910361014c57818360ff92602095526001855220541690519015158152f35b8382346101b457816003193601126101b4576001600160a01b0360209254169051908152f35b5080fd5b50903461014c57602036600319011261014c5735906001600160a01b03821680920361014c576101e6610327565b81835260016020528083209182549160ff8316610201578480f35b7f1b676c3cc753786cb95aff57280fd7406f1da74e2a8b9755fdd395aded3e16dd9360209360ff1916905551908152a1388080808480f35b833461029f578060031936011261029f57610252610327565b806001600160a01b03815473ffffffffffffffffffffffffffffffffffffffff1981168355167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b80fd5b50903461014c57602036600319011261014c5735906001600160a01b03821680920361014c576102d0610327565b81835260016020528083209182549160ff8316156102ec578480f35b7fc1e7aae3f3125e58cfc69ab2a872a655dbb9427614aa85b29bb5abeaca4d6a9293600160209460ff191617905551908152a1388080808480f35b6001600160a01b0360005416330361033b57565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fdfea2646970667358221220a74e417d9263016c1d0776c84dc5726a31c293ebb9da761078ab602aab62198964736f6c63430008120033",
+  "deployedBytecode": "0x60406080815260048036101561001457600080fd5b600091823560e01c80630fcb0ae5146102a2578063715018a614610239578063808a9d40146101b85780638da5cb5b1461018e578063c23697a8146101505763f2fde38b1461006257600080fd5b3461014c57602036600319011261014c578135916001600160a01b039182841680940361014857610091610327565b83156100df57505082548273ffffffffffffffffffffffffffffffffffffffff198216178455167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08380a380f35b906020608492519162461bcd60e51b8352820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201527f64647265737300000000000000000000000000000000000000000000000000006064820152fd5b8480fd5b8280fd5b50903461014c57602036600319011261014c57356001600160a01b03811680910361014c57818360ff92602095526001855220541690519015158152f35b8382346101b457816003193601126101b4576001600160a01b0360209254169051908152f35b5080fd5b50903461014c57602036600319011261014c5735906001600160a01b03821680920361014c576101e6610327565b81835260016020528083209182549160ff8316610201578480f35b7f1b676c3cc753786cb95aff57280fd7406f1da74e2a8b9755fdd395aded3e16dd9360209360ff1916905551908152a1388080808480f35b833461029f578060031936011261029f57610252610327565b806001600160a01b03815473ffffffffffffffffffffffffffffffffffffffff1981168355167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b80fd5b50903461014c57602036600319011261014c5735906001600160a01b03821680920361014c576102d0610327565b81835260016020528083209182549160ff8316156102ec578480f35b7fc1e7aae3f3125e58cfc69ab2a872a655dbb9427614aa85b29bb5abeaca4d6a9293600160209460ff191617905551908152a1388080808480f35b6001600160a01b0360005416330361033b57565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fdfea2646970667358221220a74e417d9263016c1d0776c84dc5726a31c293ebb9da761078ab602aab62198964736f6c63430008120033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "approveWallet(address)": {
+        "params": {
+          "_wallet": "the wallet to approve"
+        }
+      },
+      "check(address)": {
+        "params": {
+          "_wallet": "the wallet to check"
+        },
+        "returns": {
+          "_0": "true if wallet is whitelisted"
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "revokeWallet(address)": {
+        "params": {
+          "_wallet": "the wallet to revoke"
+        }
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "title": "Whitelist",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "ApproveWallet(address)": {
+        "notice": "events of approval and revoking wallets"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "approveWallet(address)": {
+        "notice": "approves wallet"
+      },
+      "check(address)": {
+        "notice": "checks if _wallet is whitelisted"
+      },
+      "revokeWallet(address)": {
+        "notice": "revokes wallet"
+      }
+    },
+    "notice": "contains a list of wallets allowed to perform a certain operation",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 3924,
+        "contract": "contracts/wombat-governance/Whitelist.sol:Whitelist",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 41346,
+        "contract": "contracts/wombat-governance/Whitelist.sol:Whitelist",
+        "label": "wallets",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_bool)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      }
+    }
+  }
+}
