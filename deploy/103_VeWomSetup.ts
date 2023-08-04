@@ -16,8 +16,8 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   /// SetVoter
   const vewom = await getDeployedContract('VeWom')
   const oldVoter = await vewom.voter()
-  const voter = await deployments.get('Voter')
-  if (oldVoter != voter) {
+  const voter = await deployments.getOrNull('Voter')
+  if (voter != undefined && oldVoter != voter.address) {
     deployments.log('Setting voter contract for VeWom')
     await confirmTxn(vewom.connect(owner).setVoter(voter.address))
   }
@@ -46,4 +46,4 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['VeWom', 'Voter']
+deployFunc.dependencies = ['VeWom']

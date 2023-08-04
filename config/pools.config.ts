@@ -572,7 +572,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
   [Network.ETHEREUM_MAINNET]: {
     FRAX_Pool: {
       setting: {
-        ...defaultMainPoolConfig(),
+        ...defaultFactoryPoolConfig(),
       },
       assets: {
         ...FraxAsset({ maxSupply: parseEther('20000000') }),
