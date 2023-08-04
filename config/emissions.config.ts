@@ -327,57 +327,78 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.ETHEREUM_MAINNET]: {
     ...createRewarderForDeployedAsset('Asset_ETHx_Pool_WETH', {
       rewardTokens: [Token.SD, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('1293')),
+        convertTokenPerEpochToTokenPerSec(parseEther('18772')),
+      ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_ETHx_Pool_ETHx', {
       rewardTokens: [Token.SD, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('1293')),
+        convertTokenPerEpochToTokenPerSec(parseEther('18772')),
+      ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
-    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_FRAX', {
-      rewardTokens: [Token.FXS, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
-      startTimestamp: ETH_LAUNCH_DATE,
-    }),
-    ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USDT', {
-      rewardTokens: [Token.FXS, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
-      startTimestamp: ETH_LAUNCH_DATE,
-    }),
+    // ...createRewarderForDeployedAsset('Asset_FRAX_Pool_FRAX', {
+    //   rewardTokens: [Token.FXS, Token.WOM],
+    //   tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0')), convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+    //   startTimestamp: ETH_LAUNCH_DATE,
+    // }),
+    // ...createRewarderForDeployedAsset('Asset_FRAX_Pool_USDT', {
+    //   rewardTokens: [Token.FXS, Token.WOM],
+    //   tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0')), convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+    //   startTimestamp: ETH_LAUNCH_DATE,
+    // }),
     ...createRewarderForDeployedAsset('Asset_agEUR_Pool_EURe', {
       rewardTokens: [Token.ANGLE, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('19538')),
+        convertTokenPerEpochToTokenPerSec(parseEther('4693')),
+      ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_agEUR_Pool_agEUR', {
       rewardTokens: [Token.ANGLE, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('19538')),
+        convertTokenPerEpochToTokenPerSec(parseEther('4693')),
+      ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
       rewardTokens: [Token.FXS, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('79')),
+        convertTokenPerEpochToTokenPerSec(parseEther('4505')),
+      ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
       rewardTokens: [Token.FXS, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('99')),
+        convertTokenPerEpochToTokenPerSec(parseEther('5631')),
+      ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       rewardTokens: [Token.FXS, Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0), convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('19')),
+        convertTokenPerEpochToTokenPerSec(parseEther('1126')),
+      ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_wstETH_Pool_WETH', {
       rewardTokens: [Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('7039'))],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_wstETH_Pool_wstETH', {
       rewardTokens: [Token.WOM],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(0)],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('7039'))],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
   },
