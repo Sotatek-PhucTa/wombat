@@ -59,6 +59,7 @@ async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetA
   deployments.log('addAsset', assetAddress)
   if (await hasAsset(masterWombat, assetAddress)) {
     deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
+    return
   }
 
   try {
