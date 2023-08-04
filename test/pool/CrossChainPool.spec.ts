@@ -249,7 +249,9 @@ describe('CrossChainPool', function () {
           0
         )
 
-      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      await expect(receipt)
+        .to.emit(pool, 'SwapTokensForCredit')
+        .withArgs(user1.address, token0.address, parseEther('100'), result.feeInFromToken, result.creditAmount, 1)
       expect(await pool.totalCreditMinted()).to.eq(result.creditAmount)
 
       expect(await pool.mintFee(token0.address)).to.changeTokenBalance(token0, owner.address, parseEther('0.4'))
@@ -297,7 +299,9 @@ describe('CrossChainPool', function () {
         .connect(user1)
         .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, parseEther('5000'), 0, 0, user1.address, 0)
 
-      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      await expect(receipt)
+        .to.emit(pool, 'SwapTokensForCredit')
+        .withArgs(user1.address, token0.address, parseEther('5000'), result.feeInFromToken, result.creditAmount, 1)
       expect(await pool.totalCreditMinted()).to.eq(result.creditAmount)
 
       const feeTokenBefore = await token0.balanceOf(owner.address)
@@ -562,7 +566,9 @@ describe('CrossChainPool', function () {
           0
         )
 
-      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      await expect(receipt)
+        .to.emit(pool, 'SwapTokensForCredit')
+        .withArgs(user1.address, token0.address, parseEther('100'), result.feeInFromToken, result.creditAmount, 1)
       expect(await pool.totalCreditMinted()).to.eq(parseEther('99.998023754471257485'))
 
       const balanceAfter = (await token0.balanceOf(user1.address)) as BigNumber
@@ -608,7 +614,16 @@ describe('CrossChainPool', function () {
       const receipt = await pool
         .connect(user1)
         .swapCreditForTokens(token0.address, parseEther('99.998023754471257485'), parseEther('99'), user1.address)
-      expect(receipt).to.emit(pool, 'SwapCreditForTokens')
+      expect(receipt)
+        .to.emit(pool, 'SwapCreditForTokens')
+        .withArgs(
+          parseEther('99.998023754471257485'),
+          token0.address,
+          result.actualToAmount,
+          result.haircut,
+          user1.address,
+          1
+        )
       const balanceAfter = (await token0.balanceOf(user1.address)) as BigNumber
       expect(balanceAfter.sub(balanceBefore)).eq(parseEther('99.6'))
 
@@ -686,7 +701,9 @@ describe('CrossChainPool', function () {
           0
         )
 
-      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      await expect(receipt)
+        .to.emit(pool, 'SwapTokensForCredit')
+        .withArgs(user1.address, token0.address, parseEther('2900'), result.feeInFromToken, result.creditAmount, 2)
 
       const creditAfter = (await pool.totalCreditMinted()) as BigNumber
       expect(creditAfter.sub(creditBefore)).to.eq(result.creditAmount)
@@ -751,7 +768,9 @@ describe('CrossChainPool', function () {
           0
         )
 
-      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      await expect(receipt)
+        .to.emit(pool, 'SwapTokensForCredit')
+        .withArgs(user1.address, token1.address, parseUnits('100', 6), result.feeInFromToken, result.creditAmount, 1)
       expect(await pool.totalCreditMinted()).to.eq(parseEther('99.998023754471257485'))
 
       const balanceAfter = (await token1.balanceOf(user1.address)) as BigNumber
@@ -797,7 +816,16 @@ describe('CrossChainPool', function () {
       const receipt = await pool
         .connect(user1)
         .swapCreditForTokens(token1.address, parseEther('99.998023754471257485'), parseUnits('99', 6), user1.address)
-      expect(receipt).to.emit(pool, 'SwapCreditForTokens')
+      expect(receipt)
+        .to.emit(pool, 'SwapCreditForTokens')
+        .withArgs(
+          parseEther('99.998023754471257485'),
+          token1.address,
+          result.actualToAmount,
+          result.haircut,
+          user1.address,
+          1
+        )
       const balanceAfter = (await token1.balanceOf(user1.address)) as BigNumber
       expect(balanceAfter.sub(balanceBefore)).eq(parseUnits('99.6', 6))
 
@@ -875,7 +903,9 @@ describe('CrossChainPool', function () {
           0
         )
 
-      await expect(receipt).to.emit(pool, 'SwapTokensForCredit')
+      await expect(receipt)
+        .to.emit(pool, 'SwapTokensForCredit')
+        .withArgs(user1.address, token1.address, parseUnits('2900', 6), result.feeInFromToken, result.creditAmount, 2)
 
       const creditAfter = (await pool.totalCreditMinted()) as BigNumber
       expect(creditAfter.sub(creditBefore)).to.eq(result.creditAmount)

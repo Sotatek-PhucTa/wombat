@@ -51,6 +51,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         address indexed sender,
         address indexed fromToken,
         uint256 fromAmount,
+        uint256 fromTokenFee,
         uint256 creditAmount,
         uint256 indexed trackingId
     );
@@ -63,6 +64,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 creditAmount,
         address indexed toToken,
         uint256 toAmount,
+        uint256 toTokenFee,
         address indexed receiver,
         uint256 indexed trackingId
     );
@@ -133,7 +135,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             nonce
         );
 
-        emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, creditAmount, trackingId);
+        emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, feeInFromToken, creditAmount, trackingId);
     }
 
     /**
@@ -243,7 +245,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         // Check it doesn't exceed maximum in-coming credits
         if (totalCreditBurned > maximumInboundCredit + totalCreditMinted) revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
 
-        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, receiver, trackingId);
+        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, haircut, receiver, trackingId);
     }
 
     function _swapCreditForTokens(
