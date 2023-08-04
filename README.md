@@ -456,36 +456,45 @@ To verify proxy contracts:
 ### Ethereum mainnet deployed contracts:
 
 #### Wombat Governance
-  - Wombat Token => `0xc0B314a8c08637685Fc3daFC477b92028c540CFB`
-  - DefaultProxyAdmin => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
-  - MasterWombatV3_Proxy => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
-  - WombatRouter => `0x6BB82A9b0b9b9716B885baeEfDBE47b685a0F919`
+- Wombat Token => `0xc0B314a8c08637685Fc3daFC477b92028c540CFB`
+- DefaultProxyAdmin => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
+- MasterWombatV3_Proxy => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
+- WombatRouter => `0x6BB82A9b0b9b9716B885baeEfDBE47b685a0F919`
 
 #### FRAX Pool
-  - FactoryPools_FRAX_Pool_Proxy => `0x9c02eaf31EFE3FeE36ebE5AEBCa12Ca979dF25cC`
-  - Asset_FRAX_Pool_FRAX => `0x04D4e1C1F3D6539071b6D3849fDaED04d48D563d`
-  - Asset_FRAX_Pool_USDT => `0x62A83C6791A3d7950D823BB71a38e47252b6b6F4`
+- FactoryPools_FRAX_Pool_Proxy => `0x9c02eaf31EFE3FeE36ebE5AEBCa12Ca979dF25cC`
+- Asset_FRAX_Pool_FRAX => `0x04D4e1C1F3D6539071b6D3849fDaED04d48D563d`
+- Asset_FRAX_Pool_USDT => `0x62A83C6791A3d7950D823BB71a38e47252b6b6F4`
 
 #### agEUR Pool
 - FactoryPools_agEUR_Pool_Proxy => `0x0020A8890e723CD94660A5404C4BCCBB91680db6`
 - Asset_agEUR_Pool_agEUR => `0x3f90a5a47364c0467031fB00246192d40E3D2D9D`
 - Asset_agEUR_Pool_EURe => `0x5dacE27D0b921b177Cd9C6706c6ACDeb3EC7bEa7`
+- MultiRewarderPerSec_V3_Asset_agEUR_Pool_EURe => `0x8843b0Ad6c62d7d672BC91Cb2df7F8D62C345EFb`
+- MultiRewarderPerSec_V3_Asset_agEUR_Pool_agEUR => `0x49db5F5b460f41c0a4cD5751413236BA55523330`
 
 #### frxETH Pool
 - DynamicPools_frxETH_Pool_Proxy => `0x3161f40EA6c0C4cC8b2433d6D530EF255816E854`
 - Asset_frxETH_Pool_WETH => `0xC096FF2606152eD2A06dd12F15A3c0466Aa5A9fa`
 - Asset_frxETH_Pool_frxETH => `0x724515010904518eCF638Cc6d693046B82548068`
 - Asset_frxETH_Pool_sfrxETH => `0x51E073D92b0c226F7B0065909440b18A85769606`
+- MultiRewarderPerSec_V3_Asset_frxETH_Pool_WETH => `0xA0e74F3BabAc535D417983d30647F7648261025a`
+- MultiRewarderPerSec_V3_Asset_frxETH_Pool_frxETH => `0x1f0Ae4aa83374ebE9020c18791FDF7Ad8A4b09B2`
+- MultiRewarderPerSec_V3_Asset_frxETH_Pool_sfrxETH => `0xE9e88bD4A796C28bCF2826737D4bFFEcb81DF733`
 
 #### wstETH Pool
 - DynamicPools_wstETH_Pool_Proxy => `0xF8E32cA46AC28799c8FB7DCe1Ac11A4541160734`
 - Asset_wstETH_Pool_wstETH => `0xa12BA2d89a16f57C4b714b03C7951c41c7695502`
 - Asset_wstETH_Pool_WETH => `0x94019D0fCc9699909E5b59727505E56252760524`
+- MultiRewarderPerSec_V3_Asset_wstETH_Pool_WETH => `0x12491142cBE5Da821D9F08327bcbF881aDed89d3`
+- MultiRewarderPerSec_V3_Asset_wstETH_Pool_wstETH => `0xa2cBE329659fFAB7AB70fe90Ac58070e78aD2F40`
 
 #### ETHx Pool
 - DynamicPools_ETHx_Pool_Proxy => `0x647CC8816C2d60A5fF4d1ffeF27a5b3637d5ac81`
 - Asset_ETHx_Pool_ETHx => `0x25C9dd8a3774EF7C918cd28ff59cF9e29504C914`
 - Asset_ETHx_Pool_WETH => `0x75Eaa804518a66196946598317Aed57Ef86235Fe`
+- MultiRewarderPerSec_V3_Asset_ETHx_Pool_WETH => `0x8df1126de13bcfef999556899F469d64021adBae`
+- MultiRewarderPerSec_V3_Asset_ETHx_Pool_ETHx => `0xc693F3b22d44C43371726AE1D3FBf0Cd0D113c82`
 
 ### BSC testnet deployed contracts:
 
