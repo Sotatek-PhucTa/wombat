@@ -163,6 +163,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
@@ -181,6 +182,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
@@ -208,6 +210,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
@@ -234,6 +237,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
@@ -248,6 +252,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseEther('99.7'),
           user1.address,
+          0,
           0
         )
 
@@ -278,6 +283,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
@@ -290,6 +296,7 @@ describe('MockAdaptor', function () {
           parseEther('99.998023754471257485'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
@@ -335,6 +342,7 @@ describe('MockAdaptor', function () {
           0,
           parseUnits('99', 6),
           user1.address,
+          0,
           0
         )
 
@@ -353,6 +361,7 @@ describe('MockAdaptor', function () {
           0,
           parseUnits('99', 8),
           user1.address,
+          0,
           0
         )
 
@@ -380,6 +389,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseUnits('99', 6),
           user1.address,
+          0,
           0
         )
 
@@ -406,6 +416,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseUnits('99', 6),
           user1.address,
+          0,
           0
         )
 
@@ -420,6 +431,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseUnits('99.7', 8),
           user1.address,
+          0,
           0
         )
 
@@ -450,6 +462,7 @@ describe('MockAdaptor', function () {
           parseEther('99'),
           parseUnits('99', 6),
           user1.address,
+          0,
           0
         )
 
@@ -462,6 +475,7 @@ describe('MockAdaptor', function () {
           parseEther('99.998023754471257485'),
           parseUnits('99', 8),
           user1.address,
+          0,
           0
         )
 

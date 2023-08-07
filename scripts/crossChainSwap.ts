@@ -18,9 +18,9 @@ const FUJI_VUSDC = '0x8Cfa834ebBE803294020b08c521aA4637cB3dC1A'
 const BSC_TESTNET_VUSDC = '0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8'
 
 // parameters
-const DELIVERY_GAS_LIMIT = 150000
-const RECEIVE_VALUE = 0
-const NONCE = 1
+const DELIVERY_GAS_LIMIT = 200000
+const RECEIVER_VALUE = parseEther('0.005')
+const REDELIVERY_SEQ = 9568
 
 async function send(
   fromToken: string,
@@ -29,19 +29,20 @@ async function send(
   fromAmount: BigNumberish,
   minimumCreditAmount: BigNumberish,
   minimumToAmount: BigNumberish,
-  deliveryGasLimit: number
+  receiverValue: BigNumberish,
+  deliveryGasLimit: BigNumberish
 ) {
   console.log('send...')
   const { deployer } = await getNamedAccounts()
-  const poolAddress = (await deployments.get('CrossChainPool')).address
+  const poolAddress = (await deployments.get('CrossChainPool_stablecoinPool')).address
   const pool = (await ethers.getContractAt('CrossChainPool', poolAddress)) as CrossChainPool
 
-  const adaptorAddress = (await deployments.get('WormholeAdaptor')).address
+  const adaptorAddress = (await deployments.get('WormholeAdaptor_stablecoinPool')).address
   const adaptor = (await ethers.getContractAt('WormholeAdaptor', adaptorAddress)) as WormholeAdaptor
 
   console.log('delivery gas limit: ', deliveryGasLimit)
-  const value = await adaptor.estimateDeliveryFee(targetChain, deliveryGasLimit, RECEIVE_VALUE)
-  console.log('value: ', formatEther(value))
+  const value = await adaptor.estimateDeliveryFee(targetChain, RECEIVER_VALUE, deliveryGasLimit)
+  console.log('value: ', formatEther(value.nativePriceQuote))
 
   // swap
   const txn = await pool.swapTokensForTokensCrossChain(
@@ -52,26 +53,35 @@ async function send(
     minimumCreditAmount,
     minimumToAmount,
     deployer,
-    NONCE,
-    { value: value }
+    receiverValue,
+    deliveryGasLimit,
+    { value: value.nativePriceQuote }
   )
 
   const result = await txn.wait()
   console.log('txn:', result.transactionHash)
 }
 
-async function resend(txnHash: string, sourceChain: number, targetChain: number) {
+async function resend(
+  sourceChain: number,
+  sequence: number,
+  targetChain: number,
+  receiverValue: BigNumberish,
+  deliveryGasLimit: BigNumberish
+) {
   console.log('resend...')
 
-  const adaptorAddress = (await deployments.get('WormholeAdaptor')).address
+  const adaptorAddress = (await deployments.get('WormholeAdaptor_stablecoinPool')).address
   const adaptor = (await ethers.getContractAt('WormholeAdaptor', adaptorAddress)) as WormholeAdaptor
 
-  console.log('re-delivery gas limit: ', DELIVERY_GAS_LIMIT)
-  const value = await adaptor.estimateRedeliveryFee(targetChain, DELIVERY_GAS_LIMIT)
-  console.log('value: ', formatEther(value))
+  console.log('re-delivery gas limit: ', deliveryGasLimit)
+  const { nativePriceQuote } = await adaptor.estimateRedeliveryFee(targetChain, receiverValue, deliveryGasLimit)
+  console.log('value: ', formatEther(nativePriceQuote))
 
   // resend
-  const txn = await adaptor.requestResend(sourceChain, txnHash, NONCE, targetChain, { value: value })
+  const txn = await adaptor.requestResend(sourceChain, sequence, targetChain, receiverValue, deliveryGasLimit, {
+    value: nativePriceQuote,
+  })
   const result = await txn.wait()
   console.log('txn:', result.transactionHash)
 }
@@ -87,14 +97,19 @@ async function run() {
 
   // should swap successfully
   if (network.name === Network.BSC_TESTNET) {
-    await send(busdAddr, FUJI_VUSDC, targetChain, parseEther('10'), 0, 0, DELIVERY_GAS_LIMIT)
+    await send(busdAddr, FUJI_VUSDC, targetChain, parseEther('1'), 0, 0, RECEIVER_VALUE, DELIVERY_GAS_LIMIT)
   } else if (network.name === Network.AVALANCHE_TESTNET) {
-    await send(busdAddr, BSC_TESTNET_VUSDC, targetChain, parseEther('10'), 0, 0, DELIVERY_GAS_LIMIT)
+    await send(busdAddr, BSC_TESTNET_VUSDC, targetChain, parseEther('1'), 0, 0, RECEIVER_VALUE, DELIVERY_GAS_LIMIT)
   }
-
-  // resend
-  // await resend('0xa5f6126ee4ca1f57a02281f6117e0f316f9ca7814f220092dfdaab87fa022e9a', 6, 4)
 }
 
 // Run the script
 run()
+
+// resend(
+//   wormholeNetworkAddress[Network.AVALANCHE_TESTNET],
+//   REDELIVERY_SEQ,
+//   wormholeNetworkAddress[Network.BSC_TESTNET],
+//   RECEIVER_VALUE,
+//   DELIVERY_GAS_LIMIT
+// )

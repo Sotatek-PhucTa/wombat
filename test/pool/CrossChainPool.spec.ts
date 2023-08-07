@@ -116,8 +116,7 @@ describe('CrossChainPool', function () {
           token0.address,
           parseEther('100.998023754471257486'),
           parseEther('99'),
-          user1.address,
-          0
+          user1.address
         )
       ).to.be.reverted
     })
@@ -134,6 +133,7 @@ describe('CrossChainPool', function () {
             parseEther('99'),
             parseEther('99'),
             user1.address,
+            0,
             0
           )
       ).to.revertedWithCustomError(pool, 'WOMBAT_ZERO_AMOUNT')
@@ -147,7 +147,7 @@ describe('CrossChainPool', function () {
 
     it('swapCreditForTokensCrossChain - WOMBAT_ZERO_AMOUNT', async function () {
       await expect(
-        pool.connect(user1).swapCreditForTokensCrossChain(token2.address, 1, 0, parseEther('99'), user1.address, 0)
+        pool.connect(user1).swapCreditForTokensCrossChain(token2.address, 1, 0, parseEther('99'), user1.address, 0, 0)
       ).to.be.revertedWithCustomError(pool, 'WOMBAT_ZERO_AMOUNT')
     })
 
@@ -184,6 +184,7 @@ describe('CrossChainPool', function () {
             parseEther('100.198019801980200001'),
             parseEther('99'),
             user1.address,
+            0,
             0
           )
       ).to.be.revertedWithCustomError(pool, 'POOL__CREDIT_NOT_ENOUGH')
@@ -198,6 +199,7 @@ describe('CrossChainPool', function () {
             parseEther('99.998023754471257485'),
             parseEther('99'),
             user1.address,
+            0,
             0
           )
       ).to.be.ok
@@ -225,15 +227,16 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
       expect(result.creditAmount).to.eq(parseEther('99.598039455170219560'))
-      expect(result.feeInFromToken).to.eq(parseEther('0.4'))
+      expect(result.fromTokenHaircut).to.eq(parseEther('0.4'))
 
       // verify quote function
       const quoteResult = await pool.quoteSwapTokensForCredit(token0.address, parseEther('100'))
       expect(quoteResult.creditAmount).to.be.equal(result.creditAmount)
-      expect(quoteResult.feeInFromToken).to.be.equal(result.feeInFromToken)
+      expect(quoteResult.feeInFromToken).to.be.equal(result.fromTokenHaircut)
 
       const balanceBefore = (await token0.balanceOf(user1.address)) as BigNumber
       const receipt = await pool
@@ -246,12 +249,13 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
       await expect(receipt)
         .to.emit(pool, 'SwapTokensForCredit')
-        .withArgs(user1.address, token0.address, parseEther('100'), result.feeInFromToken, result.creditAmount, 1)
+        .withArgs(user1.address, token0.address, parseEther('100'), result.fromTokenHaircut, result.creditAmount)
       expect(await pool.totalCreditMinted()).to.eq(result.creditAmount)
 
       expect(await pool.mintFee(token0.address)).to.changeTokenBalance(token0, owner.address, parseEther('0.4'))
@@ -284,24 +288,25 @@ describe('CrossChainPool', function () {
           0,
           0,
           user1.address,
+          0,
           0
         )
       expect(result.creditAmount).to.eq(parseEther('2489.009171408983473053'))
-      expect(result.feeInFromToken).to.eq(parseEther('2510.000000000000000000')) // about 50.2% fee
+      expect(result.fromTokenHaircut).to.eq(parseEther('2510.000000000000000000')) // about 50.2% fee
 
       // verify quote function
       const quoteResult = await pool.quoteSwapTokensForCredit(token0.address, parseEther('5000'))
       expect(quoteResult.creditAmount).to.be.equal(result.creditAmount)
-      expect(quoteResult.feeInFromToken).to.be.equal(result.feeInFromToken)
+      expect(quoteResult.feeInFromToken).to.be.equal(result.fromTokenHaircut)
 
       const balanceBefore = (await token0.balanceOf(user1.address)) as BigNumber
       const receipt = await pool
         .connect(user1)
-        .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, parseEther('5000'), 0, 0, user1.address, 0)
+        .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, parseEther('5000'), 0, 0, user1.address, 0, 0)
 
       await expect(receipt)
         .to.emit(pool, 'SwapTokensForCredit')
-        .withArgs(user1.address, token0.address, parseEther('5000'), result.feeInFromToken, result.creditAmount, 1)
+        .withArgs(user1.address, token0.address, parseEther('5000'), result.fromTokenHaircut, result.creditAmount)
       expect(await pool.totalCreditMinted()).to.eq(result.creditAmount)
 
       const feeTokenBefore = await token0.balanceOf(owner.address)
@@ -333,6 +338,7 @@ describe('CrossChainPool', function () {
             parseEther('101'),
             parseEther('99'),
             user1.address,
+            0,
             0
           )
       ).to.revertedWithCustomError(pool, 'WOMBAT_AMOUNT_TOO_LOW')
@@ -349,7 +355,7 @@ describe('CrossChainPool', function () {
       await expect(
         pool
           .connect(user1)
-          .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, 100000, 0, 0, user1.address, 0)
+          .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, 100000, 0, 0, user1.address, 0, 0)
       ).to.be.revertedWithCustomError(pool, 'POOL__REACH_MAXIMUM_MINTED_CREDIT')
 
       await expect(pool.quoteSwapTokensForCredit(token0.address, 100000)).to.be.revertedWithCustomError(
@@ -392,6 +398,7 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
       await pool.setMaximumInboundCredit(parseEther('1'))
@@ -445,6 +452,7 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
       await pool.setMaximumInboundCredit(parseEther('1'))
@@ -459,8 +467,7 @@ describe('CrossChainPool', function () {
             token0.address,
             parseEther('100.998023754471257486'),
             parseEther('99'),
-            user1.address,
-            0
+            user1.address
           )
       ).to.be.revertedWithCustomError(pool, 'POOL__REACH_MAXIMUM_BURNED_CREDIT')
 
@@ -475,8 +482,7 @@ describe('CrossChainPool', function () {
             token0.address,
             parseEther('100.998023754471257485'),
             parseEther('99'),
-            user1.address,
-            0
+            user1.address
           )
       ).to.be.ok
 
@@ -485,14 +491,13 @@ describe('CrossChainPool', function () {
 
     it('completeSwapCreditForTokens - msg.sender', async function () {
       // only relayer can call `completeSwapCreditForTokens`
-      await expect(
-        pool.completeSwapCreditForTokens(token2.address, parseEther('100'), parseEther('99'), user1.address, 0)
-      ).to.be.reverted
+      await expect(pool.completeSwapCreditForTokens(token2.address, parseEther('100'), parseEther('99'), user1.address))
+        .to.be.reverted
     })
 
     it('mintCredit - msg.sender', async function () {
       // only relayer can call `mintCredit`
-      await expect(pool.mintCredit(parseEther('100'), user1.address, 0)).to.be.reverted
+      await expect(pool.mintCredit(parseEther('100'), user1.address)).to.be.reverted
     })
 
     it('Adaptor - _isTokenValid', async function () {
@@ -514,6 +519,7 @@ describe('CrossChainPool', function () {
             parseEther('99'),
             parseEther('99'),
             user1.address,
+            0,
             0
           )
       ).to.be.revertedWithCustomError(mockAdaptor, 'ADAPTOR__INVALID_TOKEN')
@@ -542,10 +548,11 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
       expect(result.creditAmount).to.eq(parseEther('99.998023754471257485'))
-      expect(result.feeInFromToken).to.eq(parseEther('0'))
+      expect(result.fromTokenHaircut).to.eq(parseEther('0'))
 
       // verify quote function
       expect((await pool.quoteSwapTokensForCredit(token0.address, parseEther('100'))).creditAmount).to.be.equal(
@@ -563,12 +570,13 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
       await expect(receipt)
         .to.emit(pool, 'SwapTokensForCredit')
-        .withArgs(user1.address, token0.address, parseEther('100'), result.feeInFromToken, result.creditAmount, 1)
+        .withArgs(user1.address, token0.address, parseEther('100'), result.fromTokenHaircut, result.creditAmount)
       expect(await pool.totalCreditMinted()).to.eq(parseEther('99.998023754471257485'))
 
       const balanceAfter = (await token0.balanceOf(user1.address)) as BigNumber
@@ -589,6 +597,7 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
       await mockAdaptor.connect(user1).faucetCredit(parseEther('99.998023754471257485'))
@@ -645,6 +654,7 @@ describe('CrossChainPool', function () {
           parseEther('4900'),
           parseEther('4900'),
           user1.address,
+          0,
           0
         )
       // now the cov ratio is 1.5
@@ -661,6 +671,7 @@ describe('CrossChainPool', function () {
             parseEther('5000'),
             parseEther('5000'),
             user1.address,
+            0,
             0
           )
       ).to.be.revertedWithCustomError(coreV3, 'CORE_COV_RATIO_LIMIT_EXCEEDED')
@@ -676,6 +687,7 @@ describe('CrossChainPool', function () {
           parseEther('1400'),
           parseEther('1400'),
           user1.address,
+          0,
           0
         )
       expect(result.creditAmount).to.eq(parseEther('1496.551127801305489021'))
@@ -698,12 +710,13 @@ describe('CrossChainPool', function () {
           parseEther('1400'),
           parseEther('1400'),
           user1.address,
+          0,
           0
         )
 
       await expect(receipt)
         .to.emit(pool, 'SwapTokensForCredit')
-        .withArgs(user1.address, token0.address, parseEther('2900'), result.feeInFromToken, result.creditAmount, 2)
+        .withArgs(user1.address, token0.address, parseEther('2900'), result.fromTokenHaircut, result.creditAmount)
 
       const creditAfter = (await pool.totalCreditMinted()) as BigNumber
       expect(creditAfter.sub(creditBefore)).to.eq(result.creditAmount)
@@ -745,6 +758,7 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
       expect(result.creditAmount).to.eq(parseEther('99.998023754471257485'))
@@ -765,12 +779,13 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
 
       await expect(receipt)
         .to.emit(pool, 'SwapTokensForCredit')
-        .withArgs(user1.address, token1.address, parseUnits('100', 6), result.feeInFromToken, result.creditAmount, 1)
+        .withArgs(user1.address, token1.address, parseUnits('100', 6), result.fromTokenHaircut, result.creditAmount)
       expect(await pool.totalCreditMinted()).to.eq(parseEther('99.998023754471257485'))
 
       const balanceAfter = (await token1.balanceOf(user1.address)) as BigNumber
@@ -791,6 +806,7 @@ describe('CrossChainPool', function () {
           parseEther('99'),
           parseEther('99'),
           user1.address,
+          0,
           0
         )
       await mockAdaptor.connect(user1).faucetCredit(parseEther('99.998023754471257485'))
@@ -847,6 +863,7 @@ describe('CrossChainPool', function () {
           parseEther('4900'),
           parseEther('4900'),
           user1.address,
+          0,
           0
         )
       // now the cov ratio is 1.5
@@ -863,6 +880,7 @@ describe('CrossChainPool', function () {
             parseEther('2900'),
             parseEther('2900'),
             user1.address,
+            0,
             0
           )
       ).to.be.revertedWithCustomError(coreV3, 'CORE_COV_RATIO_LIMIT_EXCEEDED')
@@ -878,6 +896,7 @@ describe('CrossChainPool', function () {
           parseEther('1400'),
           parseEther('1400'),
           user1.address,
+          0,
           0
         )
       expect(result.creditAmount).to.eq(parseEther('1496.551127801305489021'))
@@ -900,12 +919,13 @@ describe('CrossChainPool', function () {
           parseEther('1400'),
           parseEther('1400'),
           user1.address,
+          0,
           0
         )
 
       await expect(receipt)
         .to.emit(pool, 'SwapTokensForCredit')
-        .withArgs(user1.address, token1.address, parseUnits('2900', 6), result.feeInFromToken, result.creditAmount, 2)
+        .withArgs(user1.address, token1.address, parseUnits('2900', 6), result.fromTokenHaircut, result.creditAmount)
 
       const creditAfter = (await pool.totalCreditMinted()) as BigNumber
       expect(creditAfter.sub(creditBefore)).to.eq(result.creditAmount)

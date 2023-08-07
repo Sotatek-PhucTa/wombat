@@ -5,12 +5,13 @@ interface ICrossChainPool {
     function swapTokensForTokensCrossChain(
         address fromToken,
         address toToken,
-        uint256 toChain,
+        uint256 toChain, // wormhole chain ID
         uint256 fromAmount,
         uint256 minimumCreditAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 nonce
+        uint256 receiverValue, // gas to receive at the designated contract
+        uint256 gasLimit // gas limit for the relayed transaction
     ) external payable returns (uint256 creditAmount, uint256 haircut, uint256 id);
 
     function swapCreditForTokens(
@@ -22,11 +23,12 @@ interface ICrossChainPool {
 
     function swapCreditForTokensCrossChain(
         address toToken,
-        uint256 toChain,
+        uint256 toChain, // wormhole chain ID
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 nonce
+        uint256 receiverValue, // gas to receive at the designated contract
+        uint256 gasLimit // gas limit for the relayed transaction
     ) external payable returns (uint256 id);
 
     /*
@@ -37,9 +39,8 @@ interface ICrossChainPool {
         address toToken,
         uint256 fromAmount,
         uint256 minimumToAmount,
-        address receiver,
-        uint256 trackingId
+        address receiver
     ) external returns (uint256 actualToAmount, uint256 haircut);
 
-    function mintCredit(uint256 creditAmount, address receiver, uint256 trackingId) external;
+    function mintCredit(uint256 creditAmount, address receiver) external;
 }

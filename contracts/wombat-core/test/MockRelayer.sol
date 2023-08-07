@@ -3,54 +3,48 @@ pragma solidity ^0.8.5;
 
 import '../libraries/Adaptor.sol';
 import '../interfaces/IWormholeRelayer.sol';
-
-interface IWormholeReceiver {
-    function receiveWormholeMessages(bytes[] memory vaas, bytes[] memory additionalData) external payable;
-}
+import '../interfaces/IWormholeReceiver.sol';
 
 /// @notice A mock Wormhole Relayer that implements the `IWormholeRelayer` interface
 /// @dev This is a fake WormholeRelayer that delivers messages to the CrossChainPool. It receives messages from the fake Wormhole.
 /// The main usage is the `deliver` method.
-contract MockRelayer is IWormholeRelayer {
+contract MockRelayer {
     uint256 constant gasMultiplier = 1e10;
     uint256 constant sendGasOverhead = 0.01 ether;
 
-    function send(
+    function sendToEvm(
         uint16 targetChain,
-        bytes32 targetAddress,
-        bytes32 refundAddress,
-        uint256 maxTransactionFee,
+        address targetAddress,
+        bytes memory payload,
         uint256 receiverValue,
-        uint32 nonce
-    ) external payable returns (uint64 sequence) {}
-
-    function send(Send memory request, uint32 nonce, address relayProvider) external payable returns (uint64 sequence) {
-        require(msg.value == 0.001 ether + request.maxTransactionFee + request.receiverValue, 'Invalid funds');
+        uint256 paymentForExtraReceiverValue,
+        uint256 gasLimit,
+        uint16 refundChain,
+        address refundAddress,
+        address deliveryProviderAddress,
+        VaaKey[] memory vaaKeys,
+        uint8 consistencyLevel
+    ) external payable returns (uint64 sequence) {
+        require(msg.value == 0.001 ether + gasLimit + receiverValue, 'Invalid funds');
     }
 
-    function deliver(IWormholeReceiver target, bytes[] calldata vaas) external {
-        target.receiveWormholeMessages(vaas, new bytes[](vaas.length));
+    function deliver(
+        IWormholeReceiver target,
+        bytes calldata payload,
+        bytes32 sourceAddress,
+        uint16 sourceChain,
+        bytes32 deliveryHash
+    ) external {
+        target.receiveWormholeMessages(payload, new bytes[](0), sourceAddress, sourceChain, deliveryHash);
     }
 
-    function forward(
+    function resend(
+        VaaKey memory deliveryVaaKey,
         uint16 targetChain,
-        bytes32 targetAddress,
-        bytes32 refundAddress,
-        uint256 maxTransactionFee,
-        uint256 receiverValue,
-        uint32 nonce
-    ) external payable {}
-
-    function forward(Send memory request, uint32 nonce, address relayProvider) external payable {}
-
-    function multichainSend(
-        MultichainSend memory sendContainer,
-        uint32 nonce
+        uint256 newReceiverValue,
+        uint256 newGasLimit,
+        address newDeliveryProviderAddress
     ) external payable returns (uint64 sequence) {}
-
-    function multichainForward(MultichainSend memory requests, uint32 nonce) external payable {}
-
-    function resend(ResendByTx memory request, address relayProvider) external payable returns (uint64 sequence) {}
 
     function quoteGas(
         uint16 targetChain,

@@ -232,7 +232,7 @@ library CoreV3 {
     ) external view returns (uint256 creditAmount, uint256 feeInFromToken) {
         if (fromAmount == 0) return (0, 0);
         // haircut
-        feeInFromToken = fromAmount.wmul((haircutRate));
+        feeInFromToken = fromAmount.wmul(haircutRate);
 
         // high coverage ratio fee
 

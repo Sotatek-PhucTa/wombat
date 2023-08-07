@@ -16,6 +16,10 @@ import {
 
 const MOCK_CHAIN_ID = 2
 
+function toWormholeAddr(ethAddr: string): string {
+  return '0x000000000000000000000000' + ethAddr.substring(2)
+}
+
 describe('WormholeAdaptor', function () {
   let owner: SignerWithAddress
   let user0: SignerWithAddress
@@ -33,7 +37,6 @@ describe('WormholeAdaptor', function () {
   let asset3: Asset // USDT LP
   let lastBlockTime: number
   let fiveSecondsSince: number
-  const nonce = 1
 
   before(async function () {
     const [first, ...rest] = await ethers.getSigners()
@@ -96,7 +99,7 @@ describe('WormholeAdaptor', function () {
     await pool0.setAdaptorAddr(adaptor0.address)
 
     await adaptor0.initialize(relayer0.address, mockWormhole0.address, pool0.address)
-    await adaptor0.setAdaptorAddress(2, adaptor0.address)
+    await adaptor0.setAdaptorAddress(MOCK_CHAIN_ID, adaptor0.address)
 
     // Add BUSD & USDC & USDT assets to pool
     await pool0.connect(owner).addAsset(token0.address, asset0.address)
@@ -111,43 +114,78 @@ describe('WormholeAdaptor', function () {
     await adaptor0.approveToken(1, token3.address)
   })
 
-  it('receiveWormholeMessages should revert if one of the VAAs is invalid', async function () {
-    const vaa = await mockWormhole0.generateVAA(token0.address, parseEther('100'), parseEther('99'), user0.address)
-    const vm0 = await mockWormhole0.generateVM(nonce, user0.address, true, 0, MOCK_CHAIN_ID, vaa)
-    const vm1 = await mockWormhole0.generateVM(nonce, user0.address, false, 1, MOCK_CHAIN_ID, vaa)
-    const vm2 = await mockWormhole0.generateVM(nonce, user0.address, true, 2, MOCK_CHAIN_ID, vaa)
-    await expect(relayer0.deliver(adaptor0.address, [vm0, vm1, vm2])).to.be.revertedWith('invalid msg')
-
-    expect(await relayer0.deliver(adaptor0.address, [vm0, vm2])).to.be.ok
-  })
-
   it('receiveWormholeMessages ignore the last message (since it should be verified by the relayer)', async function () {
-    const vaa = await mockWormhole0.generateVAA(token0.address, parseEther('100'), parseEther('99'), user0.address)
-    const vm0 = await mockWormhole0.generateVM(nonce, user0.address, true, 0, MOCK_CHAIN_ID, vaa)
-    const vm1 = await mockWormhole0.generateVM(nonce, user0.address, false, 1, MOCK_CHAIN_ID, vaa)
+    const payload = await mockWormhole0.generatePayload(
+      token0.address,
+      parseEther('100'),
+      parseEther('99'),
+      user0.address
+    )
 
-    expect(await relayer0.deliver(adaptor0.address, [vm0, vm1])).to.be.ok
+    expect(
+      await relayer0.deliver(
+        adaptor0.address,
+        payload,
+        '0x000000000000000000000000' + adaptor0.address.substring(2),
+        MOCK_CHAIN_ID,
+        '0x0000000000000000000000000000000000000000000000000000000000000000'
+      )
+    ).to.be.ok
   })
 
   it('receiveWormholeMessages verifies `vm.emitterAddress`', async function () {
-    const vaa = await mockWormhole0.generateVAA(token0.address, parseEther('100'), parseEther('99'), user0.address)
-    const vm0 = await mockWormhole0.generateVM(nonce, owner.address, true, 0, MOCK_CHAIN_ID, vaa)
-    const vm1 = await mockWormhole0.generateVM(nonce, user0.address, false, 1, MOCK_CHAIN_ID, vaa)
+    const payload = await mockWormhole0.generatePayload(
+      token0.address,
+      parseEther('100'),
+      parseEther('99'),
+      user0.address
+    )
 
-    expect(await relayer0.deliver(adaptor0.address, [vm0])).to.emit(adaptor0, 'UnknownEmitter')
-    expect(await relayer0.deliver(adaptor0.address, [vm1])).to.not.emit(adaptor0, 'UnknownEmitter')
+    await expect(
+      relayer0.deliver(
+        adaptor0.address,
+        payload,
+        toWormholeAddr(owner.address),
+        MOCK_CHAIN_ID,
+        '0x0000000000000000000000000000000000000000000000000000000000000000'
+      )
+    ).to.emit(adaptor0, 'UnknownEmitter')
+
+    await expect(
+      relayer0.deliver(
+        adaptor0.address,
+        payload,
+        toWormholeAddr(adaptor0.address),
+        MOCK_CHAIN_ID,
+        '0x0000000000000000000000000000000000000000000000000000000000000000'
+      )
+    ).to.not.emit(adaptor0, 'UnknownEmitter')
   })
 
   it('cannot replay VAAs', async function () {
-    const vaa = await mockWormhole0.generateVAA(token0.address, parseEther('100'), parseEther('99'), user0.address)
-    const vm0 = await mockWormhole0.generateVM(nonce, adaptor0.address, true, 0, MOCK_CHAIN_ID, vaa)
-    const vm1 = await mockWormhole0.generateVM(nonce, user0.address, false, 1, MOCK_CHAIN_ID, vaa)
-
-    await relayer0.deliver(adaptor0.address, [vm0, vm1])
-    await expect(relayer0.deliver(adaptor0.address, [vm0, vm1])).to.be.revertedWithCustomError(
-      adaptor0,
-      'ADAPTOR__MESSAGE_ALREADY_DELIVERED'
+    const payload = await mockWormhole0.generatePayload(
+      token0.address,
+      parseEther('100'),
+      parseEther('99'),
+      user0.address
     )
+
+    await relayer0.deliver(
+      adaptor0.address,
+      payload,
+      toWormholeAddr(adaptor0.address),
+      MOCK_CHAIN_ID,
+      '0x0000000000000000000000000000000000000000000000000000000000000001'
+    )
+    await expect(
+      relayer0.deliver(
+        adaptor0.address,
+        payload,
+        toWormholeAddr(adaptor0.address),
+        MOCK_CHAIN_ID,
+        '0x0000000000000000000000000000000000000000000000000000000000000001'
+      )
+    ).to.be.revertedWithCustomError(adaptor0, 'ADAPTOR__MESSAGE_ALREADY_DELIVERED')
   })
 
   it('estimateDeliveryFee', async function () {

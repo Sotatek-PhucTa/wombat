@@ -10,6 +10,7 @@ interface IAdaptor {
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 nonce
+        uint256 receiverValue,
+        uint256 gasLimit
     ) external payable returns (uint256 trackingId);
 }

@@ -42,12 +42,7 @@ const deployFunc = async function () {
         execute: {
           init: {
             methodName: 'initialize',
-            args: [
-              wormholeConfig.relayer,
-              wormholeConfig.wormholeBridge,
-              pool.address,
-              wormholeConfig.consistencyLevel,
-            ],
+            args: [wormholeConfig.relayer, wormholeConfig.wormholeBridge, pool.address],
           },
         },
       },

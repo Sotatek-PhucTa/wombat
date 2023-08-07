@@ -72,7 +72,6 @@ export interface IMockTokenInfo {
 export interface IWormholeConfig {
   relayer: string
   wormholeBridge: string
-  consistencyLevel: number
 }
 
 export interface IWormholeAdaptorConfig {

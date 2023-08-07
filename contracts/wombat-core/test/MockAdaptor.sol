@@ -48,7 +48,8 @@ contract MockAdaptor is Adaptor {
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 // nonce: not used
+        uint256 receiverValue,
+        uint256 gasLimit
     ) internal override returns (uint256 trackingId) {
         CrossChainPoolData memory crossChainPoolData = CrossChainPoolData({
             creditAmount: fromAmount,
@@ -94,13 +95,12 @@ contract MockAdaptor is Adaptor {
                 data.toToken,
                 data.creditAmount,
                 data.minimumToAmount,
-                data.receiver,
-                id
+                data.receiver
             );
     }
 
     function faucetCredit(uint256 creditAmount) external {
-        crossChainPool.mintCredit(creditAmount, msg.sender, 0);
+        crossChainPool.mintCredit(creditAmount, msg.sender);
     }
 
     function encode(

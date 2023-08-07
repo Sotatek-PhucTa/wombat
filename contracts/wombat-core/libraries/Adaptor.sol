@@ -27,7 +27,15 @@ abstract contract Adaptor is
 
     uint256[50] private __gap;
 
-    event LogError(uint256 emitterChainId, address emitterAddress, uint256 nonce, bytes data);
+    event BridgeCreditAndSwapForTokens(
+        address toToken,
+        uint256 toChain,
+        uint256 fromAmount,
+        uint256 minimumToAmount,
+        address receiver,
+        uint256 sequence
+    );
+    event LogError(uint256 emitterChainId, address emitterAddress, bytes data);
 
     error ADAPTOR__CONTRACT_NOT_TRUSTED();
     error ADAPTOR__INVALID_TOKEN();
@@ -48,12 +56,24 @@ abstract contract Adaptor is
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 nonce
-    ) external payable override returns (uint256 trackingId) {
+        uint256 receiverValue,
+        uint256 gasLimit
+    ) external payable override returns (uint256 sequence) {
         require(msg.sender == address(crossChainPool), 'Adaptor: not authorized');
-
         _isValidToken(toChain, toToken);
-        return _bridgeCreditAndSwapForTokens(toToken, toChain, fromAmount, minimumToAmount, receiver, nonce);
+
+        sequence = _bridgeCreditAndSwapForTokens(
+            toToken,
+            toChain,
+            fromAmount,
+            minimumToAmount,
+            receiver,
+            receiverValue,
+            gasLimit
+        );
+
+        // (emitterChainID, emitterAddress, sequence) is used to retrive the generated VAA from the Guardian Network and for tracking
+        emit BridgeCreditAndSwapForTokens(toToken, toChain, fromAmount, minimumToAmount, receiver, sequence);
     }
 
     /**
@@ -66,8 +86,9 @@ abstract contract Adaptor is
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 nonce
-    ) internal virtual returns (uint256 trackingId);
+        uint256 receiverValue,
+        uint256 gasLimit
+    ) internal virtual returns (uint256 sequence);
 
     function _isValidToken(uint256 chainId, address tokenAddr) internal view {
         if (!validToken[chainId][tokenAddr]) revert ADAPTOR__INVALID_TOKEN();
@@ -79,17 +100,17 @@ abstract contract Adaptor is
         address toToken,
         uint256 creditAmount,
         uint256 minimumToAmount,
-        address receiver,
-        uint256 trackingId
+        address receiver
     ) internal returns (bool success, uint256 amount) {
-        try
-            crossChainPool.completeSwapCreditForTokens(toToken, creditAmount, minimumToAmount, receiver, trackingId)
-        returns (uint256 actualToAmount, uint256) {
+        try crossChainPool.completeSwapCreditForTokens(toToken, creditAmount, minimumToAmount, receiver) returns (
+            uint256 actualToAmount,
+            uint256
+        ) {
             return (true, actualToAmount);
         } catch (bytes memory reason) {
             // TODO: Investigate how can we decode error message from logs
-            emit LogError(emitterChainId, emitterAddress, trackingId, reason);
-            crossChainPool.mintCredit(creditAmount, receiver, trackingId);
+            emit LogError(emitterChainId, emitterAddress, reason);
+            crossChainPool.mintCredit(creditAmount, receiver);
 
             return (false, creditAmount);
         }
@@ -103,7 +124,6 @@ abstract contract Adaptor is
     ) internal pure returns (bytes memory) {
         require(toToken != address(0), 'toToken cannot be zero');
         require(receiver != address(0), 'receiver cannot be zero');
-        require(minimumToAmount != uint256(0), 'minimumToAmount cannot be zero');
         require(creditAmount != uint256(0), 'creditAmount cannot be zero');
         require(toToken != receiver, 'toToken cannot be receiver');
 
@@ -120,7 +140,6 @@ abstract contract Adaptor is
         require(toToken != address(0), 'toToken cannot be zero');
         require(receiver != address(0), 'receiver cannot be zero');
 
-        require(minimumToAmount != uint256(0), 'minimumToAmount cannot be zero');
         require(creditAmount != uint256(0), 'creditAmount cannot be zero');
         require(toToken != receiver, 'toToken cannot be receiver');
     }

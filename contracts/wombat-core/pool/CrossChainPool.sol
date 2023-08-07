@@ -45,31 +45,27 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
 
     /**
      * @notice Event that is emitted when token is swapped into credit
-     * @dev `trackingId` 0 means the swap is on the same chain. Otherwise a cross-chain swap with `trackingId` is followed
      */
     event SwapTokensForCredit(
         address indexed sender,
         address indexed fromToken,
         uint256 fromAmount,
-        uint256 fromTokenFee,
-        uint256 creditAmount,
-        uint256 indexed trackingId
+        uint256 fromTokenHaircut,
+        uint256 creditAmount
     );
 
     /**
      * @notice Event that is emitted when credit is swapped into token
-     * @dev `trackingId` 0 means the swap is on the same chain. Otherwise it is a cross-chain swap with `trackingId`
      */
     event SwapCreditForTokens(
         uint256 creditAmount,
         address indexed toToken,
         uint256 toAmount,
-        uint256 toTokenFee,
-        address indexed receiver,
-        uint256 indexed trackingId
+        uint256 toTokenHaircut,
+        address indexed receiver
     );
 
-    event MintCredit(address indexed receiver, uint256 creditAmount, uint256 indexed trackingId);
+    event MintCredit(address indexed receiver, uint256 creditAmount);
 
     /**
      * Errors
@@ -97,19 +93,20 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     function swapTokensForTokensCrossChain(
         address fromToken,
         address toToken,
-        uint256 toChain, // wormhole chain ID
+        uint256 toChain,
         uint256 fromAmount,
         uint256 minimumCreditAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 nonce
+        uint256 receiverValue,
+        uint256 gasLimit
     )
         external
         payable
         override
         nonReentrant
         whenNotPaused
-        returns (uint256 creditAmount, uint256 feeInFromToken, uint256 trackingId)
+        returns (uint256 creditAmount, uint256 fromTokenHaircut, uint256 sequence)
     {
         // Assumption: the adaptor should check `toChain` and `toToken`
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
@@ -119,23 +116,24 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         IAsset fromAsset = _assetOf(fromToken);
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
 
-        (creditAmount, feeInFromToken) = _swapTokensForCredit(
+        (creditAmount, fromTokenHaircut) = _swapTokensForCredit(
             fromAsset,
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
             minimumCreditAmount
         );
 
+        emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, fromTokenHaircut, creditAmount);
+
         // Wormhole: computeBudget + applicationBudget + wormholeFee should equal the msg.value
-        trackingId = adaptor.bridgeCreditAndSwapForTokens{value: msg.value}(
+        sequence = adaptor.bridgeCreditAndSwapForTokens{value: msg.value}(
             toToken,
             toChain,
             creditAmount,
             minimumToAmount,
             receiver,
-            nonce
+            receiverValue,
+            gasLimit
         );
-
-        emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, feeInFromToken, creditAmount, trackingId);
     }
 
     /**
@@ -148,7 +146,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         address receiver
     ) external override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
         _beforeSwapCreditForTokens(fromAmount, receiver);
-        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver, 0);
+        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver);
     }
 
     /**
@@ -158,11 +156,12 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
      */
     function swapCreditForTokensCrossChain(
         address toToken,
-        uint256 toChain, // wormhole chain ID
+        uint256 toChain,
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver,
-        uint32 nonce
+        uint256 receiverValue,
+        uint256 gasLimit
     ) external payable override nonReentrant whenNotPaused returns (uint256 trackingId) {
         _beforeSwapCreditForTokens(fromAmount, receiver);
 
@@ -173,7 +172,8 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             fromAmount,
             minimumToAmount,
             receiver,
-            nonce
+            receiverValue,
+            gasLimit
         );
     }
 
@@ -228,16 +228,19 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         address toToken,
         uint256 fromCreditAmount,
         uint256 minimumToAmount,
-        address receiver,
-        uint256 trackingId
-    ) internal returns (uint256 actualToAmount, uint256 haircut) {
+        address receiver
+    ) internal returns (uint256 actualToAmount, uint256 toTokenHaircut) {
         if (fromCreditAmount == 0) revert WOMBAT_ZERO_AMOUNT();
 
         IAsset toAsset = _assetOf(toToken);
         uint8 toDecimal = toAsset.underlyingTokenDecimals();
-        (actualToAmount, haircut) = _swapCreditForTokens(toAsset, fromCreditAmount, minimumToAmount.toWad(toDecimal));
+        (actualToAmount, toTokenHaircut) = _swapCreditForTokens(
+            toAsset,
+            fromCreditAmount,
+            minimumToAmount.toWad(toDecimal)
+        );
         actualToAmount = actualToAmount.fromWad(toDecimal);
-        haircut = haircut.fromWad(toDecimal);
+        toTokenHaircut = toTokenHaircut.fromWad(toDecimal);
 
         toAsset.transferUnderlyingToken(receiver, actualToAmount);
         totalCreditBurned += _to128(fromCreditAmount);
@@ -245,7 +248,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         // Check it doesn't exceed maximum in-coming credits
         if (totalCreditBurned > maximumInboundCredit + totalCreditMinted) revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
 
-        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, haircut, receiver, trackingId);
+        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, toTokenHaircut, receiver);
     }
 
     function _swapCreditForTokens(
@@ -357,12 +360,11 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         address toToken,
         uint256 fromAmount,
         uint256 minimumToAmount,
-        address receiver,
-        uint256 trackingId
+        address receiver
     ) external override whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
         _onlyAdaptor();
         // Note: `_checkAddress(receiver)` could be skipped at it is called at the `fromChain`
-        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver, trackingId);
+        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver);
     }
 
     /**
@@ -370,10 +372,10 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
      * @dev This function is only for the case when `completeSwapCreditForTokens` fails, and should not be called otherwise
      * Also, this function should work even if the pool is paused
      */
-    function mintCredit(uint256 creditAmount, address receiver, uint256 trackingId) external override {
+    function mintCredit(uint256 creditAmount, address receiver) external override {
         _onlyAdaptor();
         creditBalance[receiver] += creditAmount;
-        emit MintCredit(receiver, creditAmount, trackingId);
+        emit MintCredit(receiver, creditAmount);
     }
 
     function setSwapTokensForCreditEnabled(bool enable) external onlyOwner {

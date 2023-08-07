@@ -32,7 +32,7 @@ contract FakeCrossChainPool is CrossChainPool {
         );
 
         uint256 haircut2;
-        (actualToAmount, haircut2) = _doSwapCreditForTokens(toToken, creditAmount, minimumToAmount, to, 0);
+        (actualToAmount, haircut2) = _doSwapCreditForTokens(toToken, creditAmount, minimumToAmount, to);
 
         haircut = haircut1 + haircut2;
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);

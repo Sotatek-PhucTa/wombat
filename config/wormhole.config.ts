@@ -3,25 +3,26 @@ import { Token } from './token'
 import { injectForkNetwork } from './pools.config'
 
 export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = injectForkNetwork<IWormholeConfig>({
+  // https://docs.wormhole.com/wormhole/blockchain-environments/evm
+  [Network.BSC_MAINNET]: {
+    relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
+    wormholeBridge: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B',
+  },
   [Network.BSC_TESTNET]: {
-    relayer: '0xda2592C43f2e10cBBA101464326fb132eFD8cB09',
+    relayer: '0x80aC94316391752A193C1c47E27D382b507c93F3',
     wormholeBridge: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
-    consistencyLevel: 15,
   },
   [Network.AVALANCHE_TESTNET]: {
-    relayer: '0xDDe6b89B7d0AD383FafDe6477f0d300eC4d4033e',
+    relayer: '0xA3cF45939bD6260bcFe3D66bc73d60f19e49a8BB',
     wormholeBridge: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
-    consistencyLevel: 1,
   },
   [Network.LOCALHOST]: {
     relayer: '0x0000000000000000000000000000000000000000',
     wormholeBridge: '0x0000000000000000000000000000000000000000',
-    consistencyLevel: 1,
   },
   [Network.HARDHAT]: {
     relayer: '0x0000000000000000000000000000000000000000',
     wormholeBridge: '0x0000000000000000000000000000000000000000',
-    consistencyLevel: 1,
   },
 })
 
