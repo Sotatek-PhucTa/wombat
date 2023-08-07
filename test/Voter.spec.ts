@@ -743,7 +743,7 @@ describe('Voter', async function () {
 
     it('only owner can set bribe', async function () {
       await expect(voter.connect(users[0]).setBribe(lpToken3.address, AddressZero)).to.be.revertedWith(
-        'Ownable: caller is not the owner'
+        'Voter: caller is not the owner nor the bribe factory'
       )
     })
 

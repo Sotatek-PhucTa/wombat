@@ -223,7 +223,7 @@ contract MasterWombatV3 is
             // We can consider to skip this function to minimize gas
             // voter address can be zero during a migration. See comment in setVoter.
             if (voter != address(0)) {
-                IVoter(voter).distribute(address(pool.lpToken));
+                IVoter(voter).distribute(pool.lpToken);
             }
         }
     }
@@ -586,8 +586,10 @@ contract MasterWombatV3 is
     }
 
     function getAssetPid(address asset) external view override returns (uint256) {
+        uint256 pidBeforeOffset = assetPid[asset];
+        if (pidBeforeOffset == 0) revert('invalid pid');
         // revert if asset not exist
-        return assetPid[asset] - 1;
+        return pidBeforeOffset - 1;
     }
 
     function lastTimeRewardApplicable(uint256 _periodFinish) public view returns (uint256) {

@@ -5,7 +5,9 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import '../interfaces/IBribeV2.sol';
+
+import '../interfaces/IBribeRewarderFactory.sol';
+import '../interfaces/IBribe.sol';
 import '../interfaces/IVoter.sol';
 import '../rewarders/MultiRewarderPerSecV2.sol';
 
@@ -14,7 +16,7 @@ import '../rewarders/MultiRewarderPerSecV2.sol';
  * Bribe.onVote->updateReward() is a bit different from SimpleRewarder.
  * Here we reduce the original total amount of share
  */
-contract BribeV2 is IBribeV2, MultiRewarderPerSecV2 {
+contract BribeV2 is IBribe, MultiRewarderPerSecV2 {
     using SafeERC20 for IERC20;
 
     function onVote(
@@ -26,28 +28,25 @@ contract BribeV2 is IBribeV2, MultiRewarderPerSecV2 {
         return _onReward(user, newVote);
     }
 
-    function onReward(
-        address _user,
-        uint256 _lpAmount
-    ) external override onlyMaster nonReentrant returns (uint256[] memory rewards) {
-        revert('Call onVote instead');
+    function onReward(address, uint256) external override onlyMaster nonReentrant returns (uint256[] memory) {
+        revert('Call BribeV2.onVote instead');
     }
 
-    function _getTotalShare() internal view override returns (uint256) {
-        return IVoter(master).weights(address(lpToken)).voteWeight;
+    function _getTotalShare() internal view override returns (uint256 voteWeight) {
+        (, voteWeight) = IVoter(master).weights(lpToken);
     }
 
-    function rewardLength() external view override(IBribeV2, MultiRewarderPerSecV2) returns (uint256) {
-        return _rewardLength();
+    function rewardLength() public view override(IBribe, MultiRewarderPerSecV2) returns (uint256) {
+        return MultiRewarderPerSecV2.rewardLength();
     }
 
-    function rewardTokens() external view override(IBribeV2, MultiRewarderPerSecV2) returns (IERC20[] memory tokens) {
-        return _rewardTokens();
+    function rewardTokens() public view override(IBribe, MultiRewarderPerSecV2) returns (IERC20[] memory tokens) {
+        return MultiRewarderPerSecV2.rewardTokens();
     }
 
     function pendingTokens(
         address _user
-    ) external view override(IBribeV2, MultiRewarderPerSecV2) returns (uint256[] memory tokens) {
-        return _pendingTokens(_user);
+    ) public view override(IBribe, MultiRewarderPerSecV2) returns (uint256[] memory tokens) {
+        return MultiRewarderPerSecV2.pendingTokens(_user);
     }
 }

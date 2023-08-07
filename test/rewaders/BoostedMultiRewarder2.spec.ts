@@ -122,7 +122,14 @@ describe('BoostedMultiRewarder 2', async function () {
       await mim.connect(users[9]).approve(master.address, parseUnits('20000000', 18))
 
       rewarder = (await ethers.deployContract('BoostedMultiRewarder')) as BoostedMultiRewarder
-      await rewarder.initialize(master.address, usdc.address, startTime, axlUSDC.address, partnerRewardPerSec)
+      await rewarder.initialize(
+        AddressZero,
+        master.address,
+        usdc.address,
+        startTime,
+        axlUSDC.address,
+        partnerRewardPerSec
+      )
       await axlUSDC.faucet(parseEther('1000000000'))
       await axlUSDC.transfer(rewarder.address, parseEther('1000000000'))
 

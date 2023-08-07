@@ -9,10 +9,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol';
 
 import '../interfaces/IBribe.sol';
-
-interface IGauge {
-    function notifyRewardAmount(IERC20 token, uint256 amount) external;
-}
+import '../interfaces/IVoter.sol';
 
 interface IVe {
     function vote(address user, int256 voteDelta) external;
@@ -52,7 +49,7 @@ interface IVe {
 ///
 /// Note: This should also works with boosted pool. But it doesn't work with interest rate model
 /// Note 2: Please refer to the comment of MasterWombatV3.notifyRewardAmount for front-running risk
-contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable {
+contract Voter is IVoter, Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable {
     struct GaugeInfo {
         uint104 supplyBaseIndex; // 19.12 fixed point. distributed reward per alloc point
         uint104 supplyVoteIndex; // 19.12 fixed point. distributed reward per vote weight
@@ -61,11 +58,6 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         bool whitelist;
         IGauge gaugeManager;
         IBribe bribe; // address of bribe
-    }
-
-    struct GaugeWeight {
-        uint128 allocPoint;
-        uint128 voteWeight; // total amount of votes for an LP-token
     }
 
     uint256 internal constant ACC_TOKEN_PRECISION = 1e12;
@@ -87,14 +79,17 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     uint88 public womPerSec; // 8.18 fixed point
     uint16 public baseAllocation; // (e.g. 300 for 30%)
 
-    mapping(IERC20 => GaugeWeight) public weights; // lpToken => gauge weight
-    mapping(address => mapping(IERC20 => uint256)) public votes; // user address => lpToken => votes
-    mapping(IERC20 => GaugeInfo) public infos; // lpToken => GaugeInfo
+    mapping(IERC20 => GaugeWeight) public override weights; // lpToken => gauge weight
+    mapping(address => mapping(IERC20 => uint256)) public override votes; // user address => lpToken => votes
+    mapping(IERC20 => GaugeInfo) public override infos; // lpToken => GaugeInfo
+
+    address public bribeFactory;
 
     event UpdateEmissionPartition(uint256 baseAllocation, uint256 votePartition);
     event UpdateVote(address user, IERC20 lpToken, uint256 amount);
     event DistributeReward(IERC20 lpToken, uint256 amount);
 
+    /// @dev Note: set bribe factory after initialization
     function initialize(
         IERC20 _wom,
         IVe _veWom,
@@ -216,7 +211,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     }
 
     /// @dev This function looks safe from re-entrancy attack
-    function distribute(IERC20 _lpToken) external {
+    function distribute(IERC20 _lpToken) external override {
         require(msg.sender == address(infos[_lpToken].gaugeManager), 'Caller is not gauge manager');
         _checkGaugeExist(_lpToken);
         _distributeWom();
@@ -231,7 +226,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
             wom.balanceOf(address(this)) > _claimable
         ) {
             infos[_lpToken].claimable = 0;
-            infos[_lpToken].nextEpochStartTime = _getNextEpochStartTime();
+            infos[_lpToken].nextEpochStartTime = getNextEpochStartTime();
             emit DistributeReward(_lpToken, _claimable);
 
             wom.transfer(address(infos[_lpToken].gaugeManager), _claimable);
@@ -290,7 +285,7 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         infos[_lpToken].whitelist = true;
         infos[_lpToken].gaugeManager = _gaugeManager;
         infos[_lpToken].bribe = _bribe; // 0 address is allowed
-        infos[_lpToken].nextEpochStartTime = _getNextEpochStartTime();
+        infos[_lpToken].nextEpochStartTime = getNextEpochStartTime();
         lpTokens.push(_lpToken);
     }
 
@@ -298,6 +293,11 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         require(_womPerSec <= 10000e18, 'reward rate too high'); // in case `voteIndex` overflow
         _distributeWom();
         womPerSec = _womPerSec;
+    }
+
+    /// @dev to revoke bribe factory, set its address to 0
+    function setBribeFactory(address _bribeFactory) external onlyOwner {
+        bribeFactory = _bribeFactory;
     }
 
     /// @notice Pause vote emission of WOM tokens for the gauge.
@@ -356,7 +356,11 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
     }
 
     /// @notice get bribe address for LP token
-    function setBribe(IERC20 _lpToken, IBribe _bribe) external onlyOwner {
+    function setBribe(IERC20 _lpToken, IBribe _bribe) external override {
+        require(
+            bribeFactory == msg.sender || owner() == msg.sender,
+            'Voter: caller is not the owner nor the bribe factory'
+        );
         _checkGaugeExist(_lpToken);
 
         infos[_lpToken].bribe = _bribe; // 0 address is allowed
@@ -431,6 +435,16 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         return _getClaimable(_lpToken, _getBaseIndex(), _getVoteIndex());
     }
 
+    /// @notice Get the start timestamp of the next epoch
+    function getNextEpochStartTime() public view returns (uint40) {
+        if (block.timestamp < firstEpochStartTime) {
+            return firstEpochStartTime;
+        }
+
+        uint256 epochCount = (block.timestamp - firstEpochStartTime) / EPOCH_DURATION;
+        return uint40(firstEpochStartTime + (epochCount + 1) * EPOCH_DURATION);
+    }
+
     function _getBaseIndex() internal view returns (uint256) {
         if (block.timestamp <= lastRewardTimestamp || totalAllocPoint == 0 || paused()) {
             return baseIndex;
@@ -473,16 +487,6 @@ contract Voter is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable,
         uint256 _voteShare = (weights[_lpToken].voteWeight * voteIndexDelta) / ACC_TOKEN_PRECISION;
 
         return infos[_lpToken].claimable + _baseShare + _voteShare;
-    }
-
-    /// @notice Get the start timestamp of the next epoch
-    function _getNextEpochStartTime() internal view returns (uint40) {
-        if (block.timestamp < firstEpochStartTime) {
-            return firstEpochStartTime;
-        }
-
-        uint256 epochCount = (block.timestamp - firstEpochStartTime) / EPOCH_DURATION;
-        return uint40(firstEpochStartTime + (epochCount + 1) * EPOCH_DURATION);
     }
 
     function to128(uint256 val) internal pure returns (uint128) {

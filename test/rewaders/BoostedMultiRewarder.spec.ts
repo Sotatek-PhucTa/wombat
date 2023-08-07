@@ -6,6 +6,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { deployments, ethers } from 'hardhat'
 import { BoostedMultiRewarder, BoostedMasterWombat, TestERC20, VeWom, Voter, WombatERC20 } from '../../build/typechain'
 import { getDeployedContract, getTestERC20 } from '../../utils'
+import { AddressZero } from '@ethersproject/constants'
 
 describe('BoostedMultiRewarder', function () {
   const USDCDecimals = 18
@@ -352,6 +353,7 @@ describe('BoostedMultiRewarder', function () {
   async function deployRewarder(rewardInfo: RewardInfo) {
     const rewarder = (await ethers.deployContract('BoostedMultiRewarder')) as BoostedMultiRewarder
     await rewarder.initialize(
+      AddressZero,
       master.address,
       rewardInfo.lpToken,
       (await time.latest()) + 1, // starts immediately

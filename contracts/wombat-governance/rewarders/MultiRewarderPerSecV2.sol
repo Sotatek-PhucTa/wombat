@@ -8,6 +8,8 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+
+import '../interfaces/IBribeRewarderFactory.sol';
 import '../interfaces/IMultiRewarderV2.sol';
 
 /**
@@ -21,6 +23,7 @@ import '../interfaces/IMultiRewarderV2.sol';
  * - This contract has no knowledge on the LP amount and Master is
  *   responsible to pass the amount into this contract
  * - Supports multiple reward tokens
+ * - Supports bribe rewarder factory
  */
 contract MultiRewarderPerSecV2 is
     IMultiRewarderV2,
@@ -33,8 +36,6 @@ contract MultiRewarderPerSecV2 is
     bytes32 public constant ROLE_OPERATOR = keccak256('operator');
 
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
-    IERC20 public lpToken;
-    address public master;
 
     struct UserInfo {
         uint128 amount; // 20.18 fixed point.
@@ -89,10 +90,15 @@ contract MultiRewarderPerSecV2 is
      * surplus = availableReward - rewardToDistribute, is the amount inside balance that is available for future distribution.
      */
 
+    IERC20 public lpToken;
+    address public master;
+
     /// @notice Info of the reward tokens.
     RewardInfo[] public rewardInfos;
     /// @notice tokenId => userId => UserInfo
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
+
+    IBribeRewarderFactory public bribeFactory;
 
     event OnReward(address indexed rewardToken, address indexed user, uint256 amount);
     event RewardRateUpdated(address indexed rewardToken, uint256 oldRate, uint256 newRate);
@@ -110,6 +116,7 @@ contract MultiRewarderPerSecV2 is
      * @notice Initializes pool. Dev is set to be the account calling this function.
      */
     function initialize(
+        IBribeRewarderFactory _bribeFactory,
         address _master,
         IERC20 _lpToken,
         uint256 _startTimestamp,
@@ -128,6 +135,7 @@ contract MultiRewarderPerSecV2 is
         __AccessControlEnumerable_init_unchained();
         __ReentrancyGuard_init_unchained();
 
+        bribeFactory = _bribeFactory; // bribeFactory can be 0 address
         master = _master;
         lpToken = _lpToken;
 
@@ -156,6 +164,12 @@ contract MultiRewarderPerSecV2 is
 
     function addRewardToken(IERC20 _rewardToken, uint40 _startTimestampOrNow, uint96 _tokenPerSec) external virtual {
         require(hasRole(ROLE_OPERATOR, msg.sender) || msg.sender == owner(), 'not authorized');
+        // Check `bribeFactory.isRewardTokenWhitelisted` if needed
+        require(
+            address(bribeFactory) == address(0) || bribeFactory.isRewardTokenWhitelisted(_rewardToken),
+            'reward token must be whitelisted by bribe factory'
+        );
+
         _addRewardToken(_rewardToken, _startTimestampOrNow, _tokenPerSec);
     }
 
@@ -197,7 +211,7 @@ contract MultiRewarderPerSecV2 is
 
     function _updateReward(uint256 totalShare) internal {
         uint256 length = rewardInfos.length;
-        uint256[] memory toDistribute = _rewardsToDistribute();
+        uint256[] memory toDistribute = rewardsToDistribute();
         for (uint256 i; i < length; ++i) {
             RewardInfo storage info = rewardInfos[i];
             uint256 rewardToDistribute = toDistribute[i];
@@ -306,26 +320,18 @@ contract MultiRewarderPerSecV2 is
     }
 
     /// @notice returns reward length
-    function rewardLength() external view virtual override returns (uint256) {
-        return _rewardLength();
-    }
-
-    function _rewardLength() internal view returns (uint256) {
+    function rewardLength() public view virtual override returns (uint256) {
         return rewardInfos.length;
     }
 
     /// @notice View function to see pending tokens that have been distributed but not claimed by the user yet.
     /// @param _user Address of user.
     /// @return rewards_ reward for a given user.
-    function pendingTokens(address _user) external view virtual override returns (uint256[] memory rewards_) {
-        return _pendingTokens(_user);
-    }
-
-    function _pendingTokens(address _user) internal view returns (uint256[] memory rewards_) {
+    function pendingTokens(address _user) public view virtual override returns (uint256[] memory rewards_) {
         uint256 length = rewardInfos.length;
         rewards_ = new uint256[](length);
 
-        uint256[] memory toDistribute = _rewardsToDistribute();
+        uint256[] memory toDistribute = rewardsToDistribute();
         for (uint256 i; i < length; ++i) {
             RewardInfo memory info = rewardInfos[i];
             UserInfo storage user = userInfo[i][_user];
@@ -346,17 +352,12 @@ contract MultiRewarderPerSecV2 is
     }
 
     /// @notice the amount of reward accumulated since the lastRewardTimestamp and is to be distributed.
-    function rewardsToDistribute() public view returns (uint256[] memory rewards_) {
-        return _rewardsToDistribute();
-    }
-
-    /// @notice the amount of reward accumulated since the lastRewardTimestamp and is to be distributed.
     /// the case that lastRewardTimestamp is in the future is also handled
-    function _rewardsToDistribute() internal view returns (uint256[] memory rewards_) {
+    function rewardsToDistribute() public view returns (uint256[] memory rewards_) {
         uint256 length = rewardInfos.length;
         rewards_ = new uint256[](length);
 
-        uint256[] memory rewardBalances = _balances();
+        uint256[] memory rewardBalances = balances();
 
         for (uint256 i; i < length; ++i) {
             RewardInfo memory info = rewardInfos[i];
@@ -381,17 +382,13 @@ contract MultiRewarderPerSecV2 is
     }
 
     /// @notice return an array of reward tokens
-    function _rewardTokens() internal view returns (IERC20[] memory tokens_) {
+    function rewardTokens() public view virtual override returns (IERC20[] memory tokens_) {
         uint256 length = rewardInfos.length;
         tokens_ = new IERC20[](length);
         for (uint256 i; i < length; ++i) {
             RewardInfo memory info = rewardInfos[i];
             tokens_[i] = info.rewardToken;
         }
-    }
-
-    function rewardTokens() external view virtual override returns (IERC20[] memory tokens) {
-        return _rewardTokens();
     }
 
     /// @notice View function to see surplus of each reward, i.e. reward balance - unclaimed amount
@@ -408,8 +405,8 @@ contract MultiRewarderPerSecV2 is
     function _rewardTokenSurpluses() internal view returns (int256[] memory surpluses_) {
         uint256 length = rewardInfos.length;
         surpluses_ = new int256[](length);
-        uint256[] memory toDistribute = _rewardsToDistribute();
-        uint256[] memory rewardBalances = _balances();
+        uint256[] memory toDistribute = rewardsToDistribute();
+        uint256[] memory rewardBalances = balances();
 
         for (uint256 i; i < length; ++i) {
             RewardInfo memory info = rewardInfos[i];
@@ -474,7 +471,7 @@ contract MultiRewarderPerSecV2 is
     function runoutTimestamps() external view returns (uint40[] memory timestamps_) {
         uint256 length = rewardInfos.length;
         timestamps_ = new uint40[](length);
-        uint256[] memory rewardBalances = _balances();
+        uint256[] memory rewardBalances = balances();
         int256[] memory surpluses = _rewardTokenSurpluses();
 
         for (uint256 i; i < length; ++i) {
@@ -504,11 +501,7 @@ contract MultiRewarderPerSecV2 is
     }
 
     /// @notice View function to see balances of reward token.
-    function balances() external view returns (uint256[] memory balances_) {
-        return _balances();
-    }
-
-    function _balances() internal view returns (uint256[] memory balances_) {
+    function balances() public view returns (uint256[] memory balances_) {
         uint256 length = rewardInfos.length;
         balances_ = new uint256[](length);
 
@@ -535,4 +528,6 @@ contract MultiRewarderPerSecV2 is
     function min(uint256 x, uint256 y) internal pure returns (uint256) {
         return x <= y ? x : y;
     }
+
+    uint256[50] private __gap;
 }

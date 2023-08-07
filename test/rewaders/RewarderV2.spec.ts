@@ -5,8 +5,10 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { assert, expect } from 'chai'
+import { MultiRewarderPerSecV2 } from '../../build/typechain'
+import { AddressZero } from '@ethersproject/constants'
 
-describe('[Rewarder]', function () {
+describe('RewarderV2', function () {
   const USDCDecimals = 18
   const DAIDecimals = 18
   const axlUSDCDecimals = 6
@@ -317,8 +319,9 @@ describe('[Rewarder]', function () {
   }
 
   async function deployRewarder(rewardInfo: RewardInfo) {
-    const rewarder = await ethers.deployContract('MultiRewarderPerSecV2')
+    const rewarder = (await ethers.deployContract('MultiRewarderPerSecV2')) as MultiRewarderPerSecV2
     await rewarder.initialize(
+      AddressZero,
       master.address,
       rewardInfo.lpToken ?? USDC.address,
       (await time.latest()) + 1, // starts immediately

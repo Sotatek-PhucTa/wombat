@@ -178,6 +178,7 @@ const config: HardhatUserConfig = {
     paths: [
       '@openzeppelin/contracts/governance/TimelockController.sol',
       '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
+      '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol',
     ],
   },
 }

@@ -13,9 +13,10 @@ import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import './libraries/DSMath.sol';
 import './interfaces/IVeWom.sol';
 import './interfaces/IVoter.sol';
+import './interfaces/IBribeRewarderFactory.sol';
 import './interfaces/IBoostedMasterWombat.sol';
-import './interfaces/IMultiRewarder.sol';
 import './interfaces/IBoostedMultiRewarder.sol';
+import './interfaces/IMultiRewarder.sol';
 
 /// @title BoostedMasterWombat
 /// @notice MasterWombat is a boss. He is not afraid of any snakes. In fact, he drinks their venoms. So, veWom holders boost
@@ -100,7 +101,9 @@ contract BoostedMasterWombat is
     // Mapping of asset to pid. Offset by +1 to distinguish with default value
     mapping(address => uint256) internal assetPid;
     // pid => address of boostedRewarder
-    mapping(uint256 => IBoostedMultiRewarder) public boostedRewarders;
+    mapping(uint256 => IBoostedMultiRewarder) public override boostedRewarders;
+
+    IBribeRewarderFactory public bribeRewarderFactory;
 
     event Add(uint256 indexed pid, IERC20 indexed lpToken, IBoostedMultiRewarder boostedRewarder);
     event SetRewarder(uint256 indexed pid, IMultiRewarder rewarder);
@@ -159,6 +162,10 @@ contract BoostedMasterWombat is
         newMasterWombat = _newMasterWombat;
     }
 
+    function setBribeRewarderFactory(IBribeRewarderFactory _bribeRewarderFactory) external onlyOwner {
+        bribeRewarderFactory = _bribeRewarderFactory;
+    }
+
     /// @notice Add a new lp to the pool. Can only be called by the owner.
     /// @dev Reverts if the same LP token is added more than once.
     /// @param _lpToken the corresponding lp token
@@ -196,7 +203,8 @@ contract BoostedMasterWombat is
     /// @notice Update the given pool's boostedRewarder
     /// @param _pid the pool id
     /// @param _boostedRewarder the boostedRewarder
-    function setRewarder(uint256 _pid, IBoostedMultiRewarder _boostedRewarder) external onlyOwner {
+    function setRewarder(uint256 _pid, IBoostedMultiRewarder _boostedRewarder) external override {
+        require(msg.sender == address(bribeRewarderFactory) || msg.sender == owner(), 'not authorized');
         require(
             Address.isContract(address(_boostedRewarder)) || address(_boostedRewarder) == address(0),
             'set: boostedRewarder must be contract or zero'
@@ -233,7 +241,7 @@ contract BoostedMasterWombat is
             // We can consider to skip this function to minimize gas
             // voter address can be zero during a migration. See comment in setVoter.
             if (voter != address(0)) {
-                IVoter(voter).distribute(address(pool.lpToken));
+                IVoter(voter).distribute(pool.lpToken);
             }
         }
     }
@@ -637,8 +645,10 @@ contract BoostedMasterWombat is
     }
 
     function getAssetPid(address asset) external view override returns (uint256) {
+        uint256 pidBeforeOffset = assetPid[asset];
+        if (pidBeforeOffset == 0) revert('invalid pid');
         // revert if asset not exist
-        return assetPid[asset] - 1;
+        return pidBeforeOffset - 1;
     }
 
     function lastTimeRewardApplicable(uint256 _periodFinish) public view returns (uint256) {

@@ -9,6 +9,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
+import '../interfaces/IBribeRewarderFactory.sol';
 import '../interfaces/IBoostedMultiRewarder.sol';
 import '../interfaces/IBoostedMasterWombat.sol';
 
@@ -35,8 +36,6 @@ contract BoostedMultiRewarder is
     bytes32 public constant ROLE_OPERATOR = keccak256('operator');
 
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
-    IERC20 public lpToken;
-    IBoostedMasterWombat public masterWombat;
 
     struct UserInfo {
         // if the pool is activated, rewardDebt should be > 0
@@ -97,10 +96,15 @@ contract BoostedMultiRewarder is
      * surplus = availableReward - rewardToDistribute, is the amount inside balance that is available for future distribution.
      */
 
+    IERC20 public lpToken;
+    IBoostedMasterWombat public masterWombat;
+
     /// @notice Info of the reward tokens.
     RewardInfo[] public rewardInfos;
     /// @notice tokenId => userId => UserInfo
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
+
+    IBribeRewarderFactory public bribeFactory;
 
     event OnReward(address indexed rewardToken, address indexed user, uint256 amount);
     event RewardRateUpdated(address indexed rewardToken, uint256 oldRate, uint256 newRate);
@@ -121,6 +125,7 @@ contract BoostedMultiRewarder is
      * @notice Initializes pool. Dev is set to be the account calling this function.
      */
     function initialize(
+        IBribeRewarderFactory _bribeFactory,
         IBoostedMasterWombat _masterWombat,
         IERC20 _lpToken,
         uint256 _startTimestamp,
@@ -139,6 +144,7 @@ contract BoostedMultiRewarder is
         __AccessControlEnumerable_init_unchained();
         __ReentrancyGuard_init_unchained();
 
+        bribeFactory = _bribeFactory; // bribeFactory can be 0 address
         masterWombat = _masterWombat;
         lpToken = _lpToken;
 
@@ -166,8 +172,14 @@ contract BoostedMultiRewarder is
         _revokeRole(ROLE_OPERATOR, _operator);
     }
 
-    function addRewardToken(IERC20 _rewardToken, uint40 _startTimestampOrNow, uint96 _tokenPerSec) external virtual {
+    function addRewardToken(IERC20 _rewardToken, uint40 _startTimestampOrNow, uint96 _tokenPerSec) external override {
         require(hasRole(ROLE_OPERATOR, msg.sender) || msg.sender == owner(), 'not authorized');
+        // Check `bribeFactory.isRewardTokenWhitelisted` if needed
+        require(
+            address(bribeFactory) == address(0) || bribeFactory.isRewardTokenWhitelisted(_rewardToken),
+            'reward token must be whitelisted by bribe factory'
+        );
+
         _addRewardToken(_rewardToken, _startTimestampOrNow, _tokenPerSec);
     }
 

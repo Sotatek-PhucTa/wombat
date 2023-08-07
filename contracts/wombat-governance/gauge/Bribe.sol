@@ -41,8 +41,8 @@ contract Bribe is IBribe, MultiRewarderPerSec {
         revert('Call onVote instead');
     }
 
-    function _getTotalShare() internal view override returns (uint256) {
-        return IVoter(master).weights(address(lpToken)).voteWeight;
+    function _getTotalShare() internal view override returns (uint256 voteWeight) {
+        (, voteWeight) = IVoter(master).weights(lpToken);
     }
 
     function rewardLength() external view override(IBribe, MultiRewarderPerSec) returns (uint256) {
