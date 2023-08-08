@@ -10,7 +10,7 @@ import { DeploymentOrAddress, IAssetInfo, Network } from '../types'
 import { getTokenAddress } from '../config/token'
 import { HighCovRatioFeePoolV3, TestERC20 } from '../build/typechain'
 import hre from 'hardhat'
-import { setBalance, impersonateAccount, stopImpersonatingAccount } from '@nomicfoundation/hardhat-network-helpers'
+import { setBalance } from '@nomicfoundation/hardhat-network-helpers'
 import { getCurrentNetwork } from '../types/network'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerSecToTokenPerEpoch } from '../config/emission'
@@ -27,10 +27,8 @@ export function isForkedNetwork() {
 export async function impersonateAsMultisig(fn: (signer: SignerWithAddress) => Promise<unknown>) {
   const { multisig } = await getNamedAccounts()
   setBalance(multisig, parseEther('10')) // for gas
-  impersonateAccount(multisig)
-  const signer = await ethers.getSigner(multisig)
+  const signer = await ethers.getImpersonatedSigner(multisig)
   await fn(signer)
-  stopImpersonatingAccount(multisig)
 }
 
 export async function concatAll<T>(...promises: Promise<T[]>[]): Promise<T[]> {

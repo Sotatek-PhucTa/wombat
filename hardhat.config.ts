@@ -8,10 +8,11 @@ import '@openzeppelin/hardhat-upgrades'
 import dotenv from 'dotenv'
 import 'hardhat-contract-sizer'
 import 'hardhat-deploy'
-import { HardhatUserConfig } from 'hardhat/config'
+import { HardhatUserConfig, extendEnvironment } from 'hardhat/config'
 import secrets from './secrets.json' // BSC TESTNET ONLY!
 import './tasks/tasks.index'
 import { Network } from './types'
+import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from 'hardhat/types'
 dotenv.config()
 
 const config: HardhatUserConfig = {
@@ -208,5 +209,14 @@ if (Object.values(Network).includes(network as Network)) {
   config.namedAccounts.multisig = config.namedAccounts.multisig[network] ?? config.namedAccounts.multisig.default
   console.log(`Network hardhat is forking ${network}`)
 }
+
+// Workaround to impersonate when connecting to localhost
+// See https://github.com/NomicFoundation/hardhat/issues/1226#issuecomment-1519092725
+extendEnvironment((hre: HardhatRuntimeEnvironment) => {
+  const config = hre.network.config as HttpNetworkUserConfig
+  if (config?.url) {
+    hre.ethers.provider = new hre.ethers.providers.JsonRpcProvider(config.url)
+  }
+})
 
 export default config
