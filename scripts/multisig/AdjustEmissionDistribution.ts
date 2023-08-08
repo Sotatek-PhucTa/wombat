@@ -19,14 +19,14 @@ runScript('AdjustEmissionDistribution', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 820_000
-    BRIBE_ALLOC_PERCENT = 44.5
+    WOM_MONTHLY_EMISSION_RATE = 500_000
+    BRIBE_ALLOC_PERCENT = 31.5
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
-      Asset_MainPool_USDCe: 21,
-      Asset_MainPool_USDT: 17,
-      Asset_MainPool_DAI: 6,
-      Asset_MainPool_USDC: 9,
+      Asset_MainPool_USDCe: 25,
+      Asset_MainPool_USDT: 21,
+      Asset_MainPool_DAI: 9,
+      Asset_MainPool_USDC: 11,
       // wmxWOM Pool
       Asset_wmxWOM_Pool_wmxWOM: 0.6,
       Asset_wmxWOM_Pool_WOM: 0.6,
@@ -38,12 +38,12 @@ runScript('AdjustEmissionDistribution', async () => {
       Asset_qWOM_Pool_WOM: 0.2,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 1_500_000
-    BRIBE_ALLOC_PERCENT = 74.5
+    WOM_MONTHLY_EMISSION_RATE = 1_000_000
+    BRIBE_ALLOC_PERCENT = 68
     GAUGE_ALLOC_PERCENTS = {
       // Main Pool
-      Asset_MainPool_USDC: 11,
-      Asset_MainPool_USDT: 11,
+      Asset_MainPool_USDC: 13,
+      Asset_MainPool_USDT: 13,
       Asset_MainPool_DAI: 1,
       // TODO: standardize pool names. i.e. Asset_wmxWOMPool_wmxWOM is used here but for bsc it is Asset_wmxWOM_Pool_wmxWOM
       // wmxWOM Pool
@@ -56,8 +56,8 @@ runScript('AdjustEmissionDistribution', async () => {
       Asset_qWOMPool_qWOM: 0.2,
       Asset_qWOMPool_WOM: 0.2,
       // wBETH Pool
-      Asset_wBETH_Pool_wBETH: 0,
-      Asset_wBETH_Pool_ETH: 0,
+      Asset_wBETH_Pool_wBETH: 1.25,
+      Asset_wBETH_Pool_ETH: 1.25,
     }
   }
 

@@ -466,7 +466,9 @@ export async function pauseOrResumeRewardRate(
         } else if (expected.eq(0) && actual.gt(0)) {
           // out of sync (0, >0)
           console.error(
-            `${name}: ${Token[info.rewardTokens[i]]} emission rate is not in sync. Expected ${actual.toString()}.`
+            `${name}: ${
+              Token[info.rewardTokens[i]]
+            } emission rate is not in sync. Expected: ${expected.toString()} Actual: ${actual.toString()}.`
           )
           return []
         } else {
@@ -479,7 +481,9 @@ export async function pauseOrResumeRewardRate(
           if (hasEmission) {
             if (!expected.eq(actual))
               console.error(
-                `${name}: ${Token[info.rewardTokens[i]]} emission rate is not in sync. Expected ${actual.toString()}.`
+                `${name}: ${
+                  Token[info.rewardTokens[i]]
+                } emission rate is not in sync. Expected: ${expected.toString()} Actual: ${actual.toString()}.`
               )
             return hasEnoughToken ? [] : [Safe(rewarder).setRewardRate(i, 0)]
           } else {
