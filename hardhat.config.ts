@@ -185,8 +185,9 @@ const config: HardhatUserConfig = {
 
 const network = process.env.FORK_NETWORK || ''
 if (Object.values(Network).includes(network as Network)) {
+  const blockNumber = parseInt(process.env.FORK_BLOCK_NUMBER || '0') || undefined
   const url = config.networks[network].url
-  config.networks.hardhat.forking = { url }
+  config.networks.hardhat.forking = { url, blockNumber }
   // use `deployer` on fork network
   config.networks[Network.LOCALHOST].accounts = [
     secrets.deployer.privateKey,
