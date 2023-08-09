@@ -34,6 +34,7 @@ export enum Token {
   QUO,
   RT1,
   RT2,
+  SABLE,
   SD,
   SPELL,
   SnBNB,
@@ -228,6 +229,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.RT2]: {
     // TestERC20
     [Network.BSC_TESTNET]: Address('0x615F8656b763FF4A6a82B3cbBd54d392834df13F'),
+  },
+  [Token.SABLE]: {
+    [Network.BSC_MAINNET]: Address('0x1eE098cBaF1f846d5Df1993f7e2d10AFb35A878d'),
   },
   [Token.SD]: {
     // https://www.coingecko.com/en/coins/stader

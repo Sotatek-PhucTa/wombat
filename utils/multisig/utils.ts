@@ -178,7 +178,13 @@ export async function setBribe(bribeDeployment: string): Promise<BatchTransactio
   if (currentBribe != ethers.constants.AddressZero) {
     assert(await !hasActiveRewards(bribe), 'Bribe is still emitting rewards')
   }
-  return [Safe(voter).setBribe(lpToken, bribe.address)]
+  const { whitelist } = await voter.infos(lpToken)
+  let txns = [Safe(voter).setBribe(lpToken, bribe.address)]
+  if (!whitelist) {
+    console.log(`${lpToken} is not whitelisted. Proposing to resume vote emission.`)
+    txns = txns.concat(Safe(voter).resumeVoteEmission(lpToken))
+  }
+  return txns
 }
 
 // Requires: rewarder.master() == voter.address

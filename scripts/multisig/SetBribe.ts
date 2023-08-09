@@ -9,8 +9,10 @@ runScript('SetBribe', async function () {
   console.log(`Running against network: ${network}`)
   if (network == Network.BSC_MAINNET) {
     return concatAll(
-      multisig.utils.setBribe('Bribe_Asset_SnBNB_Pool_SnBNB'),
-      multisig.utils.setBribe('Bribe_Asset_SnBNB_Pool_WBNB')
+      multisig.utils.setBribe('Bribe_Asset_rBNB_Pool_rBNB'),
+      multisig.utils.setBribe('Bribe_Asset_rBNB_Pool_WBNB'),
+      multisig.utils.setBribe('Bribe_Asset_USDS_Pool_USDS'),
+      multisig.utils.setBribe('Bribe_Asset_USDS_Pool_USDT')
     )
   } else if (network == Network.ARBITRUM_MAINNET) {
     return concatAll(

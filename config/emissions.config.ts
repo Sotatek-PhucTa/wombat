@@ -627,6 +627,30 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.FraxBribeOperator,
     }),
+    ...createRewarderForDeployedAsset('Asset_rBNB_Pool_rBNB', {
+      startTimestamp: Epochs.Aug9,
+      rewardTokens: [Token.FIS],
+      tokenPerSec: ['0'],
+      operator: ExternalContract.StafiOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_rBNB_Pool_WBNB', {
+      startTimestamp: Epochs.Aug9,
+      rewardTokens: [Token.FIS],
+      tokenPerSec: ['0'],
+      operator: ExternalContract.StafiOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDS_Pool_USDS', {
+      startTimestamp: Epochs.Aug9,
+      rewardTokens: [Token.SABLE],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('115005'))],
+      operator: ExternalContract.SableOperator,
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDS_Pool_USDT', {
+      startTimestamp: Epochs.Aug9,
+      rewardTokens: [Token.SABLE],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('115005'))],
+      operator: ExternalContract.SableOperator,
+    }),
   },
   [Network.BSC_TESTNET]: {
     BUSD: {
