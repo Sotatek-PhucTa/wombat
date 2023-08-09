@@ -14,7 +14,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer } = await getNamedAccounts()
   const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 105. Deploying on: ${network}...`)
+  deployments.log(`Step 191. Deploying on: ${network}...`)
 
   const masterWombat = await getDeployedContract('MasterWombatV3')
   const vewom = await deployments.getOrNull('VeWom')

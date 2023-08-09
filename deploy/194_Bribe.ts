@@ -13,7 +13,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer } = await getNamedAccounts()
   const deployerSigner = await ethers.getSigner(deployer)
 
-  deployments.log(`Step 131. Deploying on: ${getCurrentNetwork()}...`)
+  deployments.log(`Step 194. Deploying on: ${getCurrentNetwork()}...`)
   const voter = await getDeployedContract('Voter')
   for await (const [lpToken, bribeConfig] of Object.entries(await getBribes())) {
     const deployResult = await deployRewarderOrBribe(
