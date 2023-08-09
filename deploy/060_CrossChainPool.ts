@@ -3,21 +3,22 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardhat'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
-import { Network } from '../types'
 import { confirmTxn, getDeployedContract, logVerifyCommand } from '../utils'
 import { getPoolDeploymentName } from '../utils/deploy'
+import { getCurrentNetwork } from '../types/network'
 
 export const contractNamePrefix = 'CrossChainPool'
 
 const deployFunc = async function () {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
+  const network = getCurrentNetwork()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const coreV3Deployment = await getDeployedContract('CoreV3')
-  deployments.log(`Step 060. Deploying on : ${network.name}...`)
+  deployments.log(`Step 060. Deploying on : ${network}...`)
 
   /// Deploy pool
-  const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network.name as Network] || {}
+  const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
     const contractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const deployResult = await deploy(contractName, {

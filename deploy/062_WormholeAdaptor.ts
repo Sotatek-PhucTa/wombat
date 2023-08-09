@@ -1,11 +1,12 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardhat'
 import { WormholeAdaptor } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
 import { WORMHOLE_CONFIG_MAPS } from '../config/wormhole.config'
-import { Network } from '../types'
 import { getDeployedContract, logVerifyCommand } from '../utils'
 import { getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'WormholeAdaptor'
 
@@ -14,10 +15,11 @@ const contractName = 'WormholeAdaptor'
 const deployFunc = async function () {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
+  const network = getCurrentNetwork()
 
-  deployments.log(`Step 062. Deploying on : ${network.name}...`)
+  deployments.log(`Step 062. Deploying on : ${network}...`)
 
-  const wormholeConfig = WORMHOLE_CONFIG_MAPS[network.name as Network]
+  const wormholeConfig = WORMHOLE_CONFIG_MAPS[network]
   if (wormholeConfig === undefined) {
     console.error('wormholeConfig is undefined')
     throw 'wormholeConfig is undefined'
@@ -25,7 +27,7 @@ const deployFunc = async function () {
 
   /// Deploy pools
 
-  const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network.name as Network] || {}
+  const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
     const poolContractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const pool = await getDeployedContract('CrossChainPool', poolContractName)

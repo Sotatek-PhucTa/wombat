@@ -6,21 +6,22 @@ import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { TestERC20 } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
-import { Network } from '../types'
 import { confirmTxn, getDeadlineFromNow, getDeployedContract } from '../utils'
 import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'CrossChainPoolAssets'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+  const network = getCurrentNetwork()
 
-  deployments.log(`Step 061. Deploying on : ${hre.network.name}...`)
+  deployments.log(`Step 061. Deploying on : ${network}...`)
 
   /// Deploy pool
-  const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
     const poolContractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const pool = await getDeployedContract('CrossChainPool', poolContractName)
