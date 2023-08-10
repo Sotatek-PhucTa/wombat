@@ -392,13 +392,7 @@ contract BoostedMasterWombat is
                 IBoostedMultiRewarder boostedRewarder = boostedRewarders[_pids[i]];
                 if (address(boostedRewarder) != address(0)) {
                     // update rewarders before we update lpSupply and sumOfFactors
-                    additionalRewards[i] = boostedRewarder.onReward(
-                        msg.sender,
-                        user.amount,
-                        user.amount,
-                        user.factor,
-                        user.factor
-                    );
+                    additionalRewards[i] = boostedRewarder.onReward(msg.sender, user.amount, user.factor);
                 }
             }
         }
@@ -469,18 +463,12 @@ contract BoostedMasterWombat is
         IBoostedMultiRewarder boostedRewarder = boostedRewarders[_pid];
         if (address(rewarder) != address(0) || address(boostedRewarder) != address(0)) {
             if (address(rewarder) == address(0)) {
-                additionalRewards = boostedRewarder.onReward(_user, oldUserAmount, _amount, oldFactor, user.factor);
+                additionalRewards = boostedRewarder.onReward(_user, _amount, user.factor);
             } else if (address(boostedRewarder) == address(0)) {
                 additionalRewards = rewarder.onReward(_user, _amount);
             } else {
                 uint256[] memory temp1 = rewarder.onReward(_user, _amount);
-                uint256[] memory temp2 = boostedRewarder.onReward(
-                    _user,
-                    oldUserAmount,
-                    _amount,
-                    oldFactor,
-                    user.factor
-                );
+                uint256[] memory temp2 = boostedRewarder.onReward(_user, _amount, user.factor);
 
                 additionalRewards = concatArrays(temp1, temp2);
             }
@@ -502,7 +490,7 @@ contract BoostedMasterWombat is
         }
         IBoostedMultiRewarder boostedRewarder = boostedRewarders[_pid];
         if (address(boostedRewarder) != address(0)) {
-            boostedRewarder.onReward(msg.sender, user.amount, 0, user.factor, 0);
+            boostedRewarder.onReward(msg.sender, 0, 0);
         }
 
         // safe transfer is not needed for Asset
@@ -583,7 +571,7 @@ contract BoostedMasterWombat is
             // update boostedRewarder before we update sumOfFactors
             IBoostedMultiRewarder boostedRewarder = boostedRewarders[pid];
             if (address(boostedRewarder) != address(0)) {
-                boostedRewarder.onUpdateFactor(_user, user.amount, oldFactor, user.factor);
+                boostedRewarder.onUpdateFactor(_user, user.factor);
             }
 
             // also, update sumOfFactors
@@ -712,12 +700,12 @@ contract BoostedMasterWombat is
         IBoostedMultiRewarder boostedRewarder = boostedRewarders[_pid];
         if (address(rewarder) != address(0) || address(boostedRewarder) != address(0)) {
             if (address(rewarder) == address(0)) {
-                pendingBonusRewards = boostedRewarder.pendingTokens(_user, user.amount, user.factor);
+                pendingBonusRewards = boostedRewarder.pendingTokens(_user);
             } else if (address(boostedRewarder) == address(0)) {
                 pendingBonusRewards = rewarder.pendingTokens(_user);
             } else {
                 uint256[] memory temp1 = rewarder.pendingTokens(_user);
-                uint256[] memory temp2 = boostedRewarder.pendingTokens(_user, user.amount, user.factor);
+                uint256[] memory temp2 = boostedRewarder.pendingTokens(_user);
 
                 pendingBonusRewards = concatArrays(temp1, temp2);
             }

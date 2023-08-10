@@ -46,15 +46,23 @@ contract MultiRewarderPerSecV2 is
 
     /// @notice Info of each reward token.
     struct RewardInfo {
+        /// slot
         IERC20 rewardToken; // if rewardToken is 0, native token is used as reward token
-        uint96 tokenPerSec; // 10.18 fixed point. The emission rate in tokens per second. This rate may not reflect the current rate in cases where emission has not started or has stopped due to surplus <= 0.
-        uint128 accTokenPerShare; // 26.12 fixed point. Amount of reward token each LP token is worth. This value increases when rewards are being distributed.
+        uint96 tokenPerSec; // 10.18 fixed point. The emission rate in tokens per second.
+        // This rate may not reflect the current rate in cases where emission has not started or has stopped due to surplus <= 0.
+
+        /// slot
+        uint128 accTokenPerShare; // 26.12 fixed point. Amount of reward token each LP token is worth.
+        // This value increases when rewards are being distributed.
         uint128 distributedAmount; // 20.18 fixed point, depending on the decimals of the reward token. This value is used to
         // track the amount of distributed tokens. If `distributedAmount` is closed to the amount of total received
         // tokens, we should refill reward or prepare to stop distributing reward.
+
+        /// slot
         uint128 claimedAmount; // 20.18 fixed point. Total amount claimed by all users.
         // We can derive the unclaimed amount: distributedAmount - claimedAmount
-        uint40 lastRewardTimestamp; // The timestamp up to which rewards have already been distributed. If set to a future value, it indicates that the emission has not started yet.
+        uint40 lastRewardTimestamp; // The timestamp up to which rewards have already been distributed.
+        // If set to a future value, it indicates that the emission has not started yet.
     }
 
     /**
@@ -273,7 +281,7 @@ contract MultiRewarderPerSecV2 is
             UserInfo storage user = userInfo[i][_user];
             IERC20 rewardToken = info.rewardToken;
 
-            if (user.rewardDebt > 0) {
+            if (user.rewardDebt > 0 || user.unpaidRewards > 0) {
                 // rewardDebt > 0 indicates the user has activated the pool and we should distribute rewards
                 uint256 pending = ((user.amount * uint256(info.accTokenPerShare)) / ACC_TOKEN_PRECISION) +
                     user.unpaidRewards -

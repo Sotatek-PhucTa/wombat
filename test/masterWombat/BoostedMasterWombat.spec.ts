@@ -173,7 +173,7 @@ describe('BoostedMasterWombat', async function () {
       )
 
       await mw.setVeWom(owner.address)
-      await expect(mw.updateFactor(users[1].address, parseEther('10'))).to.be.ok
+      expect(await mw.updateFactor(users[1].address, parseEther('10'))).to.be.ok
     })
 
     it('should revert if the same lpToken is added into the pool', async function () {

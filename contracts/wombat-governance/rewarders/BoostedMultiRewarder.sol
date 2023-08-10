@@ -37,25 +37,35 @@ contract BoostedMultiRewarder is
 
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
 
-    struct UserInfo {
-        // if the pool is activated, rewardDebt should be > 0
+    struct UserBalanceInfo {
+        uint128 amount; // 20.18 fixed point.
+        uint128 factor; // 20.18 fixed point.
+    }
+
+    struct UserRewardInfo {
         uint128 rewardDebt; // 20.18 fixed point. distributed reward per weight
-        uint256 unpaidRewards; // 20.18 fixed point.
+        // if the pool is activated, rewardDebt must be > 0
+        uint128 unpaidRewards; // 20.18 fixed point.
     }
 
     /// @notice Info of each reward token.
     struct RewardInfo {
+        /// slot
         IERC20 rewardToken; // if rewardToken is 0, native token is used as reward token
         uint96 tokenPerSec; // 10.18 fixed point. The emission rate in tokens per second.
         // This rate may not reflect the current rate in cases where emission has not started or has stopped due to surplus <= 0.
+        /// slot
         uint128 accTokenPerShare; // 20.18 fixed point. Amount of reward token each LP token is worth.
         // This value increases when rewards are being distributed.
         uint128 accTokenPerFactorShare; // 20.18 fixed point. Accumulated WOM per factor share
+        /// slot
         uint128 distributedAmount; // 20.18 fixed point, depending on the decimals of the reward token. This value is used to
         // track the amount of distributed tokens. If `distributedAmount` is closed to the amount of total received
         // tokens, we should refill reward or prepare to stop distributing reward.
         uint128 claimedAmount; // 20.18 fixed point. Total amount claimed by all users.
         // We can derive the unclaimed amount: distributedAmount - claimedAmount
+
+        /// slot
         uint40 lastRewardTimestamp; // The timestamp up to which rewards have already been distributed.
         // If set to a future value, it indicates that the emission has not started yet.
     }
@@ -101,8 +111,10 @@ contract BoostedMultiRewarder is
 
     /// @notice Info of the reward tokens.
     RewardInfo[] public rewardInfos;
-    /// @notice tokenId => userId => UserInfo
-    mapping(uint256 => mapping(address => UserInfo)) public userInfo;
+    /// @notice userAddr => UserInfo
+    mapping(address => UserBalanceInfo) public userBalanceInfo;
+    /// @notice tokenId => userAddr => UserInfo
+    mapping(uint256 => mapping(address => UserRewardInfo)) public userRewardInfo;
 
     IBribeRewarderFactory public bribeFactory;
 
@@ -274,27 +286,21 @@ contract BoostedMultiRewarder is
     /// @notice Allows staker to also receive a 2nd reward token.
     /// @dev Assume `_getTotalShare` isn't updated yet when this function is called
     /// @param _user Address of user
-    /// @param _lpAmount The new amount of LP
+    /// @param _newLpAmount The new amount of LP
+    /// @param _newFactor The new factor of LP
     function onReward(
         address _user,
-        uint256 _lpAmount,
         uint256 _newLpAmount,
-        uint256 _factor,
         uint256 _newFactor
     ) external virtual override onlyMasterWombat nonReentrant returns (uint256[] memory rewards) {
         _updateReward();
-        return _onReward(_user, _lpAmount, _newLpAmount, _factor, _newFactor);
+        return _onReward(_user, _newLpAmount, _newFactor);
     }
 
     /// @notice Function called by Master Wombat when factor is updated
     /// @dev Assume lpSupply and sumOfFactors isn't updated yet when this function is called
     /// @notice user.unpaidRewards will be updated
-    function onUpdateFactor(
-        address _user,
-        uint256 _lpAmount,
-        uint256 _factor,
-        uint256 _newFactor
-    ) external override onlyMasterWombat {
+    function onUpdateFactor(address _user, uint256 _newFactor) external override onlyMasterWombat {
         if (basePartition() == 1000) {
             // base partition only
             return;
@@ -305,20 +311,31 @@ contract BoostedMultiRewarder is
 
         for (uint256 i; i < length; ++i) {
             RewardInfo storage pool = rewardInfos[i];
-            UserInfo storage user = userInfo[i][_user];
+            UserRewardInfo storage user = userRewardInfo[i][_user];
 
             // if user has active the pool
             if (user.rewardDebt > 0) {
                 user.unpaidRewards += toUint128(
-                    ((_lpAmount * pool.accTokenPerShare + _factor * pool.accTokenPerFactorShare) /
-                        ACC_TOKEN_PRECISION) - user.rewardDebt
+                    _getRewardDebt(
+                        userBalanceInfo[_user].amount,
+                        pool.accTokenPerShare,
+                        userBalanceInfo[_user].factor,
+                        pool.accTokenPerFactorShare
+                    ) - user.rewardDebt
                 );
             }
 
             user.rewardDebt = toUint128(
-                (_lpAmount * pool.accTokenPerShare + _newFactor * pool.accTokenPerFactorShare) / ACC_TOKEN_PRECISION
+                _getRewardDebt(
+                    userBalanceInfo[_user].amount,
+                    pool.accTokenPerShare,
+                    _newFactor,
+                    pool.accTokenPerFactorShare
+                )
             );
         }
+
+        userBalanceInfo[_user].factor = toUint128(_newFactor);
     }
 
     function basePartition() public view returns (uint256) {
@@ -327,22 +344,24 @@ contract BoostedMultiRewarder is
 
     function _onReward(
         address _user,
-        uint256 _lpAmount,
         uint256 _newLpAmount,
-        uint256 _factor,
         uint256 _newFactor
     ) internal virtual returns (uint256[] memory rewards) {
         uint256 length = rewardInfos.length;
         rewards = new uint256[](length);
         for (uint256 i; i < length; ++i) {
             RewardInfo storage info = rewardInfos[i];
-            UserInfo storage user = userInfo[i][_user];
+            UserRewardInfo storage user = userRewardInfo[i][_user];
             IERC20 rewardToken = info.rewardToken;
 
-            if (user.rewardDebt > 0) {
+            if (user.rewardDebt > 0 || user.unpaidRewards > 0) {
                 // rewardDebt > 0 indicates the user has activated the pool and we should distribute rewards
-                uint256 pending = ((_lpAmount * info.accTokenPerShare + _factor * info.accTokenPerFactorShare) /
-                    ACC_TOKEN_PRECISION) +
+                uint256 pending = _getRewardDebt(
+                    userBalanceInfo[_user].amount,
+                    info.accTokenPerShare,
+                    userBalanceInfo[_user].factor,
+                    info.accTokenPerFactorShare
+                ) +
                     user.unpaidRewards -
                     user.rewardDebt;
 
@@ -355,7 +374,7 @@ contract BoostedMultiRewarder is
                         require(success, 'Transfer failed');
                         rewards[i] = tokenBalance;
                         info.claimedAmount += toUint128(tokenBalance);
-                        user.unpaidRewards = pending - tokenBalance;
+                        user.unpaidRewards = toUint128(pending - tokenBalance);
                     } else {
                         (bool success, ) = _user.call{value: pending}('');
                         require(success, 'Transfer failed');
@@ -370,7 +389,7 @@ contract BoostedMultiRewarder is
                         rewardToken.safeTransfer(_user, tokenBalance);
                         rewards[i] = tokenBalance;
                         info.claimedAmount += toUint128(tokenBalance);
-                        user.unpaidRewards = pending - tokenBalance;
+                        user.unpaidRewards = toUint128(pending - tokenBalance);
                     } else {
                         rewardToken.safeTransfer(_user, pending);
                         rewards[i] = pending;
@@ -381,10 +400,13 @@ contract BoostedMultiRewarder is
             }
 
             user.rewardDebt = toUint128(
-                (_newLpAmount * info.accTokenPerShare + _newFactor * info.accTokenPerFactorShare) / ACC_TOKEN_PRECISION
+                _getRewardDebt(_newLpAmount, info.accTokenPerShare, _newFactor, info.accTokenPerFactorShare)
             );
             emit OnReward(address(rewardToken), _user, rewards[i]);
         }
+
+        userBalanceInfo[_user].amount = toUint128(_newLpAmount);
+        userBalanceInfo[_user].factor = toUint128(_newFactor);
     }
 
     /// @notice returns reward length
@@ -399,12 +421,8 @@ contract BoostedMultiRewarder is
     /// @notice View function to see pending tokens that have been distributed but not claimed by the user yet.
     /// @param _user Address of user.
     /// @return rewards_ reward for a given user.
-    function pendingTokens(
-        address _user,
-        uint256 _lpAmount,
-        uint256 _factor
-    ) external view virtual override returns (uint256[] memory rewards_) {
-        return _pendingTokens(_user, _lpAmount, _factor);
+    function pendingTokens(address _user) external view virtual override returns (uint256[] memory rewards_) {
+        return _pendingTokens(_user, userBalanceInfo[_user].amount, userBalanceInfo[_user].factor);
     }
 
     function _pendingTokens(
@@ -421,7 +439,7 @@ contract BoostedMultiRewarder is
         uint256[] memory toDistribute = _rewardsToDistribute();
         for (uint256 i; i < length; ++i) {
             RewardInfo memory info = rewardInfos[i];
-            UserInfo storage user = userInfo[i][_user];
+            UserRewardInfo storage user = userRewardInfo[i][_user];
 
             uint256 accTokenPerShare = info.accTokenPerShare;
             uint256 accTokenPerFactorShare = info.accTokenPerFactorShare;
@@ -437,8 +455,10 @@ contract BoostedMultiRewarder is
                 accTokenPerFactorShare += tokenPerFactorShare;
             }
 
-            uint256 temp = _lpAmount * accTokenPerShare + _factor * accTokenPerFactorShare;
-            rewards_[i] = (temp / ACC_TOKEN_PRECISION) - user.rewardDebt + user.unpaidRewards;
+            rewards_[i] =
+                _getRewardDebt(_lpAmount, accTokenPerShare, _factor, accTokenPerFactorShare) +
+                user.unpaidRewards -
+                user.rewardDebt;
         }
     }
 
@@ -457,6 +477,15 @@ contract BoostedMultiRewarder is
                 sumOfFactors /
                 1000;
         }
+    }
+
+    function _getRewardDebt(
+        uint256 userAmount,
+        uint256 accTokenPerShare,
+        uint256 userFactor,
+        uint256 accTokenPerFactorShare
+    ) internal pure returns (uint256) {
+        return (userAmount * accTokenPerShare + userFactor * accTokenPerFactorShare) / ACC_TOKEN_PRECISION;
     }
 
     /// @notice the amount of reward accumulated since the lastRewardTimestamp and is to be distributed.

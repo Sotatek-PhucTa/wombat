@@ -216,8 +216,7 @@ describe('BoostedMultiRewarder', function () {
       // balance: 7200, user1 pending: 7200*(1/(1+3)) = 1800,  user2 pending: 5400, surplus: 0
       await time.increase(60 * 150) // T+2h30m
 
-      let userInfo = await master.userInfo(0, user1.address)
-      const [user1Rewards] = await rewarder.pendingTokens(user1.address, userInfo.amount, userInfo.factor)
+      const [user1Rewards] = await rewarder.pendingTokens(user1.address)
       const [surplus] = await rewarder.rewardTokenSurpluses()
       expect(user1Rewards).to.be.closeTo(parseUSDC('1800'), parseUSDC('10'))
       expect(surplus).to.be.closeTo(parseUSDC('0'), parseUSDC('10'))
@@ -225,8 +224,7 @@ describe('BoostedMultiRewarder', function () {
       await master.connect(user1).multiClaim([0])
       expect(await USDC.balanceOf(user1.address)).to.be.closeTo(user1Rewards, parseUSDC('10'))
 
-      userInfo = await master.userInfo(0, user2.address)
-      const [user2Rewards] = await rewarder.pendingTokens(user2.address, userInfo.amount, userInfo.factor)
+      const [user2Rewards] = await rewarder.pendingTokens(user2.address)
       expect(user2Rewards).to.be.closeTo(parseUSDC('5400'), parseUSDC('10'))
       // emit 5400 USDC, exactly the same amount as pendingTokens
       await master.connect(user2).multiClaim([0])
@@ -334,8 +332,7 @@ describe('BoostedMultiRewarder', function () {
       // The user deposits again after the reward is live.
       // There are no pending rewards from stale lastRewardTimestamp.
       await deposit(user1, master, rewarder, parseDAI('1'))
-      const userInfo = await master.userInfo(0, user1.address)
-      const [rewards] = await rewarder.pendingTokens(user1.address, userInfo.amount, userInfo.factor)
+      const [rewards] = await rewarder.pendingTokens(user1.address)
       expect(rewards).to.be.eq(0)
     })
 
