@@ -97,6 +97,7 @@ describe('BribeRewarderFactory', async function () {
 
   describe('rewarder', async function () {
     it('validation', async function () {
+      // check msg.sender
       await expect(
         bribeRewarderFactory.deployRewarderContractAndSetRewarder(
           lpToken1.address,
@@ -105,6 +106,8 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('Not authurized.')
+
+      // check LP token exists
       await expect(
         bribeRewarderFactory.deployRewarderContractAndSetRewarder(
           lpToken2.address,
@@ -113,6 +116,8 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('invalid pid')
+
+      // check token whitelisted
       await bribeRewarderFactory.setRewarderDeployer(lpToken1.address, owner.address)
       await expect(
         bribeRewarderFactory.deployRewarderContractAndSetRewarder(
@@ -122,6 +127,8 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('reward token is not whitelisted')
+
+      // successfully deploy
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
       await bribeRewarderFactory.deployRewarderContractAndSetRewarder(
         lpToken1.address,
@@ -129,6 +136,23 @@ describe('BribeRewarderFactory', async function () {
         token1.address,
         parseEther('0.1')
       )
+
+      // revoke reward token
+      await bribeRewarderFactory.revokeRewardToken(token1.address)
+      await voter.add(mw.address, lpToken2.address, AddressZero)
+      await mw.add(lpToken2.address, AddressZero)
+      await bribeRewarderFactory.setRewarderDeployer(lpToken2.address, owner.address)
+      await expect(
+        bribeRewarderFactory.deployRewarderContractAndSetRewarder(
+          lpToken2.address,
+          startTime,
+          token1.address,
+          parseEther('0.1')
+        )
+      ).to.be.revertedWith('reward token is not whitelisted')
+
+      // double deployment
+      await bribeRewarderFactory.whitelistRewardToken(token1.address)
       await expect(
         bribeRewarderFactory.deployRewarderContractAndSetRewarder(
           lpToken1.address,
@@ -137,6 +161,15 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('rewarder contract alrealdy exists')
+
+      // rewarder.addRewardToken checks if token is whitelisted
+      const rewarderAddr = await mw.boostedRewarders(0)
+      const rewarder = (await ethers.getContractAt('BoostedMultiRewarder', rewarderAddr)) as BoostedMultiRewarder
+      await expect(rewarder.addRewardToken(token2.address, 0, 0)).to.be.revertedWith(
+        'reward token must be whitelisted by bribe factory'
+      )
+      await bribeRewarderFactory.whitelistRewardToken(token2.address)
+      await rewarder.addRewardToken(token2.address, 0, 0)
     })
 
     it('deployRewarderContractAndSetRewarder', async function () {
@@ -173,6 +206,7 @@ describe('BribeRewarderFactory', async function () {
 
   describe('bribe', async function () {
     it('validation', async function () {
+      // check msg.sender
       await expect(
         bribeRewarderFactory.deployBribeContractAndSetBribe(
           lpToken1.address,
@@ -181,6 +215,8 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('Not authurized.')
+
+      // check LP token exists
       await expect(
         bribeRewarderFactory.deployBribeContractAndSetBribe(
           lpToken2.address,
@@ -189,6 +225,8 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('gauge does not exist')
+
+      // check token whitelisted
       await bribeRewarderFactory.setBribeDeployer(lpToken1.address, owner.address)
       await expect(
         bribeRewarderFactory.deployBribeContractAndSetBribe(
@@ -198,6 +236,8 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('reward token is not whitelisted')
+
+      // successfully deploy
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
       await bribeRewarderFactory.deployBribeContractAndSetBribe(
         lpToken1.address,
@@ -205,6 +245,23 @@ describe('BribeRewarderFactory', async function () {
         token1.address,
         parseEther('0.1')
       )
+
+      // revoke reward token
+      await bribeRewarderFactory.revokeRewardToken(token1.address)
+      await voter.add(mw.address, lpToken2.address, AddressZero)
+      await mw.add(lpToken2.address, AddressZero)
+      await bribeRewarderFactory.setBribeDeployer(lpToken2.address, owner.address)
+      await expect(
+        bribeRewarderFactory.deployBribeContractAndSetBribe(
+          lpToken2.address,
+          startTime,
+          token1.address,
+          parseEther('0.1')
+        )
+      ).to.be.revertedWith('reward token is not whitelisted')
+
+      // double deployment
+      await bribeRewarderFactory.whitelistRewardToken(token1.address)
       await expect(
         bribeRewarderFactory.deployBribeContractAndSetBribe(
           lpToken1.address,
@@ -213,6 +270,15 @@ describe('BribeRewarderFactory', async function () {
           parseEther('0.1')
         )
       ).to.be.revertedWith('bribe contract already exists for gauge')
+
+      // bribe.addRewardToken checks if token is whitelisted
+      const { bribe: bribeAddr } = await voter.infos(lpToken1.address)
+      const bribe = (await ethers.getContractAt('BribeV2', bribeAddr)) as BribeV2
+      await expect(bribe.addRewardToken(token2.address, 0, 0)).to.be.revertedWith(
+        'reward token must be whitelisted by bribe factory'
+      )
+      await bribeRewarderFactory.whitelistRewardToken(token2.address)
+      await bribe.addRewardToken(token2.address, 0, 0)
     })
 
     it('deployBribeContractAndSetBribe', async function () {

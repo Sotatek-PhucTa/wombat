@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
 import '../../wombat-core/interfaces/IAsset.sol';
 import '../interfaces/IBribeRewarderFactory.sol';
@@ -15,6 +16,8 @@ import '../rewarders/BoostedMultiRewarder.sol';
 import './BribeV2.sol';
 
 contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUpgradeable {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
     IBoostedMasterWombat public masterWombat;
     IBeacon public rewarderBeacon;
 
@@ -26,7 +29,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
     /// @notice Bribe deployer is able to deploy bribe, and it will become the bribe operator
     mapping(IAsset => address) public bribeDeployers;
     /// @notice whitelisted reward tokens can be added to rewarders and bribes
-    mapping(IERC20 => bool) public isRewardTokenWhitelisted;
+    EnumerableSet.AddressSet internal whitelistedRewardTokens;
 
     event DeployRewarderContract(
         IAsset _lpToken,
@@ -64,6 +67,14 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         voter = _voter;
 
         __Ownable_init();
+    }
+
+    function isRewardTokenWhitelisted(IERC20 _token) public view returns (bool) {
+        return whitelistedRewardTokens.contains(address(_token));
+    }
+
+    function getWhitelistedRewardTokens() public view returns (address[] memory) {
+        return whitelistedRewardTokens.values();
     }
 
     /// @notice Deploy bribe contract behind a beacon proxy, and add it to the voter
@@ -104,7 +115,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         require(address(masterWombat.boostedRewarders(_pid)) == address(0), 'rewarder contract alrealdy exists');
 
         require(rewarderDeployers[_lpToken] == msg.sender, 'Not authurized.');
-        require(isRewardTokenWhitelisted[_rewardToken], 'reward token is not whitelisted');
+        require(isRewardTokenWhitelisted(_rewardToken), 'reward token is not whitelisted');
 
         // deploy a rewarder contract behind a proxy
         // BoostedMultiRewarder rewarder = new BoostedMultiRewarder()
@@ -154,7 +165,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         require(address(gaugeManager) != address(0), 'gauge does not exist');
 
         require(bribeDeployers[_lpToken] == msg.sender, 'Not authurized.');
-        require(isRewardTokenWhitelisted[_rewardToken], 'reward token is not whitelisted');
+        require(isRewardTokenWhitelisted(_rewardToken), 'reward token is not whitelisted');
 
         // deploy a bribe contract behind a proxy
         // BribeV2 bribe = new BribeV2();
@@ -192,12 +203,12 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
     }
 
     function whitelistRewardToken(IERC20 _token) external onlyOwner {
-        require(!isRewardTokenWhitelisted[_token], 'already whitelisted');
-        isRewardTokenWhitelisted[_token] = true;
+        require(!isRewardTokenWhitelisted(_token), 'already whitelisted');
+        whitelistedRewardTokens.add(address(_token));
     }
 
     function revokeRewardToken(IERC20 _token) external onlyOwner {
-        require(isRewardTokenWhitelisted[_token], 'reward token is not whitelisted');
-        isRewardTokenWhitelisted[_token] = false;
+        require(isRewardTokenWhitelisted(_token), 'reward token is not whitelisted');
+        whitelistedRewardTokens.remove(address(_token));
     }
 }
