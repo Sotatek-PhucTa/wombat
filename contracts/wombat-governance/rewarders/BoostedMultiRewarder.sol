@@ -33,8 +33,8 @@ contract BoostedMultiRewarder is
     ReentrancyGuardUpgradeable
 {
     using SafeERC20 for IERC20;
-    bytes32 public constant ROLE_OPERATOR = keccak256('operator');
 
+    bytes32 public constant ROLE_OPERATOR = keccak256('operator');
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
 
     struct UserBalanceInfo {
@@ -111,12 +111,13 @@ contract BoostedMultiRewarder is
 
     /// @notice Info of the reward tokens.
     RewardInfo[] public rewardInfos;
-    /// @notice userAddr => UserInfo
+    /// @notice userAddr => UserBalanceInfo
     mapping(address => UserBalanceInfo) public userBalanceInfo;
-    /// @notice tokenId => userAddr => UserInfo
+    /// @notice tokenId => userAddr => UserRewardInfo
     mapping(uint256 => mapping(address => UserRewardInfo)) public userRewardInfo;
 
     IBribeRewarderFactory public bribeFactory;
+    bool public isDeprecated;
 
     event OnReward(address indexed rewardToken, address indexed user, uint256 amount);
     event RewardRateUpdated(address indexed rewardToken, uint256 oldRate, uint256 newRate);
@@ -182,6 +183,10 @@ contract BoostedMultiRewarder is
 
     function removeOperator(address _operator) external onlyOwner {
         _revokeRole(ROLE_OPERATOR, _operator);
+    }
+
+    function setIsDeprecated(bool _isDeprecated) external onlyOwner {
+        isDeprecated = _isDeprecated;
     }
 
     function addRewardToken(IERC20 _rewardToken, uint40 _startTimestampOrNow, uint96 _tokenPerSec) external override {
@@ -313,8 +318,8 @@ contract BoostedMultiRewarder is
             RewardInfo storage pool = rewardInfos[i];
             UserRewardInfo storage user = userRewardInfo[i][_user];
 
-            // if user has active the pool
             if (user.rewardDebt > 0) {
+                // rewardDebt > 0 indicates the user has activated the pool and we should calculate rewards
                 user.unpaidRewards += toUint128(
                     _getRewardDebt(
                         userBalanceInfo[_user].amount,
@@ -409,12 +414,14 @@ contract BoostedMultiRewarder is
         userBalanceInfo[_user].factor = toUint128(_newFactor);
     }
 
-    /// @notice returns reward length
-    function rewardLength() external view virtual override returns (uint256) {
-        return _rewardLength();
+    function emergencyClaimReward() external nonReentrant returns (uint256[] memory rewards) {
+        _updateReward();
+        require(isDeprecated, 'rewarder / bribe is not deprecated');
+        return _onReward(msg.sender, 0, 0);
     }
 
-    function _rewardLength() internal view returns (uint256) {
+    /// @notice returns reward length
+    function rewardLength() external view virtual override returns (uint256) {
         return rewardInfos.length;
     }
 

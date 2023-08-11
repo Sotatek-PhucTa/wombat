@@ -33,15 +33,18 @@ contract MultiRewarderPerSecV2 is
     ReentrancyGuardUpgradeable
 {
     using SafeERC20 for IERC20;
-    bytes32 public constant ROLE_OPERATOR = keccak256('operator');
 
+    bytes32 public constant ROLE_OPERATOR = keccak256('operator');
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
 
-    struct UserInfo {
-        uint128 amount; // 20.18 fixed point.
+    struct UserBalanceInfo {
+        uint256 amount;
+    }
+
+    struct UserRewardInfo {
         // if the pool is activated, rewardDebt should be > 0
         uint128 rewardDebt; // 20.18 fixed point. distributed reward per weight
-        uint256 unpaidRewards; // 20.18 fixed point.
+        uint128 unpaidRewards; // 20.18 fixed point.
     }
 
     /// @notice Info of each reward token.
@@ -87,12 +90,15 @@ contract MultiRewarderPerSecV2 is
      *
      * (Variables with * are not in the RewardInfo state, but can be derived from it.)
      *
-     * balance, is the amount of reward token in this contract. Not all of them are available for distribution as some are reserved for unclaimed rewards.
+     * balance, is the amount of reward token in this contract. Not all of them are available for distribution as some are reserved
+     * for unclaimed rewards.
      * distributedAmount, is the amount of reward token that has been distributed up to lastRewardTimestamp.
      * claimedAmount, is the amount of reward token that has been claimed by users. claimedAmount always <= distributedAmount.
      * unclaimedAmount = distributedAmount - claimedAmount, is the amount of reward token in balance that is reserved to be claimed by users.
-     * availableReward = balance - unclaimedAmount, is the amount inside balance that is available for distribution (not reserved for unclaimed rewards).
-     * rewardToDistribute is the accumulated reward from [lastRewardTimestamp, now] that is yet to be distributed. as distributedAmount only accounts for the distributed amount up to lastRewardTimestamp. it is used in _updateReward(), and to be added to distributedAmount.
+     * availableReward = balance - unclaimedAmount, is the amount inside balance that is available for distribution (not reserved for
+     * unclaimed rewards).
+     * rewardToDistribute is the accumulated reward from [lastRewardTimestamp, now] that is yet to be distributed. as distributedAmount only
+     * accounts for the distributed amount up to lastRewardTimestamp. it is used in _updateReward(), and to be added to distributedAmount.
      * to prevent bad debt, rewardToDistribute is capped at availableReward. as we cannot distribute more than the availableReward.
      * rewardToDistribute = min(tokenPerSec * (now - lastRewardTimestamp), availableReward)
      * surplus = availableReward - rewardToDistribute, is the amount inside balance that is available for future distribution.
@@ -103,10 +109,13 @@ contract MultiRewarderPerSecV2 is
 
     /// @notice Info of the reward tokens.
     RewardInfo[] public rewardInfos;
-    /// @notice tokenId => userId => UserInfo
-    mapping(uint256 => mapping(address => UserInfo)) public userInfo;
+    /// @notice userAddr => UserBalanceInfo
+    mapping(address => UserBalanceInfo) public userBalanceInfo;
+    /// @notice tokenId => userId => UserRewardInfo
+    mapping(uint256 => mapping(address => UserRewardInfo)) public userRewardInfo;
 
     IBribeRewarderFactory public bribeFactory;
+    bool public isDeprecated;
 
     event OnReward(address indexed rewardToken, address indexed user, uint256 amount);
     event RewardRateUpdated(address indexed rewardToken, uint256 oldRate, uint256 newRate);
@@ -168,6 +177,10 @@ contract MultiRewarderPerSecV2 is
 
     function removeOperator(address _operator) external onlyOwner {
         _revokeRole(ROLE_OPERATOR, _operator);
+    }
+
+    function setIsDeprecated(bool _isDeprecated) external onlyOwner {
+        isDeprecated = _isDeprecated;
     }
 
     function addRewardToken(IERC20 _rewardToken, uint40 _startTimestampOrNow, uint96 _tokenPerSec) external virtual {
@@ -240,7 +253,8 @@ contract MultiRewarderPerSecV2 is
     /// @notice Sets the distribution reward rate, and updates the emission start time if specified.
     /// @param _tokenId The token id
     /// @param _tokenPerSec The number of tokens to distribute per second
-    /// @param _startTimestampToOverride the start time for the token emission. A value of 0 indicates no changes, while a future timestamp starts the emission at the specified time.
+    /// @param _startTimestampToOverride the start time for the token emission.
+    ///        A value of 0 indicates no changes, while a future timestamp starts the emission at the specified time.
     function setRewardRate(uint256 _tokenId, uint96 _tokenPerSec, uint40 _startTimestampToOverride) external {
         require(hasRole(ROLE_OPERATOR, msg.sender) || msg.sender == owner(), 'not authorized');
         require(_tokenId < rewardInfos.length, 'invalid _tokenId');
@@ -278,12 +292,13 @@ contract MultiRewarderPerSecV2 is
         rewards = new uint256[](length);
         for (uint256 i; i < length; ++i) {
             RewardInfo storage info = rewardInfos[i];
-            UserInfo storage user = userInfo[i][_user];
+            UserRewardInfo storage user = userRewardInfo[i][_user];
             IERC20 rewardToken = info.rewardToken;
 
             if (user.rewardDebt > 0 || user.unpaidRewards > 0) {
                 // rewardDebt > 0 indicates the user has activated the pool and we should distribute rewards
-                uint256 pending = ((user.amount * uint256(info.accTokenPerShare)) / ACC_TOKEN_PRECISION) +
+                uint256 pending = ((userBalanceInfo[_user].amount * uint256(info.accTokenPerShare)) /
+                    ACC_TOKEN_PRECISION) +
                     user.unpaidRewards -
                     user.rewardDebt;
 
@@ -296,7 +311,7 @@ contract MultiRewarderPerSecV2 is
                         require(success, 'Transfer failed');
                         rewards[i] = tokenBalance;
                         info.claimedAmount += toUint128(tokenBalance);
-                        user.unpaidRewards = pending - tokenBalance;
+                        user.unpaidRewards = toUint128(pending - tokenBalance);
                     } else {
                         (bool success, ) = _user.call{value: pending}('');
                         require(success, 'Transfer failed');
@@ -311,7 +326,7 @@ contract MultiRewarderPerSecV2 is
                         rewardToken.safeTransfer(_user, tokenBalance);
                         rewards[i] = tokenBalance;
                         info.claimedAmount += toUint128(tokenBalance);
-                        user.unpaidRewards = pending - tokenBalance;
+                        user.unpaidRewards = toUint128(pending - tokenBalance);
                     } else {
                         rewardToken.safeTransfer(_user, pending);
                         rewards[i] = pending;
@@ -321,10 +336,16 @@ contract MultiRewarderPerSecV2 is
                 }
             }
 
-            user.amount = toUint128(_lpAmount);
             user.rewardDebt = toUint128((_lpAmount * info.accTokenPerShare) / ACC_TOKEN_PRECISION);
             emit OnReward(address(rewardToken), _user, rewards[i]);
         }
+        userBalanceInfo[_user].amount = toUint128(_lpAmount);
+    }
+
+    function emergencyClaimReward() external nonReentrant returns (uint256[] memory rewards) {
+        _updateReward();
+        require(isDeprecated, 'rewarder / bribe is not deprecated');
+        return _onReward(msg.sender, 0);
     }
 
     /// @notice returns reward length
@@ -342,7 +363,7 @@ contract MultiRewarderPerSecV2 is
         uint256[] memory toDistribute = rewardsToDistribute();
         for (uint256 i; i < length; ++i) {
             RewardInfo memory info = rewardInfos[i];
-            UserInfo storage user = userInfo[i][_user];
+            UserRewardInfo storage user = userRewardInfo[i][_user];
 
             uint256 accTokenPerShare = info.accTokenPerShare;
             uint256 totalShare = _getTotalShare();
@@ -353,7 +374,7 @@ contract MultiRewarderPerSecV2 is
             }
 
             rewards_[i] =
-                ((user.amount * uint256(accTokenPerShare)) / ACC_TOKEN_PRECISION) -
+                ((userBalanceInfo[_user].amount * uint256(accTokenPerShare)) / ACC_TOKEN_PRECISION) -
                 user.rewardDebt +
                 user.unpaidRewards;
         }
@@ -377,7 +398,8 @@ contract MultiRewarderPerSecV2 is
 
             // To prevent bad debt, need to cap at availableReward
             uint256 availableReward;
-            // this is to handle the underflow case if claimedAmount + balance < distributedAmount, which could happend only if balance was emergencyWithdrawn.
+            // this is to handle the underflow case if claimedAmount + balance < distributedAmount,
+            // which could happend only if balance was emergencyWithdrawn.
             if (info.claimedAmount + rewardBalances[i] > info.distributedAmount) {
                 availableReward = info.claimedAmount + rewardBalances[i] - info.distributedAmount;
             }

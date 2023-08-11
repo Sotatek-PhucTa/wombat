@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, Contract } from 'ethers'
+import { BigNumber, BigNumberish, Contract, constants } from 'ethers'
 import { deployments, ethers } from 'hardhat'
 import { getTestERC20 } from '../../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -25,7 +25,7 @@ describe('RewarderV2', function () {
   beforeEach(async function () {
     await deployments.fixture(['MockTokens'])
     ;[owner, user1, user2] = await ethers.getSigners()
-    master = await ethers.deployContract('RewarderCaller')
+    master = await ethers.deployContract('RewarderCallerV2')
 
     USDC = await getTestERC20('USDC')
     expect(await USDC.decimals()).to.eq(USDCDecimals)
@@ -268,6 +268,33 @@ describe('RewarderV2', function () {
       // balance should have been decreased by 120 (2 minutes worth of reward)
       expect(await USDC.balanceOf(rewarder.address)).to.be.closeTo(parseUSDC('863880'), parseUSDC('10'))
     })
+  })
+
+  it('user can call rewarder.emergencyClaimReward() to get the pending tokens.', async function () {
+    const rewarder = await deployRewarder({
+      rewardToken: USDC.address,
+      tokenPerSec: parseUSDC('1'),
+    })
+    await deposit(user1, master, rewarder, parseEther('1'))
+    await topUp(rewarder.address, parseUSDC('7200'), USDC) // top up 2hr's worth of reward
+    await time.increase(3600) // T+1h
+
+    // user1 call emergencyClaimReward before contract is deprecated
+    await expect(rewarder.connect(user1).emergencyClaimReward()).to.be.rejectedWith(
+      'rewarder / bribe is not deprecated'
+    )
+
+    // user1 call emergencyClaimReward directly.
+    await rewarder.setIsDeprecated(true)
+    await rewarder.connect(user1).emergencyClaimReward()
+    // should have emitted 3600 USDC after an hour
+    expect(await USDC.balanceOf(user1.address)).to.be.closeTo(parseUSDC('3600'), parseUSDC('10'))
+    // emergencyClaimReward should set user.amount to 0
+    expect(await rewarder.userBalanceInfo(user1.address)).to.be.equal(constants.Zero)
+    // calling emergencyClaimReward again should not yield more reward.
+    await time.increase(3600) // T+1h
+    await rewarder.connect(user1).emergencyClaimReward()
+    expect(await USDC.balanceOf(user1.address)).to.be.closeTo(parseUSDC('3600'), parseUSDC('10'))
   })
 
   describe('Emission', function () {

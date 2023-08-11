@@ -20,12 +20,12 @@ contract BribeV2 is IBribe, MultiRewarderPerSecV2 {
     using SafeERC20 for IERC20;
 
     function onVote(
-        address user,
-        uint256 newVote,
-        uint256 originalTotalVotes
+        address _user,
+        uint256 _newVote,
+        uint256 _originalTotalVotes
     ) external override onlyMaster nonReentrant returns (uint256[] memory rewards) {
-        _updateReward(originalTotalVotes);
-        return _onReward(user, newVote);
+        _updateReward(_originalTotalVotes);
+        return _onReward(_user, _newVote);
     }
 
     function onReward(address, uint256) external override onlyMaster nonReentrant returns (uint256[] memory) {
