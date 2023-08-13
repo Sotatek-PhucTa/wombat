@@ -1,16 +1,14 @@
-import { ethers } from "hardhat"
-import { DeployFunction } from "hardhat-deploy/types"
-import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { getCurrentNetwork } from "../types/network"
-import { getAddress, logVerifyCommand } from "../utils"
-import { Deployment } from "../types"
+import { DeployFunction } from 'hardhat-deploy/types'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { getCurrentNetwork } from '../types/network'
+import { getAddress, logVerifyCommand } from '../utils'
+import { Deployment } from '../types'
 
 const contractName = 'BoostedMasterWombat'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, upgrades, getNamedAccounts } = hre
   const { deployer, multisig } = await getNamedAccounts()
-  const deployerSigner = await ethers.getSigner(deployer)
 
   deployments.log(`Step 105. Deploying on: ${getCurrentNetwork()}...`)
 
