@@ -58,7 +58,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
     ) public initializer {
         require(Address.isContract(address(_rewarderBeacon)), 'initialize: _rewarderBeacon must be a valid contract');
         require(Address.isContract(address(_bribeBeacon)), 'initialize: _bribeBeacon must be a valid contract');
-        require(Address.isContract(address(_voter)), 'initialize: mw must be a valid contract');
+        require(Address.isContract(address(_masterWombat)), 'initialize: mw must be a valid contract');
         require(Address.isContract(address(_voter)), 'initialize: voter must be a valid contract');
 
         rewarderBeacon = _rewarderBeacon;

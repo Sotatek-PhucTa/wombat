@@ -2,7 +2,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
 import { BigNumber, Contract } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
-import { deployments, ethers } from 'hardhat'
+import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { BoostedMultiRewarder, BribeV2, TestERC20 } from '../../build/typechain'
 import { getDeployedContract } from '../../utils'
 import { near } from '../assertions/near'
@@ -39,7 +39,13 @@ describe('BribeRewarderFactory', async function () {
   })
 
   beforeEach(async function () {
-    await deployments.fixture(['BoostedMasterWombat', 'BribeRewarderFactory', 'BoostedMasterWombatSetup'])
+    await deployments.fixture([
+      'BoostedMasterWombat',
+      'BribeRewarderFactory',
+      'BoostedMasterWombatSetup',
+      'VeWom',
+      'Voter',
+    ])
     ;[bribeRewarderFactory, mw, rewarderBeacon, bribeBeacon, voter, wom, veWom] = await Promise.all([
       getDeployedContract('BribeRewarderFactory'),
       getDeployedContract('BoostedMasterWombat'),
@@ -69,6 +75,19 @@ describe('BribeRewarderFactory', async function () {
     await mw.add(lpToken1.address, AddressZero)
 
     startTime = (await latest()).add(86400)
+  })
+
+  it('deploy validation', async function () {
+    const { multisig } = await getNamedAccounts()
+    expect(await rewarderBeacon.owner()).to.eq(multisig)
+    expect(await bribeBeacon.owner()).to.eq(multisig)
+
+    expect(await bribeRewarderFactory.masterWombat()).to.eq(mw.address)
+    expect(await bribeRewarderFactory.rewarderBeacon()).to.eq(rewarderBeacon.address)
+    expect(await bribeRewarderFactory.voter()).to.eq(voter.address)
+    expect(await bribeRewarderFactory.bribeBeacon()).to.eq(bribeBeacon.address)
+
+    expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.be.empty
   })
 
   describe('rewarder', async function () {
