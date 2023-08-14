@@ -1,19 +1,9 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { deployments, ethers } from 'hardhat'
-import {
-  BoostedMasterWombat,
-  BoostedMultiRewarder,
-  BribeRewarderFactory,
-  BribeV2,
-  TestERC20,
-  UpgradeableBeacon,
-  VeWom,
-  Voter,
-  WombatERC20,
-} from '../../build/typechain'
+import { BoostedMultiRewarder, BribeV2, TestERC20 } from '../../build/typechain'
 import { getDeployedContract } from '../../utils'
 import { near } from '../assertions/near'
 import { roughlyNear } from '../assertions/roughlyNear'
@@ -29,16 +19,14 @@ describe('BribeRewarderFactory', async function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
-  let bribeRewarderFactory: BribeRewarderFactory
-  let rewarderImpl: BoostedMultiRewarder
-  let bribeImpl: BribeV2
-  let rewarderBeacon: UpgradeableBeacon
-  let bribeBeacon: UpgradeableBeacon
+  let bribeRewarderFactory: Contract
+  let rewarderBeacon: Contract
+  let bribeBeacon: Contract
 
-  let wom: WombatERC20
-  let veWom: VeWom
-  let voter: Voter
-  let mw: BoostedMasterWombat
+  let wom: Contract
+  let veWom: Contract
+  let voter: Contract
+  let mw: Contract
   let token1: TestERC20
   let token2: TestERC20
   let lpToken1: TestERC20
@@ -51,19 +39,16 @@ describe('BribeRewarderFactory', async function () {
   })
 
   beforeEach(async function () {
-    await deployments.fixture(['Voter', 'VeWom'])
-
-    bribeRewarderFactory = (await ethers.deployContract('BribeRewarderFactory')) as BribeRewarderFactory
-
-    rewarderImpl = (await ethers.deployContract('BoostedMultiRewarder')) as BoostedMultiRewarder
-    bribeImpl = (await ethers.deployContract('BribeV2')) as BribeV2
-
-    rewarderBeacon = (await ethers.deployContract('UpgradeableBeacon', [rewarderImpl.address])) as UpgradeableBeacon
-    bribeBeacon = (await ethers.deployContract('UpgradeableBeacon', [bribeImpl.address])) as UpgradeableBeacon
-
-    voter = (await getDeployedContract('Voter')) as Voter
-    wom = (await ethers.deployContract('WombatERC20', [owner.address, parseEther('1000000000')])) as WombatERC20
-    veWom = (await getDeployedContract('VeWom')) as VeWom
+    await deployments.fixture(['BoostedMasterWombat', 'BribeRewarderFactory', 'BoostedMasterWombatSetup'])
+    ;[bribeRewarderFactory, mw, rewarderBeacon, bribeBeacon, voter, wom, veWom] = await Promise.all([
+      getDeployedContract('BribeRewarderFactory'),
+      getDeployedContract('BoostedMasterWombat'),
+      getDeployedContract('UpgradeableBeacon', 'BoostedMultiRewarder_Beacon'),
+      getDeployedContract('UpgradeableBeacon', 'BribeV2_Beacon'),
+      getDeployedContract('Voter'),
+      getDeployedContract('WombatERC20', 'WombatToken'),
+      getDeployedContract('VeWom'),
+    ])
 
     token1 = (await ethers.deployContract('TestERC20', ['USDC', 'USDC', 18, parseUnits('10000000', 18)])) as TestERC20
     token2 = (await ethers.deployContract('TestERC20', ['USDT', 'USDT', 18, parseUnits('10000000', 18)])) as TestERC20
@@ -79,15 +64,6 @@ describe('BribeRewarderFactory', async function () {
       18,
       parseUnits('10000000', 18),
     ])) as TestERC20
-
-    mw = (await ethers.deployContract('BoostedMasterWombat')) as BoostedMasterWombat
-
-    await mw.initialize(wom.address, veWom.address, voter.address, 375)
-    await mw.setBribeRewarderFactory(bribeRewarderFactory.address)
-
-    await voter.setBribeFactory(bribeRewarderFactory.address)
-
-    await bribeRewarderFactory.initialize(rewarderBeacon.address, bribeBeacon.address, mw.address, voter.address)
 
     await voter.add(mw.address, lpToken1.address, AddressZero)
     await mw.add(lpToken1.address, AddressZero)

@@ -370,3 +370,35 @@ export async function deployRewarderOrBribe(
 
   return deployResult
 }
+
+export async function deployUpgradeableBeacon(contractName: string) {
+  const { deployer } = await getNamedAccounts()
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
+
+  const implName = `${contractName}_Implementation`
+  const beaconName = `${contractName}_Beacon`
+
+  const implDeployResult = await deployments.deploy(implName, {
+    from: deployer,
+    contract: contractName,
+    log: true,
+    skipIfAlreadyDeployed: true,
+  })
+  const beaconDeployResult = await deployments.deploy(beaconName, {
+    from: deployer,
+    contract: 'UpgradeableBeacon',
+    log: true,
+    skipIfAlreadyDeployed: true,
+    args: [implDeployResult.address],
+  })
+
+  deployments.log('Contract address:', beaconDeployResult.address)
+  deployments.log('Implementation address:', implDeployResult.address)
+
+  if (beaconDeployResult.newlyDeployed) {
+    const beaconContract = await getDeployedContract('UpgradeableBeacon', beaconName)
+    const proxyAdminOwner = await getProxyAdminOwner()
+    await confirmTxn(beaconContract.connect(deployerSigner).transferOwnership(proxyAdminOwner))
+    deployments.log(`Transferring ownership of ${beaconDeployResult.address} to ${proxyAdminOwner}...`)
+  }
+}

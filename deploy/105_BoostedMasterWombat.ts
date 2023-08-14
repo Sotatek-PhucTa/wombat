@@ -1,20 +1,20 @@
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getCurrentNetwork } from '../types/network'
-import { getAddress, logVerifyCommand } from '../utils'
-import { Deployment } from '../types'
+import { logVerifyCommand } from '../utils'
+import { Token, getTokenAddress } from '../config/token'
+import { getProxyAdminOwner } from '../utils/deploy'
+import { ethers } from 'hardhat'
 
 const contractName = 'BoostedMasterWombat'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, upgrades, getNamedAccounts } = hre
-  const { deployer, multisig } = await getNamedAccounts()
+  const { deployer } = await getNamedAccounts()
 
   deployments.log(`Step 105. Deploying on: ${getCurrentNetwork()}...`)
 
-  const womAddr = await getAddress(Deployment('WombatToken'))
-  const veWomAddr = await getAddress(Deployment('VeWom'))
-  const voterAddr = await getAddress(Deployment('Voter'))
+  const womAddr = await getTokenAddress(Token.WOM)
 
   const deployResult = await deployments.deploy(contractName, {
     from: deployer,
@@ -22,13 +22,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     contract: contractName,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: multisig, // change to Gnosis Safe after all admin scripts are done
+      owner: await getProxyAdminOwner(), // change to Gnosis Safe after all admin scripts are done
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {
         init: {
           methodName: 'initialize',
-          args: [womAddr, veWomAddr, voterAddr, 375],
+          args: [womAddr, ethers.constants.AddressZero, ethers.constants.AddressZero, 375],
         },
       },
     },
