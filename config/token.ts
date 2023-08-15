@@ -327,6 +327,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/wombat-exchange
     [Network.HARDHAT]: Deployment('WombatToken'),
     [Network.LOCALHOST]: Deployment('WombatToken'),
+    [Network.BSC_TESTNET]: Deployment('WombatToken'),
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.AVALANCHE_TESTNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),

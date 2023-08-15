@@ -14,6 +14,7 @@ import { setBalance } from '@nomicfoundation/hardhat-network-helpers'
 import { getCurrentNetwork } from '../types/network'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerSecToTokenPerEpoch } from '../config/emission'
+import { isSameAddress } from './addresses'
 
 export * as deploy from './deploy'
 export * as multisig from './multisig'
@@ -67,7 +68,7 @@ export async function confirmTxn(response: Promise<TransactionResponse>, confirm
 // Expect owner is available in a view function.
 export async function isOwner(contract: Contract, user: string) {
   const owner = await contract.owner()
-  return user.toLowerCase() == owner.toLowerCase()
+  return isSameAddress(user, owner)
 }
 
 export async function setRewarder(masterWombat: Contract, owner: SignerWithAddress, lpToken: string, rewarder: string) {

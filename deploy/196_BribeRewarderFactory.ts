@@ -2,7 +2,7 @@ import { ethers, upgrades } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getCurrentNetwork } from '../types/network'
-import { confirmTxn, getAddress, getDeployedContract, logVerifyCommand } from '../utils'
+import { confirmTxn, getAddress, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
 import { Deployment } from '../types'
 import { getProxyAdminOwner } from '../utils/deploy'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -46,7 +46,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   if (deployResult.newlyDeployed) {
     deployments.log(`BribeRewarderFactory Deployment complete.`)
-    await confirmTxn(voter.connect(deployerSigner).setBribeFactory(deployResult.address))
+    if (await isOwner(voter, deployer)) {
+      deployments.log(`Setting BribeRewarderFactory on Voter to ${deployResult.address}...`)
+      await confirmTxn(voter.connect(deployerSigner).setBribeFactory(deployResult.address))
+    } else {
+      deployments.log(
+        `Deployer is not owner of voter. Please propose multisig to setBribeFactory at ${deployResult.address}`
+      )
+    }
   }
 
   logVerifyCommand(deployResult)

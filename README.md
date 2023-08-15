@@ -564,9 +564,16 @@ To verify proxy contracts:
 - User 1 => `0x1d39a90dAC4596b36D60682B6cec147Eb758AF90`
 - User 2 => `0x67F6e6EEB3e61e23Ee765905F5a04a2Bbd0E3a73`
 
-#### Wombat Proxy Admin
-
+#### Wombat Governance
+- WOM (ERC20) => `0x7BFC90abeEB4138e583bfC46aBC69De34c9ABb8B`
+- Token Vesting => `0x8D1696d63507d59E0bab03801D74F78fA76671D0` (v2)
 - Default Proxy Admin (Proxy Admin) => `0x5961699Bf708A804e5ED528bDAcb9d4bA16c4F6a`
+- Voter => `0x23c8D0437b74CE912850B89a42F28e4037cA7849`
+- MasterWombatV2 Proxy => `0x78BAEc04D81fCF87551a8495d87035911a7875C6`
+- MasterWombatV3 Proxy => `0x8C0e9334DBFAC1b9184bC01Ef638BA705cc13EaF`
+- WombatRouter => `0xED430B9b729260DA55006A49E06aFc451F958f1E`
+- VeWom Proxy => `0x3868B84D4cea3110694d07A2d222418F7B401fE8`
+- Voter Proxy => `0x23c8D0437b74CE912850B89a42F28e4037cA7849`
 
 #### Wombat Main Pool
 
@@ -577,9 +584,9 @@ To verify proxy contracts:
 - Asset V2 (LP-TUSD) => `0xe52E4510cBff4712e46499ce6e87Ead760542fD5`
 - Asset V2 (LP-DAI) => `0x9f6163070fBCa0a61F49F37e0123fCE3d28B8e21`
 - Asset V2 (LP-vUSDC) => `0x36c99D7D330F37Ac8f22C261242033957fcC6c24`
+- Bribe_BUSD => `0x3aEA5139441318A951e11aB38392c8C75F1a7522`
 
 #### Wombat Cross Chain Pool
-
 - Cross Chain Pool Proxy (Main entry) => `0xBD4E8B36d9Da92f0bAFa14C30994c6c0Bf74bF02`
 - Wormhole Adaptor Proxy (Main entry) => `0xebD34D7d249686d7Cfb391dd18A220773e72feDb`
 - CoreV3 => `0x860E5255B8Fcd598FEC10e15569215D5a0FC713a`
@@ -589,7 +596,6 @@ To verify proxy contracts:
 - Asset (LP-vUSDC) => `0xE42b4e663fdEc68e3744de07ef54519102De5b1e`
 
 #### Wombat Side Pool
-
 - Pool Proxy (Main entry) => `0x32997A613FBabE911887e296c27f55d735D55084`
 - Asset_SP01_BUSD (LP-BUSD) => `0x0d3dBc403d121eB53d14E2FE2a98e78CA3E17c44`
 - Asset_SP01_FRAX (LP-FRAX) => `0xc5f2B1df25B9Bfc61444b002121330bEa9460F3e`
@@ -603,6 +609,7 @@ To verify proxy contracts:
 - Asset_stables_01_BUSD (LP-BUSD) => `0x3cBcC2a75d54f9746EC18302a1367Bb9eE0C3575`
 - Asset_stables_01_FRAX (LP-FRAX) => `0xAf605D0De1b4654b31b8918587aBc45572e22CEd`
 - Asset_stables_01_TUSD (LP-TUSD) => `0x80050Ff8E1C7284025A3669C30f2CD46b735a7Eb`
+- Bribe_FRAX_BUSD => `0xcF7640E12b4aB4F5a4Fe35b231541DF9a83351Ea`
 
 #### iUSD Pool
 
@@ -651,15 +658,6 @@ To verify proxy contracts:
 - Pool Proxy (Main entry) => `0x7749C4737424bdaA69755e20e46eC53053dfA921`
 - Asset_BnbxPool_WBNB => `0xC0aFB4E0f2A11E2a74F168904F47178865b728ba`
 - Asset_BnbxPool_BNBx => `0xB9207cc7bEaFb74773Cd08C869d6F6f890105564`
-
-#### Wombat Governance
-
-- MasterWombatV2 Proxy => `0x78BAEc04D81fCF87551a8495d87035911a7875C6`
-- MasterWombatV3 Proxy => `0x8C0e9334DBFAC1b9184bC01Ef638BA705cc13EaF`
-- VeWom Proxy => `0x3868B84D4cea3110694d07A2d222418F7B401fE8`
-- Voter Proxy => `0x23c8D0437b74CE912850B89a42F28e4037cA7849`
-- Bribe_BUSD => `0x3aEA5139441318A951e11aB38392c8C75F1a7522`
-- Bribe_FRAX_BUSD => `0xcF7640E12b4aB4F5a4Fe35b231541DF9a83351Ea`
 - Bribe_BNBx => `0xf496a50aE1663942a0D0ee23b914DDDea1FC4A10`
 
 #### Wombat Rewarders
@@ -673,15 +671,6 @@ To verify proxy contracts:
 - MultiRewarderPerSec_V3_wWOM => `0x6Ad9E25a49319E316137E938cC74c31F4D0C0fca`
 - MultiRewarderPerSec_V3_BNBx => `0xfA3392662153eC17dc176158F38f7DA67aefa08b`
 - MultiRewarderPerSec_V3_BnbxPool_WBNB => `0xd9F39e6F2a958a35Eff368adC5C39362326C5B36`
-
-#### Wombat Token
-
-- WOM (ERC20) => `0x7BFC90abeEB4138e583bfC46aBC69De34c9ABb8B`
-- Token Vesting => `0x8D1696d63507d59E0bab03801D74F78fA76671D0` (v2)
-
-#### Wombat Router
-
-- WombatRouter => `0xED430B9b729260DA55006A49E06aFc451F958f1E`
 
 #### Mock ERC20 Stablecoins
 
