@@ -214,7 +214,8 @@ if (Object.values(Network).includes(network as Network)) {
 // See https://github.com/NomicFoundation/hardhat/issues/1226#issuecomment-1519092725
 extendEnvironment((hre: HardhatRuntimeEnvironment) => {
   const config = hre.network.config as HttpNetworkUserConfig
-  if (config?.url) {
+  if (hre.network.name === Network.LOCALHOST && config?.url) {
+    console.log('Overriding hre.ethers.provider to allow impersonation')
     hre.ethers.provider = new hre.ethers.providers.JsonRpcProvider(config.url)
   }
 })
