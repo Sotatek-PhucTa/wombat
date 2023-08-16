@@ -395,6 +395,7 @@ export async function deployUpgradeableBeacon(contractName: string) {
   deployments.log('Contract address:', beaconDeployResult.address)
   deployments.log('Implementation address:', implDeployResult.address)
 
+  logVerifyCommand(implDeployResult)
   logVerifyCommand(beaconDeployResult)
 
   if (beaconDeployResult.newlyDeployed) {
