@@ -5685,10 +5685,10 @@ slice-ansi@^4.0.0:
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
 
-sol2uml@^2.5.8:
-  version "2.5.8"
-  resolved "https://registry.yarnpkg.com/sol2uml/-/sol2uml-2.5.8.tgz#e6891612cc84edcb88db771152137b3eff82a1a1"
-  integrity sha512-GoamTHiCeCDD24T3cknhijsHetJJ4GtGwg0HcaXOSw6x5beK5RpH1Ks9mXrgVsLXOqRvO0Wx1NPt8/WYMtp+Hw==
+sol2uml@^2.5.10:
+  version "2.5.10"
+  resolved "https://registry.yarnpkg.com/sol2uml/-/sol2uml-2.5.10.tgz#c321e1d1ce4c9ed357665d943b10711f61c8e8a0"
+  integrity sha512-RI+ymtGJk9LVLu9e+xG6pIW5dp/67kzB9p7W7iFtPbLPn5CmYBAtANVLCM2HfmFWWNw6w5i9sUoN4GtKZH7F9Q==
   dependencies:
     "@aduh95/viz.js" "^3.7.0"
     "@solidity-parser/parser" "^0.16.1"
