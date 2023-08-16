@@ -395,6 +395,8 @@ export async function deployUpgradeableBeacon(contractName: string) {
   deployments.log('Contract address:', beaconDeployResult.address)
   deployments.log('Implementation address:', implDeployResult.address)
 
+  logVerifyCommand(beaconDeployResult)
+
   if (beaconDeployResult.newlyDeployed) {
     const beaconContract = await getDeployedContract('UpgradeableBeacon', beaconName)
     const proxyAdminOwner = await getProxyAdminOwner()
