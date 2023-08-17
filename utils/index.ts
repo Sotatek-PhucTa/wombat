@@ -15,6 +15,8 @@ import { getCurrentNetwork } from '../types/network'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerSecToTokenPerEpoch } from '../config/emission'
 import { isSameAddress } from './addresses'
+import assert from 'assert'
+import path from 'path'
 
 export * as deploy from './deploy'
 export * as multisig from './multisig'
@@ -38,11 +40,25 @@ export async function concatAll<T>(...promises: Promise<T[]>[]): Promise<T[]> {
 }
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Promise<string> {
-  if (ethers.utils.isAddress(deploymentOrAddress.deploymentOrAddress)) {
-    return deploymentOrAddress.deploymentOrAddress
-  } else {
-    const deployment = await deployments.get(deploymentOrAddress.deploymentOrAddress)
-    return deployment.address
+  switch (deploymentOrAddress.type) {
+    case 'address': {
+      assert(ethers.utils.isAddress(deploymentOrAddress.address), 'invalid adddress')
+      return deploymentOrAddress.address
+    }
+    case 'deployment': {
+      const network = deploymentOrAddress.network ?? getCurrentNetwork()
+      const deploymentName = [Network.HARDHAT, Network.LOCALHOST].includes(network)
+        ? deploymentOrAddress.deployment // deployments.fixture does not have network prefix
+        : path.join(network, deploymentOrAddress.deployment)
+      const deployment = await deployments.get(deploymentName)
+      return deployment.address
+    }
+    case 'unknown': {
+      throw new Error(`Unknown deploymentOrAddress type: ${deploymentOrAddress.type}`)
+    }
+    default: {
+      return {} as never
+    }
   }
 }
 

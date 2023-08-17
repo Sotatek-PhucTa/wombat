@@ -208,10 +208,10 @@ if (Object.values(Network).includes(network as Network)) {
   ]
   // let hardhat reuse existing deployment in the forked network
   // documentation: https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
-  const external_deployments = [`deployments`, `deployments/${network}`]
+  const external_deployments = ['deployments', `deployments/${network}`]
   config.external = {
     // comment out if you don't want to re-use deployment from forking
-    deployments: Object.assign(config.external.deployments, {
+    deployments: Object.assign({}, config.external?.deployments, {
       [Network.HARDHAT]: external_deployments,
       [Network.LOCALHOST]: external_deployments,
     }),

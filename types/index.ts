@@ -20,30 +20,52 @@ export enum Network {
   ETHEREUM_MAINNET = 'eth_mainnet',
 }
 
-export interface DeploymentOrAddress {
-  deploymentOrAddress: string
-}
-
 export interface DeploymentResult {
   deployResult: DeployResult
   contract: Contract
 }
 
-export function Deployment(deployment: string): DeploymentOrAddress {
-  return { deploymentOrAddress: deployment }
+export type Deployment = {
+  type: 'deployment'
+  deployment: string
+  network?: Network // default to getCurrentNetwork
 }
 
-export function Address(address: string): DeploymentOrAddress {
+export type Address = {
+  type: 'address'
+  address: string
+}
+
+export type Unknown = {
+  type: 'unknown'
+}
+
+export type DeploymentOrAddress = Deployment | Address | Unknown
+
+export function Deployment(deployment: string, network?: Network): Deployment {
+  return {
+    type: 'deployment',
+    deployment,
+    network,
+  }
+}
+
+export function Address(address: string): Address {
   assert(
     isChecksumAddress(address),
     `Address ${address} is not a checksum address. Please use ${toChecksumAddress(address)}.`
   )
-  return { deploymentOrAddress: address }
+  return {
+    type: 'address',
+    address,
+  }
 }
 
 // Use for error checking
-export function Unknown(): DeploymentOrAddress {
-  return { deploymentOrAddress: 'unknown' }
+export function Unknown(): Unknown {
+  return {
+    type: 'unknown',
+  }
 }
 
 export interface IRewarder {

@@ -33,7 +33,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
         deployments.log(`addBribe for ${lpTokenAddress} complete.`)
       } else {
         deployments.log(
-          `User ${deployerSigner.address} does not own Voter. Please call add/setBribe in multi-sig. Bribe: ${deployResult.address}. LP: ${bribeConfig.lpToken.deploymentOrAddress}.`
+          `User ${deployerSigner.address} does not own Voter. Please call add/setBribe in multi-sig. Bribe: ${
+            deployResult.address
+          }. LP: ${JSON.stringify(bribeConfig.lpToken)}.`
         )
       }
     }

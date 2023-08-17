@@ -58,5 +58,5 @@ deployFunc.tags = [contractName]
 deployFunc.skip = async () => {
   // skip if we are not going to resolve from deployment
   const deploymentOrAddress = getTokenDeploymentOrAddress(Token.WOM)
-  return contractName != deploymentOrAddress.deploymentOrAddress
+  return deploymentOrAddress.type !== 'deployment'
 }
