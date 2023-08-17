@@ -34,10 +34,10 @@ async function send(
 ) {
   console.log('send...')
   const { deployer } = await getNamedAccounts()
-  const poolAddress = (await deployments.get('CrossChainPool_stablecoinPool')).address
+  const poolAddress = (await deployments.get('CrossChainPool_Stablecoin_Pool')).address
   const pool = (await ethers.getContractAt('CrossChainPool', poolAddress)) as CrossChainPool
 
-  const adaptorAddress = (await deployments.get('WormholeAdaptor_stablecoinPool')).address
+  const adaptorAddress = (await deployments.get('WormholeAdaptor_Stablecoin_Pool')).address
   const adaptor = (await ethers.getContractAt('WormholeAdaptor', adaptorAddress)) as WormholeAdaptor
 
   console.log('delivery gas limit: ', deliveryGasLimit)
@@ -71,7 +71,7 @@ async function resend(
 ) {
   console.log('resend...')
 
-  const adaptorAddress = (await deployments.get('WormholeAdaptor_stablecoinPool')).address
+  const adaptorAddress = (await deployments.get('WormholeAdaptor_Stablecoin_Pool')).address
   const adaptor = (await ethers.getContractAt('WormholeAdaptor', adaptorAddress)) as WormholeAdaptor
 
   console.log('re-delivery gas limit: ', deliveryGasLimit)

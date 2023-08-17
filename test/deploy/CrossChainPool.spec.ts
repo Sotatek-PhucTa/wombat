@@ -9,7 +9,7 @@ import { Token, getTokenDeploymentOrAddress } from '../../config/token'
 import { parseEther } from 'ethers/lib/utils'
 
 describe('CrossChainPool deployment', function () {
-  const poolName = 'stablecoinPool'
+  const poolName = 'Stablecoin_Pool'
 
   beforeEach(async function () {
     await deployments.fixture([

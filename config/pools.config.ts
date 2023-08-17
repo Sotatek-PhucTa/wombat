@@ -919,7 +919,7 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
   NetworkPoolInfo<ICrossChainPoolConfig>
 > = injectForkNetwork<NetworkPoolInfo<ICrossChainPoolConfig>>({
   [Network.HARDHAT]: {
-    stablecoinPool: {
+    Stablecoin_Pool: {
       setting: {
         ...defaultCrossChainPoolConfig,
       },
@@ -930,7 +930,7 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.BSC_TESTNET]: {
-    stablecoinPool: {
+    Stablecoin_Pool: {
       setting: {
         ...defaultCrossChainPoolConfig,
       },
@@ -941,7 +941,7 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.AVALANCHE_TESTNET]: {
-    stablecoinPool: {
+    Stablecoin_Pool: {
       setting: {
         ...defaultCrossChainPoolConfig,
       },

@@ -66,14 +66,14 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
   Record<PoolName, IWormholeAdaptorConfig>
 > = injectForkNetwork<Record<PoolName, IWormholeAdaptorConfig>>({
   [Network.HARDHAT]: {
-    stablecoinPool: {
+    Stablecoin_Pool: {
       // Mocking Address for testing purpose only!
       adaptorAddr: Address('0x0000000000000000000000000000000000000001'),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
   [Network.LOCALHOST]: {
-    stablecoinPool: {
+    Stablecoin_Pool: {
       // Mocking Address for testing purpose only!
       adaptorAddr: Address('0x0000000000000000000000000000000000000001'),
       // Work around for testing
@@ -81,14 +81,14 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
     },
   },
   [Network.BSC_TESTNET]: {
-    stablecoinPool: {
-      adaptorAddr: Deployment('bsc_testnet/WormholeAdaptor_stablecoinPool_Proxy'),
+    Stablecoin_Pool: {
+      adaptorAddr: Deployment('bsc_testnet/WormholeAdaptor_Stablecoin_Pool_Proxy'),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
   [Network.AVALANCHE_TESTNET]: {
-    stablecoinPool: {
-      adaptorAddr: Deployment('avax_testnet/WormholeAdaptor_stablecoinPool_Proxy'),
+    Stablecoin_Pool: {
+      adaptorAddr: Deployment('avax_testnet/WormholeAdaptor_Stablecoin_Pool_Proxy'),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
