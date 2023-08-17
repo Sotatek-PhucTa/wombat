@@ -1,12 +1,8 @@
-import { parseEther } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Contract } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { TestERC20 } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
-import { confirmTxn, getDeadlineFromNow, getDeployedContract } from '../utils'
+import { confirmTxn, getDeployedContract } from '../utils'
 import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 import { getCurrentNetwork } from '../types/network'
@@ -44,22 +40,6 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
     deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
   }
-}
-
-// TODO: find a place for this utility.
-async function faucetToken(tokenSymbol: string, pool: Contract, deployer: string) {
-  const token0 = (await getDeployedContract('TestERC20', tokenSymbol)) as TestERC20
-  deployments.log('faucet token...', tokenSymbol)
-  const decimals = await token0.decimals()
-  await confirmTxn(token0.faucet(parseUnits('100000', decimals)))
-
-  // approve & deposit tokens
-  deployments.log('approve tokens...')
-  await confirmTxn(token0.approve(pool.address, parseEther('100000000')))
-  deployments.log('deposit tokens...')
-  await confirmTxn(
-    pool.deposit(token0.address, parseUnits('10000', decimals), 0, deployer, await getDeadlineFromNow(3600), false)
-  )
 }
 
 export default deployFunc
