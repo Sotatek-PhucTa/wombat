@@ -13,6 +13,7 @@ import secrets from './secrets.json' // BSC TESTNET ONLY!
 import './tasks/tasks.index'
 import { Network } from './types'
 import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from 'hardhat/types'
+import _ from 'lodash'
 dotenv.config()
 
 const config: HardhatUserConfig = {
@@ -182,6 +183,16 @@ const config: HardhatUserConfig = {
       '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol',
     ],
   },
+  // Enable reading deployments from other chains.
+  // This is needed for cross chain pool to set up adapter addresses in other chains.
+  // To read deployments in another chain, prefix it with the network name.
+  // For example, deployments.get('bsc_testnet/DefaultProxyAdmin') will read deployments/bsc_testnet/DefaultProxyAdmin.json.
+  external: {
+    deployments: _.chain(Object.values(Network))
+      .mapKeys((value) => value)
+      .mapValues(() => ['deployments'])
+      .value(),
+  },
 }
 
 const network = process.env.FORK_NETWORK || ''
@@ -197,10 +208,13 @@ if (Object.values(Network).includes(network as Network)) {
   ]
   // let hardhat reuse existing deployment in the forked network
   // documentation: https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
-  const external_deployments = [`deployments/${network}`]
+  const external_deployments = [`deployments`, `deployments/${network}`]
   config.external = {
     // comment out if you don't want to re-use deployment from forking
-    deployments: { [Network.HARDHAT]: external_deployments, [Network.LOCALHOST]: external_deployments },
+    deployments: Object.assign(config.external.deployments, {
+      [Network.HARDHAT]: external_deployments,
+      [Network.LOCALHOST]: external_deployments,
+    }),
   }
   // override deployer and multisig as well
   // caveat: localhost won't work without deployer credential

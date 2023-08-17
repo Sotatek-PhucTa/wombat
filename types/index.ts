@@ -94,6 +94,15 @@ export interface IHighCovRatioFeePoolConfig extends IPoolConfig {
   endCovRatio: BigNumber
 }
 
+export interface ICrossChainPoolConfig extends IHighCovRatioFeePoolConfig {
+  tokensForCreditHaircut: BigNumber
+  creditForTokensHaircut: BigNumber
+  maximumInboundCredit: BigNumber
+  maximumOutboundCredit: BigNumber
+  swapCreditForTokensEnabled: boolean
+  swapTokensForCreditEnabled: boolean
+}
+
 export interface IPriceFeed {
   // TODO: handle fallback price feed
   contract: 'GovernedPriceFeed' | 'ChainlinkPriceFeed' | 'PythPriceFeed'

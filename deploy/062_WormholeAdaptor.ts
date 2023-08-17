@@ -7,6 +7,7 @@ import { getDeployedContract, logVerifyCommand } from '../utils'
 import { getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 import { getCurrentNetwork } from '../types/network'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 const contractName = 'WormholeAdaptor'
 
@@ -15,6 +16,7 @@ const contractName = 'WormholeAdaptor'
 const deployFunc = async function () {
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const network = getCurrentNetwork()
 
   deployments.log(`Step 062. Deploying on : ${network}...`)
@@ -28,7 +30,7 @@ const deployFunc = async function () {
   /// Deploy pools
 
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
-  for (const [poolName, poolInfo] of Object.entries(CROSS_CHAIN_POOL_TOKENS)) {
+  for (const poolName of Object.keys(CROSS_CHAIN_POOL_TOKENS)) {
     const poolContractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const pool = await getDeployedContract('CrossChainPool', poolContractName)
 
@@ -60,14 +62,7 @@ const deployFunc = async function () {
     if (deployResult.newlyDeployed) {
       logVerifyCommand(deployResult)
 
-      // Check setup config values
-
-      // Manually set up as addresses are available in other networks:
-      // TODO: we may consider reading WORMHOLE_ADAPTOR_CONFIG_MAP to add it programatically
-      // await adaptor.approveToken(...)
-      // await adaptor.setAdaptorAddress(...)
-
-      await pool.setAdaptorAddr(adaptor.address)
+      await pool.connect(deployerSigner).setAdaptorAddr(adaptor.address)
     } else {
       deployments.log(`${contractName} Contract already deployed.`)
     }

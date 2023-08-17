@@ -1,6 +1,13 @@
 import { BigNumber } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
-import { IGovernedPriceFeed, IHighCovRatioFeePoolConfig, Network, NetworkPoolInfo, PartialRecord } from '../types'
+import {
+  ICrossChainPoolConfig,
+  IGovernedPriceFeed,
+  IHighCovRatioFeePoolConfig,
+  Network,
+  NetworkPoolInfo,
+  PartialRecord,
+} from '../types'
 import {
   AnkrBnbAsset,
   AnkrEthAsset,
@@ -141,9 +148,13 @@ const defaultVolatilePoolConfig: IHighCovRatioFeePoolConfig = {
   deploymentNamePrefix: 'VolatilePools',
 }
 
-const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
+const defaultCrossChainPoolConfig: ICrossChainPoolConfig = {
   ampFactor: parseEther('0.00025'),
   haircut: parseEther('0.0001'),
+  tokensForCreditHaircut: oneBips,
+  creditForTokensHaircut: oneBips,
+  maximumInboundCredit: parseEther('10000'),
+  maximumOutboundCredit: parseEther('10000'),
   mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('1.5'),
   endCovRatio: parseEther('1.8'),
@@ -151,6 +162,8 @@ const defaultCrossChainPoolConfig: IHighCovRatioFeePoolConfig = {
   retentionRatio: parseEther('0.5'),
   deploymentNamePrefix: 'CrossChainPool',
   supportNativeToken: false,
+  swapCreditForTokensEnabled: true,
+  swapTokensForCreditEnabled: true,
 }
 
 // @deprecated: Please expose the value type directly using getCurrentNetwork().
@@ -903,8 +916,19 @@ export const VOLATILEPOOL_TOKENS_MAP: PartialRecord<
 
 export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
   Network,
-  NetworkPoolInfo<IHighCovRatioFeePoolConfig>
-> = injectForkNetwork<NetworkPoolInfo<IHighCovRatioFeePoolConfig>>({
+  NetworkPoolInfo<ICrossChainPoolConfig>
+> = injectForkNetwork<NetworkPoolInfo<ICrossChainPoolConfig>>({
+  [Network.HARDHAT]: {
+    stablecoinPool: {
+      setting: {
+        ...defaultCrossChainPoolConfig,
+      },
+      assets: {
+        ...BusdAsset(),
+        ...VusdcAsset(),
+      },
+    },
+  },
   [Network.BSC_TESTNET]: {
     stablecoinPool: {
       setting: {

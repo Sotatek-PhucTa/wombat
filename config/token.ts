@@ -78,8 +78,7 @@ export enum Token {
   xEQB,
 }
 
-export function getTokenDeploymentOrAddress(token: Token): DeploymentOrAddress {
-  const network = getCurrentNetwork()
+export function getTokenDeploymentOrAddress(token: Token, network: Network = getCurrentNetwork()): DeploymentOrAddress {
   const deploymentOrAddress = tokenRegistry[token][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for token ${Token[token]} in network ${network}`)
