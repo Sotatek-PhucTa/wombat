@@ -19,7 +19,7 @@ const deployFunc = async function () {
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const network = getCurrentNetwork()
 
-  deployments.log(`Step 062. Deploying on : ${network}...`)
+  deployments.log(`Step 061. Deploying on : ${network}...`)
 
   const wormholeConfig = WORMHOLE_CONFIG_MAPS[network]
   if (wormholeConfig === undefined) {

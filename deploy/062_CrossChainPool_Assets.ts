@@ -18,7 +18,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
   const network = getCurrentNetwork()
 
-  deployments.log(`Step 061. Deploying on : ${network}...`)
+  deployments.log(`Step 062. Deploying on : ${network}...`)
 
   /// Deploy pool
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
