@@ -10,27 +10,6 @@ import {
 import { Token } from './token'
 import { injectForkNetwork } from './pools.config'
 
-// Wormhole chain id link to mapping with Network
-// See https://docs.wormhole.com/wormhole/blockchain-environments/contracts
-export enum WormholeChainIDTest {
-  LOCALHOST = 0,
-  HARDHAT = 0,
-  ARBITRUM_TESTNET = 23,
-  AVALANCHE_TESTNET = 6,
-  BSC_TESTNET = 4,
-  POLYGON_TESTNET = 5,
-}
-
-// Wormhole chain id link to mapping with Network
-// See https://docs.wormhole.com/wormhole/blockchain-environments/contracts
-export enum WormholeChainID {
-  ARBITRUM_MAINNET = 23,
-  BSC_MAINNET = 4,
-  ETHEREUM_MAINNET = 2,
-  OPTIMISM_MAINNET = 10,
-  POLYGON_MAINNET = 5,
-}
-
 export enum NetworkGroup {
   HARDHAT,
   MAINNET,
@@ -109,20 +88,21 @@ export const NETWORK_GROUP_MAP: Record<Network, NetworkGroup> = {
   [Network.ETHEREUM_MAINNET]: NetworkGroup.MAINNET,
 }
 
-export const WORMHOLE_ID_CONFIG_MAP: PartialRecord<Network, WormholeChainID | WormholeChainIDTest> = injectForkNetwork<
-  WormholeChainID | WormholeChainIDTest
->({
-  [Network.HARDHAT]: WormholeChainIDTest.HARDHAT,
-  [Network.LOCALHOST]: WormholeChainIDTest.LOCALHOST,
+type WormholeChainID = 0 | 2 | 4 | 5 | 6 | 10 | 23
 
-  [Network.BSC_MAINNET]: WormholeChainID.BSC_MAINNET,
-  [Network.POLYGON_MAINNET]: WormholeChainID.POLYGON_MAINNET,
-  [Network.ARBITRUM_MAINNET]: WormholeChainID.ARBITRUM_MAINNET,
-  [Network.OPTIMISM_MAINNET]: WormholeChainID.OPTIMISM_MAINNET,
-  [Network.ETHEREUM_MAINNET]: WormholeChainID.ETHEREUM_MAINNET,
+// See https://docs.wormhole.com/wormhole/blockchain-environments/contracts
+export const WORMHOLE_ID_CONFIG_MAP: PartialRecord<Network, WormholeChainID> = injectForkNetwork<WormholeChainID>({
+  [Network.HARDHAT]: 0,
+  [Network.LOCALHOST]: 0,
 
-  [Network.BSC_TESTNET]: WormholeChainIDTest.BSC_TESTNET,
-  [Network.POLYGON_TESTNET]: WormholeChainIDTest.POLYGON_TESTNET,
-  [Network.AVALANCHE_TESTNET]: WormholeChainIDTest.AVALANCHE_TESTNET,
-  [Network.ARBITRUM_TESTNET]: WormholeChainIDTest.ARBITRUM_TESTNET,
+  [Network.BSC_MAINNET]: 4,
+  [Network.POLYGON_MAINNET]: 5,
+  [Network.ARBITRUM_MAINNET]: 23,
+  [Network.OPTIMISM_MAINNET]: 10,
+  [Network.ETHEREUM_MAINNET]: 2,
+
+  [Network.BSC_TESTNET]: 4,
+  [Network.POLYGON_TESTNET]: 5,
+  [Network.AVALANCHE_TESTNET]: 6,
+  [Network.ARBITRUM_TESTNET]: 23,
 })
