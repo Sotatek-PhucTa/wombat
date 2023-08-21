@@ -52,7 +52,11 @@ const MOCK_TOKEN_MAP: Record<Network, TokenMap<IMockTokenInfo>> = {
   },
   [Network.BSC_MAINNET]: {},
   [Network.POLYGON_MAINNET]: {},
-  [Network.POLYGON_TESTNET]: {},
+  [Network.POLYGON_TESTNET]: {
+    USDC: { tokenName: 'USD Coin', tokenSymbol: 'USDC', decimalForMockToken: 18 },
+    USDT: { tokenName: 'Tether USD', tokenSymbol: 'USDT', decimalForMockToken: 18 },
+    axlUSDC: { tokenName: 'Axelar Wrapped USDC', tokenSymbol: 'axlUSDC', decimalForMockToken: 6 },
+  },
   [Network.ARBITRUM_MAINNET]: {},
   [Network.ARBITRUM_TESTNET]: {},
   [Network.OPTIMISM_MAINNET]: {},

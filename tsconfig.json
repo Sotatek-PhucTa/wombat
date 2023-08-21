@@ -9,5 +9,5 @@
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["./scripts", "./test", "./deploy", "./tasks", "./utils"],
-  "files": ["./hardhat.config.ts"]
+  "files": ["./hardhat.config.ts", "./deploy/deployFunc.ts"]
 }

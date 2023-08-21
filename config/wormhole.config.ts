@@ -18,10 +18,14 @@ export enum NetworkGroup {
 
 export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = injectForkNetwork<IWormholeConfig>({
   // https://docs.wormhole.com/wormhole/blockchain-environments/evm
+
+  // mainnets
   [Network.BSC_MAINNET]: {
     relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
     wormholeBridge: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B',
   },
+
+  // testnets
   [Network.BSC_TESTNET]: {
     relayer: '0x80aC94316391752A193C1c47E27D382b507c93F3',
     wormholeBridge: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
@@ -30,6 +34,12 @@ export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = inj
     relayer: '0xA3cF45939bD6260bcFe3D66bc73d60f19e49a8BB',
     wormholeBridge: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
   },
+  [Network.POLYGON_TESTNET]: {
+    relayer: '0x0591C25ebd0580E0d4F27A82Fc2e24E7489CB5e0',
+    wormholeBridge: '0x0CBE91CF822c73C2315FB05100C2F714765d5c20',
+  },
+
+  // devnet
   [Network.LOCALHOST]: {
     relayer: '0x0000000000000000000000000000000000000000',
     wormholeBridge: '0x0000000000000000000000000000000000000000',
@@ -40,6 +50,7 @@ export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = inj
   },
 })
 
+// To update deployment config, update `CROSS_CHAIN_POOL_TOKENS_MAP` instead. I have no idea when will this config be used
 export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
   Network,
   Record<PoolName, IWormholeAdaptorConfig>
@@ -69,6 +80,12 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
     Stablecoin_Pool: {
       adaptorAddr: Deployment('avax_testnet/WormholeAdaptor_Stablecoin_Pool_Proxy'),
       tokens: [Token.BUSD, Token.vUSDC],
+    },
+  },
+  [Network.POLYGON_TESTNET]: {
+    Stablecoin_Pool: {
+      adaptorAddr: Deployment('polygon_testnet/WormholeAdaptor_Stablecoin_Pool_Proxy'),
+      tokens: [Token.USDC, Token.USDT, Token.axlUSDC],
     },
   },
 })

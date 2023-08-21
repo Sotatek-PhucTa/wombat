@@ -10,25 +10,29 @@ const contractName = 'MockTokens'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
-  deployments.log(`Step 001. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  const network = getCurrentNetwork()
+  deployments.log(`Step 001. Deploying on : ${network} with account : ${deployer}`)
 
   // Mock tokens only on localhost and testnets
   // For fork networks, please deploy the mock token on the testnet directly
   const shouldDeployMockTokens = [
     Network.AVALANCHE_TESTNET,
+    Network.POLYGON_TESTNET,
     Network.BSC_TESTNET,
     Network.LOCALHOST,
     Network.HARDHAT,
   ].includes(getCurrentNetwork())
 
+  console.log('shouldDeployMockTokens', shouldDeployMockTokens, getMockTokens())
+
   if (shouldDeployMockTokens) {
-    for (const mockTokenInfo of await getMockTokens()) {
-      await deployMockToken(mockTokenInfo, deployer, hre.network.name)
+    for (const mockTokenInfo of getMockTokens()) {
+      await deployMockToken(mockTokenInfo, deployer)
     }
   }
 }
 
-async function deployMockToken(mockTokenInfo: IMockTokenInfo, deployer: string, network: string) {
+async function deployMockToken(mockTokenInfo: IMockTokenInfo, deployer: string) {
   deployments.log('deploy mock token for', mockTokenInfo.tokenName)
   const deployment = await deployments.deploy(mockTokenInfo.tokenSymbol, {
     from: deployer,

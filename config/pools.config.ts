@@ -951,4 +951,16 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
+  [Network.POLYGON_TESTNET]: {
+    Stablecoin_Pool: {
+      setting: {
+        ...defaultCrossChainPoolConfig,
+      },
+      assets: {
+        ...UsdcAsset(),
+        ...UsdtAsset(),
+        ...AxlUsdcAsset(),
+      },
+    },
+  },
 })

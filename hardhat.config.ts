@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
       accounts: [secrets.deployer.privateKey],
     },
     [Network.POLYGON_TESTNET]: {
-      url: 'https://rpc-mumbai.maticvigil.com/',
+      url: 'https://polygon-mumbai.blockpi.network/v1/rpc/public/',
       chainId: 80001,
       gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
@@ -157,6 +157,7 @@ const config: HardhatUserConfig = {
       [Network.LOCALHOST]: 0,
       [Network.BSC_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      [Network.POLYGON_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
     },
     multisig: {
       // No default to fail if used without initialization. Error singature: `Error: invalid address`.
@@ -164,6 +165,7 @@ const config: HardhatUserConfig = {
       [Network.LOCALHOST]: 'deployer',
       [Network.BSC_TESTNET]: 'deployer',
       [Network.AVALANCHE_TESTNET]: 'deployer',
+      [Network.POLYGON_TESTNET]: 'deployer',
       [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe
