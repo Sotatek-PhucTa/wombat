@@ -7,31 +7,7 @@
   },
   "transactions": [
     {
-      "to": "0xe933e227315FeA19A4130F65EFfF7A12F50f762E",
-      "value": "0",
-      "contractMethod": {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint96",
-            "name": "_tokenPerSec",
-            "type": "uint96"
-          }
-        ],
-        "name": "setRewardRate(uint256,uint96)",
-        "payable": false
-      },
-      "contractInputsValues": {
-        "_tokenId": "0",
-        "_tokenPerSec": "0"
-      }
-    },
-    {
-      "to": "0xA1fdb8D04C2950D163017B990230bD1784692979",
+      "to": "0x96412caB79c3A4c5cACD8b6fbFbEa36F4cA3791a",
       "value": "0",
       "contractMethod": {
         "inputs": [
