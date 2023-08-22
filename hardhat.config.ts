@@ -90,7 +90,8 @@ const config: HardhatUserConfig = {
       bscTestnet: secrets.bscscan_api_key,
       avalancheFujiTestnet: secrets.snowtrace_api_key,
       avalanche: secrets.snowtrace_api_key,
-      // TODO: add polygonscan key for polygon and polygonMumbai
+      polygon: secrets.polygonscan_api_key,
+      polygonMumbai: secrets.polygonscan_api_key,
       arbitrumOne: secrets.arbiscan_api_key,
       arbitrumGoerli: secrets.arbiscan_api_key,
       optimisticEthereum: secrets.opt_etherscan_api_key,
