@@ -5,7 +5,12 @@ import { getCurrentNetwork } from '../types/network'
 import { Network } from '../types'
 import { confirmTxn, getAddress, getDeployedContract } from '../utils'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
-import { NETWORK_GROUP_MAP, WORMHOLE_ADAPTOR_CONFIG_MAP, WORMHOLE_ID_CONFIG_MAP } from '../config/wormhole.config'
+import {
+  CrossChainPoolType,
+  WORMHOLE_ADAPTOR_CONFIG_MAP,
+  WORMHOLE_ID_CONFIG_MAP,
+  getOtherAdaptorsInGroup,
+} from '../config/wormhole.config'
 import { Token, getTokenDeploymentOrAddress } from '../config/token'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { getWormholeAdaptorDeploymentName } from '../utils/deploy'
@@ -22,33 +27,31 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 063. Setting up Adaptor: ${network}...`)
 
-  const otherNetworksInGroup = Object.entries(NETWORK_GROUP_MAP)
-    .filter(([nw, nwGroup]) => nwGroup === NETWORK_GROUP_MAP[network] && nw !== network)
-    .map((el) => el[0] as Network)
-
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
-  for (const poolName of Object.keys(CROSS_CHAIN_POOL_TOKENS)) {
+  for (const poolType of Object.keys(CROSS_CHAIN_POOL_TOKENS)) {
     const wormholeAdaptor = await getDeployedContract(
       wormholeAdaptorContractName,
-      getWormholeAdaptorDeploymentName(poolName)
+      getWormholeAdaptorDeploymentName(poolType)
     )
 
+    const othersInGroup = await getOtherAdaptorsInGroup(poolType as CrossChainPoolType, network)
     // We only approve the adaptor if it is within the same network group
-    for (const otherNetwork of otherNetworksInGroup) {
-      const otherNetworkConfig = WORMHOLE_ADAPTOR_CONFIG_MAP[otherNetwork]
-      if (otherNetworkConfig && otherNetworkConfig[poolName]) {
-        const otherAdapterAddr = await getAddress(otherNetworkConfig[poolName].adaptorAddr)
-        const tokens = otherNetworkConfig[poolName].tokens
+    for (const other of othersInGroup) {
+      const otherNetwork = other.network
+      const otherConfig = WORMHOLE_ADAPTOR_CONFIG_MAP[otherNetwork]?.[other.poolType]
+      if (otherConfig) {
+        const otherAdaptorAddr = await getAddress(otherConfig.adaptorAddr)
+        const tokens = otherConfig.tokens
 
         const wormholeId = WORMHOLE_ID_CONFIG_MAP[otherNetwork]
         // Set Adaptor within the same network group
         const currentAdaptor = await wormholeAdaptor.adaptorAddress(wormholeId)
         if (currentAdaptor === ethers.constants.AddressZero) {
-          deployments.log(`Add adaptor: ${otherAdapterAddr} - ${otherNetwork}`)
-          await confirmTxn(wormholeAdaptor.connect(deployerSigner).setAdaptorAddress(wormholeId, otherAdapterAddr))
-        } else if (currentAdaptor !== otherAdapterAddr) {
+          deployments.log(`Add adaptor: ${otherAdaptorAddr} - ${otherNetwork}`)
+          await confirmTxn(wormholeAdaptor.connect(deployerSigner).setAdaptorAddress(wormholeId, otherAdaptorAddr))
+        } else if (currentAdaptor !== otherAdaptorAddr) {
           throw new Error(
-            `Adaptor ${otherAdapterAddr} does not match with contract ${wormholeAdaptor.address}'s state for ${wormholeId}`
+            `Adaptor ${otherAdaptorAddr} does not match with contract ${wormholeAdaptor.address}'s state for ${wormholeId}`
           )
         }
 

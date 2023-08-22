@@ -267,6 +267,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.HARDHAT]: Deployment('USDC'),
     [Network.LOCALHOST]: Deployment('USDC'),
     [Network.BSC_TESTNET]: Deployment('USDC'),
+    [Network.POLYGON_TESTNET]: Deployment('USDC'),
     // https://www.coingecko.com/en/coins/usd-coin
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
     [Network.ARBITRUM_MAINNET]: Address('0xaf88d065e77c8cC2239327C5EDb3A432268e5831'),
@@ -291,6 +292,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.HARDHAT]: Deployment('USDT'),
     [Network.LOCALHOST]: Deployment('USDT'),
     [Network.BSC_TESTNET]: Deployment('USDT'),
+    [Network.POLYGON_TESTNET]: Deployment('USDT'),
     // https://www.coingecko.com/en/coins/tether
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),
@@ -352,6 +354,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
   },
   [Token.axlUSDC]: {
+    [Network.BSC_TESTNET]: Deployment('axlUSDC'),
+    [Network.POLYGON_TESTNET]: Deployment('axlUSDC'),
     // https://www.coingecko.com/en/coins/axelar-usdc
     [Network.BSC_MAINNET]: Address('0x4268B8F0B87b6Eae5d897996E6b845ddbD99Adf3'),
   },

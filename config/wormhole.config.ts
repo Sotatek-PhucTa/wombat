@@ -50,47 +50,71 @@ export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = inj
   },
 })
 
+export enum CrossChainPoolType {
+  stablecoin = 'Stablecoin_Pool',
+}
+
 // To update deployment config, update `CROSS_CHAIN_POOL_TOKENS_MAP` instead. I have no idea when will this config be used
 export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
   Network,
-  Record<PoolName, IWormholeAdaptorConfig>
-> = injectForkNetwork<Record<PoolName, IWormholeAdaptorConfig>>({
+  Record<CrossChainPoolType, IWormholeAdaptorConfig>
+> = injectForkNetwork<Record<CrossChainPoolType, IWormholeAdaptorConfig>>({
   [Network.HARDHAT]: {
-    Stablecoin_Pool: {
+    [CrossChainPoolType.stablecoin]: {
       // Mocking Address for testing purpose only!
       adaptorAddr: Address('0x0000000000000000000000000000000000000001'),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
   [Network.LOCALHOST]: {
-    Stablecoin_Pool: {
+    [CrossChainPoolType.stablecoin]: {
       // Mocking Address for testing purpose only!
       adaptorAddr: Address('0x0000000000000000000000000000000000000001'),
       // Work around for testing
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
+  // Testnet
   [Network.BSC_TESTNET]: {
-    Stablecoin_Pool: {
+    [CrossChainPoolType.stablecoin]: {
       adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.BSC_TESTNET),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
   [Network.AVALANCHE_TESTNET]: {
-    Stablecoin_Pool: {
+    [CrossChainPoolType.stablecoin]: {
       adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.AVALANCHE_TESTNET),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
   [Network.POLYGON_TESTNET]: {
-    Stablecoin_Pool: {
-      adaptorAddr: Deployment('polygon_testnet/WormholeAdaptor_Stablecoin_Pool_Proxy'),
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.POLYGON_TESTNET),
       tokens: [Token.USDC, Token.USDT, Token.axlUSDC],
+    },
+  },
+  // Mainnet
+  [Network.BSC_MAINNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.BSC_MAINNET),
+      tokens: [Token.USDC, Token.USDT],
+    },
+  },
+  [Network.ARBITRUM_MAINNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.ARBITRUM_MAINNET),
+      tokens: [Token.USDC, Token.USDT],
+    },
+  },
+  [Network.ETHEREUM_MAINNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.ETHEREUM_MAINNET),
+      tokens: [Token.USDC, Token.USDT],
     },
   },
 })
 
-export const NETWORK_GROUP_MAP: Record<Network, NetworkGroup> = {
+const NETWORK_GROUP_MAP: Record<Network, NetworkGroup> = {
   [Network.HARDHAT]: NetworkGroup.HARDHAT,
   [Network.LOCALHOST]: NetworkGroup.HARDHAT,
   [Network.BSC_MAINNET]: NetworkGroup.MAINNET,
@@ -123,3 +147,27 @@ export const WORMHOLE_ID_CONFIG_MAP: PartialRecord<Network, WormholeChainID> = i
   [Network.AVALANCHE_TESTNET]: 6,
   [Network.ARBITRUM_TESTNET]: 23,
 })
+
+interface IPoolNetworkGroup {
+  poolType: CrossChainPoolType
+  network: Network
+}
+
+export async function getOtherAdaptorsInGroup(
+  poolType: CrossChainPoolType,
+  network: Network
+): Promise<IPoolNetworkGroup[]> {
+  const result = []
+  for (const [otherNetwork, adaptorConfig] of Object.entries(WORMHOLE_ADAPTOR_CONFIG_MAP)) {
+    if (network === otherNetwork) continue
+    for (const otherPoolType of Object.keys(adaptorConfig)) {
+      if (NETWORK_GROUP_MAP[network] === NETWORK_GROUP_MAP[otherNetwork as Network] && otherPoolType === poolType) {
+        result.push({
+          poolType: otherPoolType,
+          network: otherNetwork as Network,
+        })
+      }
+    }
+  }
+  return result
+}

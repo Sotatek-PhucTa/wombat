@@ -187,7 +187,7 @@ const config: HardhatUserConfig = {
     ],
   },
   // Enable reading deployments from other chains.
-  // This is needed for cross chain pool to set up adapter addresses in other chains.
+  // This is needed for cross chain pool to set up adaptor addresses in other chains.
   // To read deployments in another chain, prefix it with the network name.
   // For example, deployments.get('bsc_testnet/DefaultProxyAdmin') will read deployments/bsc_testnet/DefaultProxyAdmin.json.
   external: {
