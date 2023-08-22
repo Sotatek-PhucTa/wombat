@@ -80,7 +80,7 @@ export enum Token {
 
 export function getTokenDeploymentOrAddress(token: Token, network?: Network): DeploymentOrAddress {
   const networkSpecified = network !== undefined
-  network = getCurrentNetwork()
+  if (network === undefined) network = getCurrentNetwork()
   const deploymentOrAddress = tokenRegistry[token][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for token ${Token[token]} in network ${network}`)
