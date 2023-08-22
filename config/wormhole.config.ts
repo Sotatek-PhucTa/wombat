@@ -72,13 +72,13 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
   },
   [Network.BSC_TESTNET]: {
     Stablecoin_Pool: {
-      adaptorAddr: Deployment('bsc_testnet/WormholeAdaptor_Stablecoin_Pool_Proxy'),
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.BSC_TESTNET),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
   [Network.AVALANCHE_TESTNET]: {
     Stablecoin_Pool: {
-      adaptorAddr: Deployment('avax_testnet/WormholeAdaptor_Stablecoin_Pool_Proxy'),
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.AVALANCHE_TESTNET),
       tokens: [Token.BUSD, Token.vUSDC],
     },
   },
