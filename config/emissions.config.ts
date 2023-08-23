@@ -529,12 +529,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_SnBNB_Pool_SnBNB', {
       startTimestamp: Epochs.Jul12,
       rewardTokens: [Token.HAY],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('320'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1700'))],
     }),
     ...createRewarderForDeployedAsset('Asset_SnBNB_Pool_WBNB', {
       startTimestamp: Epochs.Jul12,
       rewardTokens: [Token.HAY],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('480'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2300'))],
     }),
     ...createRewarderForDeployedAsset('Asset_MIM_Pool_MIM', {
       rewardTokens: [Token.SPELL],
@@ -607,12 +607,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_HAY_Pool_USDC', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.HAY],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('4500'))],
     }),
     ...createRewarderForDeployedAsset('Asset_HAY_Pool_USDT', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.HAY],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1000'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2300'))],
     }),
     ...createRewarderForDeployedAsset('Asset_wBETH_Pool_wBETH', {
       startTimestamp: Epochs.May10,
