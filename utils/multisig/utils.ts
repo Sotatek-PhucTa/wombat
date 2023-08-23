@@ -1,6 +1,6 @@
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { concatAll, getAddress, getDeployedContract, impersonateAsMultisig, isForkedNetwork } from '..'
-import { getBribeDeploymentName, getRewarderDeploymentName } from '../deploy'
+import { getBribeDeploymentName, getRewarderDeploymentName, getWormholeAdaptorDeploymentName } from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe, encodeData, executeBatchTransaction } from './transactions'
 import assert from 'assert'
@@ -12,11 +12,12 @@ import _ from 'lodash'
 import { convertTokenPerEpochToTokenPerSec, convertTokenPerSecToTokenPerEpoch } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
-import { DeploymentOrAddress, IRewardInfoStruct, IRewarder, TokenMap } from '../../types'
+import { DeploymentOrAddress, IRewardInfoStruct, IRewarder, Network, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 import { parseEther } from 'ethers/lib/utils'
+import { CrossChainPoolType, loopAdaptorInGroup } from '../../config/wormhole.config'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -592,4 +593,32 @@ export async function setBribeAllocPercent(bribeAllocationPercent: number): Prom
     console.log(`Bribe allocation: ${currentBaseAllocPoint} does not need to be updated.`)
     return []
   }
+}
+
+export async function syncCrossChainPool(poolType: CrossChainPoolType, network: Network): Promise<BatchTransaction[]> {
+  const txns: BatchTransaction[] = []
+  const wormholeAdaptor = await getDeployedContract('WormholeAdaptor', getWormholeAdaptorDeploymentName(poolType))
+  await loopAdaptorInGroup(
+    poolType,
+    network,
+    async (otherNetwork: Network, wormholeId: number, otherAdaptorAddr: string) => {
+      const currentAdaptor = await wormholeAdaptor.adaptorAddress(wormholeId)
+      if (currentAdaptor === ethers.constants.AddressZero) {
+        console.log(`Add adaptor: ${otherAdaptorAddr} - ${otherNetwork}`)
+        txns.push(Safe(wormholeAdaptor).setAdaptorAddress(wormholeId, otherAdaptorAddr))
+      } else if (currentAdaptor !== otherAdaptorAddr) {
+        throw new Error(
+          `Adaptor ${otherAdaptorAddr} does not match with contract ${wormholeAdaptor.address}'s state for ${wormholeId}`
+        )
+      }
+    },
+    async (otherNetwork: Network, wormholeId: number, tokenAddr: string) => {
+      const validToken = await wormholeAdaptor.validToken(wormholeId, tokenAddr)
+      if (!validToken && wormholeId) {
+        console.log(`Approve token: ${tokenAddr} - ${otherNetwork}`)
+        txns.push(Safe(wormholeAdaptor).approveToken(wormholeId, tokenAddr))
+      }
+    }
+  )
+  return txns
 }

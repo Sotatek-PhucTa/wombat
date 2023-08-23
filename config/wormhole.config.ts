@@ -7,8 +7,9 @@ import {
   PartialRecord,
   PoolName,
 } from '../types'
-import { Token } from './token'
+import { Token, getTokenDeploymentOrAddress } from './token'
 import { injectForkNetwork } from './pools.config'
+import { getAddress } from '../utils'
 
 export enum NetworkGroup {
   HARDHAT,
@@ -170,4 +171,36 @@ export async function getOtherAdaptorsInGroup(
     }
   }
   return result
+}
+
+export async function loopAdaptorInGroup(
+  poolType: CrossChainPoolType,
+  network: Network,
+  handleAdaptor: (otherNetwork: Network, wormholeId: number, otherAdaptorAddr: string) => Promise<any>,
+  handleToken: (otherNetwork: Network, wormholeId: number, tokenAddr: string) => Promise<any>
+) {
+  const othersInGroup = await getOtherAdaptorsInGroup(poolType as CrossChainPoolType, network)
+  // We only approve the adaptor if it is within the same network group
+  for (const other of othersInGroup) {
+    const otherNetwork = other.network
+    const otherConfig = WORMHOLE_ADAPTOR_CONFIG_MAP[otherNetwork]?.[other.poolType]
+    if (otherConfig) {
+      const otherAdaptorAddr = await getAddress(otherConfig.adaptorAddr)
+      const tokens = otherConfig.tokens
+
+      const wormholeId = WORMHOLE_ID_CONFIG_MAP[otherNetwork]
+
+      // Set missed adaptor within the same network group
+      if (wormholeId !== undefined) {
+        await handleAdaptor(otherNetwork, wormholeId, otherAdaptorAddr)
+
+        // Approve missed tokens from other chains within the same group
+        for (const token of tokens) {
+          const tokenDeployment = getTokenDeploymentOrAddress(token, otherNetwork)
+          const tokenAddr = await getAddress(tokenDeployment)
+          await handleToken(otherNetwork, wormholeId, tokenAddr)
+        }
+      }
+    }
+  }
 }
