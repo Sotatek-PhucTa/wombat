@@ -4,7 +4,7 @@ import { Contract } from 'ethers'
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getBribes } from '../config/emissions.config'
-import { confirmTxn, getAddress, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { confirmTxn, getAddress, getDeployedContract, getLatestMasterWombat, isOwner, logVerifyCommand } from '../utils'
 import { deployRewarderOrBribe, getBribeDeploymentName } from '../utils/deploy'
 import { getCurrentNetwork } from '../types/network'
 
@@ -27,7 +27,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     // Add new Bribe to Voter. Skip if not owner.
     if (deployResult.newlyDeployed) {
       if (await isOwner(voter, deployerSigner.address)) {
-        const masterWombat = await deployments.get('MasterWombatV3')
+        const masterWombat = await getLatestMasterWombat()
         const lpTokenAddress = await getAddress(bribeConfig.lpToken)
         await addBribe(voter, deployerSigner, masterWombat.address, lpTokenAddress, deployResult.address, deployments)
         deployments.log(`addBribe for ${lpTokenAddress} complete.`)

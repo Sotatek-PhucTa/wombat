@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getRewarders } from '../config/emissions.config'
-import { getAddress, getDeployedContract, isOwner, setRewarder } from '../utils'
+import { getAddress, getDeployedContract, getLatestMasterWombat, isOwner, setRewarder } from '../utils'
 import { getRewarderDeploymentName } from '../utils/deploy'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -10,7 +10,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer } = await getNamedAccounts()
   const owner = await ethers.getSigner(deployer)
 
-  const masterWombat = await getDeployedContract('MasterWombatV3')
+  const masterWombat = await getLatestMasterWombat()
   for await (const [token, rewarderConfig] of Object.entries(await getRewarders())) {
     const name = getRewarderDeploymentName(token)
     deployments.log(`Setting up ${name}`)

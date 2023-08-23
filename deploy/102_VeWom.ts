@@ -1,22 +1,24 @@
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { confirmTxn, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { confirmTxn, getLatestMasterWombat, isOwner, logVerifyCommand } from '../utils'
 import { Token, getTokenAddress } from '../config/token'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'VeWom'
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
+  const network = getCurrentNetwork()
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
 
-  const [owner] = await ethers.getSigners() // first account used for testnet and mainnet
+  const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer)) // first account used for testnet and mainnet
 
-  deployments.log(`Step 102. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 102. Deploying on : ${network} with account : ${deployer}`)
 
   const wombatToken = await getTokenAddress(Token.WOM)
-  const masterWombat = await getDeployedContract('MasterWombatV3')
-
+  const masterWombat = await getLatestMasterWombat()
   // deterministicDeployment is used only for implementation but not the proxy contract
   // it is not useful in this case
   const deployResult = await deploy(`${contractName}`, {
@@ -44,12 +46,12 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   logVerifyCommand(deployResult)
 
   if (deployResult.newlyDeployed) {
-    if (await isOwner(masterWombat, owner.address)) {
+    if (await isOwner(masterWombat, deployerSigner.address)) {
       deployments.log('Setting veWOM contract for MasterWombatV3...')
-      await confirmTxn(masterWombat.connect(owner).setVeWom(deployResult.address))
+      await confirmTxn(masterWombat.connect(deployerSigner).setVeWom(deployResult.address))
     } else {
       deployments.log(
-        `User ${owner.address} does not own MasterWombat. Please call setVeWom in multi-sig. VeWom: ${deployResult.address}`
+        `User ${deployerSigner.address} does not own MasterWombat. Please call setVeWom in multi-sig. VeWom: ${deployResult.address}`
       )
     }
 

@@ -2,26 +2,28 @@ import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { BigNumberish, Contract } from 'ethers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
-import { getDeployedContract, confirmTxn } from '../utils'
+import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
+import { getDeployedContract, confirmTxn, getLatestMasterWombat } from '../utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { IAssetInfo, Network } from '../types'
 import { getAssetDeploymentName } from '../utils/deploy'
+import { getCurrentNetwork } from '../types/network'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const network = getCurrentNetwork()
   const { deployments } = hre
   const { deployer } = await getNamedAccounts()
   const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 192. Deploying on: ${hre.network.name}...`)
+  deployments.log(`Step 192. Deploying on: ${network}...`)
 
   const voter = await getDeployedContract('Voter')
-  const masterWombat = await getDeployedContract('MasterWombatV3')
+  const masterWombat = await getLatestMasterWombat()
   // In mainnet, we wait for 2 blocks for stabilization
-  const blocksToConfirm = hre.network.name != 'bsc_mainnet' ? 1 : 2
+  const blocksToConfirm = network != Network.BSC_MAINNET ? 1 : 2
 
   deployments.log('Setting up dynamic pool')
-  const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
@@ -29,8 +31,16 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 
   deployments.log('Setting up factory pool')
-  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[hre.network.name as Network] || {}
+  const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
+    for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
+      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
+    }
+  }
+
+  deployments.log('Setting up crosschain pool')
+  const CROSSCHAINPOOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
+  for (const [poolName, poolInfo] of Object.entries(CROSSCHAINPOOL_TOKENS)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }

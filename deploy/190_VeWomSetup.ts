@@ -2,6 +2,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { confirmTxn, getDeployedContract, logVerifyCommand } from '../utils'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'VeWomSetup'
 
@@ -11,7 +12,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
   const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 190. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 190. Deploying on : ${getCurrentNetwork()} with account : ${deployer}`)
 
   /// SetVoter
   const vewom = await getDeployedContract('VeWom')

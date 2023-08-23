@@ -67,6 +67,14 @@ export async function getDeployedContract(contract: string, deploymentName = con
   return ethers.getContractAt(contract, deployment.address)
 }
 
+export async function getLatestMasterWombat() {
+  const mw = await deployments.getOrNull('BoostedMasterWombat')
+  if (!mw) {
+    return getDeployedContract('MasterWombatV3')
+  }
+  return await ethers.getContractAt('BoostedMasterWombat', mw.address)
+}
+
 export async function getTestERC20(tokenSymbol: string): Promise<TestERC20> {
   return getDeployedContract('TestERC20', tokenSymbol) as Promise<TestERC20>
 }

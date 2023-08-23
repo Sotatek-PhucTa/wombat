@@ -5,13 +5,14 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { logVerifyCommand } from '../utils'
 import { parseEther } from 'ethers/lib/utils'
 import { Token, getTokenAddress } from '../config/token'
+import { getCurrentNetwork } from '../types/network'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, upgrades } = hre
   const { deploy } = deployments
   const { deployer, multisig } = await getNamedAccounts()
 
-  deployments.log(`Step 130. Deploying on: ${hre.network.name}...`)
+  deployments.log(`Step 130. Deploying on: ${getCurrentNetwork()}...`)
 
   const wombatToken = await getTokenAddress(Token.WOM)
   const vewom = await deployments.get('VeWom')

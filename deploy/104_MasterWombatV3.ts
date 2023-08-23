@@ -3,6 +3,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Token, getTokenAddress } from '../config/token'
 import { logVerifyCommand } from '../utils'
 import { getProxyAdminOwner } from '../utils/deploy'
+import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'MasterWombatV3'
 
@@ -11,7 +12,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  deployments.log(`Step 104. Deploying on : ${hre.network.name} with account : ${deployer}`)
+  deployments.log(`Step 104. Deploying on : ${getCurrentNetwork()} with account : ${deployer}`)
 
   const wombatToken = await getTokenAddress(Token.WOM)
   const deployResult = await deploy(contractName, {
