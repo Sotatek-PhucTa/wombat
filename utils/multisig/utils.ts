@@ -12,7 +12,7 @@ import _ from 'lodash'
 import { convertTokenPerEpochToTokenPerSec, convertTokenPerSecToTokenPerEpoch } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
-import { DeploymentOrAddress, IRewardInfoStruct, IRewarder, Network, TokenMap } from '../../types'
+import { Deployment, DeploymentOrAddress, IRewardInfoStruct, IRewarder, Network, TokenMap } from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
@@ -220,6 +220,11 @@ async function hasActiveRewards(rewarderOrBribe: Contract): Promise<boolean> {
   return tokenRates.every((tokenPerSec) => tokenPerSec == 0)
 }
 
+/**
+ * @param {string} rewarderOrBribeDeployment - The address of the rewarder or bribe deployment.
+ * @param {Token} token - The token object containing information about the token to be used.
+ * @param {BigNumberish} [epochAmount] - (Optional) The amount of token to be used for the epoch. Leave it empty if the rate is not changing.
+ */
 export async function topUpRewarder(
   rewarderOrBribeDeployment: string,
   token: Token,

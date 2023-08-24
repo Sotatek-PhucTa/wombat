@@ -524,6 +524,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_stables_01_FRAX', {
       rewardTokens: [Token.FXS],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('26.44'))],
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_SnBNB_Pool_SnBNB', {
@@ -562,7 +563,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_HAY', {
       rewardTokens: [Token.WOM, Token.BUSD, Token.CUSD, Token.HAY],
-      tokenPerSec: [0, 0, 0, convertTokenPerEpochToTokenPerSec(parseEther('1500'))],
+      tokenPerSec: [0, 0, 0, 0],
     }),
     ...createRewarderForDeployedAsset('Asset_Mixed_Pool_FRAX', {
       startTimestamp: Epochs.May10,
@@ -571,12 +572,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_WBNB', {
       rewardTokens: [Token.ANKR, Token.ANKR],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('9335')), 0],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('18000')), 0],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_AnkrBNBPool_ankrBNB', {
       rewardTokens: [Token.ANKR, Token.ANKR],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('3980')), 0],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('12000')), 0],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_BNBy_Pool_WBNB', {
@@ -591,12 +592,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ETH', {
       rewardTokens: [Token.ANKR],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('18000'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('10000'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ankrETH_Pool_ankrETH', {
       rewardTokens: [Token.ANKR],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('9426'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('15000'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_SidePool_01_HAY', {
@@ -624,7 +625,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_stables_01_USDT', {
       rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('40'))],
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_rBNB_Pool_rBNB', {
