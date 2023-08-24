@@ -599,10 +599,10 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('9426'))],
       operator: ExternalContract.AnkrBribeOperator,
     }),
-    ...createRewarderForDeployedAsset('Asset_HAY_Pool_HAY', {
+    ...createRewarderForDeployedAsset('Asset_SidePool_01_HAY', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.HAY],
-      tokenPerSec: [0],
+      tokenPerSec: [2200],
     }),
     ...createRewarderForDeployedAsset('Asset_HAY_Pool_USDC', {
       startTimestamp: Epochs.May10,
