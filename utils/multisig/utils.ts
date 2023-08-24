@@ -1,6 +1,11 @@
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { concatAll, getAddress, getDeployedContract, impersonateAsMultisig, isForkedNetwork } from '..'
-import { getBribeDeploymentName, getRewarderDeploymentName, getWormholeAdaptorDeploymentName } from '../deploy'
+import {
+  getBribeDeploymentName,
+  getProxyName,
+  getRewarderDeploymentName,
+  getWormholeAdaptorDeploymentName,
+} from '../deploy'
 import { BatchTransaction } from './tx-builder'
 import { Safe, encodeData, executeBatchTransaction } from './transactions'
 import assert from 'assert'
@@ -12,7 +17,15 @@ import _ from 'lodash'
 import { convertTokenPerEpochToTokenPerSec, convertTokenPerSecToTokenPerEpoch } from '../../config/emission'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
-import { Deployment, DeploymentOrAddress, IRewardInfoStruct, IRewarder, Network, TokenMap } from '../../types'
+import {
+  DeploymentOrAddress,
+  IPoolConfig,
+  IRewardInfoStruct,
+  IRewarder,
+  Network,
+  NetworkPoolInfo,
+  TokenMap,
+} from '../../types'
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
@@ -108,6 +121,31 @@ export async function pauseAsset(assetDeployment: string): Promise<BatchTransact
   const token = await asset.underlyingToken()
   const pool = await ethers.getContractAt('PoolV2', await asset.pool())
   return [Safe(pool).pauseAsset(token)]
+}
+
+export async function updatePoolsHaircutRate(
+  poolNames: string[], // the pool name used in pools.config.ts
+  poolConfig: NetworkPoolInfo<IPoolConfig>
+): Promise<BatchTransaction[]> {
+  const txns = []
+
+  for (const poolName of poolNames) {
+    assert(poolConfig[poolName] !== undefined, "poolConfig doesn't contain pool")
+    const {
+      setting: { haircut },
+    } = poolConfig[poolName]
+    const poolDeployment = getProxyName(poolName)
+    const pool = await getDeployedContract('PoolV2', poolDeployment)
+
+    const currentHaircut = await pool.haircutRate()
+    console.log(currentHaircut)
+
+    if (!currentHaircut.eq(haircut)) {
+      txns.push(Safe(pool).setHaircutRate(haircut))
+    }
+  }
+
+  return txns
 }
 
 export async function setPool(assetDeployment: string, poolDeployment: string): Promise<BatchTransaction[]> {

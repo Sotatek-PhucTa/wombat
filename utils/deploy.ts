@@ -33,6 +33,10 @@ export function getWormholeAdaptorDeploymentName(poolName: string) {
   return 'WormholeAdaptor_' + poolName
 }
 
+export function getProxyName(contract: string) {
+  return `${contract}_Proxy`
+}
+
 export function getImplementationName(contract: string) {
   return `${contract}_Implementation`
 }

@@ -188,6 +188,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     MainPool: {
       setting: {
         ...defaultMainPoolConfig(),
+        haircut: parseEther('0.00002'), // 0.002%
       },
       assets: {
         ...BusdAsset(),
@@ -453,6 +454,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     MainPool: {
       setting: {
         ...defaultMainPoolConfig(),
+        haircut: parseEther('0.00002'), // 0.002%
       },
       assets: {
         ...UsdtAsset(),
