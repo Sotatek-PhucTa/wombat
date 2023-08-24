@@ -151,7 +151,7 @@ contract WormholeAdaptor is IWormholeReceiver, Adaptor {
         // Delivery fee attached to the txn is done off-chain via `estimateDeliveryFee` to reduce gas cost
         // Unused `gasLimit` is sent to the `refundAddress` (`receiver`).
 
-        require(toChain <= type(uint16).max);
+        require(toChain <= type(uint16).max, 'invalid chain ID');
 
         // (emitterChainID, emitterAddress, sequence) is used to retrive the generated VAA from the Guardian Network and for tracking
         sequence = relayer.sendPayloadToEvm{value: msg.value}(

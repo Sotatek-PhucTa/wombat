@@ -122,6 +122,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             minimumCreditAmount
         );
 
+        fromTokenHaircut = fromTokenHaircut.fromWad(fromAsset.underlyingTokenDecimals());
         emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, fromTokenHaircut, creditAmount);
 
         // Wormhole: computeBudget + applicationBudget + wormholeFee should equal the msg.value
@@ -322,6 +323,8 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             startCovRatio,
             endCovRatio
         );
+
+        feeInFromToken = feeInFromToken.fromWad(fromAsset.underlyingTokenDecimals());
 
         // Check it doesn't exceed maximum out-going credits
         if (totalCreditMinted + creditAmount > maximumOutboundCredit + totalCreditBurned)
