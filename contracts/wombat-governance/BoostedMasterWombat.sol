@@ -214,6 +214,21 @@ contract BoostedMasterWombat is
         emit SetBoostedRewarder(_pid, _boostedRewarder);
     }
 
+    /// @notice Update the given pool's rewarder
+    /// @param _pid the pool id
+    /// @param _rewarder the rewarder
+    function setRewarder(uint256 _pid, IMultiRewarder _rewarder) external onlyOwner {
+        require(
+            Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
+            'set: rewarder must be contract or zero'
+        );
+
+        PoolInfoV3 storage pool = poolInfoV3[_pid];
+
+        pool.rewarder = _rewarder;
+        emit SetRewarder(_pid, _rewarder);
+    }
+
     /// @notice Update reward variables for all pools.
     /// @dev Be careful of gas spending!
     function massUpdatePools() public override {
