@@ -602,7 +602,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_SidePool_01_HAY', {
       startTimestamp: Epochs.May10,
       rewardTokens: [Token.HAY],
-      tokenPerSec: [2200],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('2200'))],
     }),
     ...createRewarderForDeployedAsset('Asset_HAY_Pool_USDC', {
       startTimestamp: Epochs.May10,
