@@ -576,7 +576,7 @@ To verify proxy contracts:
 - WombatRouter => `0xED430B9b729260DA55006A49E06aFc451F958f1E`
 - VeWom Proxy => `0x3868B84D4cea3110694d07A2d222418F7B401fE8`
 - Voter Proxy => `0x23c8D0437b74CE912850B89a42F28e4037cA7849`
-- BribeRewarderFactory Proxy => `0x6E13942032731ba95A2d39c80d03827dE623D602`
+- BribeRewarderFactory Proxy => `0x8cBdb9558d122f5c56F9E2D809f3e3020c981A22`
 - BoostedMultiRewarder Beacon => `0x33Bb4031DEe57d5bB6D59fcD7267F01Dc2a9d204`
 - BribeV2 Beacon => `0x4F9FFA92fa8C71a27Fa587bdf6b2CCd70787E9a2`
 
