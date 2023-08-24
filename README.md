@@ -722,9 +722,16 @@ To verify proxy contracts:
 #### Wombat Proxy Admin
 
 - Default Proxy Admin (Proxy Admin) => `0x39946D6d1107FcE169245Da07af292F1DBF90f8E`
-- WombatToken => `0x21581149C0e8cE7d473d93ab6c963598f6370A37`
 - WombatRouter => `0xEfE5Df522a281c2Ca064eac175F0e5b505b1Ec58`
+
+#### Wombat Governance
+
+- WombatToken => `0x21581149C0e8cE7d473d93ab6c963598f6370A37`
 - MasterWombatV3_Proxy => `0x667783287dE6380b416CE5Ec3CD5E5dA865681a4`
+- BoostedMasterWombat_Proxy => `0xAc1d730545c8fc00530f0118ee374F943ca10a45`
+- VeWom_Proxy => `0xfABFF34f3B8194e81E7041d3D50Ab5BeE58414cA`
+- Voter_Proxy => `0x0683e2c4d6e26274bd0574D09bfb8CE25e4dFA85`
+- Whitelist => `0x9f9fF16f55408DdDeD86E8F9c7aCf3762F21bEAA`
 
 #### Wombat Cross Chain Pool
 

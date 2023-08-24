@@ -5,7 +5,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
 import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
-import { confirmTxn, getDeployedContract } from '../utils'
+import { confirmTxn, getLatestMasterWombat } from '../utils'
 import { getAssetDeploymentName } from '../utils/deploy'
 import { getCurrentNetwork } from '../types/network'
 
@@ -16,7 +16,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 191. Deploying on: ${network}...`)
 
-  const masterWombat = await getDeployedContract('MasterWombatV3')
+  const masterWombat = await getLatestMasterWombat()
   const vewom = await deployments.getOrNull('VeWom')
   const voter = await deployments.getOrNull('Voter')
   if (vewom != undefined && vewom != (await masterWombat.veWom())) {
