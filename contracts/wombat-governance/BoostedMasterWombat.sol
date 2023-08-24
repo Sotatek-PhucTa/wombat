@@ -203,7 +203,7 @@ contract BoostedMasterWombat is
     /// @notice Update the given pool's boostedRewarder
     /// @param _pid the pool id
     /// @param _boostedRewarder the boostedRewarder
-    function setRewarder(uint256 _pid, IBoostedMultiRewarder _boostedRewarder) external override {
+    function setBoostedRewarder(uint256 _pid, IBoostedMultiRewarder _boostedRewarder) external override {
         require(msg.sender == address(bribeRewarderFactory) || msg.sender == owner(), 'not authorized');
         require(
             Address.isContract(address(_boostedRewarder)) || address(_boostedRewarder) == address(0),

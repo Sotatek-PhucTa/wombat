@@ -18,5 +18,5 @@ interface IBoostedMasterWombat is IMasterWombatV3 {
 
     function boostedRewarders(uint256 _pid) external view returns (IBoostedMultiRewarder);
 
-    function setRewarder(uint256 _pid, IBoostedMultiRewarder _boostedRewarder) external;
+    function setBoostedRewarder(uint256 _pid, IBoostedMultiRewarder _boostedRewarder) external;
 }

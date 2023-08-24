@@ -204,11 +204,11 @@ describe('BoostedMasterWombat', async function () {
       await mw.add(this.lp.address, dummyAsset.address)
 
       // Try to set rewarder that is neither zero address or contract address
-      await expect(mw.setRewarder('0', users[1].address)).to.be.revertedWith(
+      await expect(mw.setBoostedRewarder('0', users[1].address)).to.be.revertedWith(
         'set: boostedRewarder must be contract or zero'
       )
 
-      mw.setRewarder('0', dummyAsset.address)
+      mw.setBoostedRewarder('0', dummyAsset.address)
     })
 
     it('should allow emergency withdraw from MasterWombat', async function () {

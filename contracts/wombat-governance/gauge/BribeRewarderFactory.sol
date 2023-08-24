@@ -88,7 +88,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         require(address(masterWombat.boostedRewarders(pid)) == address(0), 'rewarder contract alrealdy exists');
 
         rewarder = address(_deployRewarderContract(_lpToken, pid, _startTimestamp, _rewardToken, _tokenPerSec));
-        masterWombat.setRewarder(pid, BoostedMultiRewarder(payable(rewarder)));
+        masterWombat.setBoostedRewarder(pid, BoostedMultiRewarder(payable(rewarder)));
         emit SetRewarderContract(_lpToken, rewarder);
     }
 
