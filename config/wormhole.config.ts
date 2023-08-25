@@ -1,12 +1,4 @@
-import {
-  Address,
-  Deployment,
-  IWormholeAdaptorConfig,
-  IWormholeConfig,
-  Network,
-  PartialRecord,
-  PoolName,
-} from '../types'
+import { Address, Deployment, IWormholeAdaptorConfig, IWormholeConfig, Network, PartialRecord } from '../types'
 import { Token, getTokenDeploymentOrAddress } from './token'
 import { injectForkNetwork } from './pools.config'
 import { getAddress } from '../utils'
@@ -24,6 +16,14 @@ export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = inj
   [Network.BSC_MAINNET]: {
     relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
     wormholeBridge: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B',
+  },
+  [Network.ETHEREUM_MAINNET]: {
+    relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
+    wormholeBridge: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B',
+  },
+  [Network.ARBITRUM_MAINNET]: {
+    relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
+    wormholeBridge: '0xa5f208e072434bC67592E4C49C1B991BA79BCA46',
   },
 
   // testnets

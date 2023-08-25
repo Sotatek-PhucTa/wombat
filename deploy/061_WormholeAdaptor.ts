@@ -4,7 +4,7 @@ import { WormholeAdaptor } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
 import { WORMHOLE_CONFIG_MAPS } from '../config/wormhole.config'
 import { getDeployedContract, logVerifyCommand } from '../utils'
-import { getPoolDeploymentName } from '../utils/deploy'
+import { getPoolDeploymentName, getProxyAdminOwner } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 import { getCurrentNetwork } from '../types/network'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -40,7 +40,7 @@ const deployFunc = async function () {
       contract: contractName,
       skipIfAlreadyDeployed: true,
       proxy: {
-        owner: multisig, // change to Gnosis Safe after all admin scripts are done
+        owner: await getProxyAdminOwner(),
         proxyContract: 'OptimizedTransparentProxy',
         viaAdminContract: 'DefaultProxyAdmin',
         execute: {

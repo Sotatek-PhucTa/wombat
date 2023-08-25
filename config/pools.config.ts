@@ -149,19 +149,14 @@ const defaultVolatilePoolConfig: IHighCovRatioFeePoolConfig = {
 }
 
 const defaultCrossChainPoolConfig: ICrossChainPoolConfig = {
-  ampFactor: parseEther('0.00025'),
-  haircut: parseEther('0.0001'),
-  tokensForCreditHaircut: oneBips,
-  creditForTokensHaircut: oneBips,
+  ...defaultMainPoolConfig(),
+  tokensForCreditHaircut: oneBips.mul(3),
+  creditForTokensHaircut: oneBips.mul(3),
   maximumInboundCredit: parseEther('10000'),
   maximumOutboundCredit: parseEther('10000'),
-  mintFeeThreshold: parseEther('10'),
   startCovRatio: parseEther('1.5'),
   endCovRatio: parseEther('1.8'),
-  lpDividendRatio: parseEther('0.5'),
-  retentionRatio: parseEther('0.5'),
   deploymentNamePrefix: 'CrossChainPool',
-  supportNativeToken: false,
   swapCreditForTokensEnabled: true,
   swapTokensForCreditEnabled: true,
 }
@@ -962,6 +957,39 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...UsdcAsset(),
         ...UsdtAsset(),
         ...AxlUsdcAsset(),
+      },
+    },
+  },
+  [Network.BSC_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: {
+        ...defaultCrossChainPoolConfig,
+      },
+      assets: {
+        ...UsdcAsset({ maxSupply: parseUnits('3000000', 18) }),
+        ...UsdtAsset({ maxSupply: parseUnits('3000000', 18) }),
+      },
+    },
+  },
+  [Network.ETHEREUM_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: {
+        ...defaultCrossChainPoolConfig,
+      },
+      assets: {
+        ...UsdcAsset({ maxSupply: parseUnits('3000000', 6) }),
+        ...UsdtAsset({ maxSupply: parseUnits('3000000', 6) }),
+      },
+    },
+  },
+  [Network.ARBITRUM_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: {
+        ...defaultCrossChainPoolConfig,
+      },
+      assets: {
+        ...UsdcAsset({ maxSupply: parseUnits('3000000', 6) }),
+        ...UsdtAsset({ maxSupply: parseUnits('3000000', 6) }),
       },
     },
   },
