@@ -139,6 +139,44 @@ describe('CrossChainPool', function () {
       ).to.revertedWithCustomError(pool, 'WOMBAT_ZERO_AMOUNT')
     })
 
+    it('swapTokensForTokensCrossChain - WOMBAT_ZERO_CREDIT_AMOUNT', async function () {
+      // Transfer 100k of stables to user1
+      await token0.connect(owner).transfer(user1.address, parseEther('100000'))
+      // Approve max allowance of tokens from users to pool
+      await token0.connect(user1).approve(pool.address, ethers.constants.MaxUint256)
+      await pool.connect(user1).deposit(token0.address, parseEther('1000'), 0, user1.address, fiveSecondsSince, false)
+
+      await pool.setCrossChainHaircut(parseEther('0.1'), parseEther('0.1'))
+      await pool.setCovRatioFeeParam(parseEther('100'), parseEther('120'))
+
+      await pool
+        .connect(user1)
+        .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, parseEther('10000'), 0, 0, user1.address, 0, 0)
+
+      await expect(
+        pool.connect(user1).swapTokensForTokensCrossChain(token0.address, AddressZero, 0, 1, 0, 0, user1.address, 0, 0)
+      ).to.revertedWithCustomError(pool, 'WOMBAT_ZERO_CREDIT_AMOUNT')
+    })
+
+    it('swapTokensForTokensCrossChain - WOMBAT_ZERO_CREDIT_AMOUNT', async function () {
+      // Transfer 100k of stables to user1
+      await token0.connect(owner).transfer(user1.address, parseEther('100000'))
+      // Approve max allowance of tokens from users to pool
+      await token0.connect(user1).approve(pool.address, ethers.constants.MaxUint256)
+      await pool.connect(user1).deposit(token0.address, parseEther('1000'), 0, user1.address, fiveSecondsSince, false)
+
+      await pool.setCrossChainHaircut(parseEther('0.1'), parseEther('0.1'))
+      await pool.setCovRatioFeeParam(parseEther('100'), parseEther('120'))
+
+      await pool
+        .connect(user1)
+        .swapTokensForTokensCrossChain(token0.address, AddressZero, 0, parseEther('10000'), 0, 0, user1.address, 0, 0)
+
+      await expect(
+        pool.connect(user1).swapTokensForTokensCrossChain(token0.address, AddressZero, 0, 1, 0, 0, user1.address, 0, 0)
+      ).to.revertedWithCustomError(pool, 'WOMBAT_ZERO_CREDIT_AMOUNT')
+    })
+
     it('swapCreditForTokens - WOMBAT_ZERO_AMOUNT', async function () {
       await expect(
         pool.connect(user1).swapCreditForTokens(token1.address, 0, parseUnits('99', 6), user1.address)

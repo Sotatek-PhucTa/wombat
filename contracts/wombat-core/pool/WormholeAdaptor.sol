@@ -146,10 +146,10 @@ contract WormholeAdaptor is IWormholeReceiver, Adaptor {
         uint256 minimumToAmount,
         address receiver,
         uint256 receiverValue,
-        uint256 gasLimit
+        uint256 deliveryGasLimit
     ) internal override returns (uint256 sequence) {
         // Delivery fee attached to the txn is done off-chain via `estimateDeliveryFee` to reduce gas cost
-        // Unused `gasLimit` is sent to the `refundAddress` (`receiver`).
+        // Unused `deliveryGasLimit` is sent to the `refundAddress` (`receiver`).
 
         require(toChain <= type(uint16).max, 'invalid chain ID');
 
@@ -159,7 +159,7 @@ contract WormholeAdaptor is IWormholeReceiver, Adaptor {
             adaptorAddress[uint16(toChain)], // address targetAddress
             _encode(toToken, fromAmount, minimumToAmount, receiver), // bytes memory payload
             receiverValue, // uint256 receiverValue
-            gasLimit, // uint256 gasLimit
+            deliveryGasLimit, // uint256 gasLimit
             uint16(toChain), // uint16 refundChain
             receiver // address refundAddress
         );
@@ -170,27 +170,27 @@ contract WormholeAdaptor is IWormholeReceiver, Adaptor {
      */
 
     /**
-     * @notice Estimate the amount of message value required to deliver a message with given `gasLimit` and `receiveValue`
-     * A buffer should be added to `gasLimit` in case the amount of gas required is higher than the expectation
+     * @notice Estimate the amount of message value required to deliver a message with given `deliveryGasLimit` and `receiveValue`
+     * A buffer should be added to `deliveryGasLimit` in case the amount of gas required is higher than the expectation
      * @param toChain wormhole chain ID
-     * @param gasLimit gas limit of the callback function on the designated network
+     * @param deliveryGasLimit gas limit of the callback function on the designated network
      * @param receiverValue target amount of gas token to receive
-     * @dev Note that this function may fail if the value requested is too large. Using gasLimit 200000 is typically enough
+     * @dev Note that this function may fail if the value requested is too large. Using deliveryGasLimit 200000 is typically enough
      */
     function estimateDeliveryFee(
         uint16 toChain,
         uint256 receiverValue,
-        uint32 gasLimit
+        uint32 deliveryGasLimit
     ) external view returns (uint256 nativePriceQuote, uint256 targetChainRefundPerGasUnused) {
-        return relayer.quoteEVMDeliveryPrice(toChain, receiverValue, gasLimit);
+        return relayer.quoteEVMDeliveryPrice(toChain, receiverValue, deliveryGasLimit);
     }
 
     function estimateRedeliveryFee(
         uint16 toChain,
         uint256 receiverValue,
-        uint32 gasLimit
+        uint32 deliveryGasLimit
     ) external view returns (uint256 nativePriceQuote, uint256 targetChainRefundPerGasUnused) {
-        return relayer.quoteEVMDeliveryPrice(toChain, receiverValue, gasLimit);
+        return relayer.quoteEVMDeliveryPrice(toChain, receiverValue, deliveryGasLimit);
     }
 
     function _wormholeAddrToEthAddr(bytes32 addr) internal pure returns (address) {

@@ -40,6 +40,12 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     uint256[50] private __gap;
 
     /**
+     * Errors
+     */
+
+    error WOMBAT_ZERO_CREDIT_AMOUNT();
+
+    /**
      * Events
      */
 
@@ -99,7 +105,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 minimumToAmount,
         address receiver,
         uint256 receiverValue,
-        uint256 gasLimit
+        uint256 deliveryGasLimit
     )
         external
         payable
@@ -121,6 +127,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
             minimumCreditAmount
         );
+        if (creditAmount == 0) revert WOMBAT_ZERO_CREDIT_AMOUNT();
 
         fromTokenHaircut = fromTokenHaircut.fromWad(fromAsset.underlyingTokenDecimals());
         emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, fromTokenHaircut, creditAmount);
@@ -133,7 +140,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             minimumToAmount,
             receiver,
             receiverValue,
-            gasLimit
+            deliveryGasLimit
         );
     }
 
@@ -162,7 +169,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 minimumToAmount,
         address receiver,
         uint256 receiverValue,
-        uint256 gasLimit
+        uint256 deliveryGasLimit
     ) external payable override nonReentrant whenNotPaused returns (uint256 trackingId) {
         _beforeSwapCreditForTokens(fromAmount, receiver);
 
@@ -174,7 +181,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             minimumToAmount,
             receiver,
             receiverValue,
-            gasLimit
+            deliveryGasLimit
         );
     }
 
@@ -231,7 +238,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 minimumToAmount,
         address receiver
     ) internal returns (uint256 actualToAmount, uint256 toTokenHaircut) {
-        if (fromCreditAmount == 0) revert WOMBAT_ZERO_AMOUNT();
+        if (fromCreditAmount == 0) revert WOMBAT_ZERO_CREDIT_AMOUNT();
 
         IAsset toAsset = _assetOf(toToken);
         uint8 toDecimal = toAsset.underlyingTokenDecimals();

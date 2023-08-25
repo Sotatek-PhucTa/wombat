@@ -57,7 +57,7 @@ abstract contract Adaptor is
         uint256 minimumToAmount,
         address receiver,
         uint256 receiverValue,
-        uint256 gasLimit
+        uint256 deliveryGasLimit
     ) external payable override returns (uint256 sequence) {
         require(msg.sender == address(crossChainPool), 'Adaptor: not authorized');
         _isValidToken(toChain, toToken);
@@ -69,7 +69,7 @@ abstract contract Adaptor is
             minimumToAmount,
             receiver,
             receiverValue,
-            gasLimit
+            deliveryGasLimit
         );
 
         // (emitterChainID, emitterAddress, sequence) is used to retrive the generated VAA from the Guardian Network and for tracking
@@ -87,7 +87,7 @@ abstract contract Adaptor is
         uint256 minimumToAmount,
         address receiver,
         uint256 receiverValue,
-        uint256 gasLimit
+        uint256 deliveryGasLimit
     ) internal virtual returns (uint256 sequence);
 
     function _isValidToken(uint256 chainId, address tokenAddr) internal view {
