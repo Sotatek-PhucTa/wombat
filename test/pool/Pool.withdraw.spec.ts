@@ -306,8 +306,16 @@ describe('Pool - Withdraw', function () {
             .withArgs(owner.address, token1.address, withdrawnAmount, parseEther('10'), owner.address)
 
           await expect(receipt)
-            .to.emit(poolContract, 'Swap')
-            .withArgs(owner.address, token1.address, token0.address, withdrawnAmount, expectedAmount, owner.address)
+            .to.emit(poolContract, 'SwapV2')
+            .withArgs(
+              owner.address,
+              token1.address,
+              token0.address,
+              withdrawnAmount,
+              expectedAmount,
+              parseEther('0.000998900147555596'),
+              owner.address
+            )
         })
       })
 

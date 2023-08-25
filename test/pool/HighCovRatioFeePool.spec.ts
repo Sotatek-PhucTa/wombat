@@ -92,26 +92,39 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('100000', 6))
+      const [quote, fee] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('100000', 6))
       expect(quote).equal(parseUnits('48229.70731636', 8))
-      expect(haircut).equal(parseUnits('48268.30652189', 8))
+      expect(fee).equal(parseUnits('48268.30652189', 8))
 
       // reverse quote
-      const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
+      const [reverseQuote, reverseFee] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
         parseUnits('-48229.70731636', 8)
       )
       expect(reverseQuote).equal(parseUnits('100000', 6))
-      expect(reverseHaircut).equal(parseUnits('48268.30652189', 8))
+      expect(reverseFee).equal(parseUnits('48268.30652189', 8))
 
       // swap
-      await pool
+      const receipt = await pool
         .connect(users[0])
         .swap(token0.address, token1.address, parseUnits('100000', 6), 0, users[0].address, fiveSecondsSince)
 
       // 96459 * [1 - (1.65 - 1.5) / (1.8 - 1.5)] (high cov ratio fee) = 48229
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('48229.70731636', 8))
+
+      await expect(receipt)
+        .to.emit(pool, 'SwapV2')
+        .withArgs(
+          users[0].address,
+          token0.address,
+          token1.address,
+          parseUnits('100000', 6),
+          parseUnits('48229.70731636', 8),
+          parseUnits('38.59920553', 8).add(parseUnits('48229.70731636', 8)),
+          users[0].address
+        )
+      expect(fee).eq(parseUnits('48229.70731636', 8).add(parseUnits('38.59920553', 8)))
     })
 
     it('from asset: r = 1.7 -> r = 1.8', async function () {
@@ -133,27 +146,40 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('100000', 6))
+      const [quote, fee] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('100000', 6))
       expect(quote).equal(parseUnits('16044.50486957', 8))
-      expect(haircut).equal(parseUnits('80261.04656845', 8))
+      expect(fee).equal(parseUnits('80261.04656845', 8))
 
       // reverse quote
-      const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
+      const [reverseQuote, reverseFee] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
         parseUnits('-16044.50486957', 8)
       )
       // we need less than 100000 as the marginal swap fee when r approach 1.8 is almost 100%
       expect(reverseQuote).equal(parseUnits('99355.893005', 6))
-      expect(reverseHaircut).equal(parseUnits('79644.70566988', 8))
+      expect(reverseFee).equal(parseUnits('79644.70566988', 8))
 
       // swap
-      await pool
+      const receipt = await pool
         .connect(users[0])
         .swap(token0.address, token1.address, parseUnits('100000', 6), 0, users[0].address, fiveSecondsSince)
 
       // 96266 * [1 - (1.75 - 1.5) / (1.8 - 1.5)] (high cov ratio fee) = 16044
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('16044.50486957', 8))
+
+      await expect(receipt)
+        .to.emit(pool, 'SwapV2')
+        .withArgs(
+          users[0].address,
+          token0.address,
+          token1.address,
+          parseUnits('100000', 6),
+          parseUnits('16044.50486957', 8),
+          parseUnits('38.52222057', 8).add(parseUnits('80222.52434788', 8)),
+          users[0].address
+        )
+      expect(fee).eq(parseUnits('38.52222057', 8).add(parseUnits('80222.52434788', 8)))
     })
 
     it('from asset: r = 1.6 -> r = 1.8', async function () {
@@ -175,27 +201,40 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('200000', 6))
+      const [quote, fee] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('200000', 6))
       expect(quote).equal(parseUnits('63847.82205890', 8))
-      expect(haircut).equal(parseUnits('127772.29216349', 8))
+      expect(fee).equal(parseUnits('127772.29216349', 8))
 
       // reverse quote
-      const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
+      const [reverseQuote, reverseFee] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
         parseUnits('-63847.82205890', 8)
       )
       // we need less than 200000 as the marginal swap fee when r approach 1.8 is almost 100%
       expect(reverseQuote).equal(parseUnits('196910.494181', 6))
-      expect(reverseHaircut).equal(parseUnits('124857.26484320', 8))
+      expect(reverseFee).equal(parseUnits('124857.26484320', 8))
 
       // swap
-      await pool
+      const receipt = await pool
         .connect(users[0])
         .swap(token0.address, token1.address, parseUnits('200000', 6), 0, users[0].address, fiveSecondsSince)
 
       // 191542 * [1 - (1.7 - 1.5) / (1.8 - 1.5)] (high cov ratio fee) = 63848
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('63847.82205890', 8))
+
+      await expect(receipt)
+        .to.emit(pool, 'SwapV2')
+        .withArgs(
+          users[0].address,
+          token0.address,
+          token1.address,
+          parseUnits('200000', 6),
+          parseUnits('63847.82205890', 8),
+          parseUnits('76.64804568', 8).add(parseUnits('127695.64411781', 8)),
+          users[0].address
+        )
+      expect(fee).eq(parseUnits('76.64804568', 8).add(parseUnits('127695.64411781', 8)))
     })
 
     it('from asset: r = 1.5 -> r = 1.7 (18 decimals)', async function () {
@@ -217,26 +256,39 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('200000', 18))
+      const [quote, fee] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('200000', 18))
       expect(quote).equal(parseUnits('127973.795208341950948787', 18))
-      expect(haircut).equal(parseUnits('64063.712607297231051213', 18))
+      expect(fee).equal(parseUnits('64063.712607297231051213', 18))
 
       // reverse quote
-      const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
+      const [reverseQuote, reverseFee] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
         parseUnits('-127973.795208341950948787', 18)
       )
       expect(reverseQuote).equal(parseUnits('199999.999999999999500000', 18))
-      expect(reverseHaircut).equal(parseUnits('64063.712607297231051213', 18))
+      expect(reverseFee).equal(parseUnits('64063.712607297231051213', 18))
 
       // swap
-      await pool
+      const receipt = await pool
         .connect(users[0])
         .swap(token0.address, token1.address, parseUnits('200000', 18), 0, users[0].address, fiveSecondsSince)
 
       // 189282 * [1 - (1.6 - 1.5) / (1.8 - 1.5)] (high cov ratio fee) = 126188
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('127973.795208341950948787', 18))
+
+      await expect(receipt)
+        .to.emit(pool, 'SwapV2')
+        .withArgs(
+          users[0].address,
+          token0.address,
+          token1.address,
+          parseUnits('200000', 18),
+          parseUnits('127973.795208341950948787', 18),
+          parseUnits('76.815003126255672800', 18).add(parseUnits('63986.897604170975378413', 18)),
+          users[0].address
+        )
+      expect(fee).eq(parseUnits('76.815003126255672800', 18).add(parseUnits('63986.897604170975378413', 18)))
     })
 
     it('from asset: r = 1.4 -> r = 1.7', async function () {
@@ -258,26 +310,39 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('300000', 6))
+      const [quote, fee] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('300000', 6))
       expect(quote).equal(parseUnits('222549.82030921', 8))
-      expect(haircut).equal(parseUnits('63700.16293879', 8))
+      expect(fee).equal(parseUnits('63700.16293879', 8))
 
       // reverse quote
-      const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
+      const [reverseQuote, reverseFee] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
         parseUnits('-222549.82030921', 8)
       )
       expect(reverseQuote).equal(parseUnits('300000', 6))
-      expect(reverseHaircut).equal(parseUnits('63700.16293879', 8))
+      expect(reverseFee).equal(parseUnits('63700.16293879', 8))
 
       // swap
-      await pool
+      const receipt = await pool
         .connect(users[0])
         .swap(token0.address, token1.address, parseUnits('300000', 6), 0, users[0].address, fiveSecondsSince)
 
       // 286135 * [1 - (1.6 - 1.5) / (1.8 - 1.5) * 0.66] (high cov ratio fee) = 222549
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('222549.82030921', 8))
+
+      await expect(receipt)
+        .to.emit(pool, 'SwapV2')
+        .withArgs(
+          users[0].address,
+          token0.address,
+          token1.address,
+          parseUnits('300000', 6),
+          parseUnits('222549.82030921', 8),
+          parseUnits('114.49999329', 8).add(parseUnits('63585.66294550', 8)),
+          users[0].address
+        )
+      expect(fee).eq(parseUnits('114.49999329', 8).add(parseUnits('63585.66294550', 8)))
     })
 
     it('from asset: r = 1.3 -> r = 1.4', async function () {
@@ -299,26 +364,38 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('100000', 6))
+      const [quote, fee] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('100000', 6))
       expect(quote).equal(parseUnits('97315.57802417', 8))
-      expect(haircut).equal(parseUnits('38.94180793', 8))
+      expect(fee).equal(parseUnits('38.94180793', 8))
 
       // reverse quote
-      const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
+      const [reverseQuote, reverseFee] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
         parseUnits('-97315.57802417', 8)
       )
       expect(reverseQuote).equal(parseUnits('99999.999999', 6))
-      expect(reverseHaircut).equal(parseUnits('38.94180793', 8))
+      expect(reverseFee).equal(parseUnits('38.94180793', 8))
 
       // swap
-      await pool
+      const receipt = await pool
         .connect(users[0])
         .swap(token0.address, token1.address, parseUnits('100000', 6), 0, users[0].address, fiveSecondsSince)
 
       // 97315 * 1 (high cov ratio fee) = 97315
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('97315.57802417', 8))
+
+      await expect(receipt)
+        .to.emit(pool, 'SwapV2')
+        .withArgs(
+          users[0].address,
+          token0.address,
+          token1.address,
+          parseUnits('100000', 6),
+          parseUnits('97315.57802417', 8),
+          parseUnits('38.94180793', 8),
+          users[0].address
+        )
     })
 
     it('from asset: r = 1.6 -> r = 1.8+ (reject)', async function () {
@@ -433,25 +510,37 @@ describe('High Coverage Ratio Pool - Swap', function () {
       await token0.connect(users[0]).approve(pool.address, ethers.constants.MaxUint256)
 
       // quote
-      const [quote, haircut] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('300000', 6))
+      const [quote, fee] = await pool.quotePotentialSwap(token0.address, token1.address, parseUnits('300000', 6))
       expect(quote).equal(parseUnits('304983.18636529', 8))
-      expect(haircut).equal(parseUnits('122.04209138', 8))
+      expect(fee).equal(parseUnits('122.04209138', 8))
 
       // reverse quote
-      const [reverseQuote, reverseHaircut] = await pool.quotePotentialSwap(
+      const [reverseQuote, reverseFee] = await pool.quotePotentialSwap(
         token1.address,
         token0.address,
         parseUnits('-304983.18636529', 8)
       )
       expect(reverseQuote).equal(parseUnits('299999.999999', 6))
-      expect(reverseHaircut).equal(parseUnits('122.04209138', 8))
+      expect(reverseFee).equal(parseUnits('122.04209138', 8))
 
       // swap
-      await pool
+      const receipt = await pool
         .connect(users[0])
         .swap(token0.address, token1.address, parseUnits('300000', 6), 0, users[0].address, fiveSecondsSince)
 
       expect(await token1.balanceOf(users[0].address)).equal(parseUnits('304983.18636529', 8))
+
+      await expect(receipt)
+        .to.emit(pool, 'SwapV2')
+        .withArgs(
+          users[0].address,
+          token0.address,
+          token1.address,
+          parseUnits('300000', 6),
+          parseUnits('304983.18636529', 8),
+          parseUnits('122.04209138', 8),
+          users[0].address
+        )
     })
   })
 

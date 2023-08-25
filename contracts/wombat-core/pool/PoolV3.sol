@@ -28,6 +28,9 @@ import '../interfaces/IPoolV3.sol';
  *   - Contract size compression
  *   - `mintFee` ignores `mintFeeThreshold`
  *   - `globalEquilCovRatio` returns int256 `instead` of `uint256`
+ *   - Emit event `SwapV2` with `feeInToToken` instead of `Swap`
+ * - TODOs for V4:
+ *   - Consider renaming returned value `uint256 haircut` to `feeInToToken / haircutInToToken`
  */
 contract PoolV3 is
     Initializable,
@@ -104,13 +107,13 @@ contract PoolV3 is
     /// @notice An event thats emitted when a withdrawal is made from Pool
     event Withdraw(address indexed sender, address token, uint256 amount, uint256 liquidity, address indexed to);
 
-    /// @notice An event thats emitted when a swap is made in Pool
-    event Swap(
+    event SwapV2(
         address indexed sender,
         address fromToken,
         address toToken,
         uint256 fromAmount,
         uint256 toAmount,
+        uint256 feeInToToken,
         address indexed to
     );
 
@@ -632,19 +635,18 @@ contract PoolV3 is
 
         IERC20(fromAsset).safeTransferFrom(address(msg.sender), address(fromAsset), liquidity);
         (uint256 fromAmountInWad, ) = _withdraw(fromAsset, liquidity, 0);
-        (toAmount, ) = _swap(
-            fromAsset,
-            toAsset,
-            fromAmountInWad,
-            minimumAmount.toWad(toAsset.underlyingTokenDecimals())
-        );
+        uint8 toDecimal = toAsset.underlyingTokenDecimals();
 
-        toAmount = toAmount.fromWad(toAsset.underlyingTokenDecimals());
+        uint256 feeInToToken;
+        (toAmount, feeInToToken) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount.toWad(toDecimal));
+
+        toAmount = toAmount.fromWad(toDecimal);
+        feeInToToken = feeInToToken.fromWad(toDecimal);
         toAsset.transferUnderlyingToken(to, toAmount);
 
         uint256 fromAmount = fromAmountInWad.fromWad(fromAsset.underlyingTokenDecimals());
         emit Withdraw(msg.sender, fromToken, fromAmount, liquidity, to);
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, toAmount, to);
+        emit SwapV2(msg.sender, fromToken, toToken, fromAmount, toAmount, feeInToToken, to);
     }
 
     /**
@@ -730,14 +732,14 @@ contract PoolV3 is
      * @param toAsset The asset wanted by user
      * @param fromAmount The amount to quote
      * @return actualToAmount The actual amount user would receive
-     * @return haircut The haircut that will be applied
+     * @return feeInToToken The haircut that will be applied
      * To be overriden by HighCovRatioFeePool for reverse-quote
      */
     function _quoteFrom(
         IAsset fromAsset,
         IAsset toAsset,
         int256 fromAmount
-    ) internal view virtual returns (uint256 actualToAmount, uint256 haircut) {
+    ) internal view virtual returns (uint256 actualToAmount, uint256 feeInToToken) {
         uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
         return CoreV3.quoteSwap(fromAsset, toAsset, fromAmount, ampFactor, scaleFactor, haircutRate);
     }
@@ -750,17 +752,17 @@ contract PoolV3 is
         IAsset toAsset,
         uint256 fromAmount,
         uint256 minimumToAmount
-    ) internal returns (uint256 actualToAmount, uint256 haircut) {
-        (actualToAmount, haircut) = _quoteFrom(fromAsset, toAsset, fromAmount.toInt256());
+    ) internal returns (uint256 actualToAmount, uint256 feeInToToken) {
+        (actualToAmount, feeInToToken) = _quoteFrom(fromAsset, toAsset, fromAmount.toInt256());
         _checkAmount(minimumToAmount, actualToAmount);
 
-        _feeCollected[toAsset] += haircut;
+        _feeCollected[toAsset] += feeInToToken;
 
         fromAsset.addCash(fromAmount);
 
         // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
 
-        toAsset.removeCash(actualToAmount + haircut);
+        toAsset.removeCash(actualToAmount + feeInToToken);
 
         // mint fee is skipped for swap to save gas,
 
@@ -810,7 +812,7 @@ contract PoolV3 is
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
         toAsset.transferUnderlyingToken(to, actualToAmount);
 
-        emit Swap(msg.sender, fromToken, toToken, fromAmount, actualToAmount, to);
+        emit SwapV2(msg.sender, fromToken, toToken, fromAmount, actualToAmount, haircut, to);
     }
 
     /**

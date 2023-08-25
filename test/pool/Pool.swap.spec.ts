@@ -99,7 +99,7 @@ describe('Pool - Swap', function () {
         .deposit(token3.address, parseEther('1000'), 0, user1.address, fiveSecondsSince, false)
     })
 
-    describe('swap', function () {
+    describe('Swap', function () {
       it('works (BUSD -> vUSDC) without haircut fees', async function () {
         // set haircut rate to 0
         poolContract.connect(owner).setHaircutRate(0)
@@ -141,13 +141,14 @@ describe('Pool - Swap', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.56990354', 8)) // should always equal cash
 
         await expect(receipt)
-          .to.emit(poolContract, 'Swap')
+          .to.emit(poolContract, 'SwapV2')
           .withArgs(
             user1.address,
             token0.address,
             token1.address,
             parseEther('100'),
             parseUnits('99.43009646', 8),
+            0,
             user1.address
           )
 
@@ -195,13 +196,14 @@ describe('Pool - Swap', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('900.60967558', 8)) // should always equal cash
 
         await expect(receipt)
-          .to.emit(poolContract, 'Swap')
+          .to.emit(poolContract, 'SwapV2')
           .withArgs(
             user1.address,
             token0.address,
             token1.address,
             parseEther('100'),
             parseUnits('99.39032442', 8),
+            parseUnits('0.03977203', 8),
             user1.address
           )
 
@@ -250,13 +252,14 @@ describe('Pool - Swap', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
         await expect(receipt)
-          .to.emit(poolContract, 'Swap')
+          .to.emit(poolContract, 'SwapV2')
           .withArgs(
             user1.address,
             token1.address,
             token0.address,
             parseUnits('100', 8),
             parseEther('99.519462997587750000'),
+            0,
             user1.address
           )
 
@@ -303,13 +306,14 @@ describe('Pool - Swap', function () {
         expect(await asset1.underlyingTokenBalance()).to.be.equal(parseUnits('1100', 8)) // should always equal cash
 
         await expect(receipt)
-          .to.emit(poolContract, 'Swap')
+          .to.emit(poolContract, 'SwapV2')
           .withArgs(
             user1.address,
             token1.address,
             token0.address,
             parseUnits('100', 8),
             parseEther('99.479655212388714900'),
+            parseEther('0.039807785199035100'),
             user1.address
           )
 
@@ -448,13 +452,14 @@ describe('Pool - Swap', function () {
           fiveSecondsSince
         )
         await expect(receipt)
-          .to.emit(poolContract, 'Swap')
+          .to.emit(poolContract, 'SwapV2')
           .withArgs(
             user1.address,
             token1.address,
             token0.address,
             parseUnits('100', 8),
             parseEther('99.479655212388714900'),
+            parseEther('0.039807785199035100'),
             user1.address
           )
       })
@@ -475,13 +480,14 @@ describe('Pool - Swap', function () {
         )
 
         expect(swapReceipt)
-          .to.emit(poolContract, 'Swap')
+          .to.emit(poolContract, 'SwapV2')
           .withArgs(
             user1.address,
             token0.address,
             token1.address,
             parseEther('100'),
             parseUnits('99.597907', 8),
+            0,
             user1.address
           )
 
@@ -490,7 +496,7 @@ describe('Pool - Swap', function () {
           .connect(user1)
           .withdraw(token1.address, parseUnits('1000', 8), parseUnits('999', 8), user1.address, fiveSecondsSince)
 
-        expect(withdrawalReceipt)
+        await expect(withdrawalReceipt)
           .to.emit(poolContract, 'Withdraw')
           .withArgs(user1.address, token1.address, parseUnits('999.999877', 8), parseUnits('1000', 8), user1.address)
       })
