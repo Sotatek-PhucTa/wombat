@@ -169,7 +169,10 @@ describe('MockAdaptor', function () {
 
       // get a quote
       const result = await pool0.quoteSwapTokensForCredit(token0.address, parseEther('100'))
-      const quotedToAmount = await pool1.quoteSwapCreditForTokens(token2.address, result.creditAmount)
+      const { actualToAmount: quotedToAmount } = await pool1.quoteSwapCreditForTokens(
+        token2.address,
+        result.creditAmount
+      )
 
       // swap 1 (chain 0 -> chain 1)
       const receipt = await pool0
@@ -348,7 +351,10 @@ describe('MockAdaptor', function () {
 
       // get a quote
       const result = await pool0.quoteSwapTokensForCredit(token1.address, parseUnits('100', 6))
-      const quotedToAmount = await pool1.quoteSwapCreditForTokens(token3.address, result.creditAmount)
+      const { actualToAmount: quotedToAmount } = await pool1.quoteSwapCreditForTokens(
+        token3.address,
+        result.creditAmount
+      )
 
       // swap 1 (chain 0 -> chain 1)
       const receipt = await pool0

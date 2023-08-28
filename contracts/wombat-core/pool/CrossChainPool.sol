@@ -290,11 +290,11 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     function quoteSwapCreditForTokens(
         address toToken,
         uint256 fromCreditAmount
-    ) external view returns (uint256 amount) {
+    ) external view returns (uint256 actualToAmount, uint256 toTokenFee) {
         IAsset toAsset = _assetOf(toToken);
         if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
         // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
-        (uint256 actualToAmount, ) = CoreV3.quoteSwapCreditForTokens(
+        (actualToAmount, toTokenFee) = CoreV3.quoteSwapCreditForTokens(
             fromCreditAmount,
             toAsset,
             ampFactor,
@@ -303,7 +303,8 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         );
 
         uint8 toDecimal = toAsset.underlyingTokenDecimals();
-        amount = actualToAmount.fromWad(toDecimal);
+        actualToAmount = actualToAmount.fromWad(toDecimal);
+        toTokenFee = toTokenFee.fromWad(toDecimal);
 
         // Check it doesn't exceed maximum in-coming credits
         if (totalCreditBurned + fromCreditAmount > maximumInboundCredit + totalCreditMinted)

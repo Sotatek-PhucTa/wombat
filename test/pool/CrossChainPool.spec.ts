@@ -634,9 +634,12 @@ describe('CrossChainPool', function () {
       expect(result.toTokenFee).to.eq(parseEther('0.4'))
 
       // verify quote function
-      expect(await pool.quoteSwapCreditForTokens(token0.address, parseEther('99.998023754471257485'))).to.be.equal(
-        result.actualToAmount
+      const { actualToAmount, toTokenFee } = await pool.quoteSwapCreditForTokens(
+        token0.address,
+        parseEther('99.998023754471257485')
       )
+      expect(actualToAmount).to.be.equal(result.actualToAmount)
+      expect(toTokenFee).to.be.equal(parseEther('0.4'))
 
       const balanceBefore = (await token0.balanceOf(user1.address)) as BigNumber
       const receipt = await pool
@@ -845,9 +848,12 @@ describe('CrossChainPool', function () {
       expect(result.toTokenFee).to.eq(parseUnits('0.4', 6))
 
       // verify quote function
-      expect(await pool.quoteSwapCreditForTokens(token1.address, parseEther('99.998023754471257485'))).to.be.equal(
-        result.actualToAmount
+      const { actualToAmount, toTokenFee } = await pool.quoteSwapCreditForTokens(
+        token1.address,
+        parseEther('99.998023754471257485')
       )
+      expect(actualToAmount).to.be.equal(result.actualToAmount)
+      expect(toTokenFee).to.be.equal(parseUnits('0.4', 6))
 
       const balanceBefore = (await token1.balanceOf(user1.address)) as BigNumber
       const receipt = await pool
