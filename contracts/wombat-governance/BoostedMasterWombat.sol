@@ -79,6 +79,7 @@ contract BoostedMasterWombat is
 
     uint256 public constant REWARD_DURATION = 7 days;
     uint256 public constant ACC_TOKEN_PRECISION = 1e12;
+    uint256 public constant TOTAL_PARTITION = 1000;
 
     // Wom token
     IERC20 public wom;
@@ -89,7 +90,7 @@ contract BoostedMasterWombat is
     // Address of Voter
     address public voter;
     // Base partition emissions (e.g. 300 for 30%).
-    // BasePartition and boostedPartition add up to 1000 for 100%
+    // BasePartition and boostedPartition add up to TOTAL_PARTITION (1000) for 100%
     uint16 public basePartition;
     // Set of all LP tokens that have been added as pools
     EnumerableSet.AddressSet internal lpTokens;
@@ -132,7 +133,7 @@ contract BoostedMasterWombat is
 
     function initialize(IERC20 _wom, IVeWom _veWom, address _voter, uint16 _basePartition) external initializer {
         require(address(_wom) != address(0), 'wom address cannot be zero');
-        require(_basePartition <= 1000, 'base partition must be in range 0, 1000');
+        require(_basePartition <= TOTAL_PARTITION, 'base partition must be in range 0, 1000');
 
         __Ownable_init();
         __ReentrancyGuard_init_unchained();
@@ -523,10 +524,10 @@ contract BoostedMasterWombat is
     /// @notice updates emission partition
     /// @param _basePartition the future base partition
     function updateEmissionPartition(uint16 _basePartition) external onlyOwner {
-        require(_basePartition <= 1000);
+        require(_basePartition <= TOTAL_PARTITION);
         massUpdatePools();
         basePartition = _basePartition;
-        emit UpdateEmissionPartition(msg.sender, _basePartition, 1000 - _basePartition);
+        emit UpdateEmissionPartition(msg.sender, _basePartition, TOTAL_PARTITION - _basePartition);
     }
 
     /// @notice updates veWom address
@@ -639,7 +640,7 @@ contract BoostedMasterWombat is
     }
 
     function boostedPartition() external view returns (uint256) {
-        return 1000 - basePartition;
+        return TOTAL_PARTITION - basePartition;
     }
 
     /// @notice returns pool length
@@ -672,12 +673,12 @@ contract BoostedMasterWombat is
 
         uint256 secondsElapsed = lastTimeRewardApplicable(pool.periodFinish) - pool.lastRewardTimestamp;
         uint256 womReward = secondsElapsed * pool.rewardRate;
-        accWomPerShare += (womReward * ACC_TOKEN_PRECISION * basePartition) / (lpSupply * 1000);
+        accWomPerShare += (womReward * ACC_TOKEN_PRECISION * basePartition) / (lpSupply * TOTAL_PARTITION);
 
         if (pool.sumOfFactors != 0) {
             accWomPerFactorShare +=
-                (womReward * ACC_TOKEN_PRECISION * (1000 - basePartition)) /
-                (pool.sumOfFactors * 1000);
+                (womReward * ACC_TOKEN_PRECISION * (TOTAL_PARTITION - basePartition)) /
+                (pool.sumOfFactors * TOTAL_PARTITION);
         }
     }
 

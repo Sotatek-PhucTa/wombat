@@ -36,6 +36,8 @@ contract BoostedMultiRewarder is
 
     bytes32 public constant ROLE_OPERATOR = keccak256('operator');
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
+    uint256 public constant TOTAL_PARTITION = 1000;
+    uint256 public constant MAX_TOKEN_RATE = 10000e18;
 
     struct UserBalanceInfo {
         uint128 amount; // 20.18 fixed point.
@@ -275,7 +277,7 @@ contract BoostedMultiRewarder is
             _startTimestampToOverride == 0 || _startTimestampToOverride >= block.timestamp,
             'invalid _startTimestampToOverride'
         );
-        require(_tokenPerSec <= 10000e18, 'reward rate too high'); // in case of accTokenPerShare overflow
+        require(_tokenPerSec <= MAX_TOKEN_RATE, 'reward rate too high'); // in case of accTokenPerShare overflow
         _updateReward();
         RewardInfo storage info = rewardInfos[_tokenId];
         uint256 oldRate = info.tokenPerSec;
@@ -306,7 +308,7 @@ contract BoostedMultiRewarder is
     /// @dev Assume lpSupply and sumOfFactors isn't updated yet when this function is called
     /// @notice user.unpaidRewards will be updated
     function onUpdateFactor(address _user, uint256 _newFactor) external override onlyMasterWombat {
-        if (basePartition() == 1000) {
+        if (basePartition() == TOTAL_PARTITION) {
             // base partition only
             return;
         }
@@ -476,13 +478,16 @@ contract BoostedMultiRewarder is
     ) internal view returns (uint256 tokenPerShare, uint256 tokenPerFactorShare) {
         // use `max(totalShare, 1e18)` in case of overflow
         uint256 _basePartition = basePartition();
-        tokenPerShare = (rewardToDistribute * ACC_TOKEN_PRECISION * _basePartition) / max(lpSupply, 1e18) / 1000;
+        tokenPerShare =
+            (rewardToDistribute * ACC_TOKEN_PRECISION * _basePartition) /
+            max(lpSupply, 1e18) /
+            TOTAL_PARTITION;
 
         if (sumOfFactors > 0) {
             tokenPerFactorShare =
-                (rewardToDistribute * ACC_TOKEN_PRECISION * (1000 - _basePartition)) /
+                (rewardToDistribute * ACC_TOKEN_PRECISION * (TOTAL_PARTITION - _basePartition)) /
                 sumOfFactors /
-                1000;
+                TOTAL_PARTITION;
         }
     }
 

@@ -125,6 +125,8 @@ describe('BribeRewarderFactory', async function () {
 
       // successfully deploy
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address])
+
       await bribeRewarderFactory.deployRewarderContractAndSetRewarder(
         lpToken1.address,
         startTime,
@@ -148,6 +150,7 @@ describe('BribeRewarderFactory', async function () {
 
       // double deployment
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address])
       await expect(
         bribeRewarderFactory.deployRewarderContractAndSetRewarder(
           lpToken1.address,
@@ -164,12 +167,14 @@ describe('BribeRewarderFactory', async function () {
         'reward token must be whitelisted by bribe factory'
       )
       await bribeRewarderFactory.whitelistRewardToken(token2.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address, token2.address])
       await rewarder.addRewardToken(token2.address, 0, 0)
     })
 
     it('deployRewarderContractAndSetRewarder', async function () {
       await bribeRewarderFactory.setRewarderDeployer(lpToken1.address, owner.address)
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address])
 
       await bribeRewarderFactory.deployRewarderContractAndSetRewarder(
         lpToken1.address,
@@ -234,6 +239,7 @@ describe('BribeRewarderFactory', async function () {
 
       // successfully deploy
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address])
       await bribeRewarderFactory.deployBribeContractAndSetBribe(
         lpToken1.address,
         startTime,
@@ -257,6 +263,7 @@ describe('BribeRewarderFactory', async function () {
 
       // double deployment
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address])
       await expect(
         bribeRewarderFactory.deployBribeContractAndSetBribe(
           lpToken1.address,
@@ -273,12 +280,14 @@ describe('BribeRewarderFactory', async function () {
         'reward token must be whitelisted by bribe factory'
       )
       await bribeRewarderFactory.whitelistRewardToken(token2.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address, token2.address])
       await bribe.addRewardToken(token2.address, 0, 0)
     })
 
     it('deployBribeContractAndSetBribe', async function () {
       await bribeRewarderFactory.setBribeDeployer(lpToken1.address, owner.address)
       await bribeRewarderFactory.whitelistRewardToken(token1.address)
+      expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.have.members([token1.address])
 
       await bribeRewarderFactory.deployBribeContractAndSetBribe(
         lpToken1.address,

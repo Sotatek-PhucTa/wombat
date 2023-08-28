@@ -73,7 +73,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         return whitelistedRewardTokens.contains(address(_token));
     }
 
-    function getWhitelistedRewardTokens() public view returns (address[] memory) {
+    function getWhitelistedRewardTokens() external view returns (address[] memory) {
         return whitelistedRewardTokens.values();
     }
 
