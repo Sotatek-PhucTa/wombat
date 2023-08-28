@@ -665,3 +665,9 @@ export async function syncCrossChainPool(poolType: CrossChainPoolType, network: 
   )
   return txns
 }
+
+export async function setBribeRewarderFactory(): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+  const mw = await getDeployedContract('BoostedMasterWombat')
+  return [Safe(mw).setBribeRewarderFactory(bribeRewarderFactory.address)]
+}
