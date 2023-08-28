@@ -42,8 +42,8 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
         IAsset fromAsset,
         IAsset toAsset,
         int256 fromAmount
-    ) internal view override returns (uint256 actualToAmount, uint256 feeInToToken) {
-        (actualToAmount, feeInToToken) = super._quoteFrom(fromAsset, toAsset, fromAmount);
+    ) internal view override returns (uint256 actualToAmount, uint256 toTokenFee) {
+        (actualToAmount, toTokenFee) = super._quoteFrom(fromAsset, toAsset, fromAmount);
 
         if (fromAmount >= 0) {
             uint256 highCovRatioFee = CoreV3.highCovRatioFee(
@@ -56,7 +56,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             );
 
             actualToAmount -= highCovRatioFee;
-            feeInToToken += highCovRatioFee;
+            toTokenFee += highCovRatioFee;
         } else {
             // reverse quote
             uint256 toAssetCash = toAsset.cash();
@@ -64,7 +64,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             uint256 finalToAssetCovRatio = (toAssetCash + actualToAmount).wdiv(toAssetLiability);
             if (finalToAssetCovRatio <= startCovRatio) {
                 // happy path: no high cov ratio fee is charged
-                return (actualToAmount, feeInToToken);
+                return (actualToAmount, toTokenFee);
             } else if (toAssetCash.wdiv(toAssetLiability) >= endCovRatio) {
                 // the to-asset exceeds it's cov ratio limit, further swap to increase cov ratio is impossible
                 revert WOMBAT_COV_RATIO_LIMIT_EXCEEDED();
@@ -73,7 +73,7 @@ contract HighCovRatioFeePoolV3 is PoolV3 {
             // reverse quote: cov ratio of the to-asset exceed endCovRatio. direct reverse quote is not supported
             // we binary search for a upper bound
             actualToAmount = _findUpperBound(toAsset, fromAsset, uint256(-fromAmount));
-            (, feeInToToken) = _quoteFrom(toAsset, fromAsset, actualToAmount.toInt256());
+            (, toTokenFee) = _quoteFrom(toAsset, fromAsset, actualToAmount.toInt256());
         }
     }
 

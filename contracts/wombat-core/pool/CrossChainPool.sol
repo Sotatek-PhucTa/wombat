@@ -56,7 +56,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         address indexed sender,
         address indexed fromToken,
         uint256 fromAmount,
-        uint256 fromTokenHaircut,
+        uint256 fromTokenFee,
         uint256 creditAmount
     );
 
@@ -67,7 +67,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 creditAmount,
         address indexed toToken,
         uint256 toAmount,
-        uint256 toTokenHaircut,
+        uint256 toTokenFee,
         address indexed receiver
     );
 
@@ -93,7 +93,6 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
      * 1. Swap `fromToken` for credit;
      * 2. Notify relayer to bridge credit to the `toChain`;
      * 3. Relayer invoke `completeSwapCreditForTokens` to swap credit for `toToken` in the `toChain`
-     * Note: haircut returned here is just high cov ratio fee.
      * Delivery fee attached to the txn should be done off-chain via `WormholeAdaptor.estimateDeliveryFee` to reduce gas cost
      */
     function swapTokensForTokensCrossChain(
@@ -112,7 +111,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         override
         nonReentrant
         whenNotPaused
-        returns (uint256 creditAmount, uint256 fromTokenHaircut, uint256 sequence)
+        returns (uint256 creditAmount, uint256 fromTokenFee, uint256 sequence)
     {
         // Assumption: the adaptor should check `toChain` and `toToken`
         if (fromAmount == 0) revert WOMBAT_ZERO_AMOUNT();
@@ -122,15 +121,15 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         IAsset fromAsset = _assetOf(fromToken);
         IERC20(fromToken).safeTransferFrom(msg.sender, address(fromAsset), fromAmount);
 
-        (creditAmount, fromTokenHaircut) = _swapTokensForCredit(
+        (creditAmount, fromTokenFee) = _swapTokensForCredit(
             fromAsset,
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
             minimumCreditAmount
         );
         if (creditAmount == 0) revert WOMBAT_ZERO_CREDIT_AMOUNT();
 
-        fromTokenHaircut = fromTokenHaircut.fromWad(fromAsset.underlyingTokenDecimals());
-        emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, fromTokenHaircut, creditAmount);
+        fromTokenFee = fromTokenFee.fromWad(fromAsset.underlyingTokenDecimals());
+        emit SwapTokensForCredit(msg.sender, fromToken, fromAmount, fromTokenFee, creditAmount);
 
         // Wormhole: computeBudget + applicationBudget + wormholeFee should equal the msg.value
         sequence = adaptor.bridgeCreditAndSwapForTokens{value: msg.value}(
@@ -152,9 +151,9 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver
-    ) external override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
+    ) external override nonReentrant whenNotPaused returns (uint256 actualToAmount, uint256 toTokenFee) {
         _beforeSwapCreditForTokens(fromAmount, receiver);
-        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver);
+        (actualToAmount, toTokenFee) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver);
     }
 
     /**
@@ -197,12 +196,12 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         IAsset fromAsset,
         uint256 fromAmount,
         uint256 minimumCreditAmount
-    ) internal returns (uint256 creditAmount, uint256 feeInFromToken) {
+    ) internal returns (uint256 creditAmount, uint256 fromTokenFee) {
         // Assume credit has 18 decimals
         if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
         // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
         // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
-        (creditAmount, feeInFromToken) = CoreV3.quoteSwapTokensForCredit(
+        (creditAmount, fromTokenFee) = CoreV3.quoteSwapTokensForCredit(
             fromAsset,
             fromAmount,
             ampFactor,
@@ -214,9 +213,9 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
 
         _checkAmount(minimumCreditAmount, creditAmount);
 
-        fromAsset.addCash(fromAmount - feeInFromToken);
+        fromAsset.addCash(fromAmount - fromTokenFee);
         totalCreditMinted += _to128(creditAmount);
-        _feeCollected[fromAsset] += feeInFromToken; // unlike other swaps, fee is collected in from token
+        _feeCollected[fromAsset] += fromTokenFee; // unlike other swaps, fee is collected in from token
 
         // Check it doesn't exceed maximum out-going credits
         if (totalCreditMinted > maximumOutboundCredit + totalCreditBurned) revert POOL__REACH_MAXIMUM_MINTED_CREDIT();
@@ -237,18 +236,18 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 fromCreditAmount,
         uint256 minimumToAmount,
         address receiver
-    ) internal returns (uint256 actualToAmount, uint256 toTokenHaircut) {
+    ) internal returns (uint256 actualToAmount, uint256 toTokenFee) {
         if (fromCreditAmount == 0) revert WOMBAT_ZERO_CREDIT_AMOUNT();
 
         IAsset toAsset = _assetOf(toToken);
         uint8 toDecimal = toAsset.underlyingTokenDecimals();
-        (actualToAmount, toTokenHaircut) = _swapCreditForTokens(
+        (actualToAmount, toTokenFee) = _swapCreditForTokens(
             toAsset,
             fromCreditAmount,
             minimumToAmount.toWad(toDecimal)
         );
         actualToAmount = actualToAmount.fromWad(toDecimal);
-        toTokenHaircut = toTokenHaircut.fromWad(toDecimal);
+        toTokenFee = toTokenFee.fromWad(toDecimal);
 
         toAsset.transferUnderlyingToken(receiver, actualToAmount);
         totalCreditBurned += _to128(fromCreditAmount);
@@ -256,17 +255,17 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         // Check it doesn't exceed maximum in-coming credits
         if (totalCreditBurned > maximumInboundCredit + totalCreditMinted) revert POOL__REACH_MAXIMUM_BURNED_CREDIT();
 
-        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, toTokenHaircut, receiver);
+        emit SwapCreditForTokens(fromCreditAmount, toToken, actualToAmount, toTokenFee, receiver);
     }
 
     function _swapCreditForTokens(
         IAsset toAsset,
         uint256 fromCreditAmount,
         uint256 minimumToAmount
-    ) internal returns (uint256 actualToAmount, uint256 haircut) {
+    ) internal returns (uint256 actualToAmount, uint256 toTokenFee) {
         if (!swapCreditForTokensEnabled) revert POOL__SWAP_CREDIT_FOR_TOKENS_DISABLED();
-        // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
-        (actualToAmount, haircut) = CoreV3.quoteSwapCreditForTokens(
+        // TODO: If we want to support dynamic asset (aka volatile / rather-volatile pools), implement `_quoteFactor` for credit
+        (actualToAmount, toTokenFee) = CoreV3.quoteSwapCreditForTokens(
             fromCreditAmount,
             toAsset,
             ampFactor,
@@ -275,10 +274,10 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         );
 
         _checkAmount(minimumToAmount, actualToAmount);
-        _feeCollected[toAsset] += haircut;
+        _feeCollected[toAsset] += toTokenFee;
 
-        // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
-        toAsset.removeCash(actualToAmount + haircut);
+        // fee is removed from cash to maintain r* = 1. It is distributed during _mintFee()
+        toAsset.removeCash(actualToAmount + toTokenFee);
 
         // revert if cov ratio < 1% to avoid precision error
         if (DSMath.wdiv(toAsset.cash(), toAsset.liability()) < WAD / 100) revert WOMBAT_FORBIDDEN();
@@ -314,14 +313,14 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     function quoteSwapTokensForCredit(
         address fromToken,
         uint256 fromAmount
-    ) external view returns (uint256 creditAmount, uint256 feeInFromToken) {
+    ) external view returns (uint256 creditAmount, uint256 fromTokenFee) {
         IAsset fromAsset = _assetOf(fromToken);
 
         // Assume credit has 18 decimals
         if (!swapTokensForCreditEnabled) revert POOL__SWAP_TOKENS_FOR_CREDIT_DISABLED();
         // TODO: implement _quoteFactor for credit if we would like to support dynamic asset (aka volatile / rather-volatile pools)
         // uint256 quoteFactor = IRelativePriceProvider(address(fromAsset)).getRelativePrice();
-        (creditAmount, feeInFromToken) = CoreV3.quoteSwapTokensForCredit(
+        (creditAmount, fromTokenFee) = CoreV3.quoteSwapTokensForCredit(
             fromAsset,
             fromAmount.toWad(fromAsset.underlyingTokenDecimals()),
             ampFactor,
@@ -331,7 +330,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
             endCovRatio
         );
 
-        feeInFromToken = feeInFromToken.fromWad(fromAsset.underlyingTokenDecimals());
+        fromTokenFee = fromTokenFee.fromWad(fromAsset.underlyingTokenDecimals());
 
         // Check it doesn't exceed maximum out-going credits
         if (totalCreditMinted + creditAmount > maximumOutboundCredit + totalCreditBurned)
@@ -371,10 +370,10 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver
-    ) external override whenNotPaused returns (uint256 actualToAmount, uint256 haircut) {
+    ) external override whenNotPaused returns (uint256 actualToAmount, uint256 toTokenFee) {
         _onlyAdaptor();
         // Note: `_checkAddress(receiver)` could be skipped at it is called at the `fromChain`
-        (actualToAmount, haircut) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver);
+        (actualToAmount, toTokenFee) = _doSwapCreditForTokens(toToken, fromAmount, minimumToAmount, receiver);
     }
 
     /**

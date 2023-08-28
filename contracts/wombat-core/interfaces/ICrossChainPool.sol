@@ -12,14 +12,14 @@ interface ICrossChainPool {
         address receiver,
         uint256 receiverValue, // gas to receive at the designated contract
         uint256 gasLimit // gas limit for the relayed transaction
-    ) external payable returns (uint256 creditAmount, uint256 haircut, uint256 id);
+    ) external payable returns (uint256 creditAmount, uint256 fromTokenFee, uint256 id);
 
     function swapCreditForTokens(
         address toToken,
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver
-    ) external returns (uint256 actualToAmount, uint256 haircut);
+    ) external returns (uint256 actualToAmount, uint256 toTokenFee);
 
     function swapCreditForTokensCrossChain(
         address toToken,
@@ -40,7 +40,7 @@ interface ICrossChainPool {
         uint256 fromAmount,
         uint256 minimumToAmount,
         address receiver
-    ) external returns (uint256 actualToAmount, uint256 haircut);
+    ) external returns (uint256 actualToAmount, uint256 toTokenFee);
 
     function mintCredit(uint256 creditAmount, address receiver) external;
 }

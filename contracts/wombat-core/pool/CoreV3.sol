@@ -229,25 +229,25 @@ library CoreV3 {
         uint256 haircutRate,
         uint256 startCovRatio,
         uint256 endCovRatio
-    ) external view returns (uint256 creditAmount, uint256 feeInFromToken) {
+    ) external view returns (uint256 creditAmount, uint256 fromTokenFee) {
         if (fromAmount == 0) return (0, 0);
         // haircut
-        feeInFromToken = fromAmount.wmul(haircutRate);
+        fromTokenFee = fromAmount.wmul(haircutRate);
 
         // high coverage ratio fee
 
         uint256 fromCash = fromAsset.cash();
         uint256 fromLiability = fromAsset.liability();
-        feeInFromToken += highCovRatioFee(
+        fromTokenFee += highCovRatioFee(
             fromCash,
             fromLiability,
             fromAmount,
-            fromAmount - feeInFromToken, // calculate haircut in the fromAmount (exclude haircut)
+            fromAmount - fromTokenFee, // calculate haircut in the fromAmount (exclude haircut)
             startCovRatio,
             endCovRatio
         );
 
-        fromAmount -= feeInFromToken;
+        fromAmount -= fromTokenFee;
 
         if (scaleFactor != WAD) {
             // apply scale factor on from-amounts
@@ -271,7 +271,7 @@ library CoreV3 {
         uint256 ampFactor,
         uint256 scaleFactor,
         uint256 haircutRate
-    ) external view returns (uint256 actualToAmount, uint256 haircut) {
+    ) external view returns (uint256 actualToAmount, uint256 toTokenFee) {
         if (fromAmount == 0) return (0, 0);
         uint256 toCash = toAsset.cash();
         uint256 toLiability = toAsset.liability();
@@ -292,8 +292,8 @@ library CoreV3 {
         }
 
         // normal quote
-        haircut = idealToAmount.wmul(haircutRate);
-        actualToAmount = idealToAmount - haircut;
+        toTokenFee = idealToAmount.wmul(haircutRate);
+        actualToAmount = idealToAmount - toTokenFee;
     }
 
     function equilCovRatio(int256 D, int256 SL, int256 A) public pure returns (int256 er) {

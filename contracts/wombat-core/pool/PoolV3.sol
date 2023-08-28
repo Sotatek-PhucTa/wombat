@@ -28,9 +28,9 @@ import '../interfaces/IPoolV3.sol';
  *   - Contract size compression
  *   - `mintFee` ignores `mintFeeThreshold`
  *   - `globalEquilCovRatio` returns int256 `instead` of `uint256`
- *   - Emit event `SwapV2` with `feeInToToken` instead of `Swap`
+ *   - Emit event `SwapV2` with `toTokenFee` instead of `Swap`
  * - TODOs for V4:
- *   - Consider renaming returned value `uint256 haircut` to `feeInToToken / haircutInToToken`
+ *   - Consider renaming returned value `uint256 haircut` to `toTokenFee / haircutInToToken`
  */
 contract PoolV3 is
     Initializable,
@@ -113,7 +113,7 @@ contract PoolV3 is
         address toToken,
         uint256 fromAmount,
         uint256 toAmount,
-        uint256 feeInToToken,
+        uint256 toTokenFee,
         address indexed to
     );
 
@@ -637,16 +637,16 @@ contract PoolV3 is
         (uint256 fromAmountInWad, ) = _withdraw(fromAsset, liquidity, 0);
         uint8 toDecimal = toAsset.underlyingTokenDecimals();
 
-        uint256 feeInToToken;
-        (toAmount, feeInToToken) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount.toWad(toDecimal));
+        uint256 toTokenFee;
+        (toAmount, toTokenFee) = _swap(fromAsset, toAsset, fromAmountInWad, minimumAmount.toWad(toDecimal));
 
         toAmount = toAmount.fromWad(toDecimal);
-        feeInToToken = feeInToToken.fromWad(toDecimal);
+        toTokenFee = toTokenFee.fromWad(toDecimal);
         toAsset.transferUnderlyingToken(to, toAmount);
 
         uint256 fromAmount = fromAmountInWad.fromWad(fromAsset.underlyingTokenDecimals());
         emit Withdraw(msg.sender, fromToken, fromAmount, liquidity, to);
-        emit SwapV2(msg.sender, fromToken, toToken, fromAmount, toAmount, feeInToToken, to);
+        emit SwapV2(msg.sender, fromToken, toToken, fromAmount, toAmount, toTokenFee, to);
     }
 
     /**
@@ -732,14 +732,14 @@ contract PoolV3 is
      * @param toAsset The asset wanted by user
      * @param fromAmount The amount to quote
      * @return actualToAmount The actual amount user would receive
-     * @return feeInToToken The haircut that will be applied
+     * @return toTokenFee The haircut that will be applied
      * To be overriden by HighCovRatioFeePool for reverse-quote
      */
     function _quoteFrom(
         IAsset fromAsset,
         IAsset toAsset,
         int256 fromAmount
-    ) internal view virtual returns (uint256 actualToAmount, uint256 feeInToToken) {
+    ) internal view virtual returns (uint256 actualToAmount, uint256 toTokenFee) {
         uint256 scaleFactor = _quoteFactor(fromAsset, toAsset);
         return CoreV3.quoteSwap(fromAsset, toAsset, fromAmount, ampFactor, scaleFactor, haircutRate);
     }
@@ -752,17 +752,17 @@ contract PoolV3 is
         IAsset toAsset,
         uint256 fromAmount,
         uint256 minimumToAmount
-    ) internal returns (uint256 actualToAmount, uint256 feeInToToken) {
-        (actualToAmount, feeInToToken) = _quoteFrom(fromAsset, toAsset, fromAmount.toInt256());
+    ) internal returns (uint256 actualToAmount, uint256 toTokenFee) {
+        (actualToAmount, toTokenFee) = _quoteFrom(fromAsset, toAsset, fromAmount.toInt256());
         _checkAmount(minimumToAmount, actualToAmount);
 
-        _feeCollected[toAsset] += feeInToToken;
+        _feeCollected[toAsset] += toTokenFee;
 
         fromAsset.addCash(fromAmount);
 
         // haircut is removed from cash to maintain r* = 1. It is distributed during _mintFee()
 
-        toAsset.removeCash(actualToAmount + feeInToToken);
+        toAsset.removeCash(actualToAmount + toTokenFee);
 
         // mint fee is skipped for swap to save gas,
 
