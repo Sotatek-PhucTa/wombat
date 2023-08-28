@@ -88,12 +88,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
      */
 
     /**
-     * @notice Initiate a cross chain swap
-     * @dev Steps:
-     * 1. Swap `fromToken` for credit;
-     * 2. Notify relayer to bridge credit to the `toChain`;
-     * 3. Relayer invoke `completeSwapCreditForTokens` to swap credit for `toToken` in the `toChain`
-     * Delivery fee attached to the txn should be done off-chain via `WormholeAdaptor.estimateDeliveryFee` to reduce gas cost
+     * @dev refer to documentation in the interface
      */
     function swapTokensForTokensCrossChain(
         address fromToken,
@@ -144,7 +139,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     }
 
     /**
-     * @notice Swap credit for tokens (same chain)
+     * @dev refer to documentation in the interface
      */
     function swapCreditForTokens(
         address toToken,
@@ -157,9 +152,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
     }
 
     /**
-     * @notice Bridge credit and swap it for `toToken` in the `toChain`
-     * @dev Nonce must be non-zero, otherwise wormhole will revert the message
-     * Delivery fee attached to the txn should be done off-chain via `WormholeAdaptor.estimateDeliveryFee` to reduce gas cost
+     * @dev refer to documentation in the interface
      */
     function swapCreditForTokensCrossChain(
         address toToken,
@@ -364,7 +357,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
      */
 
     /**
-     * @notice Swap credit to tokens; should be called by the adaptor
+     * @dev refer to documentation in the interface
      */
     function completeSwapCreditForTokens(
         address toToken,

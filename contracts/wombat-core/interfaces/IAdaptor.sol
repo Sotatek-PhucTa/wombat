@@ -3,7 +3,6 @@ pragma solidity ^0.8.5;
 
 interface IAdaptor {
     /* Cross-chain functions that is used to initiate a cross-chain message, should be invoked by Pool */
-
     function bridgeCreditAndSwapForTokens(
         address toToken,
         uint256 toChain,
