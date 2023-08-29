@@ -530,6 +530,13 @@ To verify proxy contracts:
 - VeWom_Proxy => `0xEF0B4d9Dba6ea82B59437Fe5E37b16A2896aAF94`
 - Whitelist => `0xF84c5999cD8667Fa54006Aca7FEF6c31F75cc9dE`
 
+#### Cross chain pool
+- CoreV3 => `0xe7e02cbDA65B876fBaEf5F129D815e6dD06F9Cb0`
+- CrossChainPool_Stablecoin_Pool_Proxy => `0xA45C0ABeef67C363364E0e73832df9986aBa3800`
+- WormholeAdaptor_Stablecoin_Pool_Proxy => `0xACEB589012edbBEe4CE7b4E89B916700B43419CA`
+- Asset_Stablecoin_Pool_USDC => `0x6966553568634F4225330D559a8783DE7649C7D3`
+- Asset_Stablecoin_Pool_USDT => `0x752945079a0446AA7efB6e9E1789751cDD601c95`
+
 #### FRAX Pool
 
 - FactoryPools_FRAX_Pool_Proxy => `0x9c02eaf31EFE3FeE36ebE5AEBCa12Ca979dF25cC`
