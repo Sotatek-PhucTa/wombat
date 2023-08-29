@@ -25,15 +25,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     const pool = await getDeployedContract('DynamicPoolV2', poolContractName)
 
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
-      await deployAssetV2(
-        hre.network.name,
-        deployer,
-        multisig,
-        assetInfo,
-        pool.address,
-        pool,
-        getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
-      )
+      await deployAssetV2(assetInfo, pool.address, pool, getAssetDeploymentName(poolName, assetInfo.tokenSymbol))
     }
 
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed

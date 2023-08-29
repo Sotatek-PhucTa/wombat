@@ -159,14 +159,12 @@ export async function deployBasePool(
  * deploy asset with the new config interface `IAssetInfo`
  */
 export async function deployAssetV2(
-  network: string,
-  deployer: string,
-  multisig: string,
   assetInfo: IAssetInfo,
   poolAddress: string,
   pool: Contract,
   deploymentName: string
 ): Promise<DeploymentResult> {
+  const { deployer, multisig } = await getNamedAccounts()
   const { deploy } = deployments
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
@@ -242,7 +240,7 @@ export async function deployAssetV2(
     // transfer asset LP token contract ownership to Gnosis Safe
     // The owner of the asset contract can change our pool address and change asset max supply
     // Transfer ownership to timelock controller if it is deployed; otherwise, multisig.
-    const owner = await getProxyAdminOwner()
+    const owner = multisig
     deployments.log(`Transferring ownership of asset ${asset.address} to ${owner}...`)
     await confirmTxn(asset.connect(deployerSigner).transferOwnership(owner))
     deployments.log(`Transferred ownership of asset ${asset.address} to ${owner}...`)
