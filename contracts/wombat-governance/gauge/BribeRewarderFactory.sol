@@ -40,6 +40,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
     );
     event SetRewarderContract(IAsset _lpToken, address rewarder);
     event SetRewarderBeacon(IBeacon beacon);
+    event SetRewarderDeployer(IAsset token, address deployer);
     event DeployBribeContract(
         IAsset _lpToken,
         uint256 _startTimestamp,
@@ -49,6 +50,8 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
     );
     event SetBribeContract(IAsset _lpToken, address bribe);
     event SetBribeBeacon(IBeacon beacon);
+    event SetBribeDeployer(IAsset token, address deployer);
+    event WhitelistRewardTokenUpdated(IERC20 token, bool isAdded);
 
     function initialize(
         IBeacon _rewarderBeacon,
@@ -195,20 +198,24 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
     function setRewarderDeployer(IAsset _token, address _deployer) external onlyOwner {
         require(rewarderDeployers[_token] != _deployer, 'already set as deployer');
         rewarderDeployers[_token] = _deployer;
+        emit SetRewarderDeployer(_token, _deployer);
     }
 
     function setBribeDeployer(IAsset _token, address _deployer) external onlyOwner {
         require(bribeDeployers[_token] != _deployer, 'already set as deployer');
         bribeDeployers[_token] = _deployer;
+        emit SetBribeDeployer(_token, _deployer);
     }
 
     function whitelistRewardToken(IERC20 _token) external onlyOwner {
         require(!isRewardTokenWhitelisted(_token), 'already whitelisted');
         whitelistedRewardTokens.add(address(_token));
+        emit WhitelistRewardTokenUpdated(_token, true);
     }
 
     function revokeRewardToken(IERC20 _token) external onlyOwner {
         require(isRewardTokenWhitelisted(_token), 'reward token is not whitelisted');
         whitelistedRewardTokens.remove(address(_token));
+        emit WhitelistRewardTokenUpdated(_token, false);
     }
 }

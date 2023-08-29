@@ -220,13 +220,24 @@ describe('BoostedMasterWombat', async function () {
 
       expect(await this.lp.balanceOf(users[1].address)).to.equal(parseEther('900'))
 
-      await mw.connect(users[1]).emergencyWithdraw(0)
+      expect(await mw.connect(users[1]).emergencyWithdraw(0))
+        .to.emit(mw, 'EmergencyWithdraw')
+        .withArgs(users[1].address, 0, parseEther('100'))
 
       expect(await this.lp.balanceOf(users[1].address)).to.equal(parseEther('1000'))
     })
 
     it('emergency withdraw', async function () {
       // TODO: implement
+    })
+
+    it('should emit event when bribeRewarderFactory is set', async function () {
+      const BribeRewarderFactory = await ethers.getContractFactory('BribeRewarderFactory')
+      const bribeRewarderFactory = await BribeRewarderFactory.deploy()
+
+      expect(await mw.setBribeRewarderFactory(bribeRewarderFactory.address))
+        .to.emit(mw, 'SetBribeRewarderFactory')
+        .withArgs(bribeRewarderFactory.address)
     })
   })
 
@@ -1284,6 +1295,13 @@ describe('BoostedMasterWombat', async function () {
 
     it('should revert if newMasterWombat not set', async function () {
       await expect(mw.connect(users[1]).migrate([1, 0])).to.be.revertedWith('to where?')
+    })
+
+    it('should emit event when newMasterWombat is set', async function () {
+      const newMW = await MasterWombat.deploy()
+      expect(await mw.setNewMasterWombat(newMW.address))
+        .to.emit(mw, 'SetNewMasterWombat')
+        .withArgs(newMW.address)
     })
 
     async function setUpNewMasterWombat(oldMW: Contract, newMW: Contract, voter: Contract) {

@@ -107,6 +107,8 @@ contract BoostedMasterWombat is
     IBribeRewarderFactory public bribeRewarderFactory;
 
     event Add(uint256 indexed pid, IERC20 indexed lpToken, IBoostedMultiRewarder boostedRewarder);
+    event SetNewMasterWombat(IMasterWombatV3 masterWormbat);
+    event SetBribeRewarderFactory(IBribeRewarderFactory bribeRewarderFactory);
     event SetRewarder(uint256 indexed pid, IMultiRewarder rewarder);
     event SetBoostedRewarder(uint256 indexed pid, IBoostedMultiRewarder boostedRewarder);
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -161,10 +163,12 @@ contract BoostedMasterWombat is
 
     function setNewMasterWombat(IMasterWombatV3 _newMasterWombat) external onlyOwner {
         newMasterWombat = _newMasterWombat;
+        emit SetNewMasterWombat(_newMasterWombat);
     }
 
     function setBribeRewarderFactory(IBribeRewarderFactory _bribeRewarderFactory) external onlyOwner {
         bribeRewarderFactory = _bribeRewarderFactory;
+        emit SetBribeRewarderFactory(_bribeRewarderFactory);
     }
 
     /// @notice Add a new lp to the pool. Can only be called by the owner.
@@ -510,7 +514,8 @@ contract BoostedMasterWombat is
         }
 
         // safe transfer is not needed for Asset
-        pool.lpToken.transfer(address(msg.sender), user.amount);
+        uint256 oldUserAmount = user.amount;
+        pool.lpToken.transfer(address(msg.sender), oldUserAmount);
 
         pool.sumOfFactors = pool.sumOfFactors - user.factor;
 
@@ -518,7 +523,7 @@ contract BoostedMasterWombat is
         user.factor = 0;
         user.rewardDebt = 0;
 
-        emit EmergencyWithdraw(msg.sender, _pid, user.amount);
+        emit EmergencyWithdraw(msg.sender, _pid, oldUserAmount);
     }
 
     /// @notice updates emission partition

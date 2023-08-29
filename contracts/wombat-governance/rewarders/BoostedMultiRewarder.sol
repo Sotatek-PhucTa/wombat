@@ -124,6 +124,7 @@ contract BoostedMultiRewarder is
     event OnReward(address indexed rewardToken, address indexed user, uint256 amount);
     event RewardRateUpdated(address indexed rewardToken, uint256 oldRate, uint256 newRate);
     event StartTimeUpdated(address indexed rewardToken, uint40 newStartTime);
+    event IsDeprecatedUpdated(bool isDeprecated);
 
     modifier onlyMasterWombat() {
         require(
@@ -189,6 +190,7 @@ contract BoostedMultiRewarder is
 
     function setIsDeprecated(bool _isDeprecated) external onlyOwner {
         isDeprecated = _isDeprecated;
+        emit IsDeprecatedUpdated(_isDeprecated);
     }
 
     function addRewardToken(IERC20 _rewardToken, uint40 _startTimestampOrNow, uint96 _tokenPerSec) external override {

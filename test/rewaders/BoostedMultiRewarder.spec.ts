@@ -323,6 +323,17 @@ describe('BoostedMultiRewarder', function () {
     expect(await USDC.balanceOf(user1.address)).to.be.closeTo(parseUSDC('3600'), parseUSDC('10'))
   })
 
+  it('should emit event when setIsDeprecated', async function () {
+    const rewarder = await deployRewarder({
+      rewardToken: USDC.address,
+      tokenPerSec: parseUSDC('1'),
+      lpToken: DAI.address,
+    })
+    expect(await rewarder.setIsDeprecated(true))
+      .to.emit(rewarder, 'IsDeprecatedUpdated')
+      .withArgs(true)
+  })
+
   describe('Emission', function () {
     let rewarder: BoostedMultiRewarder
 

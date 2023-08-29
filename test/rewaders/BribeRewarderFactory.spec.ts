@@ -306,6 +306,28 @@ describe('BribeRewarderFactory', async function () {
       expect(info.rewardToken).to.equal(token1.address)
     })
 
+    it('should emit event when rewarderDeployer is set', async function () {
+      expect(await bribeRewarderFactory.setRewarderDeployer(lpToken1.address, owner.address))
+        .to.emit(bribeRewarderFactory, 'SetRewarderDeployer')
+        .withArgs(lpToken1.address, owner.address)
+    })
+
+    it('should emit event when bribeDeployer is set', async function () {
+      expect(await bribeRewarderFactory.setBribeDeployer(lpToken1.address, owner.address))
+        .to.emit(bribeRewarderFactory, 'SetBribeDeployer')
+        .withArgs(lpToken1.address, owner.address)
+    })
+
+    it('should emit event when change whitelistRewardToken', async function () {
+      expect(await bribeRewarderFactory.whitelistRewardToken(token1.address))
+        .to.emit(bribeRewarderFactory, 'WhitelistRewardTokenUpdated')
+        .withArgs(token1.address, true)
+
+      expect(await bribeRewarderFactory.revokeRewardToken(token1.address))
+        .to.emit(bribeRewarderFactory, 'WhitelistRewardTokenUpdated')
+        .withArgs(token1.address, false)
+    })
+
     it('upgrade', async function () {
       const newBribeImpl = (await ethers.deployContract('BribeV2')) as BribeV2
       await bribeBeacon.upgradeTo(newBribeImpl.address)
