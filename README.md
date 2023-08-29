@@ -356,6 +356,13 @@ To verify proxy contracts:
 - Voter Proxy => `0x3f90a5a47364c0467031fB00246192d40E3D2D9D`
 - Whitelist => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
 
+#### Cross chain pool
+- CoreV3 => `0xae5E8171707d1eF76208700555a32F572A5ECBdC`
+- CrossChainPool_Stablecoin_Pool_Proxy => `0xe78876C360716f2225F55A6726B32324FE1B1145`
+- WormholeAdaptor_Stablecoin_Pool_Proxy => `0xdAA1918e5C8Ed59C9889adb171F0ef7a09170211`
+- Asset_Stablecoin_Pool_USDC => `0x9121af8B7Bbdd76dc6f67051c417D007483C6BE2`
+- Asset_Stablecoin_Pool_USDT => `0x9a24055aF7dc84df05906aCfbf5DE694cd3e975D`
+
 #### Main Pool
 
 - Pool Proxy (HighCovRatioFeePoolV2) => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
