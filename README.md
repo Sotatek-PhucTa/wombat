@@ -79,6 +79,13 @@ To verify proxy contracts:
 
 - WombatRouter => `0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7`
 
+#### Cross chain pool
+- CoreV3 => `0x2FFf8596A090345784770789414387857F90eCc0`
+- CrossChainPool_Stablecoin_Pool_Proxy => `0x1ee15673e07105Bcf360139fa8CafeBDd7754BeF`
+- WormholeAdaptor_Stablecoin_Pool_Proxy => `0x191601af39927bA165BF89B238BFbF615bAd205B`
+- Asset_Stablecoin_Pool_USDC => `0xD55d010C647104E26e86D0cdd62dEB48D487a521`
+- Asset_Stablecoin_Pool_USDT => `0x93012ad2367E247ca4275270CfC0BbCbf098ABBC`
+
 #### Wombat Main Pool
 
 - Pool Proxy (Main entry) => `0x312Bc7eAAF93f1C60Dc5AfC115FcCDE161055fb0`
