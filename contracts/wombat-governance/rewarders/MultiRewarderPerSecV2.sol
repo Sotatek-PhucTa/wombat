@@ -36,6 +36,7 @@ contract MultiRewarderPerSecV2 is
 
     bytes32 public constant ROLE_OPERATOR = keccak256('operator');
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
+    uint256 public constant MAX_REWARD_TOKENS = 10;
 
     struct UserBalanceInfo {
         uint256 amount;
@@ -203,6 +204,7 @@ contract MultiRewarderPerSecV2 is
         );
         require(_startTimestampOrNow == 0 || _startTimestampOrNow >= block.timestamp, 'invalid _startTimestamp');
         uint256 length = rewardInfos.length;
+        require(length < MAX_REWARD_TOKENS, 'reward token length exceeded');
         for (uint256 i; i < length; ++i) {
             require(rewardInfos[i].rewardToken != _rewardToken, 'token has already been added');
         }

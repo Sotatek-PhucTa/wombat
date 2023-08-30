@@ -38,6 +38,7 @@ contract BoostedMultiRewarder is
     uint256 public constant ACC_TOKEN_PRECISION = 1e18;
     uint256 public constant TOTAL_PARTITION = 1000;
     uint256 public constant MAX_TOKEN_RATE = 10000e18;
+    uint256 public constant MAX_REWARD_TOKENS = 10;
 
     struct UserBalanceInfo {
         uint128 amount; // 20.18 fixed point.
@@ -211,6 +212,7 @@ contract BoostedMultiRewarder is
         );
         require(_startTimestampOrNow == 0 || _startTimestampOrNow >= block.timestamp, 'invalid _startTimestamp');
         uint256 length = rewardInfos.length;
+        require(length < MAX_REWARD_TOKENS, 'reward token length exceeded');
         for (uint256 i; i < length; ++i) {
             require(rewardInfos[i].rewardToken != _rewardToken, 'token has already been added');
         }
