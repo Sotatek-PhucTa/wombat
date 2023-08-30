@@ -16,7 +16,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   deployments.log(`Step 196. Deploying on: ${getCurrentNetwork()}...`)
 
-  const voter = await getDeployedContract('Voter')
+  const voterDeployment = await deployments.getOrNull('Voter')
   const mwAddr = await getAddress(Deployment('BoostedMasterWombat'))
 
   const rewarderBeaconAddr = await getAddress(Deployment('BoostedMultiRewarder_Beacon'))
@@ -34,7 +34,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
       execute: {
         init: {
           methodName: 'initialize',
-          args: [rewarderBeaconAddr, bribeBeaconAddr, mwAddr, voter.address],
+          args: [
+            rewarderBeaconAddr,
+            bribeBeaconAddr,
+            mwAddr,
+            voterDeployment ? voterDeployment.address : ethers.constants.AddressZero,
+          ],
         },
       },
     },
@@ -44,16 +49,21 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log('Contract address:', deployResult.address)
   deployments.log('Implementation address:', implAddr)
 
-  if (deployResult.newlyDeployed) {
-    deployments.log(`BribeRewarderFactory Deployment complete.`)
-    if (await isOwner(voter, deployer)) {
-      deployments.log(`Setting BribeRewarderFactory on Voter to ${deployResult.address}...`)
-      await confirmTxn(voter.connect(deployerSigner).setBribeFactory(deployResult.address))
-    } else {
-      deployments.log(
-        `Deployer is not owner of voter. Please propose multisig to setBribeFactory at ${deployResult.address}`
-      )
+  if (voterDeployment != undefined) {
+    if (deployResult.newlyDeployed) {
+      const voter = await ethers.getContractAt('Voter', voterDeployment.address)
+      deployments.log(`BribeRewarderFactory Deployment complete.`)
+      if (await isOwner(voter, deployer)) {
+        deployments.log(`Setting BribeRewarderFactory on Voter to ${deployResult.address}...`)
+        await confirmTxn(voter.connect(deployerSigner).setBribeFactory(deployResult.address))
+      } else {
+        deployments.log(
+          `Deployer is not owner of voter. Please propose multisig to setBribeFactory at ${deployResult.address}`
+        )
+      }
     }
+  } else {
+    deployments.log(`Please setBribeFactory after deploy Voter and setVoter at ${deployResult.address}`)
   }
 
   logVerifyCommand(deployResult)
@@ -61,4 +71,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['BoostedMasterWombat', 'BribeRewarderBeacon', 'Voter']
+deployFunc.dependencies = ['BoostedMasterWombat', 'BribeRewarderBeacon']

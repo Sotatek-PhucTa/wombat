@@ -52,6 +52,7 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
     event SetBribeBeacon(IBeacon beacon);
     event SetBribeDeployer(IAsset token, address deployer);
     event WhitelistRewardTokenUpdated(IERC20 token, bool isAdded);
+    event SetVoter(IVoter voter);
 
     function initialize(
         IBeacon _rewarderBeacon,
@@ -62,7 +63,6 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         require(Address.isContract(address(_rewarderBeacon)), 'initialize: _rewarderBeacon must be a valid contract');
         require(Address.isContract(address(_bribeBeacon)), 'initialize: _bribeBeacon must be a valid contract');
         require(Address.isContract(address(_masterWombat)), 'initialize: mw must be a valid contract');
-        require(Address.isContract(address(_voter)), 'initialize: voter must be a valid contract');
 
         rewarderBeacon = _rewarderBeacon;
         bribeBeacon = _bribeBeacon;
@@ -113,8 +113,10 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         IERC20 _rewardToken,
         uint96 _tokenPerSec
     ) internal returns (BoostedMultiRewarder rewarder) {
-        (, , , , , IGauge gaugeManager, ) = voter.infos(_lpToken);
-        require(address(gaugeManager) != address(0), 'gauge does not exist');
+        if (Address.isContract(address(voter))) {
+            (, , , , , IGauge gaugeManager, ) = voter.infos(_lpToken);
+            require(address(gaugeManager) != address(0), 'gauge does not exist');
+        }
         require(address(masterWombat.boostedRewarders(_pid)) == address(0), 'rewarder contract alrealdy exists');
 
         require(rewarderDeployers[_lpToken] == msg.sender, 'Not authurized.');
@@ -179,6 +181,13 @@ contract BribeRewarderFactory is IBribeRewarderFactory, Initializable, OwnableUp
         bribe.transferOwnership(owner());
 
         emit DeployBribeContract(_lpToken, _startTimestamp, _rewardToken, _tokenPerSec, address(bribe));
+    }
+
+    function setVoter(IVoter _voter) external onlyOwner {
+        require(Address.isContract(address(_voter)), 'invalid address');
+        voter = _voter;
+
+        emit SetVoter(_voter);
     }
 
     function setRewarderBeacon(IBeacon _rewarderBeacon) external onlyOwner {

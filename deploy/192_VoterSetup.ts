@@ -18,6 +18,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log(`Step 192. Deploying on: ${network}...`)
 
   const voter = await getDeployedContract('Voter')
+  const bribeRewarderFactory = await deployments.getOrNull('BribeRewarderFactory')
   const masterWombat = await getLatestMasterWombat()
   // In mainnet, we wait for 2 blocks for stabilization
   const blocksToConfirm = network != Network.BSC_MAINNET ? 1 : 2
@@ -44,6 +45,12 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
+  }
+
+  deployments.log('Set BribeFactory')
+  if (bribeRewarderFactory != undefined && bribeRewarderFactory.address !== (await voter.bribeFactory())) {
+    deployments.log(`set BribeFactory to ${bribeRewarderFactory.address}`)
+    await confirmTxn(voter.connect(owner).setBribeFactory(bribeRewarderFactory.address))
   }
 }
 
