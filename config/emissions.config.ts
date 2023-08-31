@@ -738,6 +738,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
       rewardTokens: [Token.FXS],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('25'))],
     }),
     ...createRewarderForDeployedAsset('Asset_qWOM_Pool_qWOM', {
       rewardTokens: [Token.QUO],
