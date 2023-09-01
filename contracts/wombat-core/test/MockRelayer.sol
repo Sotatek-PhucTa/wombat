@@ -70,6 +70,16 @@ contract MockRelayer {
         return targetAmount * gasMultiplier;
     }
 
+    function sendPayloadToEvm(
+        uint16 targetChain,
+        address targetAddress,
+        bytes memory payload,
+        uint256 receiverValue,
+        uint256 gasLimit,
+        uint16 refundChain,
+        address refundAddress
+    ) external payable returns (uint64 sequence) {}
+
     function toWormholeFormat(address addr) external pure returns (bytes32 whFormat) {}
 
     function fromWormholeFormat(bytes32 whFormatAddress) external pure returns (address addr) {}

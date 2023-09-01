@@ -23,7 +23,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     Network.HARDHAT,
   ].includes(getCurrentNetwork())
 
-  console.log('shouldDeployMockTokens', shouldDeployMockTokens, getMockTokens())
+  deployments.log('shouldDeployMockTokens', shouldDeployMockTokens, getMockTokens())
 
   if (shouldDeployMockTokens) {
     for (const mockTokenInfo of getMockTokens()) {

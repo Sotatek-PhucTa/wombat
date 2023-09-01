@@ -45,7 +45,9 @@ describe('BribeRewarderFactory', async function () {
       'BoostedMasterWombatSetup',
       'VeWom',
       'Voter',
+      'VoterSetup',
     ])
+    await deployments.fixture(['VoterSetup'], { keepExistingDeployments: true })
     ;[bribeRewarderFactory, mw, rewarderBeacon, bribeBeacon, voter, wom, veWom] = await Promise.all([
       getDeployedContract('BribeRewarderFactory'),
       getDeployedContract('BoostedMasterWombat'),

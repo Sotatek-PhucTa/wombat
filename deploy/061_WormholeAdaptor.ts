@@ -3,11 +3,12 @@ import { deployments, ethers, getNamedAccounts, network, upgrades } from 'hardha
 import { WormholeAdaptor } from '../build/typechain'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
 import { WORMHOLE_CONFIG_MAPS } from '../config/wormhole.config'
-import { getDeployedContract, logVerifyCommand } from '../utils'
+import { getAddress, getDeployedContract, logVerifyCommand } from '../utils'
 import { getPoolDeploymentName, getProxyAdminOwner } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 import { getCurrentNetwork } from '../types/network'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { Network } from '../types'
 
 const contractName = 'WormholeAdaptor'
 
@@ -27,8 +28,6 @@ const deployFunc = async function () {
     throw 'wormholeConfig is undefined'
   }
 
-  /// Deploy pools
-
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
   for (const poolName of Object.keys(CROSS_CHAIN_POOL_TOKENS)) {
     const poolContractName = getPoolDeploymentName(contractNamePrefix, poolName)
@@ -46,7 +45,11 @@ const deployFunc = async function () {
         execute: {
           init: {
             methodName: 'initialize',
-            args: [wormholeConfig.relayer, wormholeConfig.wormholeBridge, pool.address],
+            args: [
+              await getAddress(wormholeConfig.relayer),
+              await getAddress(wormholeConfig.wormholeBridge),
+              pool.address,
+            ],
           },
         },
       },
@@ -71,4 +74,4 @@ const deployFunc = async function () {
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['CrossChainPool']
+deployFunc.dependencies = ['MockWormhole', 'CrossChainPool']

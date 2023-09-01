@@ -14,40 +14,40 @@ export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = inj
 
   // mainnets
   [Network.BSC_MAINNET]: {
-    relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
-    wormholeBridge: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B',
+    relayer: Address('0x27428DD2d3DD32A4D7f7C497eAaa23130d894911'),
+    wormholeBridge: Address('0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B'),
   },
   [Network.ETHEREUM_MAINNET]: {
-    relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
-    wormholeBridge: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B',
+    relayer: Address('0x27428DD2d3DD32A4D7f7C497eAaa23130d894911'),
+    wormholeBridge: Address('0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B'),
   },
   [Network.ARBITRUM_MAINNET]: {
-    relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
-    wormholeBridge: '0xa5f208e072434bC67592E4C49C1B991BA79BCA46',
+    relayer: Address('0x27428DD2d3DD32A4D7f7C497eAaa23130d894911'),
+    wormholeBridge: Address('0xa5f208e072434bC67592E4C49C1B991BA79BCA46'),
   },
 
   // testnets
   [Network.BSC_TESTNET]: {
-    relayer: '0x80aC94316391752A193C1c47E27D382b507c93F3',
-    wormholeBridge: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
+    relayer: Address('0x80aC94316391752A193C1c47E27D382b507c93F3'),
+    wormholeBridge: Address('0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D'),
   },
   [Network.AVALANCHE_TESTNET]: {
-    relayer: '0xA3cF45939bD6260bcFe3D66bc73d60f19e49a8BB',
-    wormholeBridge: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
+    relayer: Address('0xA3cF45939bD6260bcFe3D66bc73d60f19e49a8BB'),
+    wormholeBridge: Address('0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C'),
   },
   [Network.POLYGON_TESTNET]: {
-    relayer: '0x0591C25ebd0580E0d4F27A82Fc2e24E7489CB5e0',
-    wormholeBridge: '0x0CBE91CF822c73C2315FB05100C2F714765d5c20',
+    relayer: Address('0x0591C25ebd0580E0d4F27A82Fc2e24E7489CB5e0'),
+    wormholeBridge: Address('0x0CBE91CF822c73C2315FB05100C2F714765d5c20'),
   },
 
   // devnet
   [Network.LOCALHOST]: {
-    relayer: '0x0000000000000000000000000000000000000000',
-    wormholeBridge: '0x0000000000000000000000000000000000000000',
+    relayer: Deployment('MockRelayer'),
+    wormholeBridge: Deployment('MockWormhole'),
   },
   [Network.HARDHAT]: {
-    relayer: '0x0000000000000000000000000000000000000000',
-    wormholeBridge: '0x0000000000000000000000000000000000000000',
+    relayer: Deployment('MockRelayer'),
+    wormholeBridge: Deployment('MockWormhole'),
   },
 })
 

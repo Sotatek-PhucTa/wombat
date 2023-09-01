@@ -50,15 +50,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log('Implementation address:', implAddr)
 
   if (voterDeployment != undefined) {
-    if (deployResult.newlyDeployed) {
-      const voter = await ethers.getContractAt('Voter', voterDeployment.address)
-      deployments.log(`BribeRewarderFactory Deployment complete.`)
-      if (await isOwner(voter, deployer)) {
-        deployments.log(`Setting BribeRewarderFactory on Voter to ${deployResult.address}...`)
-        await confirmTxn(voter.connect(deployerSigner).setBribeFactory(deployResult.address))
+    const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+    if ((await bribeRewarderFactory.voter()) != voterDeployment.address) {
+      if (await isOwner(bribeRewarderFactory, deployer)) {
+        deployments.log(`Setting Voter on BribeRewarderFactory to ${voterDeployment.address}...`)
+        await confirmTxn(bribeRewarderFactory.connect(deployerSigner).setVoter(voterDeployment.address))
       } else {
         deployments.log(
-          `Deployer is not owner of voter. Please propose multisig to setBribeFactory at ${deployResult.address}`
+          `Deployer is not owner of bribeRewarderFactory. Please propose multisig to setVoter at ${deployResult.address}`
         )
       }
     }
@@ -66,6 +65,9 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     deployments.log(`Please setBribeFactory after deploy Voter and setVoter at ${deployResult.address}`)
   }
 
+  if (deployResult.newlyDeployed) {
+    deployments.log(`BribeRewarderFactory Deployment complete.`)
+  }
   logVerifyCommand(deployResult)
 }
 

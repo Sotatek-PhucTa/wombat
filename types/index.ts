@@ -92,8 +92,8 @@ export interface IMockTokenInfo {
 }
 
 export interface IWormholeConfig {
-  relayer: string
-  wormholeBridge: string
+  relayer: DeploymentOrAddress
+  wormholeBridge: DeploymentOrAddress
 }
 
 export interface IWormholeAdaptorConfig {
