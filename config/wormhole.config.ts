@@ -94,6 +94,12 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
       tokens: [Token.USDC, Token.USDT, Token.axlUSDC],
     },
   },
+  [Network.SCROLL_TESTNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.POLYGON_TESTNET),
+      tokens: [Token.BUSD, Token.vUSDC],
+    },
+  },
   // Mainnet
   [Network.BSC_MAINNET]: {
     [CrossChainPoolType.stablecoin]: {

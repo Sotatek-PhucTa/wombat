@@ -82,6 +82,11 @@ const config: HardhatUserConfig = {
       url: secrets.alchemy_ethereum_url || 'https://eth.llamarpc.com',
       accounts: [secrets.deployer.privateKey],
     },
+    [Network.SCROLL_TESTNET]: {
+      chainId: 534351,
+      url: 'https://sepolia-rpc.scroll.io/',
+      accounts: [secrets.deployer.privateKey],
+    },
   },
   etherscan: {
     apiKey: {
@@ -96,9 +101,19 @@ const config: HardhatUserConfig = {
       arbitrumGoerli: secrets.arbiscan_api_key,
       optimisticEthereum: secrets.opt_etherscan_api_key,
       mainnet: secrets.etherscan_api_key,
+      scrollSepolia: 'abc',
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
-    customChains: [],
+    customChains: [
+      {
+        network: 'scrollSepolia',
+        chainId: 534351,
+        urls: {
+          apiURL: 'https://sepolia-blockscout.scroll.io/api',
+          browserURL: 'https://sepolia-blockscout.scroll.io/',
+        },
+      },
+    ],
   },
   gasReporter: {
     enabled: secrets.gas_breakdown_enabled,
@@ -159,6 +174,7 @@ const config: HardhatUserConfig = {
       [Network.BSC_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       [Network.POLYGON_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      [Network.SCROLL_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
     },
     multisig: {
       // No default to fail if used without initialization. Error singature: `Error: invalid address`.
@@ -166,6 +182,7 @@ const config: HardhatUserConfig = {
       [Network.LOCALHOST]: 'deployer',
       [Network.BSC_TESTNET]: 'deployer',
       [Network.AVALANCHE_TESTNET]: 'deployer',
+      [Network.SCROLL_TESTNET]: 'deployer',
       [Network.POLYGON_TESTNET]: 'deployer',
       [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe

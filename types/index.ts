@@ -18,6 +18,7 @@ export enum Network {
   OPTIMISM_MAINNET = 'opt_mainnet',
   OPTIMISM_TESTNET = 'opt_testnet',
   ETHEREUM_MAINNET = 'eth_mainnet',
+  SCROLL_TESTNET = 'scroll_testnet',
 }
 
 export interface DeploymentResult {

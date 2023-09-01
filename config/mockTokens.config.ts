@@ -50,6 +50,7 @@ const MOCK_TOKEN_MAP: Record<Network, TokenMap<IMockTokenInfo>> = {
     BUSD: { tokenName: 'Binance USD', tokenSymbol: 'BUSD', decimalForMockToken: 18 },
     vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', decimalForMockToken: 8 },
   },
+  [Network.SCROLL_TESTNET]: {},
   [Network.BSC_MAINNET]: {},
   [Network.POLYGON_MAINNET]: {},
   [Network.POLYGON_TESTNET]: {

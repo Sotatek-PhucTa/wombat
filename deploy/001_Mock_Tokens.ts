@@ -18,6 +18,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const shouldDeployMockTokens = [
     Network.AVALANCHE_TESTNET,
     Network.POLYGON_TESTNET,
+    Network.SCROLL_TESTNET,
     Network.BSC_TESTNET,
     Network.LOCALHOST,
     Network.HARDHAT,
