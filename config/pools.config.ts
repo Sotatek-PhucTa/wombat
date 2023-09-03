@@ -966,8 +966,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        ...UsdcAsset({ maxSupply: parseUnits('3000000', 18) }),
-        ...UsdtAsset({ maxSupply: parseUnits('3000000', 18) }),
+        ...UsdcAsset({ maxSupply: parseEther('3000000') }),
+        ...UsdtAsset({ maxSupply: parseEther('3000000') }),
       },
     },
   },
@@ -977,8 +977,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        ...UsdcAsset({ maxSupply: parseUnits('3000000', 6) }),
-        ...UsdtAsset({ maxSupply: parseUnits('3000000', 6) }),
+        ...UsdcAsset({ maxSupply: parseEther('3000000') }),
+        ...UsdtAsset({ maxSupply: parseEther('3000000') }),
       },
     },
   },
@@ -988,8 +988,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        ...UsdcAsset({ maxSupply: parseUnits('3000000', 6) }),
-        ...UsdtAsset({ maxSupply: parseUnits('3000000', 6) }),
+        ...UsdcAsset({ maxSupply: parseEther('3000000') }),
+        ...UsdtAsset({ maxSupply: parseEther('3000000') }),
       },
     },
   },
