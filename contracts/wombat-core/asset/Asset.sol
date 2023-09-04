@@ -35,7 +35,7 @@ contract Asset is Ownable, ERC20, ERC20Permit, IAsset {
     /// @dev 18.18 fixed point decimals
     uint120 public override liability;
 
-    /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. The unit is the same as the underlying token
+    /// @notice maxSupply the maximum amount of asset the pool is allowed to mint. 18 decimals
     /// @dev if 0, means asset has no max
     uint256 public maxSupply;
 
