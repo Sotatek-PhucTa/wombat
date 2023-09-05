@@ -328,16 +328,16 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_ETHx_Pool_WETH', {
       rewardTokens: [Token.SD, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('1293')),
-        convertTokenPerEpochToTokenPerSec(parseEther('18772')),
+        convertTokenPerEpochToTokenPerSec(parseEther('1300')),
+        convertTokenPerEpochToTokenPerSec(parseEther('37544')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_ETHx_Pool_ETHx', {
       rewardTokens: [Token.SD, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('1293')),
-        convertTokenPerEpochToTokenPerSec(parseEther('18772')),
+        convertTokenPerEpochToTokenPerSec(parseEther('1300')),
+        convertTokenPerEpochToTokenPerSec(parseEther('37544')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
