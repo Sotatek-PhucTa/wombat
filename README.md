@@ -536,6 +536,8 @@ To verify proxy contracts:
 - WormholeAdaptor_Stablecoin_Pool_Proxy => `0xACEB589012edbBEe4CE7b4E89B916700B43419CA`
 - Asset_Stablecoin_Pool_USDC => `0x6966553568634F4225330D559a8783DE7649C7D3`
 - Asset_Stablecoin_Pool_USDT => `0x752945079a0446AA7efB6e9E1789751cDD601c95`
+- MultiRewarderPerSec_V3_Asset_Stablecoin_Pool_USDC => `0x40841197A2ac1fb7d21d4eb9577e6529bd9892a1`
+- MultiRewarderPerSec_V3_Asset_Stablecoin_Pool_USDT => `0x08401FDb51D7C53e5A1Ee22186f030354B8880eD`
 
 #### FRAX Pool
 
