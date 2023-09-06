@@ -1,5 +1,5 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Contract } from 'ethers'
+import { BigNumberish, Contract, ContractReceipt } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import { deployments, ethers, getNamedAccounts, upgrades } from 'hardhat'
 import { getContractAddress, getContractAddressOrDefault } from '../config/contract'
@@ -17,6 +17,7 @@ import {
 } from '../utils'
 import assert from 'assert'
 import { DeployResult } from 'hardhat-deploy/types'
+import { BribeRewarderFactory } from '../build/typechain'
 
 export async function deployTestAsset(tokenSymbol: string) {
   const erc20 = await getTestERC20(tokenSymbol)
@@ -376,6 +377,23 @@ export async function deployRewarderOrBribe(
   }
 
   return deployResult
+}
+
+export async function deployBoostedRewarderUsingFactory(
+  factory: BribeRewarderFactory,
+  signer: SignerWithAddress,
+  assetAddr: string,
+  rewardAddr: string,
+  startTime: BigNumberish,
+  tokenPerSec: BigNumberish
+): Promise<string> {
+  const receipt = (await confirmTxn(
+    factory.connect(signer).deployRewarderContractAndSetRewarder(assetAddr, startTime, rewardAddr, tokenPerSec)
+  )) as ContractReceipt
+  assert(receipt.events, 'Events not exist')
+  const event = receipt.events.find((e: any) => e.event === 'DeployRewarderContract')
+  assert(event, 'Cannot find DeployRewarderContract event')
+  return event.args?.rewarder
 }
 
 export async function deployUpgradeableBeacon(contractName: string) {

@@ -2,7 +2,7 @@ import { ethers, upgrades } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getCurrentNetwork } from '../types/network'
-import { confirmTxn, getAddress, getDeployedContract, isOwner, logVerifyCommand } from '../utils'
+import { confirmTxn, getAddress, getDeployedContract, getLatestMasterWombat, isOwner, logVerifyCommand } from '../utils'
 import { Deployment } from '../types'
 import { getProxyAdminOwner } from '../utils/deploy'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -17,7 +17,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   deployments.log(`Step 196. Deploying on: ${getCurrentNetwork()}...`)
 
   const voterDeployment = await deployments.getOrNull('Voter')
-  const mwAddr = await getAddress(Deployment('BoostedMasterWombat'))
+  const mw = await getLatestMasterWombat()
 
   const rewarderBeaconAddr = await getAddress(Deployment('BoostedMultiRewarder_Beacon'))
   const bribeBeaconAddr = await getAddress(Deployment('BribeV2_Beacon'))
@@ -37,7 +37,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
           args: [
             rewarderBeaconAddr,
             bribeBeaconAddr,
-            mwAddr,
+            mw.address,
             voterDeployment ? voterDeployment.address : ethers.constants.AddressZero,
           ],
         },
@@ -73,4 +73,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['BoostedMasterWombat', 'BribeRewarderBeacon']
+deployFunc.dependencies = ['BribeRewarderBeacon']

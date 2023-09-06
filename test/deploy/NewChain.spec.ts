@@ -5,6 +5,8 @@ import { parseEther } from 'ethers/lib/utils'
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { confirmTxn, getDeployedContract, isForkedNetwork } from '../../utils'
 import { latest } from '../helpers'
+import { deployBoostedRewarderUsingFactory } from '../../utils/deploy'
+import { BribeRewarderFactory } from '../../build/typechain'
 
 describe('New chain', function () {
   let multisig: SignerWithAddress
@@ -109,21 +111,14 @@ describe('New chain', function () {
         await bribeRewarderFactory.connect(multisig).setRewarderDeployer(busdAsset.address, project.address)
         await bribeRewarderFactory.connect(multisig).whitelistRewardToken(vusdc.address)
 
-        const receipt = (await confirmTxn(
-          bribeRewarderFactory
-            .connect(project)
-            .deployRewarderContractAndSetRewarder(
-              busdAsset.address,
-              (await latest()).add(1),
-              vusdc.address,
-              parseEther('1')
-            )
-        )) as ContractReceipt
-
-        assert(receipt.events)
-        const event = receipt.events.find((e: any) => e.event === 'DeployRewarderContract')
-        assert(event)
-        const rewarderAddr = event.args?.rewarder
+        const rewarderAddr = await deployBoostedRewarderUsingFactory(
+          bribeRewarderFactory as BribeRewarderFactory,
+          project,
+          busdAsset.address,
+          vusdc.address,
+          (await latest()).add(1),
+          parseEther('1')
+        )
         const rewarder = await ethers.getContractAt('BoostedMultiRewarder', rewarderAddr)
         expect(await rewarder.owner()).to.eq(multisig.address)
       })

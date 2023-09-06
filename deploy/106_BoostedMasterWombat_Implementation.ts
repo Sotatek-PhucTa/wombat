@@ -1,7 +1,7 @@
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getCurrentNetwork } from '../types/network'
-import { deployments, getNamedAccounts } from 'hardhat'
+import { getNamedAccounts } from 'hardhat'
 import { logVerifyCommand } from '../utils'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -23,6 +23,3 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
 export default deployFunc
 deployFunc.tags = ['BoostedMasterWombat_Implementation']
-deployFunc.skip = async () => {
-  return (await deployments.getOrNull('BoostedMasterWombat_Implementation')) !== null
-}
