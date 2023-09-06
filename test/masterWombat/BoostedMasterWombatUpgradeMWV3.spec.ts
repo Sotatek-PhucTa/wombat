@@ -58,7 +58,7 @@ describe('BoostedMasterWombat upgrade from MasterWombatV3', function () {
       'HighCovRatioFeePool',
       'HighCovRatioFeePoolAssets',
       'CrossChainPoolAssets',
-      'MasterWombatV3Setup',
+      'BoostedMasterWombatSetup',
       'MultiRewarderPerSec',
       'MultiRewarderSetup',
       'MockTokens',

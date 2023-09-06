@@ -15,7 +15,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployer } = await getNamedAccounts()
   const owner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
-  deployments.log(`Step 192. Deploying on: ${network}...`)
+  deployments.log(`Step 199. Deploying on: ${network}...`)
 
   const voter = await getDeployedContract('Voter')
   const bribeRewarderFactory = await deployments.getOrNull('BribeRewarderFactory')
