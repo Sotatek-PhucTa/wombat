@@ -269,6 +269,7 @@ async function hasActiveRewards(rewarderOrBribe: Contract): Promise<boolean> {
  * @param {string} rewarderOrBribeDeployment - The address of the rewarder or bribe deployment.
  * @param {Token} token - The token object containing information about the token to be used.
  * @param {BigNumberish} [epochAmount] - (Optional) The amount of token to be used for the epoch. Leave it empty if the rate is not changing.
+ * @todo updating epochAmount should also update emissions.config.ts
  */
 export async function topUpRewarder(
   rewarderOrBribeDeployment: string,
@@ -304,6 +305,10 @@ export async function topUpRewarder(
     txns.push(Safe(rewarder).addRewardToken(tokenAddress, newTokenRate))
     return txns
   }
+}
+
+export function topUpMultipleEpochs(contractName: string, token: Token, epochs: number, epochAmount?: BigNumberish) {
+  return Array.from({ length: epochs }).map(() => topUpRewarder(contractName, token, epochAmount))
 }
 
 // addRewardToken to a bribe or rewarder

@@ -9,7 +9,7 @@ runScript('UpdatePoolHaircuteRate', async () => {
 
   if (network == Network.BSC_MAINNET || network == Network.ARBITRUM_MAINNET) {
     return multisig.utils.updatePoolsHaircutRate(
-      ['MainPool'],
+      ['HAY_Pool'],
       FACTORYPOOL_TOKENS_MAP[network] as NetworkPoolInfo<IPoolConfig>
     )
   } else {

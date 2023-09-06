@@ -216,6 +216,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     HAY_Pool: {
       setting: {
         ...defaultFactoryPoolConfig(),
+        haircut: parseEther('0.00002'), // 0.002%
         deploymentNamePrefix: '',
       },
       assets: {
