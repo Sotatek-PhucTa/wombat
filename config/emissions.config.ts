@@ -401,6 +401,16 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('7039'))],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
+    ...createRewarderForDeployedAsset('Asset_Stablecoin_Pool_USDC', {
+      rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('5833'))],
+      startTimestamp: Epochs.Sep6,
+    }),
+    ...createRewarderForDeployedAsset('Asset_Stablecoin_Pool_USDT', {
+      rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('5833'))],
+      startTimestamp: Epochs.Sep6,
+    }),
   },
 }
 
