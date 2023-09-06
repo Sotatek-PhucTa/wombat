@@ -1,5 +1,12 @@
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
-import { concatAll, getAddress, getDeployedContract, impersonateAsMultisig, isForkedNetwork } from '..'
+import {
+  concatAll,
+  getAddress,
+  getDeployedContract,
+  getLatestMasterWombat,
+  impersonateAsMultisig,
+  isForkedNetwork,
+} from '..'
 import {
   getBribeDeploymentName,
   getProxyName,
@@ -47,7 +54,7 @@ export async function addAssetToMasterWombatAndVoter(
   const lpToken = await getDeployedContract('Asset', assetDeployment)
   const rewarder = await deployments.getOrNull(getRewarderDeploymentName(assetDeployment))
   const bribe = await deployments.getOrNull(getBribeDeploymentName(assetDeployment))
-  const masterWombat = await getDeployedContract('MasterWombatV3')
+  const masterWombat = await getLatestMasterWombat()
   const voter = await getDeployedContract('Voter')
 
   return [
@@ -61,7 +68,7 @@ export async function addAssetToMasterWombatAndVoter(
 export async function addAssetToMasterWombat(assetDeployment: string): Promise<BatchTransaction[]> {
   const lpToken = await getDeployedContract('Asset', assetDeployment)
   const rewarder = await deployments.getOrNull(getRewarderDeploymentName(assetDeployment))
-  const masterWombat = await getDeployedContract('MasterWombatV3')
+  const masterWombat = await getLatestMasterWombat()
   return [Safe(masterWombat).add(lpToken.address, rewarder?.address || ethers.constants.AddressZero)]
 }
 
@@ -230,7 +237,7 @@ export async function setBribe(bribeDeployment: string): Promise<BatchTransactio
 // Requires: no existing rewarder or it has no active emission
 export async function setRewarder(rewarderDeployment: string): Promise<BatchTransaction[]> {
   const rewarder = await getDeployedContract('MultiRewarderPerSec', rewarderDeployment)
-  const masterWombat = await getDeployedContract('MasterWombatV3')
+  const masterWombat = await getLatestMasterWombat()
   const master = await rewarder.master()
   assert(
     masterWombat.address == master,

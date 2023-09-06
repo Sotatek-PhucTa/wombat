@@ -1,13 +1,13 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Contract } from 'ethers'
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
 import { IPoolConfig, Network, NetworkPoolInfo } from '../types'
 import { confirmTxn, getLatestMasterWombat } from '../utils'
-import { getAssetDeploymentName } from '../utils/deploy'
 import { getCurrentNetwork } from '../types/network'
+import { Contract } from 'ethers'
+import { getAssetDeploymentName } from '../utils/deploy'
+import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const network: Network = getCurrentNetwork()
@@ -19,6 +19,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const masterWombat = await getLatestMasterWombat()
   const vewom = await deployments.getOrNull('VeWom')
   const voter = await deployments.getOrNull('Voter')
+  const bribeRewarderFactory = await deployments.getOrNull('BribeRewarderFactory')
   if (vewom != undefined && vewom != (await masterWombat.veWom())) {
     deployments.log(`set vewom to ${vewom.address}`)
     await confirmTxn(masterWombat.connect(owner).setVeWom(vewom.address))
@@ -26,6 +27,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   if (voter != undefined && voter != (await masterWombat.voter())) {
     deployments.log(`set voter to ${voter.address}`)
     await confirmTxn(masterWombat.connect(owner).setVoter(voter.address))
+  }
+  if (
+    bribeRewarderFactory != undefined &&
+    masterWombat.bribeRewarderFactory &&
+    bribeRewarderFactory != (await masterWombat.bribeRewarderFactory())
+  ) {
+    deployments.log(`set bribeRewarderFactory to ${bribeRewarderFactory.address}`)
+    await confirmTxn(masterWombat.connect(owner).setBribeRewarderFactory(bribeRewarderFactory.address))
   }
 
   deployments.log('Setting up dynamic pool')
@@ -72,4 +81,4 @@ async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetA
 
 export default deployFunc
 deployFunc.dependencies = ['MasterWombatV3']
-deployFunc.tags = ['MasterWombatV3Setup']
+deployFunc.tags = ['BoostedMasterWombatSetup']

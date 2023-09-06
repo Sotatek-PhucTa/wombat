@@ -113,10 +113,11 @@ export async function deployBasePool(
   deployments.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
-    const masterWombatV3Deployment = await deployments.getOrNull('MasterWombatV3')
-    if (masterWombatV3Deployment?.address) {
-      deployments.log('Setting master wombat: ', masterWombatV3Deployment.address)
-      await confirmTxn(pool.connect(deployerSigner).setMasterWombat(masterWombatV3Deployment.address))
+    const masterWombatDeployment =
+      (await deployments.getOrNull('BoostedMasterWombat')) || (await deployments.getOrNull('MasterWombatV3'))
+    if (masterWombatDeployment?.address) {
+      deployments.log('Setting master wombat: ', masterWombatDeployment.address)
+      await confirmTxn(pool.connect(deployerSigner).setMasterWombat(masterWombatDeployment.address))
     } else {
       deployments.log('MasterWombatV3 is not deployed yet.')
     }

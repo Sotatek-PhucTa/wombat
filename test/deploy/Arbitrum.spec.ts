@@ -22,7 +22,7 @@ describe('Arbitrum', function () {
       'HighCovRatioFeePoolAssets',
       'CrossChainPoolAssets',
       'MasterWombatV3',
-      'MasterWombatV3Setup',
+      'BoostedMasterWombatSetup',
       'MockTokens',
       'VeWom',
       'VeWomSetup',

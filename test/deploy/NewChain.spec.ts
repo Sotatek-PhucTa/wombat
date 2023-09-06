@@ -42,8 +42,8 @@ describe('New chain', function () {
       'BribeRewarderFactory',
       'VeWomSetup',
       'MasterWombatV3Setup',
-      'BoostedMasterWombatSetup',
     ])
+    await deployments.fixture(['BoostedMasterWombatSetup'], { keepExistingDeployments: true })
     ;[masterWombat, vewom, busd, vusdc, busdAsset, wom, pool, bribeRewarderFactory] = await Promise.all([
       getDeployedContract('BoostedMasterWombat'),
       getDeployedContract('VeWom'),
