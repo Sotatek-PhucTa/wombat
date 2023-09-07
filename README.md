@@ -361,6 +361,11 @@ To verify proxy contracts:
 - Voter Proxy => `0x3f90a5a47364c0467031fB00246192d40E3D2D9D`
 - Whitelist => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
 
+##### Self-service bribe
+- BoostedMultiRewarder_Beacon => `0xDD29e68812e1eF24241364E0C0c6629DA8E0cBAb`
+- BribeV2_Beacon => `0xb5952Ab8CA99EC89a16bD45b28E36CdeE2681260`
+- BribeRewarderFactory_Proxy => `0x97E4F52531C9d8E984e4D7935410E576e791D81f`
+
 #### Cross chain pool
 - CoreV3 => `0xae5E8171707d1eF76208700555a32F572A5ECBdC`
 - CrossChainPool_Stablecoin_Pool_Proxy => `0xe78876C360716f2225F55A6726B32324FE1B1145`
