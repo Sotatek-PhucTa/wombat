@@ -204,8 +204,10 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
     SidePool_01: {
+      // Smart HAY pool
       setting: {
         ...defaultFactoryPoolConfig(),
+        haircut: parseEther('0.00002'), // 0.002%
         deploymentNamePrefix: '',
       },
       assets: {
@@ -214,9 +216,9 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
     HAY_Pool: {
+      // deprecated
       setting: {
         ...defaultFactoryPoolConfig(),
-        haircut: parseEther('0.00002'), // 0.002%
         deploymentNamePrefix: '',
       },
       assets: {

@@ -7,9 +7,9 @@ import { FACTORYPOOL_TOKENS_MAP } from '../../config/pools.config'
 runScript('UpdatePoolHaircuteRate', async () => {
   const network = getCurrentNetwork()
 
-  if (network == Network.BSC_MAINNET || network == Network.ARBITRUM_MAINNET) {
+  if (network == Network.BSC_MAINNET) {
     return multisig.utils.updatePoolsHaircutRate(
-      ['HAY_Pool'],
+      ['SidePool_01'],
       FACTORYPOOL_TOKENS_MAP[network] as NetworkPoolInfo<IPoolConfig>
     )
   } else {
