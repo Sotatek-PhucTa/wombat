@@ -69,6 +69,11 @@ To verify proxy contracts:
 - Whitelist => `0xD61C53dcd6F3b4258E28c7Eb1C328789fa71B591`
 - TimelockController => `0x9f3F1e89831391214fAA57ee7e27667156140655`
 
+##### Self-service bribe
+- BribeRewarderFactory_Proxy => `0xF53811d69E1581425a28317eE773A82E6D4dAbDB`
+- BoostedMultiRewarder_Beacon => `0x7e10Ff4D0e6f20a054f516A72eC0dc4833a2FEFf`
+- BribeV2_Beacon => `0xdeA1586593aEc0231dD1476fbf3641a4d6900ada`
+
 #### Wombat Token
 
 - WOM (BEP20) => `0xAD6742A35fB341A9Cc6ad674738Dd8da98b94Fb1`
