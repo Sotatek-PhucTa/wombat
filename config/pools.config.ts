@@ -161,6 +161,14 @@ const defaultCrossChainPoolConfig: ICrossChainPoolConfig = {
   swapTokensForCreditEnabled: true,
 }
 
+function disableCrossChainSwap(config: ICrossChainPoolConfig): ICrossChainPoolConfig {
+  return {
+    ...config,
+    swapCreditForTokensEnabled: false,
+    swapTokensForCreditEnabled: false,
+  }
+}
+
 // @deprecated: Please expose the value type directly using getCurrentNetwork().
 // inject forkNetwork to hardhat and localhost
 export function injectForkNetwork<T>(config: PartialRecord<Network, T>): PartialRecord<Network, T> {
@@ -993,6 +1001,42 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdcAsset({ maxSupply: parseEther('3000000') }),
         ...UsdtAsset({ maxSupply: parseEther('3000000') }),
+      },
+    },
+  },
+  [Network.OPTIMISM_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
+      assets: {
+        ...UsdcAsset({ maxSupply: parseEther('100000') }),
+        ...UsdtAsset({ maxSupply: parseEther('100000') }),
+      },
+    },
+  },
+  [Network.BASE_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
+      assets: {
+        ...UsdcAsset({ maxSupply: parseEther('100000') }),
+        ...UsdtAsset({ maxSupply: parseEther('100000') }),
+      },
+    },
+  },
+  [Network.POLYGON_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
+      assets: {
+        ...UsdcAsset({ maxSupply: parseEther('100000') }),
+        ...UsdtAsset({ maxSupply: parseEther('100000') }),
+      },
+    },
+  },
+  [Network.AVALANCHE_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
+      assets: {
+        ...UsdcAsset({ maxSupply: parseEther('100000') }),
+        ...UsdtAsset({ maxSupply: parseEther('100000') }),
       },
     },
   },

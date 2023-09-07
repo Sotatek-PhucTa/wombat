@@ -56,10 +56,7 @@ describe('New chain', function () {
       getDeployedContract('BribeRewarderFactory'),
     ])
 
-    // Workaround because the BoostedMasterWombat run after CrossChainPool
-    // There is no MW to set when CCP newly deployed
     await vewom.connect(multisig).pause()
-    await pool.connect(multisig).setMasterWombat(masterWombat.address)
     await wom.connect(multisig).transfer(user.address, parseEther('1000'))
     await busd.connect(user).faucet(parseEther('1000'))
     await vusdc.connect(user).faucet(parseEther('1000'))

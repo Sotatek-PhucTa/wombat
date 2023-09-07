@@ -46,10 +46,12 @@ export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Prom
       return deploymentOrAddress.address
     }
     case 'deployment': {
-      const network = deploymentOrAddress.network ?? getCurrentNetwork()
-      const deploymentName = [Network.HARDHAT, Network.LOCALHOST].includes(network)
-        ? deploymentOrAddress.deployment // deployments.fixture does not have network prefix
-        : path.join(network, deploymentOrAddress.deployment)
+      const currentNetwork = getCurrentNetwork()
+      const network = deploymentOrAddress.network ?? currentNetwork
+      const deploymentName =
+        [Network.HARDHAT, Network.LOCALHOST].includes(network) || network == currentNetwork
+          ? deploymentOrAddress.deployment // deployments.fixture does not have network prefix
+          : path.join(network, deploymentOrAddress.deployment)
       const deployment = await deployments.get(deploymentName)
       return deployment.address
     }

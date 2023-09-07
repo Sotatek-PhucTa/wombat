@@ -12,7 +12,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments, upgrades, getNamedAccounts } = hre
   const { deployer } = await getNamedAccounts()
 
-  deployments.log(`Step 105. Deploying on: ${getCurrentNetwork()}...`)
+  deployments.log(`Step 011. Deploying on: ${getCurrentNetwork()}...`)
 
   const womAddr = await getTokenAddress(Token.WOM)
 

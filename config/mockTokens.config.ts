@@ -63,4 +63,5 @@ const MOCK_TOKEN_MAP: Record<Network, TokenMap<IMockTokenInfo>> = {
   [Network.OPTIMISM_MAINNET]: {},
   [Network.OPTIMISM_TESTNET]: {},
   [Network.ETHEREUM_MAINNET]: {},
+  [Network.AVALANCHE_MAINNET]: {},
 }

@@ -26,7 +26,7 @@ describe('BoostedMultiRewarder', function () {
   let voter: Voter
 
   beforeEach(async function () {
-    await deployments.fixture(['MockTokens', 'Voter', 'VeWom'])
+    await deployments.fixture(['MockTokens', 'MasterWombatV3', 'Voter', 'VeWom'])
     ;[owner, user1, user2] = await ethers.getSigners()
     master = (await ethers.deployContract('BoostedMasterWombat')) as BoostedMasterWombat
 

@@ -36,7 +36,14 @@ describe('wormhole', function () {
     it('returns correct group for mainnet', async function () {
       const others = await getOtherAdaptorsInGroup(CrossChainPoolType.stablecoin, Network.BSC_MAINNET)
       others.forEach((el) => {
-        expect([Network.ETHEREUM_MAINNET, Network.ARBITRUM_MAINNET]).include(el.network)
+        expect([
+          Network.ETHEREUM_MAINNET,
+          Network.ARBITRUM_MAINNET,
+          Network.POLYGON_MAINNET,
+          Network.BASE_MAINNET,
+          Network.AVALANCHE_MAINNET,
+          Network.OPTIMISM_MAINNET,
+        ]).include(el.network)
         expect(el.poolType).to.eq(CrossChainPoolType.stablecoin)
       })
     })

@@ -12,7 +12,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  deployments.log(`Step 104. Deploying on : ${getCurrentNetwork()} with account : ${deployer}`)
+  deployments.log(`Step 010. Deploying on : ${getCurrentNetwork()} with account : ${deployer}`)
 
   const wombatToken = await getTokenAddress(Token.WOM)
   const deployResult = await deploy(contractName, {

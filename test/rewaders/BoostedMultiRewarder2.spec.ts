@@ -31,7 +31,7 @@ describe('BoostedMultiRewarder 2', async function () {
   })
 
   beforeEach(async function () {
-    await deployments.fixture(['MockTokens', 'WombatToken', 'Voter', 'VeWom'])
+    await deployments.fixture(['MockTokens', 'MasterWombatV3', 'WombatToken', 'Voter', 'VeWom'])
     startTime = (await latest()).add(60)
 
     // dummyToken = await getTestERC20('USDC')

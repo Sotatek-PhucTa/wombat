@@ -273,6 +273,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0xaf88d065e77c8cC2239327C5EDb3A432268e5831'),
     [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
     [Network.ETHEREUM_MAINNET]: Address('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'),
+    [Network.POLYGON_MAINNET]: Address('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'),
+    [Network.BASE_MAINNET]: Address('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
+    [Network.AVALANCHE_MAINNET]: Address('0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'),
   },
   [Token.USDCe]: {
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
@@ -298,6 +301,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),
     [Network.OPTIMISM_MAINNET]: Address('0x94b008aA00579c1307B0EF2c499aD98a8ce58e58'),
     [Network.ETHEREUM_MAINNET]: Address('0xdAC17F958D2ee523a2206206994597C13D831ec7'),
+    [Network.POLYGON_MAINNET]: Address('0xc2132D05D31c914a87C6611C10748AEb04B58e8F'),
+    [Network.AVALANCHE_MAINNET]: Address('0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'),
   },
   [Token.USDTPlus]: {
     // not yet on coingecko.
@@ -337,6 +342,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.AVALANCHE_TESTNET]: Deployment('WombatToken'),
     [Network.POLYGON_TESTNET]: Deployment('WombatToken'),
+    // TODO change to actual address after bridge WOM over using wormhole
+    [Network.POLYGON_MAINNET]: Deployment('WombatToken'),
+    [Network.BASE_MAINNET]: Deployment('WombatToken'),
+    [Network.AVALANCHE_MAINNET]: Deployment('WombatToken'),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),

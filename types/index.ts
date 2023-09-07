@@ -12,12 +12,14 @@ export enum Network {
   BSC_TESTNET = 'bsc_testnet',
   POLYGON_MAINNET = 'polygon_mainnet',
   POLYGON_TESTNET = 'polygon_testnet',
+  AVALANCHE_MAINNET = 'avax_mainnet',
   AVALANCHE_TESTNET = 'avax_testnet',
   ARBITRUM_MAINNET = 'arb_mainnet',
   ARBITRUM_TESTNET = 'arb_testnet',
   OPTIMISM_MAINNET = 'opt_mainnet',
   OPTIMISM_TESTNET = 'opt_testnet',
   ETHEREUM_MAINNET = 'eth_mainnet',
+  BASE_MAINNET = 'base_mainnet',
   SCROLL_TESTNET = 'scroll_testnet',
 }
 

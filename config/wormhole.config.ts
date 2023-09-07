@@ -25,6 +25,22 @@ export const WORMHOLE_CONFIG_MAPS: PartialRecord<Network, IWormholeConfig> = inj
     relayer: Address('0x27428DD2d3DD32A4D7f7C497eAaa23130d894911'),
     wormholeBridge: Address('0xa5f208e072434bC67592E4C49C1B991BA79BCA46'),
   },
+  [Network.OPTIMISM_MAINNET]: {
+    relayer: Address('0x27428DD2d3DD32A4D7f7C497eAaa23130d894911'),
+    wormholeBridge: Address('0xEe91C335eab126dF5fDB3797EA9d6aD93aeC9722'),
+  },
+  [Network.POLYGON_MAINNET]: {
+    relayer: Address('0x27428DD2d3DD32A4D7f7C497eAaa23130d894911'),
+    wormholeBridge: Address('0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7'),
+  },
+  [Network.BASE_MAINNET]: {
+    relayer: Address('0x706F82e9bb5b0813501714Ab5974216704980e31'),
+    wormholeBridge: Address('0xbebdb6C8ddC678FfA9f8748f85C815C556Dd8ac6'),
+  },
+  [Network.AVALANCHE_MAINNET]: {
+    relayer: Address('0x27428DD2d3DD32A4D7f7C497eAaa23130d894911'),
+    wormholeBridge: Address('0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c'),
+  },
 
   // testnets
   [Network.BSC_TESTNET]: {
@@ -119,6 +135,30 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
       tokens: [Token.USDC, Token.USDT],
     },
   },
+  [Network.OPTIMISM_MAINNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.OPTIMISM_MAINNET),
+      tokens: [Token.USDC, Token.USDT],
+    },
+  },
+  [Network.BASE_MAINNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.BASE_MAINNET),
+      tokens: [Token.USDC, Token.USDT],
+    },
+  },
+  [Network.POLYGON_MAINNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.POLYGON_MAINNET),
+      tokens: [Token.USDC, Token.USDT],
+    },
+  },
+  [Network.AVALANCHE_MAINNET]: {
+    [CrossChainPoolType.stablecoin]: {
+      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.AVALANCHE_MAINNET),
+      tokens: [Token.USDC, Token.USDT],
+    },
+  },
 })
 
 const NETWORK_GROUP_MAP: Record<Network, NetworkGroup> = {
@@ -129,14 +169,16 @@ const NETWORK_GROUP_MAP: Record<Network, NetworkGroup> = {
   [Network.POLYGON_MAINNET]: NetworkGroup.MAINNET,
   [Network.POLYGON_TESTNET]: NetworkGroup.TESTNET,
   [Network.AVALANCHE_TESTNET]: NetworkGroup.TESTNET,
+  [Network.AVALANCHE_MAINNET]: NetworkGroup.MAINNET,
   [Network.ARBITRUM_MAINNET]: NetworkGroup.MAINNET,
   [Network.ARBITRUM_TESTNET]: NetworkGroup.TESTNET,
   [Network.OPTIMISM_MAINNET]: NetworkGroup.MAINNET,
   [Network.OPTIMISM_TESTNET]: NetworkGroup.TESTNET,
   [Network.ETHEREUM_MAINNET]: NetworkGroup.MAINNET,
+  [Network.BASE_MAINNET]: NetworkGroup.MAINNET,
 }
 
-type WormholeChainID = 0 | 2 | 4 | 5 | 6 | 10 | 23
+type WormholeChainID = 0 | 2 | 4 | 5 | 6 | 10 | 23 | 30
 
 // See https://docs.wormhole.com/wormhole/blockchain-environments/contracts
 export const WORMHOLE_ID_CONFIG_MAP: PartialRecord<Network, WormholeChainID> = injectForkNetwork<WormholeChainID>({
@@ -146,8 +188,10 @@ export const WORMHOLE_ID_CONFIG_MAP: PartialRecord<Network, WormholeChainID> = i
   [Network.BSC_MAINNET]: 4,
   [Network.POLYGON_MAINNET]: 5,
   [Network.ARBITRUM_MAINNET]: 23,
+  [Network.AVALANCHE_MAINNET]: 6,
   [Network.OPTIMISM_MAINNET]: 10,
   [Network.ETHEREUM_MAINNET]: 2,
+  [Network.BASE_MAINNET]: 30,
 
   [Network.BSC_TESTNET]: 4,
   [Network.POLYGON_TESTNET]: 5,

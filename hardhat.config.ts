@@ -82,6 +82,16 @@ const config: HardhatUserConfig = {
       url: secrets.alchemy_ethereum_url || 'https://eth.llamarpc.com',
       accounts: [secrets.deployer.privateKey],
     },
+    [Network.BASE_MAINNET]: {
+      chainId: 8453,
+      url: 'https://mainnet.base.org/',
+      accounts: [secrets.deployer.privateKey],
+    },
+    [Network.AVALANCHE_MAINNET]: {
+      chainId: 43114,
+      url: 'https://rpc.ankr.com/avalanche/',
+      accounts: [secrets.deployer.privateKey],
+    },
     [Network.SCROLL_TESTNET]: {
       chainId: 534351,
       url: 'https://sepolia-rpc.scroll.io/',
@@ -188,6 +198,10 @@ const config: HardhatUserConfig = {
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe
       [Network.ETHEREUM_MAINNET]: '0x5781b4fe4fAdB61ea2483eEDD9498388F9b353b1', // Gnosis Safe
+      // TODO change to gnosis safe
+      [Network.BASE_MAINNET]: 'deployer',
+      [Network.POLYGON_MAINNET]: 'deployer',
+      [Network.AVALANCHE_MAINNET]: 'deployer',
     },
   },
   docgen: {
