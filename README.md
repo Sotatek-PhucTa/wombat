@@ -535,6 +535,11 @@ To verify proxy contracts:
 - VeWom_Proxy => `0xEF0B4d9Dba6ea82B59437Fe5E37b16A2896aAF94`
 - Whitelist => `0xF84c5999cD8667Fa54006Aca7FEF6c31F75cc9dE`
 
+##### Self-service bribe
+- BoostedMultiRewarder_Beacon => `0xdAa33667A9aB2791Fb0F3c0261C74c4A3d0A7eFA`
+- BribeV2_Beacon => `0x51AbD2A24d225C80108252fb73AEd819f1Ef52Bd`
+- BribeRewarderFactory_Proxy => `0xCd69ca1e4dA21F65896A8d2e4ea625FF5B19E8Fe`
+
 #### Cross chain pool
 - CoreV3 => `0xe7e02cbDA65B876fBaEf5F129D815e6dD06F9Cb0`
 - CrossChainPool_Stablecoin_Pool_Proxy => `0xA45C0ABeef67C363364E0e73832df9986aBa3800`
