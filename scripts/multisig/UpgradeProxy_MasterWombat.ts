@@ -12,7 +12,7 @@ import { scheduler } from 'timers/promises'
 
   if (network === Network.BSC_MAINNET) {
     // Upgrade Proxy with timelock
-    runScript('Timelock_Schedule_UpgradeProxy_MasterWombat', async function () {
+    await runScript('Timelock_Schedule_UpgradeProxy_MasterWombat', async function () {
       return [await multisig.utils.scheduleTimelock(txns)]
     })
     await scheduler.wait(100)
