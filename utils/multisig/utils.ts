@@ -704,7 +704,7 @@ export async function setBribeOperatorForAsset(
   return [Safe(bribeRewarderFactory).setBribeDeployer(lpToken.address, bribeOperatorAddr)]
 }
 
-export async function setVoter(): Promise<BatchTransaction[]> {
+export async function initializeVoterToDependencies(): Promise<BatchTransaction[]> {
   const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
   const voter = await getDeployedContract('Voter')
   const vewom = await getDeployedContract('VeWom')
