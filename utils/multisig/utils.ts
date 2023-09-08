@@ -703,3 +703,15 @@ export async function setBribeOperatorForAsset(
   const bribeOperatorAddr = await getContractAddress(operator)
   return [Safe(bribeRewarderFactory).setBribeDeployer(lpToken.address, bribeOperatorAddr)]
 }
+
+export async function setVoter(): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+  const voter = await getDeployedContract('Voter')
+  const vewom = await getDeployedContract('VeWom')
+  const mw = await getDeployedContract('BoostedMasterWombat')
+  return [
+    Safe(bribeRewarderFactory).setVoter(voter.address),
+    Safe(mw).setVoter(voter.address),
+    Safe(vewom).setVoter(voter.address),
+  ]
+}
