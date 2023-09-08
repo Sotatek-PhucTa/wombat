@@ -57,6 +57,8 @@ import {
   EuroCAsset,
   AgEURAsset,
   EureAsset,
+  zBNBAsset,
+  zUSDAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -337,6 +339,27 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdsAsset(),
         ...UsdtAsset(),
+      },
+    },
+    zBNB_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+        ampFactor: parseEther('0.002'),
+        supportNativeToken: true,
+      },
+      assets: {
+        ...zBNBAsset(),
+        ...WbnbAsset(),
+      },
+    },
+    zUSD_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+        ampFactor: parseEther('0.002'),
+      },
+      assets: {
+        ...zUSDAsset(),
+        ...UsdcAsset(),
       },
     },
     StandalonePool: {

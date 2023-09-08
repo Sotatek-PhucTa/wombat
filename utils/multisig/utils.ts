@@ -687,3 +687,19 @@ export async function setBribeRewarderFactory(): Promise<BatchTransaction[]> {
     Safe(mw).setBribeRewarderFactory(bribeRewarderFactory.address),
   ]
 }
+
+export async function whitelistRewardToken(token: Token): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+  const tokenAddr = await getTokenAddress(token)
+  return [Safe(bribeRewarderFactory).whitelistRewardToken(tokenAddr)]
+}
+
+export async function setBribeOperatorForAsset(
+  assetDeployment: string,
+  operator: ExternalContract
+): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+  const lpToken = await getDeployedContract('Asset', assetDeployment)
+  const bribeOperatorAddr = await getContractAddress(operator)
+  return [Safe(bribeRewarderFactory).setBribeDeployer(lpToken.address, bribeOperatorAddr)]
+}

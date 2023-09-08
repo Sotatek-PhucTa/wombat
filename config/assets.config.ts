@@ -292,6 +292,28 @@ export function SnBNBAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> 
   }
 }
 
+export function zBNBAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    zBNB: {
+      tokenName: 'Zasset zBNB',
+      tokenSymbol: 'zBNB',
+      underlyingToken: Token.zBNB,
+      ...partial,
+    },
+  }
+}
+
+export function zUSDAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    zUSD: {
+      tokenName: 'Zasset zUSD',
+      tokenSymbol: 'zUSD',
+      underlyingToken: Token.zUSD,
+      ...partial,
+    },
+  }
+}
+
 export function JusdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     jUSDC: {

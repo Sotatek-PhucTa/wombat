@@ -34,6 +34,7 @@ export enum ExternalContract {
   rBNBOracle,
   sfrxETHStakingManager,
   wBETHOracle,
+  HorizonBribeOperator,
 }
 
 export async function getContractAddress(contract: ExternalContract): Promise<string> {
@@ -165,5 +166,8 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.wBETHOracle]: {
     // https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1
     [Network.BSC_MAINNET]: Address('0xa2E3356610840701BDf5611a53974510Ae27E2e1'),
+  },
+  [ExternalContract.HorizonBribeOperator]: {
+    [Network.BSC_MAINNET]: Address('0x6a6677A979a0Fd7F3EDD8C87aA5D6884f7f6B5fB'),
   },
 }

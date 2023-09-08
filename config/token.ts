@@ -23,6 +23,7 @@ export enum Token {
   FRAX,
   FXS,
   HAY,
+  HZN,
   JONES,
   MAI,
   MGP,
@@ -76,6 +77,8 @@ export enum Token {
   wmxWOM,
   wstETH,
   xEQB,
+  zBNB,
+  zUSD,
 }
 
 export function getTokenDeploymentOrAddress(token: Token, network?: Network): DeploymentOrAddress {
@@ -182,6 +185,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.HAY]: {
     // https://www.coingecko.com/en/coins/destablecoin-hay
     [Network.BSC_MAINNET]: Address('0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5'),
+  },
+  [Token.HZN]: {
+    // https://bscscan.com/address/0xc0eff7749b125444953ef89682201fb8c6a917cd
+    [Network.BSC_MAINNET]: Address('0xC0eFf7749b125444953ef89682201Fb8c6A917CD'),
   },
   [Token.JONES]: {
     // https://www.coingecko.com/en/coins/jones-dao
@@ -448,5 +455,13 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.xEQB]: {
     // https://arbiscan.io/address/0x96C4A48Abdf781e9c931cfA92EC0167Ba219ad8E
     [Network.ARBITRUM_MAINNET]: Address('0x96C4A48Abdf781e9c931cfA92EC0167Ba219ad8E'),
+  },
+  [Token.zBNB]: {
+    // https://bscscan.com/address/0x6DEdCEeE04795061478031b1DfB3c1ddCA80B204
+    [Network.BSC_MAINNET]: Address('0x6DEdCEeE04795061478031b1DfB3c1ddCA80B204'),
+  },
+  [Token.zUSD]: {
+    // https://bscscan.com/address/0xF0186490B18CB74619816CfC7FeB51cdbe4ae7b9
+    [Network.BSC_MAINNET]: Address('0xF0186490B18CB74619816CfC7FeB51cdbe4ae7b9'),
   },
 }
