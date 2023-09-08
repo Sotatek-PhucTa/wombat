@@ -19,9 +19,12 @@ import { Network } from '../../types'
       // ETH: init voter dependencies and setBribeRewarderFactory
       if (network == Network.ETHEREUM_MAINNET) {
         return concatAll(multisig.utils.initializeVoterToDependencies(), multisig.utils.setBribeRewarderFactory())
+      } else if (network == Network.ARBITRUM_MAINNET) {
+        // ARB: setBribeRewarderFactory
+        return upgradeTxns.concat(await multisig.utils.setBribeRewarderFactory())
+      } else {
+        throw new Error(`Network ${network} not supported`)
       }
-      // ARB: setBribeRewarderFactory
-      return upgradeTxns.concat(await multisig.utils.setBribeRewarderFactory())
     })
   }
 })()
