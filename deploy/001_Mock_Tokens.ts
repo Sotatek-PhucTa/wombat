@@ -13,23 +13,8 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const network = getCurrentNetwork()
   deployments.log(`Step 001. Deploying on : ${network} with account : ${deployer}`)
 
-  // Mock tokens only on localhost and testnets
-  // For fork networks, please deploy the mock token on the testnet directly
-  const shouldDeployMockTokens = [
-    Network.AVALANCHE_TESTNET,
-    Network.POLYGON_TESTNET,
-    Network.SCROLL_TESTNET,
-    Network.BSC_TESTNET,
-    Network.LOCALHOST,
-    Network.HARDHAT,
-  ].includes(getCurrentNetwork())
-
-  deployments.log('shouldDeployMockTokens', shouldDeployMockTokens, getMockTokens())
-
-  if (shouldDeployMockTokens) {
-    for (const mockTokenInfo of getMockTokens()) {
-      await deployMockToken(mockTokenInfo, deployer)
-    }
+  for (const mockTokenInfo of getMockTokens()) {
+    await deployMockToken(mockTokenInfo, deployer)
   }
 }
 
@@ -47,3 +32,15 @@ async function deployMockToken(mockTokenInfo: IMockTokenInfo, deployer: string) 
 
 export default deployFunc
 deployFunc.tags = [contractName]
+deployFunc.skip = async () => {
+  // Mock tokens only on localhost and testnets
+  // For fork networks, please deploy the mock token on the testnet directly
+  return ![
+    Network.AVALANCHE_TESTNET,
+    Network.POLYGON_TESTNET,
+    Network.SCROLL_TESTNET,
+    Network.BSC_TESTNET,
+    Network.LOCALHOST,
+    Network.HARDHAT,
+  ].includes(getCurrentNetwork())
+}
