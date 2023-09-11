@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import {
+  IAssetInfo,
   ICrossChainPoolConfig,
   IGovernedPriceFeed,
   IHighCovRatioFeePoolConfig,
@@ -344,22 +345,22 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     zBNB_Pool: {
       setting: {
         ...defaultFactoryPoolConfig(),
-        ampFactor: parseEther('0.002'),
+        ampFactor: parseEther('0.002'), // same as dynamic pool
         supportNativeToken: true,
       },
       assets: {
-        ...zBNBAsset(),
-        ...WbnbAsset(),
+        ...zBNBAsset(defaultBNBMaxSupply()),
+        ...WbnbAsset(defaultBNBMaxSupply()),
       },
     },
     zUSD_Pool: {
       setting: {
         ...defaultFactoryPoolConfig(),
-        ampFactor: parseEther('0.002'),
+        ampFactor: parseEther('0.002'), // same as dynamic pool
       },
       assets: {
-        ...zUSDAsset(),
-        ...UsdcAsset(),
+        ...zUSDAsset(defaultUSDMaxSupply()),
+        ...UsdcAsset(defaultUSDMaxSupply()),
       },
     },
     StandalonePool: {
@@ -1064,3 +1065,15 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
     },
   },
 })
+
+function defaultUSDMaxSupply(): Partial<IAssetInfo> {
+  return {
+    maxSupply: parseEther('3000000'),
+  }
+}
+
+function defaultBNBMaxSupply(): Partial<IAssetInfo> {
+  return {
+    maxSupply: parseEther('15000'),
+  }
+}
