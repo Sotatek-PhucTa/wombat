@@ -346,6 +346,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       setting: {
         ...defaultFactoryPoolConfig(),
         ampFactor: parseEther('0.002'), // same as dynamic pool
+        mintFeeThreshold: parseEther('0.03'),
+        deploymentNamePrefix: '',
         supportNativeToken: true,
       },
       assets: {
@@ -357,6 +359,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       setting: {
         ...defaultFactoryPoolConfig(),
         ampFactor: parseEther('0.002'), // same as dynamic pool
+        deploymentNamePrefix: '',
       },
       assets: {
         ...zUSDAsset(defaultSmallCapUSDMaxSupply()),
