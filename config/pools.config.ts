@@ -349,8 +349,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         supportNativeToken: true,
       },
       assets: {
-        ...zBNBAsset(defaultBNBMaxSupply()),
-        ...WbnbAsset(defaultBNBMaxSupply()),
+        ...zBNBAsset(defaultSmallCapBNBMaxSupply()),
+        ...WbnbAsset(defaultSmallCapBNBMaxSupply()),
       },
     },
     zUSD_Pool: {
@@ -359,8 +359,8 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ampFactor: parseEther('0.002'), // same as dynamic pool
       },
       assets: {
-        ...zUSDAsset(defaultUSDMaxSupply()),
-        ...UsdcAsset(defaultUSDMaxSupply()),
+        ...zUSDAsset(defaultSmallCapUSDMaxSupply()),
+        ...UsdcAsset(defaultSmallCapUSDMaxSupply()),
       },
     },
     StandalonePool: {
@@ -1001,8 +1001,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        ...UsdcAsset(defaultUSDMaxSupply()),
-        ...UsdtAsset(defaultUSDMaxSupply()),
+        ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
   },
@@ -1012,8 +1012,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        ...UsdcAsset(defaultUSDMaxSupply()),
-        ...UsdtAsset(defaultUSDMaxSupply()),
+        ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
   },
@@ -1023,8 +1023,8 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...defaultCrossChainPoolConfig,
       },
       assets: {
-        ...UsdcAsset(defaultUSDMaxSupply()),
-        ...UsdtAsset(defaultUSDMaxSupply()),
+        ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
   },
@@ -1066,14 +1066,20 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
   },
 })
 
-function defaultUSDMaxSupply(): Partial<IAssetInfo> {
+function defaultLargeCapUSDMaxSupply(): Partial<IAssetInfo> {
   return {
     maxSupply: parseEther('3000000'),
   }
 }
 
-function defaultBNBMaxSupply(): Partial<IAssetInfo> {
+function defaultSmallCapUSDMaxSupply(): Partial<IAssetInfo> {
   return {
-    maxSupply: parseEther('15000'),
+    maxSupply: parseEther('300000'),
+  }
+}
+
+function defaultSmallCapBNBMaxSupply(): Partial<IAssetInfo> {
+  return {
+    maxSupply: parseEther('1500'),
   }
 }
