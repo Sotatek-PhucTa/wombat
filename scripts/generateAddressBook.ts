@@ -62,6 +62,7 @@ function readMultisig(): Entry[] {
         chainId,
         name: `Wombat-Multisig-${network}`,
       } as Entry)
+      .filter((e) => e.address !== 'deployer')
   })
 }
 
