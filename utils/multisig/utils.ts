@@ -679,13 +679,21 @@ export async function syncCrossChainPool(poolType: CrossChainPoolType, network: 
 }
 
 export async function setBribeRewarderFactory(): Promise<BatchTransaction[]> {
+  const txns: BatchTransaction[] = []
   const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
-  const voter = await getDeployedContract('Voter')
+
   const mw = await getDeployedContract('BoostedMasterWombat')
-  return [
-    Safe(voter).setBribeFactory(bribeRewarderFactory.address),
-    Safe(mw).setBribeRewarderFactory(bribeRewarderFactory.address),
-  ]
+  txns.push(Safe(mw).setBribeRewarderFactory(bribeRewarderFactory.address))
+
+  const voterDeployment = await deployments.getOrNull('Voter')
+  if (voterDeployment != null) {
+    const voter = await ethers.getContractAt('Voter', voterDeployment.address)
+    txns.push(Safe(voter).setBribeFactory(bribeRewarderFactory.address))
+  } else {
+    console.log('Voter is not deployed, skip Voter.setBribeFactory')
+  }
+
+  return txns
 }
 
 export async function whitelistRewardToken(token: Token): Promise<BatchTransaction[]> {
