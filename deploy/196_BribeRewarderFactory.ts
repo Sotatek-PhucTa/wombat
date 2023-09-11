@@ -67,6 +67,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   if (deployResult.newlyDeployed) {
     deployments.log(`BribeRewarderFactory Deployment complete.`)
+    // TODO: transfer ownership to multisig
   }
   logVerifyCommand(deployResult)
 }
