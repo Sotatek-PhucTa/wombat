@@ -5,7 +5,7 @@ import { confirmTxn } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 import assert from 'assert'
 
-const deploymentNames = ['BribeRewarderFactory_Proxy', 'Voter_Proxy']
+const deploymentNames = ['BribeRewarderFactory_Proxy', 'Voter_Proxy', 'VeWom_Proxy']
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const network = getCurrentNetwork()
