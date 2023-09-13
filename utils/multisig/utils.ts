@@ -222,7 +222,7 @@ export async function setBribe(bribeDeployment: string): Promise<BatchTransactio
   // Make sure existing bribe is not emitting
   const { bribe: currentBribe } = await voter.infos(lpToken)
   if (currentBribe != ethers.constants.AddressZero) {
-    assert(await !hasActiveRewards(bribe), 'Bribe is still emitting rewards')
+    assert(!(await hasActiveRewards(bribe)), 'Bribe is still emitting rewards')
   }
   const { whitelist } = await voter.infos(lpToken)
   let txns = [Safe(voter).setBribe(lpToken, bribe.address)]
@@ -249,7 +249,7 @@ export async function setRewarder(rewarderDeployment: string): Promise<BatchTran
   // Make sure existing bribe is not emitting
   const { rewarder: currentRewarder } = await masterWombat.poolInfoV3(pid)
   if (currentRewarder != ethers.constants.AddressZero) {
-    assert(await !hasActiveRewards(rewarder), 'Bribe is still emitting rewards')
+    assert(!(await hasActiveRewards(rewarder)), 'Bribe is still emitting rewards')
   }
   return [Safe(masterWombat).setRewarder(pid, rewarder.address)]
 }

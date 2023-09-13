@@ -26,7 +26,7 @@ import { advanceTimeAndBlock, latest, sqrt } from '../helpers'
 chai.use(near)
 chai.use(roughlyNear)
 
-describe('BoostedMasterWombat', async function () {
+describe('BoostedMasterWombat', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
@@ -114,7 +114,7 @@ describe('BoostedMasterWombat', async function () {
     await wom.transfer(voter.address, parseEther('100000000'))
   })
 
-  describe('Master wombat Utils', async function () {
+  describe('Master wombat Utils', function () {
     beforeEach(async function () {
       await mw.updateEmissionPartition(1000) // 100% dialutng
 
@@ -241,7 +241,7 @@ describe('BoostedMasterWombat', async function () {
     })
   })
 
-  describe('[USDC Pool] Base pool only', async function () {
+  describe('[USDC Pool] Base pool only', function () {
     beforeEach(async function () {
       await mw.updateEmissionPartition(1000) // 100% dialutng
 
@@ -366,7 +366,7 @@ describe('BoostedMasterWombat', async function () {
   })
 
   // TODO: fix test
-  describe.skip('[USDC Pool] Non-dualuting pool only', async function () {
+  describe.skip('[USDC Pool] Non-dualuting pool only', function () {
     beforeEach(async function () {
       await mw.updateEmissionPartition(0) // 100% non-dialutng
 
@@ -485,7 +485,7 @@ describe('BoostedMasterWombat', async function () {
     })
   })
 
-  describe.skip('[All pools] Base pool only', async function () {
+  describe.skip('[All pools] Base pool only', function () {
     beforeEach(async function () {
       await mw.updateEmissionPartition(1000) // 100% dialutng
 
@@ -710,7 +710,7 @@ describe('BoostedMasterWombat', async function () {
     })
   })
 
-  describe('[All pools] Base + boosted pool', async function () {
+  describe('[All pools] Base + boosted pool', function () {
     const randomAddress = '0x0B306BF915C4d645ff596e518fAf3F9669b97016'
     beforeEach(async function () {
       await mw.updateEmissionPartition(375) // 37.5% base => corresponds to 30% / 50%
@@ -931,7 +931,7 @@ describe('BoostedMasterWombat', async function () {
     })
   })
 
-  describe('[All pools] veWOM integration test', async function () {
+  describe('[All pools] veWOM integration test', function () {
     beforeEach(async function () {
       await mw.updateEmissionPartition(375) // 37.5% base => corresponds to 30% / 50%
 
@@ -1203,7 +1203,7 @@ describe('BoostedMasterWombat', async function () {
     })
   })
 
-  describe('[All pools] LP token Migration', async function () {
+  describe('[All pools] LP token Migration', function () {
     beforeEach(async function () {
       await mw.updateEmissionPartition(375) // 37.5% base => corresponds to 30% / 50%
 

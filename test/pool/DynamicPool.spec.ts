@@ -69,7 +69,7 @@ describe('DynamicPool', function () {
     return { token, asset }
   }
 
-  describe('price of token B = 1 (test backward compatibility)', async function () {
+  describe('price of token B = 1 (test backward compatibility)', function () {
     it('swap', async function () {
       const { token: token0 } = await createAsset(
         ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
@@ -197,7 +197,7 @@ describe('DynamicPool', function () {
     })
   })
 
-  describe('price of token B: 1.0 => 1.2', async function () {
+  describe('price of token B: 1.0 => 1.2', function () {
     it('swap (dynamic to asset)', async function () {
       const { token: token0 } = await createAsset(
         ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],

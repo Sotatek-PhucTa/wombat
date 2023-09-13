@@ -27,7 +27,7 @@ describe('Multisig util', function () {
     ])
   })
 
-  describe('transferAssetsOwnership', async function () {
+  describe('transferAssetsOwnership', function () {
     it('should transfer ownership', async function () {
       const txns = await multisig.utils.transferAssetsOwnership(
         ['Asset_MainPool_USDC', 'Asset_MainPool_USDT'],

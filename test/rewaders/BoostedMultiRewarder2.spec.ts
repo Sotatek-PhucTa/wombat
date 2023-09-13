@@ -13,7 +13,7 @@ import { advanceTimeAndBlock, latest } from '../helpers'
 chai.use(near)
 chai.use(roughlyNear)
 
-describe('BoostedMultiRewarder 2', async function () {
+describe('BoostedMultiRewarder 2', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
@@ -61,7 +61,7 @@ describe('BoostedMultiRewarder 2', async function () {
     }
   })
 
-  describe('[All pools] Dialuting + non-dialuting pool', async function () {
+  describe('[All pools] Dialuting + non-dialuting pool', function () {
     let usdc: Contract
     let usdt: Contract
     let mim: Contract

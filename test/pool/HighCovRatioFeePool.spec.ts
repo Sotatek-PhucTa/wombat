@@ -72,7 +72,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
     return { token, asset }
   }
 
-  describe('start = 1.5, end = 1.8 - swap, quote and reverse quote', async function () {
+  describe('start = 1.5, end = 1.8 - swap, quote and reverse quote', function () {
     it('from asset: r = 1.6 -> r = 1.7', async function () {
       const { token: token0 } = await createAsset(
         ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
@@ -544,7 +544,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
     })
   })
 
-  describe('start = 1.5, end = 1.8 - withdraw', async function () {
+  describe('start = 1.5, end = 1.8 - withdraw', function () {
     it('from asset: r = 1.7 - withdraw should not charge high cov ratio fee', async function () {
       const { token: token0, asset: asset0 } = await createAsset(
         ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],
@@ -565,7 +565,7 @@ describe('High Coverage Ratio Pool - Swap', function () {
     })
   })
 
-  describe('start = 1.5, end = 1.8 - quotePotentialWithdrawFromOtherAsset', async function () {
+  describe('start = 1.5, end = 1.8 - quotePotentialWithdrawFromOtherAsset', function () {
     it('from asset: r = 1.6 -> r = 1.7', async function () {
       const { token: token0, asset: asset0 } = await createAsset(
         ['Binance USD', 'BUSD', 6, parseUnits('1000000', 6)],

@@ -41,7 +41,7 @@ describe('CoreV2', function () {
     CoreV2 = await CoreV2Factory.connect(owner).deploy()
   })
 
-  describe('[swapQuoteFunc] - the swap quote function', async function () {
+  describe('[swapQuoteFunc] - the swap quote function', function () {
     it('Should return correct quote given initial variables', async function () {
       const result = await CoreV2.testSwapQuoteFunc(Ax, Ay, Lx, Ly, Dx, A)
       // console.log(52, result.toString()) // 99430096462356289000
@@ -62,7 +62,7 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[_coverageYFunc] - return the asset coverage ratio of token y ("Ry")', async function () {
+  describe('[_coverageYFunc] - return the asset coverage ratio of token y ("Ry")', function () {
     it('Should return correct asset coverage ratio given initial variables', async function () {
       const b = parseUnits('-0.845049504950495050', 18)
       const result = await CoreV2.test_coverageYFunc(b, A)
@@ -72,7 +72,7 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[_coefficientFunc] - return the quadratic equation b coefficient ("b")', async function () {
+  describe('[_coefficientFunc] - return the quadratic equation b coefficient ("b")', function () {
     it('Should return correct quadratic equation b coefficient given initial variables', async function () {
       const result = await CoreV2.test_coefficientFunc(Lx, Ly, Rx, D, A)
       // console.log(99, result.toString()) // -845049504950495050
@@ -81,7 +81,7 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[_invariantFunc] - return the invariant constant ("D")', async function () {
+  describe('[_invariantFunc] - return the invariant constant ("D")', function () {
     it('Should return correct invariant constant between token x and y', async function () {
       const result = await CoreV2.test_invariantFunc(Ax, Ay, Lx, Ly, A)
       // console.log(99, result.toString()) // 10450000000000000000000
@@ -90,7 +90,7 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[_convertToWAD] - return the token amount in WAD units', async function () {
+  describe('[_convertToWAD] - return the token amount in WAD units', function () {
     it('Should return correct token amount for 8 decimal ERC20 token with 18 digit decimal precision', async function () {
       const tokenAmountIn8Decimals = parseUnits('99.43009646', 8) // 9943009646
       const result = await CoreV2.test_convertToWAD(8, tokenAmountIn8Decimals) // 99430096460000000000
@@ -106,7 +106,7 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[_convertFromWAD] - return original token amount with correct decimal numbers', async function () {
+  describe('[_convertFromWAD] - return original token amount with correct decimal numbers', function () {
     it('Should return correct token amount for 8 decimal ERC20 token', async function () {
       const tokenAmountIn18Decimals = parseUnits('99.430096464300964643', 18) // 9943009646
       const result = await CoreV2.test_convertFromWAD(8, tokenAmountIn18Decimals) // 99430096460000000000
@@ -122,7 +122,7 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[depositRewardImpl]', async function () {
+  describe('[depositRewardImpl]', function () {
     it('withdrawal - edge cases', async function () {
       // test when user withdraw all liquidity in the pool
       expect(
@@ -151,8 +151,8 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[withdrawalAmountInEquilImpl] - return withdrawal amount in equil', async function () {
-    describe('withdrawal fee - edge cases', async function () {
+  describe('[withdrawalAmountInEquilImpl] - return withdrawal amount in equil', function () {
+    describe('withdrawal fee - edge cases', function () {
       it('1', async function name() {
         expect(
           await CoreV2.test_withdrawalAmountInEquilImpl(
@@ -242,8 +242,8 @@ describe('CoreV2', function () {
     })
   })
 
-  describe('[exactDepositLiquidityInEquilImpl] - return exact deposit reward in equil', async function () {
-    describe('deposit - edge cases', async function () {
+  describe('[exactDepositLiquidityInEquilImpl] - return exact deposit reward in equil', function () {
+    describe('deposit - edge cases', function () {
       it('repro: liquidityToMint < amount', async function name() {
         expect(
           await CoreV2.test_exactDepositLiquidityInEquilImpl(
@@ -314,7 +314,7 @@ describe('CoreV2', function () {
   })
 
   // TODO: Make respective V3 testing contracts and point this to CoreV3
-  describe.skip('[_swapToCreditQuote(]', async function () {
+  describe.skip('[_swapToCreditQuote(]', function () {
     it('test 1', async function () {
       expect(
         await CoreV2.test_swapToCreditQuote(
@@ -372,7 +372,7 @@ describe('CoreV2', function () {
   })
 
   // TODO: Make respective V3 testing contracts and point this to CoreV3
-  describe.skip('[_swapFromCreditQuote(]', async function () {
+  describe.skip('[_swapFromCreditQuote(]', function () {
     it('test 1', async function () {
       expect(
         await CoreV2.test_swapFromCreditQuote(

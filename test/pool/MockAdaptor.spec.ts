@@ -136,7 +136,7 @@ describe('MockAdaptor', function () {
     )
   }
 
-  describe('Asset BUSD (18 decimals) + CAKE (18 decimals)', async function () {
+  describe('Asset BUSD (18 decimals) + CAKE (18 decimals)', function () {
     beforeEach(async function () {
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000'))
@@ -313,7 +313,7 @@ describe('MockAdaptor', function () {
     })
   })
 
-  describe('Asset vUSDC (8 decimals) + USDT (6 decimals)', async function () {
+  describe('Asset vUSDC (8 decimals) + USDT (6 decimals)', function () {
     beforeEach(async function () {
       // Transfer 100k of stables to user1
       await token1.connect(owner).transfer(user1.address, parseUnits('100000', 6))

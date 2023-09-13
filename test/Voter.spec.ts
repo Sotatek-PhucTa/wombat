@@ -29,7 +29,7 @@ chai.use(roughlyNear)
 const AddressZero = ethers.constants.AddressZero
 
 // Start test block
-describe('Voter', async function () {
+describe('Voter', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
@@ -121,7 +121,7 @@ describe('Voter', async function () {
     await lpToken3.mint(owner.address, parseUnits('10000000000'))
   })
 
-  describe('Vote', async function () {
+  describe('Vote', function () {
     beforeEach(async function () {
       await voter.add(mw.address, lpToken1.address, AddressZero)
       await voter.add(mw.address, lpToken2.address, AddressZero)
@@ -205,7 +205,7 @@ describe('Voter', async function () {
     })
   })
 
-  describe('Distribute WOM', async function () {
+  describe('Distribute WOM', function () {
     beforeEach(async function () {
       await mw.add(lpToken1.address, AddressZero)
       await mw.add(lpToken2.address, AddressZero)
@@ -233,7 +233,7 @@ describe('Voter', async function () {
       await lpToken3.connect(users[1]).approve(mw.address, parseEther('1000000000'))
     })
 
-    describe('Base Allocation', async function () {
+    describe('Base Allocation', function () {
       beforeEach(async function () {
         await voter.setBaseAllocation(1000)
       })
@@ -438,7 +438,7 @@ describe('Voter', async function () {
       })
     })
 
-    describe('Vote Allocation', async function () {
+    describe('Vote Allocation', function () {
       it('Single User', async function () {
         await voter
           .connect(users[0])
@@ -704,7 +704,7 @@ describe('Voter', async function () {
     })
   })
 
-  describe('VE', async function () {
+  describe('VE', function () {
     beforeEach(async function () {
       await voter.add(mw.address, lpToken1.address, AddressZero)
       await voter.add(mw.address, lpToken2.address, AddressZero)
@@ -776,7 +776,7 @@ describe('Voter', async function () {
     })
   })
 
-  describe('Whitelist', async function () {
+  describe('Whitelist', function () {
     it('cannot add the same lp token', async function () {
       await voter.add(mw.address, lpToken1.address, AddressZero)
       await expect(voter.add(mw.address, lpToken1.address, AddressZero)).to.be.revertedWith('voter: already added')
@@ -1009,7 +1009,7 @@ describe('Voter', async function () {
     })
   })
 
-  describe('Bribe', async function () {
+  describe('Bribe', function () {
     beforeEach(async function () {
       // prepare bribe
       bribeToken = await TestERC20.deploy('Partner Token', 'PARTNER', 18, parseEther('1000000'))

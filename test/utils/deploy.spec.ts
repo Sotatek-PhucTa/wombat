@@ -7,7 +7,7 @@ describe('utils/deploy.ts', function () {
     await deployments.fixture(['HighCovRatioFeePoolAssets'])
   })
 
-  describe('getAllAssetsDeployments', async function () {
+  describe('getAllAssetsDeployments', function () {
     it('returns all deployed assets', async function () {
       expect(await getAllAssetsDeployments()).to.eql([
         'Asset_MainPool_BUSD',

@@ -29,7 +29,7 @@ export function isForkedNetwork() {
 
 export async function impersonateAsMultisig(fn: (signer: SignerWithAddress) => Promise<unknown>) {
   const { multisig } = await getNamedAccounts()
-  setBalance(multisig, parseEther('10')) // for gas
+  await setBalance(multisig, parseEther('10')) // for gas
   const signer = await ethers.getImpersonatedSigner(multisig)
   await fn(signer)
 }

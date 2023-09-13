@@ -15,7 +15,7 @@ chai.use(roughlyNear)
 const AddressZero = ethers.constants.AddressZero
 
 // Start test block
-describe('BribeRewarderFactory', async function () {
+describe('BribeRewarderFactory', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 
@@ -93,7 +93,7 @@ describe('BribeRewarderFactory', async function () {
     expect(await bribeRewarderFactory.getWhitelistedRewardTokens()).to.be.empty
   })
 
-  describe('rewarder', async function () {
+  describe('rewarder', function () {
     it('validation', async function () {
       // check msg.sender
       await expect(
@@ -207,7 +207,7 @@ describe('BribeRewarderFactory', async function () {
     })
   })
 
-  describe('bribe', async function () {
+  describe('bribe', function () {
     it('validation', async function () {
       // check msg.sender
       await expect(

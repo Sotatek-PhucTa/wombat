@@ -111,7 +111,7 @@ describe('VolatilePool - invariant', function () {
     console.log(formatEther(await asset.cash()), formatEther(await asset.liability()))
   }
 
-  describe('r* = 0.477', async function () {
+  describe('r* = 0.477', function () {
     let pool: VolatilePool
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
@@ -195,7 +195,7 @@ describe('VolatilePool - invariant', function () {
     })
   })
 
-  describe('r* = 1.638 (floating r*)', async function () {
+  describe('r* = 1.638 (floating r*)', function () {
     let pool: VolatilePool
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
@@ -281,7 +281,7 @@ describe('VolatilePool - invariant', function () {
     })
   })
 
-  describe('r* = 1.638 (capping r*)', async function () {
+  describe('r* = 1.638 (capping r*)', function () {
     let pool: VolatilePool
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
@@ -358,7 +358,7 @@ describe('VolatilePool - invariant', function () {
     })
   })
 
-  describe('withdrawal haircut', async function () {
+  describe('withdrawal haircut', function () {
     let pool: VolatilePool
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]

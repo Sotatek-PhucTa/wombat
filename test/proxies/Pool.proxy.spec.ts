@@ -61,14 +61,14 @@ describe('Asset (proxy)', function () {
     await poolContract.connect(poolOwner).addAsset(token1.address, asset1.address)
   })
 
-  describe('deploy', async function () {
+  describe('deploy', function () {
     it('should initialize correctly', async function () {
       expect(await poolContract.ampFactor()).to.be.equal(parseEther('0.05'))
       expect(await poolContract.haircutRate()).to.be.equal(parseEther('0.0004'))
     })
   })
 
-  describe('upgrade', async function () {
+  describe('upgrade', function () {
     it('should keep storage correctly', async function () {
       await poolContract.setHaircutRate(parseEther('0.0001'))
       await poolContract.connect(poolOwner).setFee(parseEther('0.5'), parseEther('0.5'))

@@ -98,7 +98,7 @@ describe('CrossChainPool', function () {
     await mockAdaptor.approveToken(0, AddressZero)
   })
 
-  describe('Utils', async function () {
+  describe('Utils', function () {
     beforeEach(async function () {
       // Transfer 100k of stables to user1
       await token1.connect(owner).transfer(user1.address, parseUnits('100000', 6))
@@ -545,7 +545,7 @@ describe('CrossChainPool', function () {
     })
   })
 
-  describe('Asset BUSD (18 decimals)', async function () {
+  describe('Asset BUSD (18 decimals)', function () {
     beforeEach(async function () {
       // Transfer 100k of stables to user1
       await token0.connect(owner).transfer(user1.address, parseEther('100000'))
@@ -757,7 +757,7 @@ describe('CrossChainPool', function () {
     })
   })
 
-  describe('Asset vUSDC (6 decimals)', async function () {
+  describe('Asset vUSDC (6 decimals)', function () {
     beforeEach(async function () {
       // Transfer 100k of stables to user1
       await token1.connect(owner).transfer(user1.address, parseUnits('100000', 6))

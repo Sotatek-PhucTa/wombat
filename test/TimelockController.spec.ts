@@ -48,7 +48,7 @@ describe('TimelockController', function () {
     })
   )
 
-  describe('Asset with Timelock', async function () {
+  describe('Asset with Timelock', function () {
     beforeEach(async function () {
       expect(await asset0.owner()).to.be.equal(timelockContract.address)
       expect(await asset1.owner()).to.be.equal(timelockContract.address)
@@ -200,7 +200,7 @@ describe('TimelockController', function () {
     })
   })
 
-  describe('Multisig with timelock', async function () {
+  describe('Multisig with timelock', function () {
     it('can setMaxSupply', async function () {
       expect(await asset0.maxSupply()).to.eq(0)
       expect(await asset0.owner()).to.eq(timelockContract.address)
