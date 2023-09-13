@@ -541,12 +541,12 @@ To verify proxy contracts:
 ### Ethereum mainnet deployed contracts:
 
 #### Wombat Governance
-
 - Wombat Token => `0xc0B314a8c08637685Fc3daFC477b92028c540CFB`
 - DefaultProxyAdmin => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
 - MasterWombatV3_Proxy => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
 - WombatRouter => `0x6BB82A9b0b9b9716B885baeEfDBE47b685a0F919`
 - VeWom_Proxy => `0xEF0B4d9Dba6ea82B59437Fe5E37b16A2896aAF94`
+- Voter_Proxy => `0x32A936CbA2629619b46684cDf923CB556f09442c`
 - Whitelist => `0xF84c5999cD8667Fa54006Aca7FEF6c31F75cc9dE`
 
 ##### Self-service bribe
