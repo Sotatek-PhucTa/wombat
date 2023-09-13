@@ -29,7 +29,7 @@
     "@types/node": "^20.6.0",
     "@types/random": "^3.0.1",
     "@types/seedrandom": "^3.0.5",
-    "@types/tmp": "^0.2.3",
+    "@types/tmp": "^0.2.4",
     "@types/utf8": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
