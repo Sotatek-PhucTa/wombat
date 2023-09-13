@@ -20,14 +20,14 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const voter = await getDeployedContract('Voter')
   const bribeRewarderFactory = await deployments.getOrNull('BribeRewarderFactory')
   const masterWombat = await getLatestMasterWombat()
-  // In mainnet, we wait for 2 blocks for stabilization
+  // In bsc mainnet, we wait for 2 blocks for stabilization
   const blocksToConfirm = network != Network.BSC_MAINNET ? 1 : 2
 
   deployments.log('Setting up dynamic pool')
   const DYNAMICPOOL_TOKENS = DYNAMICPOOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(DYNAMICPOOL_TOKENS)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
-      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
+      await setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
   }
 
@@ -35,7 +35,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const FACTORYPOOL_TOKENS = FACTORYPOOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(FACTORYPOOL_TOKENS)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
-      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
+      await setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
   }
 
@@ -43,7 +43,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const CROSSCHAINPOOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
   for (const [poolName, poolInfo] of Object.entries(CROSSCHAINPOOL_TOKENS)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
-      setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
+      await setup(poolName, assetInfo, voter, owner, masterWombat, blocksToConfirm)
     }
   }
 
@@ -64,14 +64,23 @@ async function setup(
 ) {
   const assetContractName = getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
   const assetContractAddress = (await deployments.get(assetContractName)).address as string
-  await addAsset(voter, owner, masterWombat.address, assetContractAddress)
+  await addAsset(voter, owner, masterWombat.address, assetContractAddress, blocksToConfirm)
   await setAllocPoint(voter, owner, assetContractAddress, assetInfo.allocPoint ?? 0, blocksToConfirm)
 }
 
-async function addAsset(voter: Contract, owner: SignerWithAddress, masterWombat: string, assetAddress: string) {
+async function addAsset(
+  voter: Contract,
+  owner: SignerWithAddress,
+  masterWombat: string,
+  assetAddress: string,
+  blocksToConfirm: number
+) {
   deployments.log('addAsset', assetAddress)
   try {
-    await confirmTxn(voter.connect(owner).add(masterWombat, assetAddress, ethers.constants.AddressZero))
+    await confirmTxn(
+      voter.connect(owner).add(masterWombat, assetAddress, ethers.constants.AddressZero),
+      blocksToConfirm
+    )
   } catch (err: any) {
     if (err.message.includes('voter: already added') || err.message.includes('Voter: gaugeManager is already exist')) {
       deployments.log(`Skip adding asset ${assetAddress} since it is already added`)
