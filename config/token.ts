@@ -275,6 +275,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.LOCALHOST]: Deployment('USDC'),
     [Network.BSC_TESTNET]: Deployment('USDC'),
     [Network.POLYGON_TESTNET]: Deployment('USDC'),
+    [Network.SKALE_TESTNET]: Deployment('USDC'),
+    [Network.SCROLL_TESTNET]: Deployment('USDC'),
     // https://www.coingecko.com/en/coins/usd-coin
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
     [Network.ARBITRUM_MAINNET]: Address('0xaf88d065e77c8cC2239327C5EDb3A432268e5831'),
@@ -303,6 +305,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.LOCALHOST]: Deployment('USDT'),
     [Network.BSC_TESTNET]: Deployment('USDT'),
     [Network.POLYGON_TESTNET]: Deployment('USDT'),
+    [Network.SKALE_TESTNET]: Deployment('USDT'),
+    [Network.SCROLL_TESTNET]: Deployment('USDT'),
     // https://www.coingecko.com/en/coins/tether
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),
@@ -349,6 +353,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Deployment('WombatToken'),
     [Network.AVALANCHE_TESTNET]: Deployment('WombatToken'),
     [Network.POLYGON_TESTNET]: Deployment('WombatToken'),
+    [Network.SKALE_TESTNET]: Deployment('WombatToken'),
+    [Network.SCROLL_TESTNET]: Deployment('WombatToken'),
     // TODO change to actual address after bridge WOM over using wormhole
     [Network.POLYGON_MAINNET]: Deployment('WombatToken'),
     [Network.BASE_MAINNET]: Deployment('WombatToken'),

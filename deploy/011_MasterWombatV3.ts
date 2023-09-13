@@ -1,4 +1,4 @@
-import { ethers } from 'hardhat'
+import { deployments, ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Token, getTokenAddress } from '../config/token'
 import { logVerifyCommand } from '../utils'
@@ -46,3 +46,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 export default deployFunc
 deployFunc.tags = [contractName]
 deployFunc.dependencies = ['WombatToken']
+deployFunc.skip = async () => {
+  const bmw = await deployments.getOrNull('BoostedMasterWombat')
+  return bmw != null
+}

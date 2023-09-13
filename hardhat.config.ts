@@ -97,6 +97,11 @@ const config: HardhatUserConfig = {
       url: 'https://sepolia-rpc.scroll.io/',
       accounts: [secrets.deployer.privateKey],
     },
+    [Network.SKALE_TESTNET]: {
+      chainId: 1351057110,
+      url: 'https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix/',
+      accounts: [secrets.deployer.privateKey],
+    },
   },
   etherscan: {
     apiKey: {
@@ -185,6 +190,7 @@ const config: HardhatUserConfig = {
       [Network.AVALANCHE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       [Network.POLYGON_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
       [Network.SCROLL_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
+      [Network.SKALE_TESTNET]: '0xDB9f9Be4D6A033d622f6785BA6F8c3680dEC2452',
     },
     multisig: {
       // No default to fail if used without initialization. Error singature: `Error: invalid address`.
@@ -194,6 +200,7 @@ const config: HardhatUserConfig = {
       [Network.AVALANCHE_TESTNET]: 'deployer',
       [Network.SCROLL_TESTNET]: 'deployer',
       [Network.POLYGON_TESTNET]: 'deployer',
+      [Network.SKALE_TESTNET]: 'deployer',
       [Network.BSC_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe

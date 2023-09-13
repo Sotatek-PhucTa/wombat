@@ -18,6 +18,16 @@ const VOTER_ARGS: PartialRecord<Network, VoterArg> = {
     womPerSec: convertTokenPerMonthToTokenPerSec(parseEther('1800000')),
     secondsToStart: 300,
   },
+  [Network.SKALE_TESTNET]: {
+    ...defaultVoterArg(),
+    womPerSec: convertTokenPerMonthToTokenPerSec(parseEther('1800000')),
+    secondsToStart: 300,
+  },
+  [Network.SCROLL_TESTNET]: {
+    ...defaultVoterArg(),
+    womPerSec: convertTokenPerMonthToTokenPerSec(parseEther('1800000')),
+    secondsToStart: 300,
+  },
   [Network.ETHEREUM_MAINNET]: {
     ...defaultVoterArg(),
     womPerSec: 0,

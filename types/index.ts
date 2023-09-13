@@ -21,6 +21,7 @@ export enum Network {
   ETHEREUM_MAINNET = 'eth_mainnet',
   BASE_MAINNET = 'base_mainnet',
   SCROLL_TESTNET = 'scroll_testnet',
+  SKALE_TESTNET = 'skale_testnet',
 }
 
 export interface DeploymentResult {

@@ -653,6 +653,28 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
+  [Network.SKALE_TESTNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig(),
+      },
+      assets: {
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+      },
+    },
+  },
+  [Network.SCROLL_TESTNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig(),
+      },
+      assets: {
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+      },
+    },
+  },
 })
 
 export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<

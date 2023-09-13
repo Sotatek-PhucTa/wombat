@@ -50,7 +50,10 @@ const MOCK_TOKEN_MAP: Record<Network, TokenMap<IMockTokenInfo>> = {
     BUSD: { tokenName: 'Binance USD', tokenSymbol: 'BUSD', decimalForMockToken: 18 },
     vUSDC: { tokenName: 'Venus USDC', tokenSymbol: 'vUSDC', decimalForMockToken: 8 },
   },
-  [Network.SCROLL_TESTNET]: {},
+  [Network.SCROLL_TESTNET]: {
+    USDC: { tokenName: 'USD Coin', tokenSymbol: 'USDC', decimalForMockToken: 18 },
+    USDT: { tokenName: 'Tether USD', tokenSymbol: 'USDT', decimalForMockToken: 6 },
+  },
   [Network.BSC_MAINNET]: {},
   [Network.POLYGON_MAINNET]: {},
   [Network.POLYGON_TESTNET]: {
@@ -64,4 +67,8 @@ const MOCK_TOKEN_MAP: Record<Network, TokenMap<IMockTokenInfo>> = {
   [Network.OPTIMISM_TESTNET]: {},
   [Network.ETHEREUM_MAINNET]: {},
   [Network.AVALANCHE_MAINNET]: {},
+  [Network.SKALE_TESTNET]: {
+    USDC: { tokenName: 'USD Coin', tokenSymbol: 'USDC', decimalForMockToken: 18 },
+    USDT: { tokenName: 'Tether USD', tokenSymbol: 'USDT', decimalForMockToken: 6 },
+  },
 }
