@@ -5,7 +5,7 @@ import { confirmTxn } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 import assert from 'assert'
 
-const deploymentNames = ['BribeRewarderFactory_Proxy']
+const deploymentNames = ['BribeRewarderFactory_Proxy', 'Voter_Proxy']
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const network = getCurrentNetwork()
@@ -20,6 +20,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     const { address } = await deployments.get(deploymentName)
     const ownable = await ethers.getContractAt('Ownable', address)
     const currentOwner = await ownable.owner()
+    if (currentOwner == multisig) {
+      deployments.log(`Skipping ${deploymentName} (at ${address}) as it is already owned by multisig`)
+      continue
+    }
     assert(deployer == currentOwner, `Expected deployer to be owner, but found ${currentOwner}`)
 
     // transfer contract ownership to multi-sig
