@@ -23,6 +23,7 @@ describe('MasterWombatV3Migration', function () {
   beforeEach(async function () {
     ;[owner, user1] = await ethers.getSigners()
     await deployments.fixture([
+      'CrossChainPoolAssets',
       'HighCovRatioFeePoolAssets',
       'MasterWombatV3',
       'MockTokens',
