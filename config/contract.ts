@@ -37,8 +37,7 @@ export enum ExternalContract {
   HorizonBribeOperator,
 }
 
-export async function getContractAddress(contract: ExternalContract): Promise<string> {
-  const network = getCurrentNetwork()
+export async function getContractAddress(contract: ExternalContract, network = getCurrentNetwork()): Promise<string> {
   const deploymentOrAddress = contractRegistry[contract][network]
   if (!deploymentOrAddress) {
     throw new Error(`No config found for contract ${ExternalContract[contract]} in network ${network}`)
