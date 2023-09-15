@@ -117,6 +117,7 @@ const config: HardhatUserConfig = {
       optimisticEthereum: secrets.opt_etherscan_api_key,
       mainnet: secrets.etherscan_api_key,
       scrollSepolia: 'abc',
+      skaleTestnet: 'abc',
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [
@@ -126,6 +127,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://sepolia-blockscout.scroll.io/api',
           browserURL: 'https://sepolia-blockscout.scroll.io/',
+        },
+      },
+      {
+        network: 'skaleTestnet',
+        chainId: 1351057110,
+        urls: {
+          apiURL: 'https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/api',
+          browserURL: 'https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com',
         },
       },
     ],
