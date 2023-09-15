@@ -21,12 +21,12 @@ export function getBribes(): TokenMap<IRewarder> {
 const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.HARDHAT]: {
     ...createRewarderForDeployedAsset('Asset_MainPool_BUSD', {
-      rewardTokens: [Token.WOM],
+      rewardTokens: [Token.BUSD],
       tokenPerSec: [parseEther('100')],
       operator: ExternalContract.MockContract,
     }),
     ...createRewarderForDeployedAsset('Asset_MainPool_USDT', {
-      rewardTokens: [Token.USDT, Token.WOM],
+      rewardTokens: [Token.USDT, Token.BUSD],
       tokenPerSec: [parseEther('12.3'), parseEther('100')],
     }),
   },

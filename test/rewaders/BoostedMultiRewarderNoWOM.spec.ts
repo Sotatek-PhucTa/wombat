@@ -4,11 +4,11 @@ import { expect } from 'chai'
 import { BigNumberish, Contract, constants } from 'ethers'
 import { parseEther, parseUnits } from 'ethers/lib/utils'
 import { deployments, ethers } from 'hardhat'
-import { BoostedMultiRewarder, BoostedMasterWombat, TestERC20, VeWom, Voter, WombatERC20 } from '../../build/typechain'
-import { getDeployedContract, getTestERC20 } from '../../utils'
+import { BoostedMultiRewarder, BoostedMasterWombat, TestERC20 } from '../../build/typechain'
+import { getTestERC20 } from '../../utils'
 import { AddressZero } from '@ethersproject/constants'
 
-describe('BoostedMultiRewarder', function () {
+describe('BoostedMultiRewarder No WOM', function () {
   const USDCDecimals = 18
   const DAIDecimals = 18
   const axlUSDCDecimals = 6
@@ -21,12 +21,9 @@ describe('BoostedMultiRewarder', function () {
   let USDC: TestERC20
   let DAI: TestERC20
   let axlUSDC: TestERC20
-  let wom: WombatERC20
-  let veWom: VeWom
-  let voter: Voter
 
   beforeEach(async function () {
-    await deployments.fixture(['WombatToken', 'MockTokens', 'MasterWombatV3', 'Voter', 'VeWom'])
+    await deployments.fixture(['MockTokens'])
     ;[owner, user1, user2] = await ethers.getSigners()
     master = (await ethers.deployContract('BoostedMasterWombat')) as BoostedMasterWombat
 
@@ -45,11 +42,7 @@ describe('BoostedMultiRewarder', function () {
       })
     )
 
-    voter = (await getDeployedContract('Voter')) as Voter
-    wom = (await ethers.deployContract('WombatERC20', [owner.address, parseEther('1000000000')])) as WombatERC20
-    veWom = (await getDeployedContract('VeWom')) as VeWom
-
-    await master.initialize(wom.address, veWom.address, voter.address, 1000)
+    await master.initialize(AddressZero, AddressZero, AddressZero, 1000)
   })
 
   describe('axlUSDC (6 decimal)', function () {
@@ -398,7 +391,6 @@ describe('BoostedMultiRewarder', function () {
     )
 
     await master.add(rewardInfo.lpToken, rewarder.address)
-    await voter.add(master.address, rewardInfo.lpToken, ethers.constants.AddressZero)
     return rewarder
   }
 

@@ -41,7 +41,6 @@ describe('BoostedMasterWombat upgrade from MasterWombatV3', function () {
   let busd: TestERC20
   let dai: TestERC20
   let vusdc: TestERC20
-  let wom: WombatERC20
 
   let lpUsdcPid: BigNumberish
   let lpBusdPid: BigNumberish
@@ -77,7 +76,6 @@ describe('BoostedMasterWombat upgrade from MasterWombatV3', function () {
     usdc = (await getDeployedContract('TestERC20', 'USDC')) as TestERC20
     dai = (await getDeployedContract('TestERC20', 'DAI')) as TestERC20
     vusdc = (await getDeployedContract('TestERC20', 'vUSDC')) as TestERC20
-    wom = (await getDeployedContract('WombatERC20', 'WombatToken')) as WombatERC20
     busdRewarder = (await getDeployedContract(
       'MultiRewarderPerSec',
       'MultiRewarderPerSec_V3_Asset_MainPool_BUSD'
@@ -91,8 +89,9 @@ describe('BoostedMasterWombat upgrade from MasterWombatV3', function () {
 
     await advanceTime(1000)
 
-    await wom.transfer(busdRewarder.address, parseEther('1000000'))
-    await busd.faucet(parseEther('1000000'))
+    await busd.faucet(parseEther('2000000'))
+    await busd.transfer(busdRewarder.address, parseEther('1000000'))
+
     await usdc.faucet(parseEther('1000000'))
     await dai.faucet(parseEther('1000000'))
     await vusdc.faucet(parseEther('1000000'))
@@ -178,20 +177,20 @@ describe('BoostedMasterWombat upgrade from MasterWombatV3', function () {
 
     it('pendingTokens should be include rewarder and boosted rewarder', async function () {
       const lpBusdPendingTokens = await mw.pendingTokens(lpBusdPid, owner.address)
-      expect(lpBusdPendingTokens.bonusTokenAddresses).to.have.members([wom.address, dai.address])
+      expect(lpBusdPendingTokens.bonusTokenAddresses).to.have.members([busd.address, dai.address])
 
       const lpUsdcPendingTokens = await mw.pendingTokens(lpUsdcPid, owner.address)
       expect(lpUsdcPendingTokens.bonusTokenAddresses).to.have.members([vusdc.address])
     })
 
     it('multiclaim token included from both the old rewarder and the boosted rewarder', async function () {
-      const balanceBefore1 = await wom.balanceOf(owner.address)
+      const balanceBefore1 = await busd.balanceOf(owner.address)
       const balanceBefore2 = await dai.balanceOf(owner.address)
       const balanceBefore3 = await vusdc.balanceOf(owner.address)
 
       await mw.multiClaim([lpBusdPid, lpUsdcPid])
 
-      const balanceAfter1 = await wom.balanceOf(owner.address)
+      const balanceAfter1 = await busd.balanceOf(owner.address)
       const balanceAfter2 = await dai.balanceOf(owner.address)
       const balanceAfter3 = await vusdc.balanceOf(owner.address)
 

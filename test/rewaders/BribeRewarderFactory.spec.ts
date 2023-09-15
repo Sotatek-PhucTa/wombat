@@ -40,6 +40,7 @@ describe('BribeRewarderFactory', function () {
 
   beforeEach(async function () {
     await deployments.fixture([
+      'WombatToken',
       'HighCovRatioFeePoolAssets',
       'CrossChainPoolAssets',
       'BoostedMasterWombat',

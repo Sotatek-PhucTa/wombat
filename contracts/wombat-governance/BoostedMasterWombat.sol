@@ -119,6 +119,7 @@ contract BoostedMasterWombat is
     event UpdateEmissionPartition(address indexed user, uint256 basePartition, uint256 boostedPartition);
     event UpdateVeWOM(address indexed user, address oldVeWOM, address newVeWOM);
     event UpdateVoter(address indexed user, address oldVoter, address newVoter);
+    event UpdateWOM(address indexed user, address oldWOM, address newWOM);
     event EmergencyWomWithdraw(address owner, uint256 balance);
 
     /// @dev Modifier ensuring that certain function can only be called by VeWom
@@ -134,7 +135,6 @@ contract BoostedMasterWombat is
     }
 
     function initialize(IERC20 _wom, IVeWom _veWom, address _voter, uint16 _basePartition) external initializer {
-        require(address(_wom) != address(0), 'wom address cannot be zero');
         require(_basePartition <= TOTAL_PARTITION, 'base partition must be in range 0, 1000');
 
         __Ownable_init();
@@ -384,25 +384,27 @@ contract BoostedMasterWombat is
 
             if (user.amount > 0) {
                 PoolInfoV3 storage pool = poolInfoV3[_pids[i]];
-                // increase pending to send all rewards once
-                uint128 newRewardDebt = _getRewardDebt(
-                    user.amount,
-                    pool.accWomPerShare,
-                    user.factor,
-                    pool.accWomPerFactorShare
-                );
-                uint256 poolRewards = newRewardDebt + user.pendingWom - user.rewardDebt;
+                if (address(wom) != address(0)) {
+                    // increase pending to send all rewards once
+                    uint128 newRewardDebt = _getRewardDebt(
+                        user.amount,
+                        pool.accWomPerShare,
+                        user.factor,
+                        pool.accWomPerFactorShare
+                    );
+                    uint256 poolRewards = newRewardDebt + user.pendingWom - user.rewardDebt;
 
-                user.pendingWom = 0;
+                    user.pendingWom = 0;
 
-                // update reward debt
-                user.rewardDebt = newRewardDebt;
+                    // update reward debt
+                    user.rewardDebt = newRewardDebt;
 
-                // increase reward
-                reward += poolRewards;
+                    // increase reward
+                    reward += poolRewards;
 
-                amounts[i] = poolRewards;
-                emit Harvest(msg.sender, _pids[i], amounts[i]);
+                    amounts[i] = poolRewards;
+                    emit Harvest(msg.sender, _pids[i], amounts[i]);
+                }
 
                 // if exist, update external rewarder
                 IMultiRewarder rewarder = pool.rewarder;
@@ -419,7 +421,9 @@ contract BoostedMasterWombat is
 
         // transfer all rewards
         // SafeERC20 is not needed as WOM will revert if transfer fails
-        wom.transfer(payable(msg.sender), reward);
+        if (reward > 0) {
+            wom.transfer(payable(msg.sender), reward);
+        }
     }
 
     /// @notice Withdraw LP tokens from MasterWombat.
@@ -455,27 +459,36 @@ contract BoostedMasterWombat is
 
         // Harvest WOM
         if (user.amount > 0 || user.pendingWom > 0) {
-            reward =
-                _getRewardDebt(user.amount, pool.accWomPerShare, user.factor, pool.accWomPerFactorShare) +
-                user.pendingWom -
-                user.rewardDebt;
-            user.pendingWom = 0;
+            if (address(wom) != address(0)) {
+                reward =
+                    _getRewardDebt(user.amount, pool.accWomPerShare, user.factor, pool.accWomPerFactorShare) +
+                    user.pendingWom -
+                    user.rewardDebt;
+                user.pendingWom = 0;
 
-            // SafeERC20 is not needed as WOM will revert if transfer fails
-            wom.transfer(payable(_user), reward);
-            emit Harvest(_user, _pid, reward);
+                // SafeERC20 is not needed as WOM will revert if transfer fails
+                if (reward > 0) {
+                    wom.transfer(payable(_user), reward);
+                }
+                emit Harvest(_user, _pid, reward);
+            }
         }
 
         // update amount of lp staked
-        uint256 oldUserAmount = user.amount;
         user.amount = to128(_amount);
 
         // update sumOfFactors
         uint256 oldFactor = user.factor;
-        user.factor = to128(DSMath.sqrt(user.amount * veWom.balanceOf(_user), user.amount));
+        if (address(veWom) != address(0)) {
+            user.factor = to128(DSMath.sqrt(user.amount * veWom.balanceOf(_user), user.amount));
+        } else {
+            user.factor = 0;
+        }
 
-        // update reward debt
-        user.rewardDebt = _getRewardDebt(_amount, pool.accWomPerShare, user.factor, pool.accWomPerFactorShare);
+        if (address(wom) != address(0)) {
+            // update reward debt
+            user.rewardDebt = _getRewardDebt(_amount, pool.accWomPerShare, user.factor, pool.accWomPerFactorShare);
+        }
 
         // update rewarder before we update lpSupply and sumOfFactors
         // aggregate result from both rewardewrs
@@ -542,6 +555,15 @@ contract BoostedMasterWombat is
         IVeWom oldVeWom = veWom;
         veWom = _newVeWom;
         emit UpdateVeWOM(msg.sender, address(oldVeWom), address(_newVeWom));
+    }
+
+    /// @notice updates wom address
+    /// @param _newWom the new VeWom address
+    function setWom(IERC20 _newWom) external onlyOwner {
+        require(address(_newWom) != address(0));
+        IERC20 oldWom = wom;
+        wom = _newWom;
+        emit UpdateWOM(msg.sender, address(oldWom), address(_newWom));
     }
 
     /// @notice updates voter address

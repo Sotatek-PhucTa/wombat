@@ -15,7 +15,14 @@ describe('RewarderBribe', function () {
 
   beforeEach(
     restoreOrCreateSnapshot(async function () {
-      await deployments.fixture(['HighCovRatioFeePoolAssets', 'Bribe', 'MultiRewarderPerSec', 'Voter'])
+      await deployments.fixture([
+        'WombatToken',
+        'BoostedMasterWombat',
+        'HighCovRatioFeePoolAssets',
+        'Bribe',
+        'MultiRewarderPerSec',
+        'Voter',
+      ])
       ;[owner] = await ethers.getSigners()
       ;[wom, usdt, busd] = await Promise.all([getTestERC20('WombatToken'), getTestERC20('USDT'), getTestERC20('BUSD')])
     })
@@ -27,7 +34,7 @@ describe('RewarderBribe', function () {
     const rewardInfos = await getRewardInfos(rewarder)
     expect(rewardInfos).to.eql([
       {
-        rewardToken: wom.address,
+        rewardToken: busd.address,
         tokenPerSec: parseEther('100'),
       },
     ])
@@ -43,7 +50,7 @@ describe('RewarderBribe', function () {
         tokenPerSec: parseEther('12.3'),
       },
       {
-        rewardToken: wom.address,
+        rewardToken: busd.address,
         tokenPerSec: parseEther('100'),
       },
     ])
