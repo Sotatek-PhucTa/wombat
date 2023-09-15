@@ -4,6 +4,7 @@ import { confirmTxn, getLatestMasterWombat, isOwner, logVerifyCommand } from '..
 import { Token, getTokenAddress } from '../config/token'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { getCurrentNetwork } from '../types/network'
+import { getProxyAdminOwner } from '../utils/deploy'
 
 const contractName = 'VeWom'
 
@@ -27,7 +28,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     proxy: {
-      owner: multisig,
+      owner: await getProxyAdminOwner(),
       proxyContract: 'OptimizedTransparentProxy',
       viaAdminContract: 'DefaultProxyAdmin',
       execute: {

@@ -141,24 +141,25 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
       tokens: [Token.USDC, Token.USDT],
     },
   },
-  [Network.BASE_MAINNET]: {
-    [CrossChainPoolType.stablecoin]: {
-      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.BASE_MAINNET),
-      tokens: [Token.USDC, Token.USDT],
-    },
-  },
-  [Network.POLYGON_MAINNET]: {
-    [CrossChainPoolType.stablecoin]: {
-      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.POLYGON_MAINNET),
-      tokens: [Token.USDC, Token.USDT],
-    },
-  },
-  [Network.AVALANCHE_MAINNET]: {
-    [CrossChainPoolType.stablecoin]: {
-      adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.AVALANCHE_MAINNET),
-      tokens: [Token.USDC, Token.USDT],
-    },
-  },
+  // Comment out for wormhole adaptor setup, these three have not been deployed in this batch
+  // [Network.BASE_MAINNET]: {
+  //   [CrossChainPoolType.stablecoin]: {
+  //     adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.BASE_MAINNET),
+  //     tokens: [Token.USDC, Token.USDT],
+  //   },
+  // },
+  // [Network.POLYGON_MAINNET]: {
+  //   [CrossChainPoolType.stablecoin]: {
+  //     adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.POLYGON_MAINNET),
+  //     tokens: [Token.USDC, Token.USDT],
+  //   },
+  // },
+  // [Network.AVALANCHE_MAINNET]: {
+  //   [CrossChainPoolType.stablecoin]: {
+  //     adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.AVALANCHE_MAINNET),
+  //     tokens: [Token.USDC, Token.USDT],
+  //   },
+  // },
 })
 
 const NETWORK_GROUP_MAP: Record<Network, NetworkGroup> = {
