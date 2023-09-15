@@ -5,7 +5,14 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import chai, { expect } from 'chai'
 import { BigNumber, BigNumberish } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
-import { Asset, CoreV3, GovernedPriceFeed, PriceFeedAsset, TestERC20, VolatilePool } from '../../../build/typechain'
+import {
+  Asset,
+  CoreV3,
+  GovernedPriceFeed,
+  PriceFeedAsset,
+  TestERC20,
+  VolatilePoolWithExternalOracle,
+} from '../../../build/typechain'
 import { roughlyNear } from '../../assertions/roughlyNear'
 import { veryNear } from '../../assertions/veryNear'
 import { latest } from '../../helpers'
@@ -18,7 +25,7 @@ chai.use(roughlyNear)
 /**
  * TODO: generate more random testings against different pool setting and different kind of txns
  */
-describe('VolatilePool - invariant', function () {
+describe('VolatilePoolWithExternalOracle - invariant', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
   let coreV3: CoreV3
@@ -63,9 +70,9 @@ describe('VolatilePool - invariant', function () {
     assetConfig: { cash: BigNumberish; liability: BigNumberish; underlyingToken: TestERC20 }[]
   }) {
     // create and init pool
-    const pool = (await ethers.deployContract('VolatilePool', {
+    const pool = (await ethers.deployContract('VolatilePoolWithExternalOracle', {
       libraries: { CoreV3: coreV3.address },
-    })) as VolatilePool
+    })) as VolatilePoolWithExternalOracle
     await pool.initialize(parseEther('0.2'), parseEther('0.001'))
     await pool.setCovRatioFeeParam(parseEther('2'), parseEther('3'))
 
@@ -112,7 +119,7 @@ describe('VolatilePool - invariant', function () {
   }
 
   describe('r* = 0.477', function () {
-    let pool: VolatilePool
+    let pool: VolatilePoolWithExternalOracle
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 
@@ -196,7 +203,7 @@ describe('VolatilePool - invariant', function () {
   })
 
   describe('r* = 1.638 (floating r*)', function () {
-    let pool: VolatilePool
+    let pool: VolatilePoolWithExternalOracle
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 
@@ -282,7 +289,7 @@ describe('VolatilePool - invariant', function () {
   })
 
   describe('r* = 1.638 (capping r*)', function () {
-    let pool: VolatilePool
+    let pool: VolatilePoolWithExternalOracle
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 
@@ -359,7 +366,7 @@ describe('VolatilePool - invariant', function () {
   })
 
   describe('withdrawal haircut', function () {
-    let pool: VolatilePool
+    let pool: VolatilePoolWithExternalOracle
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 

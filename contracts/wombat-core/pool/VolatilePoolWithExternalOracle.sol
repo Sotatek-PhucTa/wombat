@@ -4,10 +4,12 @@ pragma solidity ^0.8.14;
 import './DynamicPoolV3.sol';
 
 /**
- * @title Volatile Pool
+ * @title Volatile Pool with external oracle
  * @notice Manages deposits, withdrawals and swaps for volatile pool with external oracle
+ * By overriding `function _getGlobalEquilCovRatioForDepositWithdrawal`, pool gain / lost is shared by all
+ * LP instead of the pool itself
  */
-contract VolatilePool is DynamicPoolV3 {
+contract VolatilePoolWithExternalOracle is DynamicPoolV3 {
     /// @notice Whether to cap the global equilibrium coverage ratio at 1 for deposit and withdrawal
     bool public shouldCapEquilCovRatio;
 

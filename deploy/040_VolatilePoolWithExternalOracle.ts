@@ -8,7 +8,7 @@ import { Network } from '../types'
 import { confirmTxn, getDeployedContract } from '../utils'
 import { deployBasePool } from '../utils/deploy'
 
-const contractName = 'VolatilePool'
+const contractName = 'VolatilePoolWithExternalOracle'
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -20,7 +20,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const POOL_TOKENS = VOLATILEPOOL_TOKENS_MAP[hre.network.name as Network] || {}
   for (const [poolName, pooInfo] of Object.entries(POOL_TOKENS)) {
-    const { contract: pool, deployResult } = await deployBasePool('VolatilePool', poolName, pooInfo, {
+    const { contract: pool, deployResult } = await deployBasePool('VolatilePoolWithExternalOracle', poolName, pooInfo, {
       CoreV3: coreV3Deployment.address,
     })
 

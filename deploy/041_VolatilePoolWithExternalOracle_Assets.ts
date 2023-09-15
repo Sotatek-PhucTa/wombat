@@ -21,7 +21,7 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   for (const [poolName, poolInfo] of Object.entries(POOL_TOKENS)) {
     const setting = poolInfo.setting
     const poolContractName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)
-    const pool = await getDeployedContract('VolatilePool', poolContractName)
+    const pool = await getDeployedContract('VolatilePoolWithExternalOracle', poolContractName)
 
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       await deployAssetV2(assetInfo, pool.address, pool, getAssetDeploymentName(poolName, assetInfo.tokenSymbol))
@@ -44,4 +44,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
 export default deployFunc
 deployFunc.tags = [contractName]
-deployFunc.dependencies = ['VolatilePool', 'ChainlinkPriceFeed', 'PythPriceFeed']
+deployFunc.dependencies = ['VolatilePoolWithExternalOracle', 'ChainlinkPriceFeed', 'PythPriceFeed']
