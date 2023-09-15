@@ -606,17 +606,6 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
-  [Network.OPTIMISM_MAINNET]: {
-    Main_Pool: {
-      setting: {
-        ...defaultMainPoolConfig(),
-      },
-      assets: {
-        ...UsdcAsset({ maxSupply: parseUnits('1000000', 6) }),
-        ...UsdtAsset({ maxSupply: parseUnits('1000000', 6) }),
-      },
-    },
-  },
   [Network.ETHEREUM_MAINNET]: {
     FRAX_Pool: {
       setting: {
