@@ -792,6 +792,25 @@ To verify proxy contracts:
 - Asset (LP-USDT) => `0x421aa41e85d240237582864DfA6f66E1A734356a`
 - Asset (LP-axlUSDC) => `0xAc86E71E3a67C2d2257daaCDC63903f8a963947e`
 
+### Scroll Sepolia testnet
+
+#### Wombat Governance
+
+- Default Proxy Admin (Proxy Admin) => `0x4eF1575470b2985FBD347576DD6F27bdCFdC4093`
+- WombatRouter => `0x9aACf1E6A7076052590A672F9ba641DdD424C17d`
+- WombatToken => `0x78895E0d97bd723e9921c4d480DDDA84cFDBB82D`
+- BoostedMasterWombat_Proxy => `0x01722147c9502ECCbd68bB328A47A080C13D8108`
+- VeWom_Proxy => `0x338159fA37Fa3c5711a6F48A1055B2Cb1dDD422b`
+- Whitelist => `0xd744936A68642f7D96F394Dd59Cb214885FF8A06`
+
+#### Wombat Main Pool
+
+- Main Pool Proxy (Main entry) => `0x99f1dA4f5bD6082De1eB6A3Df85965df6EB6fD1D`
+- USDC (18 d.p.) => `0x55bD28C34d5bDDe6A41F8565A569ED6281ba7C46`
+- USDT (6 d.p.) => `0x9f9fF16f55408DdDeD86E8F9c7aCf3762F21bEAA`
+- Asset (LP-USDC) => `0x21Ab6E06151790386FDbC7DbADc43D7f25a3760b`
+- Asset (LP-USDT) => `0xAd9828122344F120FAee829656b4c980DeE6F353`
+
 ### For BSC mainnet network
 
 - Update accounts deployer private key at `hardhat.config.ts`

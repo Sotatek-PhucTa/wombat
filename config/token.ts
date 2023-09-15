@@ -329,6 +329,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'),
   },
   [Token.WETH]: {
+    // https://sepolia-blockscout.scroll.io/address/0x5300000000000000000000000000000000000004
+    [Network.SCROLL_TESTNET]: Address('0x5300000000000000000000000000000000000004'),
     // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
     [Network.ARBITRUM_MAINNET]: Address('0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'),
     // https://optimistic.etherscan.io/token/0x4200000000000000000000000000000000000006
