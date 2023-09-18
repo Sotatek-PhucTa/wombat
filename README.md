@@ -525,18 +525,18 @@ To verify proxy contracts:
 ### Optimism mainnet deployed contracts:
 
 #### Wombat Governance
-
-- DefaultProxyAdmin => `0x85cEBD962861be410a777755dFa06914de6af003`
 - Wombat Token => `0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668`
-- WombatRouter => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
-- MasterWombatV3_Proxy => `0x34E2F923bBa206358EcE221af73E8d121837F873`
-- TimelockController => `0xD119d81cD05c010C10e40FaE8478b36b59FAcA20`
+- DefaultProxyAdmin => `0xe5e36816e9c237447Cead58DCc79eEc5D662E44C`
+- BoostedMasterWombat_Proxy => `0x82E62f4e174E3C5e1641Df670c91Ac6Ab8541518`
+- VeWom_Proxy => `0xE91cfd7f8e5A5a1EA4803FcF781e1C8d6FfCa279`
+- Whitelist => `0xfa9576f5Ac8F676aa3aC3B1F78850c495Bf69BFb`
 
-#### Main Pool
-
-- Main_Pool_Proxy => `0x6f8Ad371FDD422c0abE21352525f58b5E3bB266b`
-- Asset_Main_Pool_USDC => `0xd05CF2BCaaee3a221E9effF58bF2874b9F11E47b`
-- Asset_Main_Pool_USDT => `0x375883a1F801138B6f5EE953a7A11072129Ac624`
+#### Cross chain pool
+- CoreV3 => `0x1414CD7F8e384B875bFBbabcacAAE592C2B4f8f8`
+- CrossChainPool_Stablecoin_Pool_Proxy => `0x50a39b94B1Dc8472faa08c36a3Ef5b0A01c5BD10`
+- WormholeAdaptor_Stablecoin_Pool_Proxy => `0x3ccC0dC754E380cDA16EF94292F278bbc4Ff463E`
+- Asset_Stablecoin_Pool_USDC => `0x96b1B2F764e90BAF53FCbe149f157ded5F69F197`
+- Asset_Stablecoin_Pool_USDT => `0xEE9b42b40852a53c7361F527e638B485D49750cD`
 
 ### Ethereum mainnet deployed contracts:
 
