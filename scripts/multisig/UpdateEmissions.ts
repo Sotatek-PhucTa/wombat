@@ -27,8 +27,8 @@ runScript('UpdateEmission', async () => {
   } else if (network == Network.ARBITRUM_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissions(
-        _.pick(getBribes(), ['Asset_ankrETH_Pool_WETH', 'Asset_ankrETH_Pool_ankrETH']),
-        getBribeDeploymentName
+        _.pick(getRewarders(), ['Asset_mPendle_Pool_PENDLE', 'Asset_mPendle_Pool_mPendle']),
+        getRewarderDeploymentName
       )
     )
   } else {

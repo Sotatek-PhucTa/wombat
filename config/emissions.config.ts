@@ -288,12 +288,12 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_PENDLE', {
       rewardTokens: [Token.PNP, Token.WOM],
-      tokenPerSec: ['2920634910000000', convertTokenPerEpochToTokenPerSec(parseEther('3554'))],
+      tokenPerSec: ['2920634910000000', convertTokenPerEpochToTokenPerSec(parseEther('5022'))],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_mPendle', {
       rewardTokens: [Token.PNP, Token.WOM],
-      tokenPerSec: ['1460317450000000', convertTokenPerEpochToTokenPerSec(parseEther('1777'))],
+      tokenPerSec: ['1460317450000000', convertTokenPerEpochToTokenPerSec(parseEther('2511'))],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_fUSDC', {
