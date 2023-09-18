@@ -525,7 +525,8 @@ To verify proxy contracts:
 ### Optimism mainnet deployed contracts:
 
 #### Wombat Governance
-- Wombat Token => `0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668`
+- Wombat Token (WOM) => `0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668`
+- WombatRouter => `0x35d531Fd45D5E3A5d407A4898360c757C98Bdf79`
 - DefaultProxyAdmin => `0xe5e36816e9c237447Cead58DCc79eEc5D662E44C`
 - BoostedMasterWombat_Proxy => `0x82E62f4e174E3C5e1641Df670c91Ac6Ab8541518`
 - VeWom_Proxy => `0xE91cfd7f8e5A5a1EA4803FcF781e1C8d6FfCa279`
