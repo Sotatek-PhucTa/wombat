@@ -28,6 +28,7 @@ export enum Token {
   MAI,
   MGP,
   MIM,
+  NO_WRAPPED_NATIVE_TOKEN,
   PENDLE,
   PNP,
   PSTAKE,
@@ -210,6 +211,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.multiANKR]: {
     // deprecated ANKR that was bridged from multichain
     [Network.ARBITRUM_MAINNET]: Address('0x46F74778b265Df3a15EC9695CCd2fD3869ca848c'),
+  },
+  [Token.NO_WRAPPED_NATIVE_TOKEN]: {
+    // Workaround for WombatRouter because Skale doesn't have wrap native token
+    [Network.SKALE_TESTNET]: Address('0x0000000000000000000000000000000000000001'),
   },
   [Token.PENDLE]: {
     // https://arbiscan.io/address/0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8
