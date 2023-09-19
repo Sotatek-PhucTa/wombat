@@ -5,7 +5,8 @@ import { confirmTxn } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 import assert from 'assert'
 
-const deploymentNames = ['BribeRewarderFactory_Proxy', 'Voter_Proxy', 'VeWom_Proxy']
+// TODO: automatically discover proxy from deployments folder
+const deploymentNames = ['BribeRewarderFactory_Proxy', 'Voter_Proxy', 'VeWom_Proxy', 'Whitelist']
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const network = getCurrentNetwork()
