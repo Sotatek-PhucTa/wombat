@@ -817,6 +817,7 @@ To verify proxy contracts:
 #### Wombat Governance
 
 - Default Proxy Admin (Proxy Admin) => `0x4dF91022B08C4bD9B2cE54D0799E7a9Db801df2c`
+- WombatRouter => `0xbBB38138dD216C60a38181565f552BcA4Ac8B06B`
 - WombatToken => `0x1BfA065E0f6F544b143a18e1BEb163d46b4378Aa`
 - BoostedMasterWombat_Proxy => `0x2c5bdB54A5A2C899D7a8BAA091EEcd0bCB2Bdd31`
 - VeWom_Proxy => `0xE42b4e663fdEc68e3744de07ef54519102De5b1e`
