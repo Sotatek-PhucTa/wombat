@@ -15,7 +15,7 @@ runScript('epoch-20230726', async () => {
   if (network == Network.ARBITRUM_MAINNET) {
     return concatAll(
       multisig.utils.pauseRewardRateFor('Rewarder', ['Asset_mPendle_Pool_PENDLE', 'Asset_mPendle_Pool_mPendle']),
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getBribes(), ['Asset_frxETH_Pool_frxETH', 'Asset_frxETH_Pool_sfrxETH']),
         getBribeDeploymentName
       ),
@@ -33,11 +33,11 @@ runScript('epoch-20230726', async () => {
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
       multisig.utils.pauseRewardRateFor('Bribe', ['Asset_IUSDPool_iUSD', 'Asset_IUSDPool_BUSD']),
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getRewarders(), ['Asset_BNBy_Pool_WBNB', 'Asset_BNBy_Pool_BNBy']),
         getRewarderDeploymentName
       ),
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getBribes(), ['Asset_frxETH_Pool_frxETH', 'Asset_frxETH_Pool_sfrxETH']),
         getBribeDeploymentName
       ),

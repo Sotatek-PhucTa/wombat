@@ -13,7 +13,7 @@ runScript('operation-20230905', async () => {
     return concatAll(multisig.utils.pauseVoteEmissionFor(['Asset_StkBnbPool_stkBNB', 'Asset_StkBnbPool_WBNB']))
   } else if (network == Network.ETHEREUM_MAINNET) {
     return concatAll(
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getRewarders(), ['Asset_ETHx_Pool_WETH', 'Asset_ETHx_Pool_ETHx']),
         getRewarderDeploymentName
       )

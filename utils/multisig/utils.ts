@@ -18,7 +18,7 @@ import { Safe, encodeData, executeBatchTransaction } from './transactions'
 import assert from 'assert'
 import chalk from 'chalk'
 import { Token, getTokenAddress, getTokenDeploymentOrAddress } from '../../config/token'
-import { BigNumberish, Contract, BigNumber, utils } from 'ethers'
+import { BigNumberish, Contract, BigNumber, utils, constants } from 'ethers'
 import { Zero } from '@ethersproject/constants'
 import _ from 'lodash'
 import { convertTokenPerEpochToTokenPerSec, convertTokenPerSecToTokenPerEpoch } from '../../config/emission'
@@ -266,10 +266,10 @@ async function hasActiveRewards(rewarderOrBribe: Contract): Promise<boolean> {
 }
 
 /**
+ * @remarks if changing the rate, prefer updating emissions.config.ts and use updateEmissionsAndTopUp(). It ensures we can keep emissions.config.ts as a single source of truth for emissions rates
  * @param {string} rewarderOrBribeDeployment - The address of the rewarder or bribe deployment.
  * @param {Token} token - The token object containing information about the token to be used.
  * @param {BigNumberish} [epochAmount] - (Optional) The amount of token to be used for the epoch. Leave it empty if the rate is not changing.
- * @todo updating epochAmount should also update emissions.config.ts
  */
 export async function topUpRewarder(
   rewarderOrBribeDeployment: string,
@@ -488,22 +488,41 @@ export async function unpauseVoteEmissionFor(assetDeployments: string[]): Promis
   )
 }
 
-export async function updateEmissions(
+// update rates and optionally top up according to emissions.config.ts.
+export async function updateEmissionsAndTopUp(
   config: TokenMap<IRewarder>,
-  getDeploymentName: (key: string) => string
+  getDeploymentName: (key: string) => string,
+  numEpochToTopUp?: number,
+  tokensToTopUp?: Token[]
 ): Promise<BatchTransaction[]> {
   return loopRewarder(config, getDeploymentName, async (name, rewarder, info, rewardInfos) => {
     return concatAll(
       ..._.range(0, rewardInfos.length).map(async (i) => {
+        const txns = []
         const rewardToken = info.rewardTokens[i]
         const expected = info.tokenPerSec[i]
         const actual = rewardInfos[i].tokenPerSec
+        // setRewardRate if actual !== expected
         if (BigNumber.from(expected).eq(actual)) {
           console.log(`${name}: ${Token[rewardToken]} does not need to be updated.`)
-          return []
+        } else {
+          console.log(`${name}: Expected ${Token[rewardToken]} to be ${expected} but got ${actual}.`)
+          txns.push(Safe(rewarder).setRewardRate(i, expected))
         }
-        console.log(`${name}: Expected ${Token[rewardToken]} to be ${expected} but got ${actual}.`)
-        return [Safe(rewarder).setRewardRate(i, expected)]
+        // top up if needed
+        if (
+          numEpochToTopUp !== undefined &&
+          numEpochToTopUp > 0 &&
+          tokensToTopUp?.includes(rewardToken) &&
+          BigNumber.from(expected).gt(constants.Zero)
+        ) {
+          const erc20 = await ethers.getContractAt('ERC20', await getTokenAddress(rewardToken))
+          txns.push(
+            Safe(erc20).transfer(rewarder.address, convertTokenPerSecToTokenPerEpoch(expected).mul(numEpochToTopUp))
+          )
+        }
+
+        return txns
       })
     )
   })

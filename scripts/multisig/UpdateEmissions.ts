@@ -13,7 +13,7 @@ runScript('UpdateEmission', async () => {
   console.log(`Running against network: ${network}`)
   if (network == Network.BSC_MAINNET) {
     return concatAll(
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getBribes(), [
           'Asset_ankrETH_Pool_ETH',
           'Asset_ankrETH_Pool_ankrETH',
@@ -22,11 +22,11 @@ runScript('UpdateEmission', async () => {
         ]),
         getBribeDeploymentName
       )
-      // multisig.utils.updateEmissions(_.pick(getRewarders(), ['Asset_stables_01_FRAX']), getRewarderDeploymentName)
+      // multisig.utils.updateEmissionsAndTopUp(_.pick(getRewarders(), ['Asset_stables_01_FRAX']), getRewarderDeploymentName)
     )
   } else if (network == Network.ARBITRUM_MAINNET) {
     return concatAll(
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getRewarders(), ['Asset_mPendle_Pool_PENDLE', 'Asset_mPendle_Pool_mPendle']),
         getRewarderDeploymentName
       )

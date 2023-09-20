@@ -13,7 +13,7 @@ runScript('operation-20230906', async () => {
     // change back rate of ETHx rewarders
     // update rate for frxETH
     return concatAll(
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getRewarders(), [
           'Asset_ETHx_Pool_WETH',
           'Asset_ETHx_Pool_ETHx',
@@ -27,14 +27,14 @@ runScript('operation-20230906', async () => {
   } else if (network == Network.ARBITRUM_MAINNET) {
     // update rate for mPENDLE rewarders
     return concatAll(
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getRewarders(), ['Asset_mPendle_Pool_PENDLE', 'Asset_mPendle_Pool_mPendle']),
         getRewarderDeploymentName
       )
     )
   } else if (network == Network.BSC_MAINNET) {
     return concatAll(
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getBribes(), [
           'Asset_stables_01_USDT',
           'Asset_frxETH_Pool_frxETH',

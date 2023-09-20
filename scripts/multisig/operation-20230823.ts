@@ -11,7 +11,7 @@ runScript('operation-20230823', async () => {
   const network = getCurrentNetwork()
   if (network == Network.BSC_MAINNET) {
     return concatAll(
-      multisig.utils.updateEmissions(
+      multisig.utils.updateEmissionsAndTopUp(
         _.pick(getBribes(), [
           'Asset_SnBNB_Pool_SnBNB',
           'Asset_SnBNB_Pool_WBNB',

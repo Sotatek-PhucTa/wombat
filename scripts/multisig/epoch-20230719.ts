@@ -21,7 +21,7 @@ runScript('epoch-20230719', async () => {
     // TODO: uncomment if ankr confirms the rates
     // } else if (network == Network.BSC_MAINNET) {
     //   return concatAll(
-    //     multisig.utils.updateEmissions(
+    //     multisig.utils.updateEmissionsAndTopUp(
     //       _.pick(await getBribes(), [
     //         'Asset_ankrETH_Pool_ETH',
     //         'Asset_ankrETH_Pool_ankrETH',
