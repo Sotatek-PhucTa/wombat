@@ -7,10 +7,12 @@ import { ethers, getNamedAccounts } from 'hardhat'
 import { Provider } from '@ethersproject/providers'
 import { ExternalContract, getContractAddress } from '../config/contract'
 import { Network } from '../types'
+import { getCurrentNetwork } from '../types/network'
 
 main()
 
 async function main() {
+  const network = getCurrentNetwork()
   const { deployer } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
@@ -25,7 +27,7 @@ async function main() {
   )
 
   await confirmTxn(priceFeed.connect(deployerSigner).setLatestPrice(price))
-  console.log(`Price feed price set to ${formatEther(price)}`)
+  console.log(`[${network}] Price feed price set to ${formatEther(price)}`)
 }
 
 async function getSfrxETHPrice(): Promise<BigNumber> {
