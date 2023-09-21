@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
-    "@chainlink/contracts": "^0.6.1",
+    "@chainlink/contracts": "^0.7.1",
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "@hardhat-docgen/core": "^1.2.3",
