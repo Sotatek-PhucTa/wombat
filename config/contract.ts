@@ -99,6 +99,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.MagpieVeWomProxy]: {
     // https://arbiscan.io/address/0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc
     [Network.ARBITRUM_MAINNET]: Address('0x3CbFC97f87f534b42bb58276B7b5dCaD29E57EAc'),
+    [Network.ETHEREUM_MAINNET]: Address('0x35b3d5A340a7D769e470728A549572f65FE90d26'),
   },
   [ExternalContract.MockContract]: {
     [Network.HARDHAT]: Deployment('BUSD'),

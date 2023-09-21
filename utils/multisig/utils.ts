@@ -742,3 +742,9 @@ export async function initializeVoterToDependencies(): Promise<BatchTransaction[
     Safe(vewom).setVoter(voter.address),
   ]
 }
+
+export async function whitelistForVeWom(contractToWhitelist: ExternalContract): Promise<BatchTransaction[]> {
+  const whitelist = await getDeployedContract('Whitelist')
+
+  return [Safe(whitelist).approveWallet(await getContractAddress(contractToWhitelist))]
+}
