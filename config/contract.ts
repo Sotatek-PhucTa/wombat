@@ -24,6 +24,7 @@ export enum ExternalContract {
   SkimAdmin,
   SnBNBOracle,
   StaderETHxStakingManager,
+  StaderBribeOperator,
   StafiOperator,
   StkBNBOracle,
   TenFiBribeOperator,
@@ -88,6 +89,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.FraxBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
     [Network.ARBITRUM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
+    [Network.ETHEREUM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
   },
   [ExternalContract.JonesDaoBribeOperator]: {
     [Network.ARBITRUM_MAINNET]: Address('0xDD0556DDCFE7CdaB3540E7F09cB366f498d90774'),
@@ -130,6 +132,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   },
   [ExternalContract.StaderETHxStakingManager]: {
     [Network.ETHEREUM_MAINNET]: Address('0xcf5EA1b38380f6aF39068375516Daf40Ed70D299'),
+  },
+  [ExternalContract.StaderBribeOperator]: {
+    [Network.ETHEREUM_MAINNET]: Address('0x68258012DA3B933a81617FD08c9382a60B87cA98'),
   },
   [ExternalContract.StafiOperator]: {
     // https://bscscan.com/address/0x5fD0eBdFe0b70E70487FC0BebA82131F3FE8C65F
