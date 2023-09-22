@@ -517,9 +517,9 @@ export async function updateEmissionsAndTopUp(
           BigNumber.from(expected).gt(constants.Zero)
         ) {
           const erc20 = await ethers.getContractAt('ERC20', await getTokenAddress(rewardToken))
-          txns.push(
-            Safe(erc20).transfer(rewarder.address, convertTokenPerSecToTokenPerEpoch(expected).mul(numEpochToTopUp))
-          )
+          const amount = convertTokenPerSecToTokenPerEpoch(expected).mul(numEpochToTopUp)
+          console.log(`${name}: Transferring ${utils.formatEther(amount)} ${Token[rewardToken]} to the rewarder/bribe.`)
+          txns.push(Safe(erc20).transfer(rewarder.address, amount))
         }
 
         return txns

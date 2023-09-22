@@ -19,48 +19,48 @@ runScript('AdjustEmissionDistribution', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 292_500
-    BRIBE_ALLOC_PERCENT = 50.3
+    WOM_MONTHLY_EMISSION_RATE = 342_500
+    BRIBE_ALLOC_PERCENT = 48.85
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 2.1,
-      Asset_Stablecoin_Pool_USDC: 2.1,
+      Asset_Stablecoin_Pool_USDT: 1.825,
+      Asset_Stablecoin_Pool_USDC: 1.825,
       // Main Pool
-      Asset_MainPool_USDCe: 17.3,
-      Asset_MainPool_USDT: 14.6,
-      Asset_MainPool_DAI: 5.2,
-      Asset_MainPool_USDC: 6,
+      Asset_MainPool_USDCe: 17.8,
+      Asset_MainPool_USDT: 15.1,
+      Asset_MainPool_DAI: 5.7,
+      Asset_MainPool_USDC: 6.4,
       // wmxWOM Pool
       Asset_wmxWOM_Pool_wmxWOM: 0.57,
       Asset_wmxWOM_Pool_WOM: 0.57,
       // mWOM Pool
-      Asset_mWOM_Pool_mWOM: 0.43,
-      Asset_mWOM_Pool_WOM: 0.43,
+      Asset_mWOM_Pool_mWOM: 0.48,
+      Asset_mWOM_Pool_WOM: 0.48,
       // qWOM Pool
       Asset_qWOM_Pool_qWOM: 0.2,
       Asset_qWOM_Pool_WOM: 0.2,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 1_750_000
-    BRIBE_ALLOC_PERCENT = 91.5
+    WOM_MONTHLY_EMISSION_RATE = 2_250_000
+    BRIBE_ALLOC_PERCENT = 90.6
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 0.92,
-      Asset_Stablecoin_Pool_USDC: 0.92,
+      Asset_Stablecoin_Pool_USDT: 1.1,
+      Asset_Stablecoin_Pool_USDC: 1.1,
       // Main Pool
-      Asset_MainPool_USDC: 2.06,
-      Asset_MainPool_USDT: 2.06,
-      Asset_MainPool_BUSD: 0.77,
-      Asset_MainPool_DAI: 0.27,
+      Asset_MainPool_USDC: 2.9,
+      Asset_MainPool_USDT: 2.9,
+      Asset_MainPool_BUSD: 0,
+      Asset_MainPool_DAI: 0.2,
       // wmxWOM Pool
-      Asset_wmxWOMPool_wmxWOM: 0.38,
-      Asset_wmxWOMPool_WOM: 0.38,
+      Asset_wmxWOMPool_wmxWOM: 0.304,
+      Asset_wmxWOMPool_WOM: 0.304,
       // mWOM Pool
-      Asset_mWOMPool_mWOM: 0.31,
-      Asset_mWOMPool_WOM: 0.31,
+      Asset_mWOMPool_mWOM: 0.248,
+      Asset_mWOMPool_WOM: 0.248,
       // qWOM Pool
-      Asset_qWOMPool_qWOM: 0.06,
-      Asset_qWOMPool_WOM: 0.06,
+      Asset_qWOMPool_qWOM: 0.048,
+      Asset_qWOMPool_WOM: 0.048,
       // wBETH Pool
       Asset_wBETH_Pool_wBETH: 0,
       Asset_wBETH_Pool_ETH: 0,

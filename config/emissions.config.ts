@@ -123,13 +123,13 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_qWOMPool_WOM', {
       startTimestamp: Epochs.May03,
       rewardTokens: [Token.QUO],
-      tokenPerSec: ['170000000000000000'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.QuollBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_qWOMPool_qWOM', {
       startTimestamp: Epochs.May03,
       rewardTokens: [Token.QUO],
-      tokenPerSec: ['230000000000000000'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.QuollBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mWOMPool_WOM', {
@@ -328,7 +328,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_ETHx_Pool_WETH', {
       rewardTokens: [Token.SD, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('1300')),
+        convertTokenPerEpochToTokenPerSec(parseEther('1200')),
         convertTokenPerEpochToTokenPerSec(parseEther('18772')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
@@ -336,7 +336,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_ETHx_Pool_ETHx', {
       rewardTokens: [Token.SD, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('1300')),
+        convertTokenPerEpochToTokenPerSec(parseEther('800')),
         convertTokenPerEpochToTokenPerSec(parseEther('18772')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
@@ -370,15 +370,15 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('25')),
-        convertTokenPerEpochToTokenPerSec(parseEther('2027')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('60')),
+        convertTokenPerEpochToTokenPerSec(parseEther('34')),
         convertTokenPerEpochToTokenPerSec(parseEther('4864')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
@@ -386,8 +386,8 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('25')),
-        convertTokenPerEpochToTokenPerSec(parseEther('2027')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
@@ -516,7 +516,7 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
       rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('25'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
@@ -525,13 +525,13 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_ETH', {
       rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('25'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       startTimestamp: Epochs.Apr19,
       rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('25'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_stables_01_FRAX', {
