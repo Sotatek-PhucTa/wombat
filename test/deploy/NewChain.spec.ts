@@ -56,7 +56,6 @@ describe('New chain', function () {
       getDeployedContract('BribeRewarderFactory'),
     ])
 
-    await vewom.connect(multisig).pause()
     await wom.connect(multisig).transfer(user.address, parseEther('1000'))
     await busd.connect(user).faucet(parseEther('1000'))
     await vusdc.connect(user).faucet(parseEther('1000'))

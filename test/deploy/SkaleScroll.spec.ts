@@ -52,9 +52,6 @@ describe('New chain Skale/Scroll', function () {
       getDeployedContract('BribeRewarderFactory'),
     ])
 
-    // Workaround because the BoostedMasterWombat run after CrossChainPool
-    // There is no MW to set when CCP newly deployed
-    await vewom.connect(multisig).pause()
     await wom.connect(multisig).transfer(user.address, parseEther('1000'))
     await usdc.connect(user).faucet(parseEther('1000'))
     await usdt.connect(user).faucet(parseEther('1000'))

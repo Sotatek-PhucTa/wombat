@@ -18,7 +18,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const vewom = await getDeployedContract('VeWom')
   const oldVoter = await vewom.voter()
   const voter = await deployments.getOrNull('Voter')
-  if (voter != undefined && oldVoter != voter.address) {
+  if (voter == undefined) {
+    deployments.log('Voter is not deployed yet. Pause the VeWom')
+    await confirmTxn(vewom.connect(owner).pause())
+  } else if (oldVoter != voter.address) {
     deployments.log('Setting voter contract for VeWom')
     await confirmTxn(vewom.connect(owner).setVoter(voter.address))
   }
