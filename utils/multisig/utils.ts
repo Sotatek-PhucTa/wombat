@@ -748,3 +748,50 @@ export async function whitelistForVeWom(contractToWhitelist: ExternalContract): 
 
   return [Safe(whitelist).approveWallet(await getContractAddress(contractToWhitelist))]
 }
+
+/** BribeRewarderFactory */
+
+export async function whitelistRewardTokenForBribeRewarderFactory(tokens: Token[]): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+
+  return Promise.all(
+    tokens.map(async (token) => Safe(bribeRewarderFactory).whitelistRewardToken(await getTokenAddress(token)))
+  )
+}
+
+export async function setRewarderDeployerInFactory(
+  assetDeployment: string,
+  deployerAddress: string
+): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+  const lpToken = await getDeployedContract('Asset', assetDeployment)
+
+  return [Safe(bribeRewarderFactory).setRewarderDeployer(lpToken.address, deployerAddress)]
+}
+
+export async function deployRewarderThroughFactory(
+  assetDeployment: string,
+  rewardToken: Token,
+  startTime: number,
+  tokenPerSec: BigNumber
+): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+  const lpToken = await getDeployedContract('Asset', assetDeployment)
+  const rewardTokenAddress = await getTokenAddress(rewardToken)
+  return [
+    Safe(bribeRewarderFactory).deployRewarderContractAndSetRewarder(
+      lpToken.address,
+      startTime,
+      rewardTokenAddress,
+      tokenPerSec
+    ),
+  ]
+}
+
+export async function revokeRewardTokenForBribeRewarderFactory(tokens: Token[]): Promise<BatchTransaction[]> {
+  const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
+
+  return Promise.all(
+    tokens.map(async (token) => Safe(bribeRewarderFactory).revokeRewardToken(await getTokenAddress(token)))
+  )
+}
