@@ -9,7 +9,9 @@ coverage.json
 
 # Hardhat files
 cache
+cache-zk
 artifacts
+artifacts-zk
 deployments/**/solcInputs
 deployments/localhost
 build

@@ -18,6 +18,8 @@ import {
 import assert from 'assert'
 import { DeployResult } from 'hardhat-deploy/types'
 import { BribeRewarderFactory } from '../build/typechain'
+import {} from '@matterlabs/hardhat-zksync-upgradable'
+import { deployProxyZksync, isZkSync } from './zksync'
 
 export async function deployTestAsset(tokenSymbol: string) {
   const erc20 = await getTestERC20(tokenSymbol)
@@ -83,35 +85,21 @@ export async function deployBasePool(
 ): Promise<DeploymentResult> {
   const { deployer, multisig } = await getNamedAccounts()
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
-  const { deploy } = deployments
   const setting = pooInfo.setting
   const deploymentName = getPoolDeploymentName(setting.deploymentNamePrefix, poolName)
 
-  const deployResult = await deploy(deploymentName, {
-    from: deployer,
-    log: true,
-    contract: poolContract,
-    skipIfAlreadyDeployed: true,
-    libraries,
-    proxy: {
-      owner: await getProxyAdminOwner(),
-      proxyContract: 'OptimizedTransparentProxy',
-      viaAdminContract: 'DefaultProxyAdmin',
-      implementationName: getImplementationName(poolContract),
-      execute: {
-        init: {
-          methodName: 'initialize',
-          args: [setting.ampFactor, setting.haircut],
-        },
-      },
-    },
-  })
+  const deployResult = await deployProxy(
+    deploymentName,
+    poolContract,
+    deployer,
+    await getProxyAdminOwner(),
+    [setting.ampFactor, setting.haircut],
+    getImplementationName(poolContract),
+    libraries
+  )
 
   // Get freshly deployed pool contract
   const pool = await ethers.getContractAt(poolContract, deployResult.address)
-  const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
-  deployments.log('Contract address:', deployResult.address)
-  deployments.log('Implementation address:', implAddr)
 
   if (deployResult.newlyDeployed) {
     const masterWombatDeployment =
@@ -428,5 +416,52 @@ export async function deployUpgradeableBeacon(contractName: string) {
     const proxyAdminOwner = await getProxyAdminOwner()
     await confirmTxn(beaconContract.connect(deployerSigner).transferOwnership(proxyAdminOwner))
     deployments.log(`Transferring ownership of ${beaconDeployResult.address} to ${proxyAdminOwner}...`)
+  }
+}
+
+export async function deployProxy(
+  deploymentName: string,
+  contractName: string,
+  deployer: string,
+  owner: string,
+  args: any[],
+  implementationName = getImplementationName(deploymentName),
+  libraries?: { [key: string]: string }
+): Promise<DeployResult> {
+  if (isZkSync()) {
+    return await deployProxyZksync(deploymentName, implementationName, contractName, args, libraries)
+  } else {
+    const deployResult = await deployments.deploy(deploymentName, {
+      from: deployer,
+      log: true,
+      contract: contractName,
+      skipIfAlreadyDeployed: true,
+      libraries,
+      proxy: {
+        owner, // change to Gnosis Safe after all admin scripts are done
+        proxyContract: 'OptimizedTransparentProxy',
+        viaAdminContract: 'DefaultProxyAdmin',
+        implementationName,
+        execute: {
+          init: {
+            methodName: 'initialize',
+            args,
+          },
+        },
+      },
+    })
+
+    const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
+    deployments.log('Contract address:', deployResult.address)
+    deployments.log('Implementation address:', implAddr)
+
+    if (deployResult.newlyDeployed) {
+      deployments.log(`${contractName} Contract deployed at ${deployResult.address}.`)
+    } else {
+      deployments.log(`${contractName} Contract already deployed.`)
+    }
+
+    logVerifyCommand(deployResult)
+    return deployResult
   }
 }

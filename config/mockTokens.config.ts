@@ -71,4 +71,5 @@ const MOCK_TOKEN_MAP: Record<Network, TokenMap<IMockTokenInfo>> = {
     USDC: { tokenName: 'USD Coin', tokenSymbol: 'USDC', decimalForMockToken: 18 },
     USDT: { tokenName: 'Tether USD', tokenSymbol: 'USDT', decimalForMockToken: 6 },
   },
+  [Network.ZKSYNC_TESTNET]: {},
 }

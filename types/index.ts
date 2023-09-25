@@ -22,6 +22,10 @@ export enum Network {
   BASE_MAINNET = 'base_mainnet',
   SCROLL_TESTNET = 'scroll_testnet',
   SKALE_TESTNET = 'skale_testnet',
+  // GOERLI as L1 of ZKSYNC Testnet
+  // We need it to config zksync https://era.zksync.io/docs/tools/hardhat/getting-started.html#hardhat-configuration
+  GOERLI = 'goerli',
+  ZKSYNC_TESTNET = 'zksync_testnet',
 }
 
 export interface DeploymentResult {
