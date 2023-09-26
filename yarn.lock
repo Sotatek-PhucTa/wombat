@@ -1393,10 +1393,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/seedrandom@^3.0.5":
-  version "3.0.5"
-  resolved "https://registry.npmjs.org/@types/seedrandom/-/seedrandom-3.0.5.tgz"
-  integrity sha512-kopEpYpFQvQdYsZkZVwht/0THHmTFFYXDaqV/lM45eweJ8kcGVDgZHs0RVTolSq55UPZNmjhKc9r7UvLu/mQQg==
+"@types/seedrandom@^3.0.6":
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/@types/seedrandom/-/seedrandom-3.0.6.tgz#c1a74af45928b992fa943dcf34cef241ed2bfb69"
+  integrity sha512-3+JLzzsdbTrEDXSKaudKajj3w8x4ZWDk7CunwHnSWxtfMoetnKtIbFXMru7RXw6Hq1dU0td+soPX8vVjdgCPBA==
 
 "@types/semver@^7.3.12":
   version "7.3.13"
