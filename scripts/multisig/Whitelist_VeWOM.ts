@@ -9,7 +9,10 @@ runScript('Whitelist_for_VeWOM', async function () {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
   if (network == Network.ETHEREUM_MAINNET) {
-    return concatAll(multisig.utils.whitelistForVeWom(ExternalContract.MagpieVeWomProxy))
+    return concatAll(
+      multisig.utils.whitelistForVeWom(ExternalContract.MagpieVeWomProxy),
+      multisig.utils.whitelistForVeWom(ExternalContract.WombexVeWomProxy)
+    )
   } else {
     return []
   }

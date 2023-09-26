@@ -153,6 +153,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.WombexVeWomProxy]: {
     // https://arbiscan.io/address/0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1
     [Network.ARBITRUM_MAINNET]: Address('0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1'),
+    [Network.ETHEREUM_MAINNET]: Address('0x24D2f6be2bF9cdf3627f720cf09D4551580C1eC1'),
   },
   [ExternalContract.jUSDCOracle]: {
     // https://arbiscan.io/address/0xEE5828181aFD52655457C2793833EbD7ccFE86Ac
