@@ -27,3 +27,6 @@ docs/
 .DS_Store
 .vscode
 .vscode/launch.json
+
+# hardhat-zksync-upgradable
+.upgradable/zkSync-local-setup.json

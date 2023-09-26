@@ -99,7 +99,7 @@ const config: HardhatUserConfig = {
       // No default to fail if used without initialization. Error singature: `Error: invalid address`.
       [Network.HARDHAT]: 'deployer',
       [Network.LOCALHOST]: 'deployer',
-      [Network.ZKSYNC_TESTNET]: 'jack',
+      [Network.ZKSYNC_TESTNET]: 'deployer',
     },
   },
   docgen: {

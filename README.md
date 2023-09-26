@@ -831,6 +831,27 @@ To verify proxy contracts:
 - Asset (LP-USDC) => `0x942061B70CB22B5DeDD202cd041cA2a08202be9c`
 - Asset (LP-USDT) => `0xb7925bbF2E136eb03ACb08Dc6bD03dd7bBB77FC1`
 
+### Zksync era testnet
+
+#### Wombat Governance
+
+- Default Proxy Admin (Proxy Admin) => `0x40f8a67f7115d296Ccc2d7C52833f80E56482385`
+- WombatRouter => `0x44A32fE13903Cf0D18290736969EA311C01FF2c4`
+- BoostedMasterWombat_Proxy => `0x1ffEf0bf395d80c33e29DbAf93210Bb5ed9Fb6E4`
+
+#### Wombat Main Pool
+
+- Main Pool Proxy (Main entry) => `0xC8883A0dE103c0360eDFf3ed8770ee1BA0B213Ec`
+- USDC (18 d.p.) => `0xd80D6A9943a1AB96F47Dcf8F02Faf1037ca94Fd0`
+- USDT (6 d.p.) => `0xf0Af6A1C927A79Cd5CC5A2bA505bD58841C61e83`
+- Asset (LP-USDC) => `0xb24f5186855eA857dCdD3D4B0D61145Ee2953756`
+- Asset (LP-USDT) => `0x0E292c55843bE7cD1242cb7ef48637569dC30ed6`
+
+#### Wombat Rewarder
+
+- MultiRewarderPerSec_V3_USDC => `0xD6FA8aE7E76c3A3FA814b24a9Edb73139B320D84`
+- MultiRewarderPerSec_V3_USDT => `0x1223592Ab8056DDdf254637f7dfD872672b68dec`
+
 ### For BSC mainnet network
 
 - Update accounts deployer private key at `hardhat.config.ts`
