@@ -30,6 +30,16 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [parseEther('12.3'), parseEther('100')],
     }),
   },
+  [Network.ZKSYNC_TESTNET]: {
+    ...createRewarderForDeployedAsset('Asset_MainPool_USDC', {
+      rewardTokens: [Token.USDC],
+      tokenPerSec: [parseEther('100')],
+    }),
+    ...createRewarderForDeployedAsset('Asset_MainPool_USDT', {
+      rewardTokens: [Token.USDT, Token.USDC],
+      tokenPerSec: [parseEther('12.3'), parseEther('100')],
+    }),
+  },
   [Network.BSC_MAINNET]: {
     HAY: {
       ...defaultRewarder(),

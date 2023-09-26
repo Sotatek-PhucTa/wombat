@@ -24,4 +24,5 @@ const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, Token> = {
   [Network.ETHEREUM_MAINNET]: Token.WETH,
   [Network.SCROLL_TESTNET]: Token.WETH,
   [Network.SKALE_TESTNET]: Token.NO_WRAPPED_NATIVE_TOKEN,
+  [Network.ZKSYNC_TESTNET]: Token.WETH,
 }

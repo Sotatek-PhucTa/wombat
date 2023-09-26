@@ -1,6 +1,7 @@
 import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
 import { getAddress } from '../utils'
 import { getCurrentNetwork } from '../types/network'
+import { ethers } from 'hardhat'
 
 // style note: sort alphabetically.
 export enum Token {
@@ -282,6 +283,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_TESTNET]: Deployment('USDC'),
     [Network.SKALE_TESTNET]: Deployment('USDC'),
     [Network.SCROLL_TESTNET]: Deployment('USDC'),
+    [Network.ZKSYNC_TESTNET]: Deployment('USDC'),
     // https://www.coingecko.com/en/coins/usd-coin
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
     [Network.ARBITRUM_MAINNET]: Address('0xaf88d065e77c8cC2239327C5EDb3A432268e5831'),
@@ -312,6 +314,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_TESTNET]: Deployment('USDT'),
     [Network.SKALE_TESTNET]: Deployment('USDT'),
     [Network.SCROLL_TESTNET]: Deployment('USDT'),
+    [Network.ZKSYNC_TESTNET]: Deployment('USDT'),
     // https://www.coingecko.com/en/coins/tether
     [Network.BSC_MAINNET]: Address('0x55d398326f99059fF775485246999027B3197955'),
     [Network.ARBITRUM_MAINNET]: Address('0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'),
@@ -336,6 +339,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.WETH]: {
     // https://sepolia-blockscout.scroll.io/address/0x5300000000000000000000000000000000000004
     [Network.SCROLL_TESTNET]: Address('0x5300000000000000000000000000000000000004'),
+    // https://goerli.explorer.zksync.io/address/0x20b28B1e4665FFf290650586ad76E977EAb90c5D
+    [Network.ZKSYNC_TESTNET]: Address('0x20b28B1e4665FFf290650586ad76E977EAb90c5D'),
     // https://arbiscan.io/token/0x82af49447d8a07e3bd95bd0d56f35241523fbab1
     [Network.ARBITRUM_MAINNET]: Address('0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'),
     // https://optimistic.etherscan.io/token/0x4200000000000000000000000000000000000006
@@ -366,7 +371,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_MAINNET]: Deployment('WombatToken'),
     [Network.BASE_MAINNET]: Deployment('WombatToken'),
     [Network.AVALANCHE_MAINNET]: Deployment('WombatToken'),
-    [Network.ZKSYNC_TESTNET]: Deployment('WombatToken'),
+    [Network.ZKSYNC_TESTNET]: Address(ethers.constants.AddressZero),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),

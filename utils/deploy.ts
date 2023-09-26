@@ -429,7 +429,7 @@ export async function deployProxy(
   libraries?: { [key: string]: string }
 ): Promise<DeployResult> {
   if (isZkSync()) {
-    return await deployProxyZksync(deploymentName, implementationName, contractName, args, libraries)
+    return await deployProxyZksync(deploymentName, implementationName, contractName, args)
   } else {
     const deployResult = await deployments.deploy(deploymentName, {
       from: deployer,

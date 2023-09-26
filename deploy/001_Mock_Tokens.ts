@@ -39,6 +39,7 @@ deployFunc.skip = async () => {
     Network.AVALANCHE_TESTNET,
     Network.POLYGON_TESTNET,
     Network.SCROLL_TESTNET,
+    Network.ZKSYNC_TESTNET,
     Network.SKALE_TESTNET,
     Network.BSC_TESTNET,
     Network.LOCALHOST,

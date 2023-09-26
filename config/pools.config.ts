@@ -664,6 +664,17 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
+  [Network.ZKSYNC_TESTNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig(),
+      },
+      assets: {
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+      },
+    },
+  },
 })
 
 export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
