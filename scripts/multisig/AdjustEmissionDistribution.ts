@@ -65,6 +65,14 @@ runScript('AdjustEmissionDistribution', async () => {
       Asset_wBETH_Pool_wBETH: 0,
       Asset_wBETH_Pool_ETH: 0,
     }
+  } else if (network == Network.ETHEREUM_MAINNET) {
+    WOM_MONTHLY_EMISSION_RATE = 370_000
+    BRIBE_ALLOC_PERCENT = 86.5
+    GAUGE_ALLOC_PERCENTS = {
+      // Cross chain pool
+      Asset_Stablecoin_Pool_USDT: 6.75,
+      Asset_Stablecoin_Pool_USDC: 6.75,
+    }
   }
 
   if (WOM_MONTHLY_EMISSION_RATE && BRIBE_ALLOC_PERCENT && GAUGE_ALLOC_PERCENTS) {
