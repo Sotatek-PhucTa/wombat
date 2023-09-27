@@ -429,6 +429,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x027a9d301FB747cd972CFB29A63f3BDA551DFc5c'),
     // https://arbiscan.io/address/0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876
     [Network.ARBITRUM_MAINNET]: Address('0x509FD25EE2AC7833a017f17Ee8A6Fb4aAf947876'),
+    [Network.ETHEREUM_MAINNET]: Address('0xca9Fb45f6600ee6e47E73666A6B7Dd407d131F96'),
   },
   [Token.qWOM]: {
     // https://bscscan.com/address/0x0fE34B8aaAf3f522A6088E278936D10F934c0b19
@@ -465,6 +466,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x0415023846Ff1C6016c4d9621de12b24B2402979'),
     // https://arbiscan.io/address/0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24
     [Network.ARBITRUM_MAINNET]: Address('0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24'),
+    [Network.ETHEREUM_MAINNET]: Address('0xEfF2B1353Cdcaa2C3279C2bfdE72120c7FfB5E24'),
   },
   [Token.wstETH]: {
     // https://www.coingecko.com/en/coins/wrapped-steth

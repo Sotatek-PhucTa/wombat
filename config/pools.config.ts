@@ -122,8 +122,8 @@ function defaultWomPoolConfig(): IHighCovRatioFeePoolConfig {
     haircut: oneBips.mul(20),
     mintFeeThreshold: parseEther('55.5555555556'),
     deploymentNamePrefix: 'WomSidePools',
-    startCovRatio: parseEther('2'),
-    endCovRatio: parseEther('2.5'),
+    startCovRatio: parseEther('5'),
+    endCovRatio: parseEther('10'),
   }
 }
 
@@ -625,6 +625,24 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...AgEURAsset({ maxSupply: parseEther('20000000') }),
         ...EureAsset({ maxSupply: parseEther('20000000') }),
+      },
+    },
+    wmxWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig(),
+      },
+      assets: {
+        ...WomAsset(),
+        ...WmxWomAsset(),
+      },
+    },
+    mWOMPool: {
+      setting: {
+        ...defaultWomPoolConfig(),
+      },
+      assets: {
+        ...WomAsset(),
+        ...MwomAsset(),
       },
     },
   },

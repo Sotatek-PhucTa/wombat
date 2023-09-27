@@ -604,6 +604,18 @@ To verify proxy contracts:
 - MultiRewarderPerSec_V3_Asset_ETHx_Pool_WETH => `0x8df1126de13bcfef999556899F469d64021adBae`
 - MultiRewarderPerSec_V3_Asset_ETHx_Pool_ETHx => `0xc693F3b22d44C43371726AE1D3FBf0Cd0D113c82`
 
+#### mWom Pool
+
+- Pool Proxy (HighCovRatioFeePoolV2) => `0xcf2e56E086fcD21eaB3614A5A78c8Ae27c2F0536`
+- Asset_mWOMPool_mWOM (LP-mWOM) => `0x3c64D9870632E12036888D5fc0CFA5dEb261B453`
+- Asset_mWOMPool_WOM (LP-WOM) => `0xb1583D73898E5F24311a1457dd4BCff051E2D427`
+
+#### wmxWom Pool
+
+- Pool Proxy (HighCovRatioFeePoolV2) => `0xe43c1695df76CcA4D6079061924D7150Fd553c21`
+- Asset_wmxWOMPool_wmxWOM (LP-wmxWOM) => `0x6C7B407411b3DB90DfA25DA4aA66605438D378CE`
+- Asset_wmxWOMPool_WOM (LP-WOM) => `0xb826313c8B122757e617c0Ea963a4310c14a8Cc8`
+
 ### BSC testnet deployed contracts:
 
 #### BSC Wallet Accounts
