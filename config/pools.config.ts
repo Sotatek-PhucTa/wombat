@@ -85,11 +85,12 @@ function sfrxETHGovernedPriceFeed(): IGovernedPriceFeed {
 }
 
 const oneBips = parseEther('0.0001')
+const oneFifthBips = oneBips.div(5)
 const twentyBips = oneBips.mul(20)
 export function defaultMainPoolConfig(): IHighCovRatioFeePoolConfig {
   return {
     ampFactor: parseEther('0.00025'),
-    haircut: oneBips,
+    haircut: oneFifthBips,
     mintFeeThreshold: parseEther('10'),
     startCovRatio: parseEther('5'),
     endCovRatio: parseEther('10'),

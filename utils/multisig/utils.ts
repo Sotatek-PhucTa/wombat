@@ -9,6 +9,7 @@ import {
 } from '..'
 import {
   getBribeDeploymentName,
+  getPoolDeploymentName,
   getProxyName,
   getRewarderDeploymentName,
   getWormholeAdaptorDeploymentName,
@@ -36,7 +37,7 @@ import {
 import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
-import { parseEther } from 'ethers/lib/utils'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import { CrossChainPoolType, loopAdaptorInGroup } from '../../config/wormhole.config'
 
 // This function will create two transactions:
@@ -139,16 +140,18 @@ export async function updatePoolsHaircutRate(
   for (const poolName of poolNames) {
     assert(poolConfig[poolName] !== undefined, "poolConfig doesn't contain pool")
     const {
-      setting: { haircut },
+      setting: { haircut, deploymentNamePrefix },
     } = poolConfig[poolName]
-    const poolDeployment = getProxyName(poolName)
-    const pool = await getDeployedContract('PoolV2', poolDeployment)
+    const poolDeploymentName = getPoolDeploymentName(deploymentNamePrefix, poolName)
+    const pool = await getDeployedContract('PoolV2', getProxyName(poolDeploymentName))
 
     const currentHaircut = await pool.haircutRate()
-    console.log(currentHaircut)
 
     if (!currentHaircut.eq(haircut)) {
+      console.log(`Changing from current haircut: ${formatEther(currentHaircut)} to ${formatEther(haircut)}`)
       txns.push(Safe(pool).setHaircutRate(haircut))
+    } else {
+      console.log(`Keep current haircut: ${formatEther(currentHaircut)}`)
     }
   }
 

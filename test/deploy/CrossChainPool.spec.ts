@@ -33,7 +33,7 @@ describe('CrossChainPool deployment', function () {
     it(`verify config for ${contractName}`, async function () {
       const { multisig } = await getNamedAccounts()
       expect(await pool.ampFactor()).to.eq(parseEther('0.00025'), 'amp factor not equal')
-      expect(await pool.haircutRate()).to.eq(parseEther('0.0001'), 'haircut not equal')
+      expect(await pool.haircutRate()).to.eq(parseEther('0.00002'), 'haircut not equal')
       expect(await pool.lpDividendRatio()).to.eq(parseEther('0.5'), 'lp dividend ratio not equal')
       expect(await pool.retentionRatio()).to.eq(parseEther('0.5'), 'retention ratio not equal')
       expect(await pool.mintFeeThreshold()).to.eq(parseEther('10'), 'mint fee threshold not equal')
