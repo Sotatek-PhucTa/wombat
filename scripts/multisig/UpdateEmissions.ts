@@ -7,6 +7,7 @@ import { concatAll } from '../../utils'
 import { getBribeDeploymentName, getRewarderDeploymentName } from '../../utils/deploy'
 import _ from 'lodash'
 import assert from 'assert'
+import { Token } from '../../config/token'
 
 runScript('UpdateEmission', async () => {
   const network: Network = getCurrentNetwork()
@@ -28,7 +29,18 @@ runScript('UpdateEmission', async () => {
     return concatAll(
       multisig.utils.updateEmissionsAndTopUp(
         _.pick(getRewarders(), ['Asset_mPendle_Pool_PENDLE', 'Asset_mPendle_Pool_mPendle']),
-        getRewarderDeploymentName
+        getRewarderDeploymentName,
+        2,
+        [Token.WOM]
+      )
+    )
+  } else if (network == Network.ETHEREUM_MAINNET) {
+    return concatAll(
+      multisig.utils.updateEmissionsAndTopUp(
+        _.pick(getRewarders(), ['Asset_Stablecoin_Pool_USDC', 'Asset_Stablecoin_Pool_USDT']),
+        getRewarderDeploymentName,
+        4,
+        [Token.WOM]
       )
     )
   } else {
