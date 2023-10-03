@@ -654,6 +654,25 @@ export async function setWomMonthlyEmissionRate(womPerMonth: number): Promise<Ba
   }
 }
 
+/**
+ * @param {number} womPerMonth assuming a month = 30 days
+ * @param {number} numEpoch
+ */
+export async function topUpVoterForNEpoch(womPerMonth: number, numEpoch = 1): Promise<BatchTransaction[]> {
+  assert(womPerMonth >= 0, 'invalid wom emission rate')
+  assert(Number.isInteger(numEpoch), 'numEpoch must be an integer')
+  assert(womPerMonth < 10_000_000, "likely an error. WOM emission rate shouldn't be 10M or higher")
+  const womPerEpoch = ethers.utils.parseEther(String(womPerMonth)).mul(7).div(30)
+  const amountToTopUp = womPerEpoch.mul(numEpoch)
+
+  const voter = await getDeployedContract('Voter')
+
+  const womAddress = await getTokenAddress(Token.WOM)
+  const wom = await ethers.getContractAt('ERC20', womAddress)
+
+  return [Safe(wom).transfer(voter.address, amountToTopUp)]
+}
+
 export async function setBribeAllocPercent(bribeAllocationPercent: number): Promise<BatchTransaction[]> {
   assert(bribeAllocationPercent >= 0 && bribeAllocationPercent <= 100, 'invalid bribe allocation percent')
   const baseAllocationPercent = 100 - bribeAllocationPercent

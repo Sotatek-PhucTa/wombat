@@ -11,7 +11,7 @@ import { concatAll } from '../../utils'
  * - emission rate (womPerSec) in Voter
  * - base / vote split (baseAllocation) in Voter
  */
-runScript('AdjustEmissionDistribution', async () => {
+runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
   let WOM_MONTHLY_EMISSION_RATE
@@ -19,34 +19,34 @@ runScript('AdjustEmissionDistribution', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 342_500
-    BRIBE_ALLOC_PERCENT = 48.85
+    WOM_MONTHLY_EMISSION_RATE = 375_000
+    BRIBE_ALLOC_PERCENT = 53.37
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.825,
-      Asset_Stablecoin_Pool_USDC: 1.825,
+      Asset_Stablecoin_Pool_USDT: 1.665,
+      Asset_Stablecoin_Pool_USDC: 1.665,
       // Main Pool
-      Asset_MainPool_USDCe: 17.8,
-      Asset_MainPool_USDT: 15.1,
-      Asset_MainPool_DAI: 5.7,
-      Asset_MainPool_USDC: 6.4,
+      Asset_MainPool_USDCe: 16.6,
+      Asset_MainPool_USDT: 13.9,
+      Asset_MainPool_DAI: 4.9,
+      Asset_MainPool_USDC: 5.6,
       // wmxWOM Pool
-      Asset_wmxWOM_Pool_wmxWOM: 0.57,
-      Asset_wmxWOM_Pool_WOM: 0.57,
+      Asset_wmxWOM_Pool_wmxWOM: 0.53,
+      Asset_wmxWOM_Pool_WOM: 0.53,
       // mWOM Pool
-      Asset_mWOM_Pool_mWOM: 0.48,
-      Asset_mWOM_Pool_WOM: 0.48,
+      Asset_mWOM_Pool_mWOM: 0.44,
+      Asset_mWOM_Pool_WOM: 0.44,
       // qWOM Pool
-      Asset_qWOM_Pool_qWOM: 0.2,
-      Asset_qWOM_Pool_WOM: 0.2,
+      Asset_qWOM_Pool_qWOM: 0.18,
+      Asset_qWOM_Pool_WOM: 0.18,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 2_250_000
-    BRIBE_ALLOC_PERCENT = 90.6
+    WOM_MONTHLY_EMISSION_RATE = 2_200_000
+    BRIBE_ALLOC_PERCENT = 90.5
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.1,
-      Asset_Stablecoin_Pool_USDC: 1.1,
+      Asset_Stablecoin_Pool_USDT: 1.15,
+      Asset_Stablecoin_Pool_USDC: 1.15,
       // Main Pool
       Asset_MainPool_USDC: 2.9,
       Asset_MainPool_USDT: 2.9,
@@ -95,7 +95,10 @@ runScript('AdjustEmissionDistribution', async () => {
       // allocation point
       ...Object.entries(GAUGE_ALLOC_PERCENTS).map(([gauge, allocPercent]) =>
         multisig.utils.setAllocPercent(gauge, allocPercent)
-      )
+      ),
+      // TODO: update the numEpoch
+      // top up Voter
+      multisig.utils.topUpVoterForNEpoch(WOM_MONTHLY_EMISSION_RATE, 4)
     )
   } else {
     return []
