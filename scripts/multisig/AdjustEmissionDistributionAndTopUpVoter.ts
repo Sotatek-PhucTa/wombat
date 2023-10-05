@@ -19,48 +19,48 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 375_000
-    BRIBE_ALLOC_PERCENT = 53.37
+    WOM_MONTHLY_EMISSION_RATE = 365_000
+    BRIBE_ALLOC_PERCENT = 50.42
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.665,
-      Asset_Stablecoin_Pool_USDC: 1.665,
+      Asset_Stablecoin_Pool_USDT: 2.19,
+      Asset_Stablecoin_Pool_USDC: 2.19,
       // Main Pool
-      Asset_MainPool_USDCe: 16.6,
-      Asset_MainPool_USDT: 13.9,
-      Asset_MainPool_DAI: 4.9,
-      Asset_MainPool_USDC: 5.6,
+      Asset_MainPool_USDCe: 17.1,
+      Asset_MainPool_USDT: 14.4,
+      Asset_MainPool_DAI: 5.4,
+      Asset_MainPool_USDC: 6.1,
       // wmxWOM Pool
-      Asset_wmxWOM_Pool_wmxWOM: 0.53,
-      Asset_wmxWOM_Pool_WOM: 0.53,
+      Asset_wmxWOM_Pool_wmxWOM: 0.51,
+      Asset_wmxWOM_Pool_WOM: 0.51,
       // mWOM Pool
-      Asset_mWOM_Pool_mWOM: 0.44,
-      Asset_mWOM_Pool_WOM: 0.44,
+      Asset_mWOM_Pool_mWOM: 0.42,
+      Asset_mWOM_Pool_WOM: 0.42,
       // qWOM Pool
-      Asset_qWOM_Pool_qWOM: 0.18,
-      Asset_qWOM_Pool_WOM: 0.18,
+      Asset_qWOM_Pool_qWOM: 0.17,
+      Asset_qWOM_Pool_WOM: 0.17,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 2_200_000
-    BRIBE_ALLOC_PERCENT = 90.5
+    WOM_MONTHLY_EMISSION_RATE = 2_300_000
+    BRIBE_ALLOC_PERCENT = 91.3
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.15,
-      Asset_Stablecoin_Pool_USDC: 1.15,
+      Asset_Stablecoin_Pool_USDT: 1.1,
+      Asset_Stablecoin_Pool_USDC: 1.1,
       // Main Pool
-      Asset_MainPool_USDC: 2.9,
-      Asset_MainPool_USDT: 2.9,
+      Asset_MainPool_USDC: 2.65,
+      Asset_MainPool_USDT: 2.65,
       Asset_MainPool_BUSD: 0,
       Asset_MainPool_DAI: 0.2,
       // wmxWOM Pool
-      Asset_wmxWOMPool_wmxWOM: 0.304,
-      Asset_wmxWOMPool_WOM: 0.304,
+      Asset_wmxWOMPool_wmxWOM: 0.25,
+      Asset_wmxWOMPool_WOM: 0.25,
       // mWOM Pool
-      Asset_mWOMPool_mWOM: 0.248,
-      Asset_mWOMPool_WOM: 0.248,
+      Asset_mWOMPool_mWOM: 0.21,
+      Asset_mWOMPool_WOM: 0.21,
       // qWOM Pool
-      Asset_qWOMPool_qWOM: 0.048,
-      Asset_qWOMPool_WOM: 0.048,
+      Asset_qWOMPool_qWOM: 0.04,
+      Asset_qWOMPool_WOM: 0.04,
       // wBETH Pool
       Asset_wBETH_Pool_wBETH: 0,
       Asset_wBETH_Pool_ETH: 0,
@@ -96,9 +96,8 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       ...Object.entries(GAUGE_ALLOC_PERCENTS).map(([gauge, allocPercent]) =>
         multisig.utils.setAllocPercent(gauge, allocPercent)
       ),
-      // TODO: update the numEpoch
       // top up Voter
-      multisig.utils.topUpVoterForNEpoch(WOM_MONTHLY_EMISSION_RATE, 4)
+      multisig.utils.topUpVoterForNEpoch(WOM_MONTHLY_EMISSION_RATE)
     )
   } else {
     return []
