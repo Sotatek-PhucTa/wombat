@@ -2,9 +2,10 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { assert, expect } from 'chai'
 import { Contract, ContractReceipt } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import { deployments, ethers, getNamedAccounts } from 'hardhat'
-import { confirmTxn, getDeployedContract, isForkedNetwork } from '../../utils'
+import { deployments, ethers } from 'hardhat'
+import { confirmTxn, getDeployedContract } from '../../utils'
 import { latest } from '../helpers'
+import { getSignersFromCurrentNetwork } from '../../utils/signer'
 
 describe('New chain Skale/Scroll', function () {
   let multisig: SignerWithAddress
@@ -12,7 +13,6 @@ describe('New chain Skale/Scroll', function () {
   let project: SignerWithAddress
   let masterWombat: Contract
   let vewom: Contract
-  let voter: Contract
   let pool: Contract
   let usdc: Contract
   let usdt: Contract
@@ -21,13 +21,7 @@ describe('New chain Skale/Scroll', function () {
   let wom: Contract
 
   beforeEach(async function () {
-    if (isForkedNetwork()) {
-      const { multisig: multisigAddr } = await getNamedAccounts()
-      multisig = await SignerWithAddress.create(ethers.provider.getSigner(multisigAddr))
-      ;[user, project] = await ethers.getSigners()
-    } else {
-      ;[multisig, user, project] = await ethers.getSigners()
-    }
+    ;[multisig, user, project] = await getSignersFromCurrentNetwork()
     await deployments.fixture([
       'MockTokens',
       'WombatToken',

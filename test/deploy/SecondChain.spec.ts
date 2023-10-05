@@ -1,10 +1,11 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import { deployments, ethers, getNamedAccounts } from 'hardhat'
-import { getDeployedContract, isForkedNetwork, setRewarder } from '../../utils'
+import { deployments, ethers } from 'hardhat'
+import { getDeployedContract, setRewarder } from '../../utils'
 import { latest } from '../helpers'
 import { expect } from 'chai'
+import { getSignersFromCurrentNetwork } from '../../utils/signer'
 
 describe('Second class chain', async function () {
   const AddressZero = ethers.constants.AddressZero
@@ -19,13 +20,7 @@ describe('Second class chain', async function () {
   let usdcAsset: Contract
 
   beforeEach(async function () {
-    if (isForkedNetwork()) {
-      const { multisig: multisigAddr } = await getNamedAccounts()
-      multisig = await SignerWithAddress.create(ethers.provider.getSigner(multisigAddr))
-      ;[user, project] = await ethers.getSigners()
-    } else {
-      ;[multisig, user, project] = await ethers.getSigners()
-    }
+    ;[multisig, user, project] = await getSignersFromCurrentNetwork()
     await deployments.fixture([
       'MockTokens',
       'HighCovRatioFeePool',
