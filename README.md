@@ -1,63 +1,98 @@
 # Wombat Exchange Core
 
----
-
 This is the repo for serving the core smart contracts of Wombat Exchange 🚀 ✨
 
 ## Local Development
 
-Below lists the basic steps in kickstarting your local development 🖥️
+### Before you start
+Install the following tools:
+- [nvm](https://github.com/nvm-sh/nvm#install--update-script) - a node version manager
+- [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) - a package manager
 
-_Requires `node@>=18`, visit [node.js](https://nodejs.org/en/) for more details._
+Once you have the above, run `yarn` to install dependencies. Notably, this includes:
+- [hardhat](https://hardhat.org/hardhat-runner/docs/getting-started) - compile and test smart contracts
+- [hardhat-deploy](https://github.com/wighawag/hardhat-deploy) - deployment library
 
-- Run `yarn` to install dependencies
-- Run `yarn compile` to compile contracts
-- Run `yarn test` to run unit tests
+Here are some recommended tools to make your life easier:
+- [hardhat-shorthand](https://hardhat.org/hardhat-runner/docs/guides/command-line-completion) - completions for hardhat commands (use `hh` instead of `npx hardhat`)
+- [ag](https://github.com/ggreer/the_silver_searcher) - faster search
+- [jq](https://jqlang.github.io/jq//download/) - utility for reading json files
 
-> You may want to run `yarn clean` first if you encounter contract code recompiling issues.
+Some useful commands:
+- `yarn clean` - to start from a clean state
+- `yarn format && yarn lint --fix` - format and lint your code
+- `hh compile` - compilte your contracts
+- `hh test` - run contract unit test
+- `FORK_NETWORK=... hh deploy --tags ...` - deploy against fork network (more on this later)
+- `FORK_NETWORK=... hh run scripts/... --network ...` - run script against fork network (more on this later)
 
-## Git Workflow
+### Git Workflow
+Workflow
+- Use `develop` as the master branch
+- Use `git rebase` instead of `git merge`
 
-- Create new branches named `feature/xxx` or `fix/xxx` for new features or bug fixes respectively; they should branch out from the `develop` branch
-- If it's a quick fix, branch off master with `hotfix/xxx` and merge into master
-- After your new code is completed, go back to `develop` and merge the new branch
-- Do not commit to `master` branch directly to maintain a proper workflow
-
-> A simple Github Actions CI workflow is adopted where `linting` and `testing` would be run each time a commit has been pushed.
+Pull request (PR) etiquette
+- Read your code once in the PR UI first. You may uncover something.
+- Send small PR frequently. Learn how to chunk work to make progress incrementally.
+- Send big refactor PR separately.
+- Check for test failures in your pull requests.
 
 ## Deployment 🚁
 
-### For BSC testnet network
+### Process
+We use [hardhat-deploy](https://github.com/wighawag/hardhat-deploy) to manage our deployments. In a nutshell,
+- `deployments` folder contain history of successful deployments. You can read their address and abi there. `jq` is handy.
+  - transient failures are retried when you run the same command again
+- `deploy` folder contains deploy scripts. By default, everything is deployed and all scripts are executed in the numerical order. You can reduce the deploy set using the `tags` configured in each deploy script.
 
-- Run `yarn deploy_bsc_testnet` and that's it.
-- Run `yarn bsc_testnet_demo` to run a demo of core smart contracts interactions via scripts.
-- Note: You may also execute only specific parts of the deployments by running e.g. `hh deploy --network bsc_testnet --tags Bribe` given that you have named the deployment script with `deployFunc.tags = ['Bribe']`
+Things to keep in mind:
+- always do a dryrun before an actual deployment
+- verify the contracts after a deployment
 
-### For BSC mainnet network
+### Dryrun and deploy
+By default, you have the testnet deployer credentials. For mainnet, you will need to update your deployer private key in `secrets.json`. 
 
-- Update your private key in `.env` and update your key at `bsc_mainnet` => `accounts` of `hardhat.config.ts`
-- Run `yarn deploy_bsc_mainnet` and that's it.
-- Note: Token vesting contracts are deployed with respective cliffs on TGE.
+For example, you are deploying bribe contracts. First, do a dryrun:
+- `FORK_NETWORK=bsc_testnet hh deploy --tags Bribe`
 
-Behind the scenes:
+After you read the deployment log and there is nothing strange. You can proceed to actually deploy:
+- `hh deploy --tags Bribe --network bsc_testnet`
 
-- [hardhat-deploy](https://github.com/wighawag/tutorial-hardhat-deploy) is used to help make the whole deployment flow easier and more robust
-- deployment configs are set up at `hardhat.config.ts`
-- wallet accounts/ api keys are loaded from `secrets.json` (**testnet only**)
-- scripts within the `deploy` folder are run in alphabetical order, i.e. 001*, 002*, etc.
-- deployed contracts info, e.g. addresses located within the `deployments` folder
+### Update README.md
+After deployment, update the README.md to contain latest addresses.
 
-Hardhat Verify:
+On my mac, I copied the deployment log and used the following commands to extract verify commands and address:
 
-- Follow steps at [Binance Chain Docs](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html) on verifying contracts on bscscan.com such that you can `read/write` directly with your web3 metamask wallet.
-- E.g. `npx hardhat verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
+> pbpaste | ag ^deploying -C 5 | ag -o 'hh verify.*'
 
-To verify proxy contracts:
+> pbpaste | ag ^deploying | sed 's/^dep.* "/- /' | sed -e 's/^dep.* "/- /' -e 's/".* at / => `/' -e 's/ with.*/`/'
 
+### Verification
+The deploy script would already output verify commands. (You can read the code in logVerifyCommand or verify to learn more.) For example,
+- `hh verify --network bsc_testnet 0x9cc77B893d40861854fD90Abaf8414a5bD2bEcf8 'Venus USDC' 'vUSDC' '8' 0`
+
+Additional steps for proxy contracts:
 - Verify the implementation contract. E.g. `npx hh verify --network bsc_testnet $(jq -r '.address' deployments/bsc_testnet/VeWom_Implementation.json)`.
 - Go to bsc explorer in the proxy contract. Click 'More Options' and select 'Is this a proxy?' to enable read and write methods.
 
-### BSC mainnet deployed contracts:
+References:
+- Follow steps at [Binance Chain Docs](https://docs.binance.org/smart-chain/developer/deploy/hardhat-verify.html) on verifying contracts on bscscan.com such that you can `read/write` directly with your web3 metamask wallet.
+
+## Operations
+
+Most of our contracts are owned by gnosis multisig and not the deployer. To make changes to deployed contracts, we use multisig script to create proposals, which can then be drag-and-dropped to the gnosis UI.
+
+As usual, we first simulate the script against fork network. For example,
+> FORK_NETWORK=bsc_mainnet hh run scripts/updateSfrxEthPrice.ts
+
+If the simulation passes, we generate the proposals. For example,
+> hh run scripts/updateSfrxEthPrice.ts --network bsc_mainnet
+
+This proposal will then be uploaded to the gnosis UI and signed by other multisig owners before execution.
+
+## Deployed contracts
+
+### BSC mainnet
 
 #### Wombat Governance
 
@@ -358,7 +393,7 @@ To verify proxy contracts:
 - MultiRewarderPerSec_V3_stkBnb (deprecated) => `0x28edda710ef4E72bf1389e2ff7d50Ccfa75f95Af`
 - MultiRewarderPerSec_V3_StkBnbPool_WBNB (deprecated) => `0x7Db1B59747430b0F5946e8Cd525CFc41bfD3A1C1`
 
-### Arbitrum mainnet deployed contracts:
+### Arbitrum mainnet
 
 #### Wombat Governance
 
@@ -522,7 +557,7 @@ To verify proxy contracts:
 - MultiRewarderPerSec_V3_Asset_ePendle_Pool_PENDLE => `0x1242FB2bDc110b0F228E6348220aB6c3fd4837d0`
 - MultiRewarderPerSec_V3_Asset_ePendle_Pool_ePendle => `0x49Ea553c102b595E798689af2b4663A8d33Eac51`
 
-### Optimism mainnet deployed contracts:
+### Optimism mainnet
 
 #### Wombat Governance
 - Wombat Token (WOM) => `0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668`
@@ -539,7 +574,7 @@ To verify proxy contracts:
 - Asset_Stablecoin_Pool_USDC => `0x96b1B2F764e90BAF53FCbe149f157ded5F69F197`
 - Asset_Stablecoin_Pool_USDT => `0xEE9b42b40852a53c7361F527e638B485D49750cD`
 
-### Ethereum mainnet deployed contracts:
+### Ethereum mainnet
 
 #### Wombat Governance
 - Wombat Token => `0xc0B314a8c08637685Fc3daFC477b92028c540CFB`
@@ -616,7 +651,7 @@ To verify proxy contracts:
 - Asset_wmxWOMPool_wmxWOM (LP-wmxWOM) => `0x6C7B407411b3DB90DfA25DA4aA66605438D378CE`
 - Asset_wmxWOMPool_WOM (LP-WOM) => `0xb826313c8B122757e617c0Ea963a4310c14a8Cc8`
 
-### BSC testnet deployed contracts:
+### BSC testnet
 
 #### BSC Wallet Accounts
 
@@ -758,7 +793,7 @@ To verify proxy contracts:
 - iUSD => `0xe07829c8B7F934e03C83B0dC1fd2cCC9b62036D8`
 - USDD => `0x5cf1c3F9c0EaBCd0EFF825C0d5c8A8B16b11626a`
 
-### Fuji testnet deployed contracts:
+### Fuji testnet
 
 #### Wombat Proxy Admin
 
@@ -863,13 +898,6 @@ To verify proxy contracts:
 
 - MultiRewarderPerSec_V3_USDC => `0xD6FA8aE7E76c3A3FA814b24a9Edb73139B320D84`
 - MultiRewarderPerSec_V3_USDT => `0x1223592Ab8056DDdf254637f7dfD872672b68dec`
-
-### For BSC mainnet network
-
-- Update accounts deployer private key at `hardhat.config.ts`
-- Run `yarn deploy_bsc_mainnet`
-- Deploy the `Asset` contracts individually as shown in `003_Assets.ts`
-- Safeguard the `deployer private key` or `transferOwnership` to multisig (e.g. Gnosis Safe)
 
 ## High-level System Overview
 
