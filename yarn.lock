@@ -70,10 +70,10 @@
   resolved "https://registry.yarnpkg.com/@balena/dockerignore/-/dockerignore-1.0.2.tgz#9ffe4726915251e8eb69f44ef3547e0da2c03e0d"
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
-"@chainlink/contracts@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@chainlink/contracts/-/contracts-0.7.1.tgz#0d75183293d9499e4812fca0084a575c9b5aa2f5"
-  integrity sha512-uVzjykXDgMhHcWIb18gd87ihHDRJIqa0q+Mu1b9e/npTUQAPpfM6ENMZMazzbNRaPZ5yNqGH8SE02Q3MQbFOLA==
+"@chainlink/contracts@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@chainlink/contracts/-/contracts-0.8.0.tgz#4050c83c8b1603ffb0fd6ab99f1d9ea9db2c37de"
+  integrity sha512-nUv1Uxw5Mn92wgLs2bgPYmo8hpdQ3s9jB/lcbdU0LmNOVu0hbfmouVnqwRLa28Ll50q6GczUA+eO0ikNIKLZsA==
   dependencies:
     "@eth-optimism/contracts" "^0.5.21"
     "@openzeppelin/contracts" "~4.3.3"
