@@ -136,8 +136,6 @@ export async function deployBasePool(
 
     deployments.log(`setMintFeeThreshold to ${formatEther(setting.mintFeeThreshold)}...`)
     await confirmTxn(pool.connect(deployerSigner).setMintFeeThreshold(setting.mintFeeThreshold))
-
-    logVerifyCommand(deployResult)
   } else {
     deployments.log(`${deploymentName} Contract already deployed.`)
   }
@@ -429,7 +427,9 @@ export async function deployProxy(
   libraries?: { [key: string]: string }
 ): Promise<DeployResult> {
   if (isZkSync()) {
-    return await deployProxyZksync(deploymentName, implementationName, contractName, args)
+    const deployResult = await deployProxyZksync(deploymentName, implementationName, contractName, args)
+    logVerifyCommand(deployResult)
+    return deployResult
   } else {
     const deployResult = await deployments.deploy(deploymentName, {
       from: deployer,

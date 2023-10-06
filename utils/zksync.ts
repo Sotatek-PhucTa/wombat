@@ -5,7 +5,6 @@ import { deployments } from 'hardhat'
 import { DeployResult } from 'hardhat-deploy/types'
 import { Wallet } from 'zksync-web3'
 import secrets from '../secrets.json'
-import { getProxyAdminOwner } from './deploy'
 import { Network } from '../types'
 
 export function isZkSync(): boolean {
@@ -69,6 +68,7 @@ export async function deployProxyZksync(
       newlyDeployed: true,
       abi: contract.abi,
       address: proxy.address,
+      implementation: implementationAddr,
     }
   }
 }
