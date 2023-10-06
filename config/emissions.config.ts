@@ -308,12 +308,12 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_fUSDC', {
       rewardTokens: [Token.fUSDC],
-      tokenPerSec: ['257'],
+      tokenPerSec: ['0'],
       operator: ExternalContract.fUSDCBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_USDCe', {
       rewardTokens: [Token.fUSDC],
-      tokenPerSec: ['257'],
+      tokenPerSec: ['0'],
       operator: ExternalContract.fUSDCBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ePendle_Pool_PENDLE', {

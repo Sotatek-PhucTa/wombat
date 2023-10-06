@@ -36,17 +36,17 @@
       "contractMethod": {
         "inputs": [
           {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "_tokenId",
+            "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
+            "internalType": "uint96",
+            "name": "_tokenPerSec",
+            "type": "uint96"
           }
         ],
-        "name": "transfer(address,uint256)",
+        "name": "setRewardRate(uint256,uint96)",
         "payable": false
       },
       "contractInputsValues": {
@@ -79,22 +79,22 @@
       }
     },
     {
-      "to": "0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96",
+      "to": "0x2201EAFcbE5f4bddf14206A319C51B86E8E0c138",
       "value": "0",
       "contractMethod": {
         "inputs": [
           {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "_tokenId",
+            "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
+            "internalType": "uint96",
+            "name": "_tokenPerSec",
+            "type": "uint96"
           }
         ],
-        "name": "transfer(address,uint256)",
+        "name": "setRewardRate(uint256,uint96)",
         "payable": false
       },
       "contractInputsValues": {
