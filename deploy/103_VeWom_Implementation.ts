@@ -8,13 +8,13 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const { deployments } = hre
   const { deployer } = await getNamedAccounts()
 
-  deployments.log(`Step 131. Deploying on: ${getCurrentNetwork()}...`)
+  deployments.log(`Step 103. Deploying on: ${getCurrentNetwork()}...`)
 
-  const deployResult = await deployments.deploy('Voter_Implementation', {
+  const deployResult = await deployments.deploy('VeWom_Implementation', {
     from: deployer,
-    contract: 'Voter',
+    contract: 'VeWom',
     log: true,
-    skipIfAlreadyDeployed: true,
+    skipIfAlreadyDeployed: false,
   })
 
   deployments.log('Contract address:', deployResult.address)
@@ -23,4 +23,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 export default deployFunc
-deployFunc.tags = ['Voter_Implementation']
+deployFunc.tags = ['VeWom_Implementation']
