@@ -297,6 +297,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_MAINNET]: Address('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'),
     [Network.BASE_MAINNET]: Address('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
     [Network.AVALANCHE_MAINNET]: Address('0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'),
+    // TODO: Update token address
+    [Network.SCROLL_MAINNET]: Unknown(),
   },
   [Token.USDCe]: {
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
@@ -327,6 +329,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ETHEREUM_MAINNET]: Address('0xdAC17F958D2ee523a2206206994597C13D831ec7'),
     [Network.POLYGON_MAINNET]: Address('0xc2132D05D31c914a87C6611C10748AEb04B58e8F'),
     [Network.AVALANCHE_MAINNET]: Address('0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'),
+    // TODO: Update token address
+    [Network.SCROLL_MAINNET]: Unknown(),
   },
   [Token.USDTPlus]: {
     // not yet on coingecko.
@@ -356,6 +360,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ETHEREUM_MAINNET]: Address('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'),
     // https://basescan.org/token/0x4200000000000000000000000000000000000006
     [Network.BASE_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
+    // TODO: Update token address
+    [Network.SCROLL_MAINNET]: Unknown(),
   },
   [Token.WMATIC]: {
     [Network.POLYGON_MAINNET]: Address('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'),
@@ -383,6 +389,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),
+    [Network.SCROLL_MAINNET]: Address(ethers.constants.AddressZero),
   },
   [Token.agEUR]: {
     // https://developers.angle.money/overview/smart-contracts/mainnet-contracts

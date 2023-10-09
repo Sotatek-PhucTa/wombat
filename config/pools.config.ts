@@ -1109,6 +1109,15 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
+  [Network.SCROLL_MAINNET]: {
+    Stablecoin_Pool: {
+      setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
+      assets: {
+        ...UsdcAsset({ maxSupply: parseEther('100000') }),
+        ...UsdtAsset({ maxSupply: parseEther('100000') }),
+      },
+    },
+  },
 })
 
 function defaultLargeCapUSDMaxSupply(): Partial<IAssetInfo> {

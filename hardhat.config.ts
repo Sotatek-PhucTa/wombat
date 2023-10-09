@@ -97,6 +97,12 @@ const config: HardhatUserConfig = {
       url: 'https://sepolia-rpc.scroll.io/',
       accounts: [secrets.deployer.privateKey],
     },
+    // TODO: Update rpc
+    [Network.SCROLL_MAINNET]: {
+      chainId: 534351,
+      url: 'https://sepolia-rpc.scroll.io/',
+      accounts: [secrets.deployer.privateKey],
+    },
     [Network.SKALE_TESTNET]: {
       chainId: 1351057110,
       url: 'https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix/',
@@ -216,6 +222,7 @@ const config: HardhatUserConfig = {
       [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe
       [Network.ETHEREUM_MAINNET]: '0x5781b4fe4fAdB61ea2483eEDD9498388F9b353b1', // Gnosis Safe
       // TODO change to gnosis safe
+      [Network.SCROLL_MAINNET]: 'deployer',
       [Network.BASE_MAINNET]: 'deployer',
       [Network.POLYGON_MAINNET]: 'deployer',
       [Network.AVALANCHE_MAINNET]: 'deployer',
