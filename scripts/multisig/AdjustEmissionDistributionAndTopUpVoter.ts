@@ -19,12 +19,12 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 365_000
-    BRIBE_ALLOC_PERCENT = 50.42
+    WOM_MONTHLY_EMISSION_RATE = 390_000
+    BRIBE_ALLOC_PERCENT = 50.7
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 2.19,
-      Asset_Stablecoin_Pool_USDC: 2.19,
+      Asset_Stablecoin_Pool_USDT: 2.05,
+      Asset_Stablecoin_Pool_USDC: 2.05,
       // Main Pool
       Asset_MainPool_USDCe: 17.1,
       Asset_MainPool_USDT: 14.4,
@@ -41,12 +41,12 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_qWOM_Pool_WOM: 0.17,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 2_300_000
-    BRIBE_ALLOC_PERCENT = 91.3
+    WOM_MONTHLY_EMISSION_RATE = 2_500_000
+    BRIBE_ALLOC_PERCENT = 91.5
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.1,
-      Asset_Stablecoin_Pool_USDC: 1.1,
+      Asset_Stablecoin_Pool_USDT: 1,
+      Asset_Stablecoin_Pool_USDC: 1,
       // Main Pool
       Asset_MainPool_USDC: 2.65,
       Asset_MainPool_USDT: 2.65,
@@ -66,12 +66,12 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_wBETH_Pool_ETH: 0,
     }
   } else if (network == Network.ETHEREUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 370_000
-    BRIBE_ALLOC_PERCENT = 86.5
+    WOM_MONTHLY_EMISSION_RATE = 410_000
+    BRIBE_ALLOC_PERCENT = 87.8
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 6.75,
-      Asset_Stablecoin_Pool_USDC: 6.75,
+      Asset_Stablecoin_Pool_USDT: 6.1,
+      Asset_Stablecoin_Pool_USDC: 6.1,
     }
   }
 

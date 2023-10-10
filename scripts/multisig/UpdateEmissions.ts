@@ -15,14 +15,8 @@ runScript('UpdateEmission', async () => {
   if (network == Network.BSC_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissionsAndTopUp(
-        _.pick(getBribes(), [
-          'Asset_stables_01_USDT',
-          'Asset_stables_01_FRAX',
-          'Asset_frxETH_Pool_frxETH',
-          'Asset_frxETH_Pool_sfrxETH',
-          'Asset_frxETH_Pool_ETH',
-        ]),
-        getBribeDeploymentName
+        _.pick(getRewarders(), ['Asset_BNBy_Pool_WBNB', 'Asset_BNBy_Pool_BNBy']),
+        getRewarderDeploymentName
       )
     )
   } else if (network == Network.ARBITRUM_MAINNET) {
@@ -35,16 +29,8 @@ runScript('UpdateEmission', async () => {
   } else if (network == Network.ETHEREUM_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissionsAndTopUp(
-        _.pick(getRewarders(), [
-          'Asset_ETHx_Pool_WETH',
-          'Asset_ETHx_Pool_ETHx',
-          'Asset_frxETH_Pool_WETH',
-          'Asset_frxETH_Pool_frxETH',
-          'Asset_frxETH_Pool_sfrxETH',
-        ]),
-        getRewarderDeploymentName,
-        2,
-        [Token.WOM]
+        _.pick(getRewarders(), ['Asset_frxETH_Pool_WETH', 'Asset_frxETH_Pool_frxETH', 'Asset_frxETH_Pool_sfrxETH']),
+        getRewarderDeploymentName
       )
     )
   } else {

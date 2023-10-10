@@ -380,7 +380,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('0')),
+        convertTokenPerEpochToTokenPerSec(parseEther('25')),
         convertTokenPerEpochToTokenPerSec(parseEther('3889')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
@@ -396,7 +396,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
-        convertTokenPerEpochToTokenPerSec(parseEther('0')),
+        convertTokenPerEpochToTokenPerSec(parseEther('25')),
         convertTokenPerEpochToTokenPerSec(parseEther('3889')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
