@@ -42,20 +42,26 @@ export async function deployProxyZksync(
     const proxyAdmin = await hre.zkUpgrades.admin.getInstance(deployer.zkWallet)
     const implementationAddr = await getImplementationAddress(deployer.zkWallet.provider, proxy.address)
 
+    const proxyArtifact = await deployer.loadArtifact('TransparentUpgradeableProxy')
+    const proxyAdminArtifact = await deployer.loadArtifact('ProxyAdmin')
+
     // save proxy admin
     await deployments.save('DefaultProxyAdmin', {
-      abi: proxyAdmin.abi,
+      abi: proxyAdminArtifact.abi,
       address: proxyAdmin.address,
     })
 
     // save proxy
     await proxy.deployed()
     await deployments.save(deploymentName, {
-      abi: contract.abi,
+      abi: {
+        ...contract.abi,
+        ...proxyArtifact.abi,
+      },
       address: proxy.address,
     })
     await deployments.save(`${deploymentName}_Proxy`, {
-      abi: contract.abi,
+      abi: proxyArtifact.abi,
       address: proxy.address,
     })
 
