@@ -800,7 +800,13 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Default Proxy Admin (Proxy Admin) => `0x6ad9C3C1670CEE303309bC82e7a5754dCb831205`
 - WombatToken => `0x33CeE941cdce68a0aF9fe36aEB669aaa1C3442ED`
 - WombatRouter => `0xd744936A68642f7D96F394Dd59Cb214885FF8A06`
-- MasterWombatV3_Proxy => `0xBA3A9EC587722BB78De2860beaFb880daFB0fD3D`
+
+#### Wombat Governance
+
+- BribeRewarderFactory Proxy => `0x11c5361A9565cd64dfCe0cbF0E6304A19ee7D905`
+- BoostedMultiRewarder Beacon => `0xca8223F1a248B1320FC198F31959A32213246ab7`
+- BribeV2 Beacon => `0xDc7ed8B3c2fc8992a7246Af2a7dcdcA64F82804f`
+- BoostedMasterWombat_Proxy => `0xBA3A9EC587722BB78De2860beaFb880daFB0fD3D`
 
 #### Wombat Cross Chain Pool
 
