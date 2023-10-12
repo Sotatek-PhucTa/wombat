@@ -29,7 +29,7 @@ runScript('UpdateEmission', async () => {
   } else if (network == Network.ETHEREUM_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissionsAndTopUp(
-        _.pick(getRewarders(), ['Asset_frxETH_Pool_WETH', 'Asset_frxETH_Pool_frxETH', 'Asset_frxETH_Pool_sfrxETH']),
+        _.pick(getRewarders(), ['Asset_ETHx_Pool_WETH', 'Asset_ETHx_Pool_ETHx']),
         getRewarderDeploymentName
       )
     )
