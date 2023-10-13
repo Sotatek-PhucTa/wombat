@@ -16,11 +16,19 @@ contract LayerZeroAdaptor is Adaptor, ILayerZeroUserApplicationConfig, ILayerZer
     /// @dev LayerZero chainId => adaptor address
     mapping(uint16 => bytes) public trustedRemoteLookup;
 
+    /// @dev chainId => adaptor address => nonce => keccak(payload)
     mapping(uint16 => mapping(bytes => mapping(uint256 => bytes32))) public failedMessages;
 
-    event MessageFailed(uint16 _srcChainId, bytes _srcAddress, uint256 _nonce, bytes _payload, bytes _reason);
-    event RetryMessageSuccess(uint16 _srcChainId, bytes _srcAddress, uint256 _nonce, bytes32 _payloadHash);
-    event SetTrustedRemoteAddress(uint16 _remoteChainId, bytes _remoteAddress);
+    event MessageFailed(
+        uint16 srcChainId,
+        bytes srcAddress,
+        uint256 inboundNonce,
+        uint256 outboundNonce,
+        bytes payload,
+        bytes reason
+    );
+    event RetryMessageSuccess(uint16 srcChainId, bytes srcAddress, uint256 inboundNonce, bytes32 _payloadHash);
+    event SetTrustedRemoteAddress(uint16 remoteChainId, bytes remoteAddress);
 
     function initialize(ILayerZeroEndpoint _endpoint, ICrossChainPool _crossChainPool) public virtual initializer {
         endpoint = _endpoint;
@@ -36,7 +44,7 @@ contract LayerZeroAdaptor is Adaptor, ILayerZeroUserApplicationConfig, ILayerZer
     function lzReceive(
         uint16 srcChainId,
         bytes calldata srcAddress,
-        uint64,
+        uint64 inboundNonce,
         bytes calldata payload
     ) external override {
         // lzReceive must be called by the endpoint for security
@@ -50,45 +58,46 @@ contract LayerZeroAdaptor is Adaptor, ILayerZeroUserApplicationConfig, ILayerZer
                 keccak256(srcAddress) == keccak256(trustedRemote),
             'invalid source sending contract'
         );
-        (uint256 nonce, bytes memory realPayload) = abi.decode(payload, (uint256, bytes));
+        (uint256 outboundNonce, bytes memory realPayload) = abi.decode(payload, (uint256, bytes));
 
         (bool success, bytes memory reason) = address(this).excessivelySafeCall(
             gasleft(),
             150,
-            abi.encodeWithSelector(this.nonblockingLzReceive.selector, srcChainId, srcAddress, nonce, realPayload)
+            abi.encodeWithSelector(
+                this.nonblockingLzReceive.selector,
+                srcChainId,
+                srcAddress,
+                outboundNonce,
+                realPayload
+            )
         );
         // try-catch all errors/exceptions
         if (!success) {
-            _storeFailedMessage(srcChainId, srcAddress, nonce, realPayload, reason);
+            _storeFailedMessage(srcChainId, srcAddress, inboundNonce, outboundNonce, realPayload, reason);
         }
     }
 
-    function nonblockingLzReceive(
-        uint16 srcChainId,
-        bytes calldata srcAddress,
-        uint64 nonce,
-        bytes calldata payload
-    ) public {
+    function nonblockingLzReceive(uint16 srcChainId, bytes calldata srcAddress, bytes calldata payload) public {
         // only internal transaction
         require(_msgSender() == address(this), 'NonblockingLzApp: caller must be LzApp');
-        _nonblockingLzReceive(srcChainId, srcAddress, nonce, payload);
+        _nonblockingLzReceive(srcChainId, srcAddress, payload);
     }
 
     function retryMessage(
-        uint16 _srcChainId,
-        bytes calldata _srcAddress,
-        uint64 _nonce,
-        bytes calldata _payload
+        uint16 srcChainId,
+        bytes calldata srcAddress,
+        uint64 inboundNonce,
+        bytes calldata payload
     ) public payable virtual {
         // assert there is message to retry
-        bytes32 payloadHash = failedMessages[_srcChainId][_srcAddress][_nonce];
+        bytes32 payloadHash = failedMessages[srcChainId][srcAddress][inboundNonce];
         require(payloadHash != bytes32(0), 'NonblockingLzApp: no stored message');
-        require(keccak256(_payload) == payloadHash, 'NonblockingLzApp: invalid payload');
+        require(keccak256(payload) == payloadHash, 'NonblockingLzApp: invalid payload');
         // clear the stored message
-        failedMessages[_srcChainId][_srcAddress][_nonce] = bytes32(0);
+        failedMessages[srcChainId][srcAddress][inboundNonce] = bytes32(0);
         // execute the message. revert if it fails again
-        _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
-        emit RetryMessageSuccess(_srcChainId, _srcAddress, _nonce, payloadHash);
+        _nonblockingLzReceive(srcChainId, srcAddress, payload);
+        emit RetryMessageSuccess(srcChainId, srcAddress, inboundNonce, payloadHash);
     }
 
     function setConfig(
@@ -142,7 +151,7 @@ contract LayerZeroAdaptor is Adaptor, ILayerZeroUserApplicationConfig, ILayerZer
             );
     }
 
-    function _nonblockingLzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, bytes memory payload) internal {
+    function _nonblockingLzReceive(uint16 srcChainId, bytes memory srcAddress, bytes memory payload) internal {
         (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) = _decode(payload);
         _swapCreditForTokens(
             srcChainId,
@@ -169,7 +178,7 @@ contract LayerZeroAdaptor is Adaptor, ILayerZeroUserApplicationConfig, ILayerZer
         require(toChain <= type(uint16).max, 'invalid chain ID');
 
         // destChain(16bit) | nonce(64bit)
-        sequence = (toChain << 64) | uint256(endpoint.getOutboundNonce(uint16(toChain), address(this)));
+        sequence = uint256(endpoint.getOutboundNonce(uint16(toChain), address(this)));
         endpoint.send{value: msg.value}(
             uint16(toChain),
             trustedRemoteLookup[uint16(toChain)],
@@ -191,14 +200,15 @@ contract LayerZeroAdaptor is Adaptor, ILayerZeroUserApplicationConfig, ILayerZer
     }
 
     function _storeFailedMessage(
-        uint16 _srcChainId,
-        bytes memory _srcAddress,
-        uint256 _nonce,
-        bytes memory _payload,
-        bytes memory _reason
+        uint16 srcChainId,
+        bytes memory srcAddress,
+        uint256 outboundNonce,
+        uint256 inboundNonce,
+        bytes memory payload,
+        bytes memory reason
     ) internal {
-        failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(_payload);
-        emit MessageFailed(_srcChainId, _srcAddress, _nonce, _payload, _reason);
+        failedMessages[srcChainId][srcAddress][inboundNonce] = keccak256(payload);
+        emit MessageFailed(srcChainId, srcAddress, inboundNonce, outboundNonce, payload, reason);
     }
 
     function _lzAddrToEthSrcAddr(bytes memory addr) internal pure returns (address) {
