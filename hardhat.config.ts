@@ -105,7 +105,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      // get the correct key in https://github.com/NomicFoundation/hardhat/blob/main/packages/hardhat-verify/src/chain-config.ts
+      // get the correct key in https://github.com/NomicFoundation/hardhat/blob/main/packages/hardhat-verify/src/internal/chain-config.ts
       bsc: secrets.bscscan_api_key,
       bscTestnet: secrets.bscscan_api_key,
       avalancheFujiTestnet: secrets.snowtrace_api_key,
@@ -118,6 +118,7 @@ const config: HardhatUserConfig = {
       mainnet: secrets.etherscan_api_key,
       scrollSepolia: 'abc',
       skaleTestnet: 'abc',
+      base: secrets.base_api_key,
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [

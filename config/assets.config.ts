@@ -34,6 +34,17 @@ export function UsdcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   }
 }
 
+export function UsdbcAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    USDbC: {
+      tokenName: 'USD Base Coin',
+      tokenSymbol: 'USDbC',
+      underlyingToken: Token.USDbC,
+      ...partial,
+    },
+  }
+}
+
 export function UsdceAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     'USDC.e': {

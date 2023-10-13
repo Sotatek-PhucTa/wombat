@@ -44,6 +44,7 @@ export enum Token {
   TENFI,
   TUSD,
   UNKNOWN,
+  USDbC,
   USDC,
   USDCe,
   USDD,
@@ -276,6 +277,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.UNKNOWN]: {
     // Cannot be resolved on any network.
   },
+  [Token.USDbC]: {
+    // https://basescan.org/address/0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca
+    [Network.BASE_MAINNET]: Address('0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA'),
+  },
   [Token.USDC]: {
     [Network.HARDHAT]: Deployment('USDC'),
     [Network.LOCALHOST]: Deployment('USDC'),
@@ -330,6 +335,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.WAVAX]: {
     [Network.AVALANCHE_TESTNET]: Address('0x1D308089a2D1Ced3f1Ce36B1FcaF815b07217be3'),
+    // https://snowtrace.io/address/0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7
+    [Network.AVALANCHE_MAINNET]: Address('0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'),
   },
   [Token.WBNB]: {
     [Network.BSC_TESTNET]: Address('0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd'),
@@ -347,6 +354,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.OPTIMISM_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
     // https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
     [Network.ETHEREUM_MAINNET]: Address('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'),
+    // https://basescan.org/token/0x4200000000000000000000000000000000000006
+    [Network.BASE_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
   },
   [Token.WMATIC]: {
     [Network.POLYGON_MAINNET]: Address('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'),
@@ -367,10 +376,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_TESTNET]: Deployment('WombatToken'),
     [Network.SKALE_TESTNET]: Deployment('WombatToken'),
     [Network.SCROLL_TESTNET]: Deployment('WombatToken'),
-    // TODO change to actual address after bridge WOM over using wormhole
-    [Network.POLYGON_MAINNET]: Deployment('WombatToken'),
-    [Network.BASE_MAINNET]: Deployment('WombatToken'),
-    [Network.AVALANCHE_MAINNET]: Deployment('WombatToken'),
+    [Network.POLYGON_MAINNET]: Address('0x77749d37A87BFf80060c00152B213F61341A6de5'),
+    [Network.BASE_MAINNET]: Address('0xD9541B08B375D58ae104EC247d7443D2D7235D64'),
+    [Network.AVALANCHE_MAINNET]: Address('0xa15E4544D141aa98C4581a1EA10Eb9048c3b3382'),
     [Network.ZKSYNC_TESTNET]: Address(ethers.constants.AddressZero),
     [Network.ARBITRUM_MAINNET]: Address('0x7B5EB3940021Ec0e8e463D5dBB4B7B09a89DDF96'),
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),

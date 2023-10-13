@@ -144,7 +144,7 @@ export const WORMHOLE_ADAPTOR_CONFIG_MAP: PartialRecord<
   [Network.BASE_MAINNET]: {
     [CrossChainPoolType.stablecoin]: {
       adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.BASE_MAINNET),
-      tokens: [Token.USDC, Token.USDT],
+      tokens: [Token.USDC, Token.USDbC],
     },
   },
   [Network.POLYGON_MAINNET]: {

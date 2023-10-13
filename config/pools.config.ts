@@ -60,6 +60,7 @@ import {
   EureAsset,
   zBNBAsset,
   zUSDAsset,
+  UsdbcAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -1086,7 +1087,7 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
       setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
       assets: {
         ...UsdcAsset({ maxSupply: parseEther('100000') }),
-        ...UsdtAsset({ maxSupply: parseEther('100000') }),
+        ...UsdbcAsset({ maxSupply: parseEther('100000') }),
       },
     },
   },

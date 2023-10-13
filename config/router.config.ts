@@ -10,7 +10,7 @@ export function getWrappedNativeToken(): Token {
 const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, Token> = {
   [Network.HARDHAT]: Token.BUSD,
   [Network.LOCALHOST]: Token.BUSD,
-  [Network.BASE_MAINNET]: Token.UNKNOWN,
+  [Network.BASE_MAINNET]: Token.WETH,
   [Network.BSC_MAINNET]: Token.WBNB,
   [Network.BSC_TESTNET]: Token.WBNB,
   [Network.POLYGON_MAINNET]: Token.WMATIC,
