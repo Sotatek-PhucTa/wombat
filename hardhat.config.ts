@@ -97,10 +97,9 @@ const config: HardhatUserConfig = {
       url: 'https://sepolia-rpc.scroll.io/',
       accounts: [secrets.deployer.privateKey],
     },
-    // TODO: Update rpc
     [Network.SCROLL_MAINNET]: {
-      chainId: 534351,
-      url: 'https://sepolia-rpc.scroll.io/',
+      chainId: 534352,
+      url: 'https://rpc.scroll.io/',
       accounts: [secrets.deployer.privateKey],
     },
     [Network.SKALE_TESTNET]: {
@@ -125,6 +124,7 @@ const config: HardhatUserConfig = {
       scrollSepolia: 'abc',
       skaleTestnet: 'abc',
       base: secrets.base_api_key,
+      scroll: 'abc',
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [
@@ -142,6 +142,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/api',
           browserURL: 'https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com',
+        },
+      },
+      {
+        network: 'scroll',
+        chainId: 534352,
+        urls: {
+          apiURL: 'https://blockscout.scroll.io/api',
+          browserURL: 'https://blockscout.scroll.io/',
         },
       },
     ],

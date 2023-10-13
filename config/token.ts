@@ -1,4 +1,4 @@
-import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
 import { getAddress } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 import { ethers } from 'hardhat'
@@ -297,8 +297,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_MAINNET]: Address('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'),
     [Network.BASE_MAINNET]: Address('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
     [Network.AVALANCHE_MAINNET]: Address('0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'),
-    // TODO: Update token address
-    [Network.SCROLL_MAINNET]: Unknown(),
+    [Network.SCROLL_MAINNET]: Address('0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4'),
   },
   [Token.USDCe]: {
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
@@ -329,8 +328,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ETHEREUM_MAINNET]: Address('0xdAC17F958D2ee523a2206206994597C13D831ec7'),
     [Network.POLYGON_MAINNET]: Address('0xc2132D05D31c914a87C6611C10748AEb04B58e8F'),
     [Network.AVALANCHE_MAINNET]: Address('0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'),
-    // TODO: Update token address
-    [Network.SCROLL_MAINNET]: Unknown(),
+    [Network.SCROLL_MAINNET]: Address('0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df'),
   },
   [Token.USDTPlus]: {
     // not yet on coingecko.
@@ -360,8 +358,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.ETHEREUM_MAINNET]: Address('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'),
     // https://basescan.org/token/0x4200000000000000000000000000000000000006
     [Network.BASE_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
-    // TODO: Update token address
-    [Network.SCROLL_MAINNET]: Unknown(),
+    // https://scrollscan.com/address/0x5300000000000000000000000000000000000004
+    [Network.SCROLL_MAINNET]: Address('0x5300000000000000000000000000000000000004'),
   },
   [Token.WMATIC]: {
     [Network.POLYGON_MAINNET]: Address('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'),
