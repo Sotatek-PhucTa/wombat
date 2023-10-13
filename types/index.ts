@@ -20,8 +20,8 @@ export enum Network {
   OPTIMISM_TESTNET = 'opt_testnet',
   ETHEREUM_MAINNET = 'eth_mainnet',
   BASE_MAINNET = 'base_mainnet',
-  SCROLL_TESTNET = 'scroll_testnet',
   SCROLL_MAINNET = 'scroll_mainnet',
+  SCROLL_TESTNET = 'scroll_testnet',
   SKALE_TESTNET = 'skale_testnet',
   // GOERLI as L1 of ZKSYNC Testnet
   // We need it to config zksync https://era.zksync.io/docs/tools/hardhat/getting-started.html#hardhat-configuration
