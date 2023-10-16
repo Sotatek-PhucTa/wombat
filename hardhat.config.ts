@@ -229,11 +229,11 @@ const config: HardhatUserConfig = {
       [Network.ARBITRUM_MAINNET]: '0xC37a89CdB064aC2921Fcc8B3538aC0d6a3AaDF48', // Gnosis Safe
       [Network.OPTIMISM_MAINNET]: '0x9A104004ef083b0980F19Aa5D0Cfaaf2b5FFe388', // Gnosis Safe
       [Network.ETHEREUM_MAINNET]: '0x5781b4fe4fAdB61ea2483eEDD9498388F9b353b1', // Gnosis Safe
+      [Network.BASE_MAINNET]: '0xF6EC90f57D4042c61935882c0DA67D6A3a886F98',
+      [Network.POLYGON_MAINNET]: '0x9467E157C8c6aF8F25DB75629F907325B49c41bA',
+      [Network.AVALANCHE_MAINNET]: '0xcCD7D2cd47bf8130691397a6428Bb9E6bD1F2364',
       // TODO change to gnosis safe
       [Network.SCROLL_MAINNET]: 'deployer',
-      [Network.BASE_MAINNET]: 'deployer',
-      [Network.POLYGON_MAINNET]: 'deployer',
-      [Network.AVALANCHE_MAINNET]: 'deployer',
     },
   },
   docgen: {
