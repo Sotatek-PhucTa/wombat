@@ -1087,10 +1087,10 @@
     proper-lockfile "^4.1.1"
     solidity-ast "^0.4.15"
 
-"@pythnetwork/pyth-sdk-solidity@^2.2.1":
-  version "2.2.1"
-  resolved "https://registry.npmjs.org/@pythnetwork/pyth-sdk-solidity/-/pyth-sdk-solidity-2.2.1.tgz"
-  integrity sha512-Tb/5fWrQBRZ+IHDQVz3GiHh6+ZbgeS/muaNosJrD94cuL6DuAwcr7yEgMq4DrlPSrb+x7Vw8d5NMOvpsC7+Vlw==
+"@pythnetwork/pyth-sdk-solidity@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@pythnetwork/pyth-sdk-solidity/-/pyth-sdk-solidity-2.3.0.tgz#786dc3e7c265744db21df6c1359273bb606c93a5"
+  integrity sha512-P4B03Bclwlyey30kmamgcpGnO9DrN0/bhQmnuTzltB+1YSPAnQxIlUWnyXpCN5rKkLd7Ay2bXW4T0QP0uszORA==
 
 "@scure/base@~1.1.0":
   version "1.1.1"
