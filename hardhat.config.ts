@@ -45,7 +45,7 @@ const config: HardhatUserConfig = {
       accounts: [secrets.deployer.privateKey, secrets.user1.privateKey, secrets.user2.privateKey],
     },
     [Network.POLYGON_MAINNET]: {
-      url: 'https://polygon-rpc.com/',
+      url: secrets.alchemy_polygon_url || 'https://polygon-rpc.com/',
       chainId: 137,
       gasPrice: 20000000000,
       accounts: [secrets.deployer.privateKey],
