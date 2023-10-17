@@ -651,6 +651,19 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_wmxWOMPool_wmxWOM (LP-wmxWOM) => `0x6C7B407411b3DB90DfA25DA4aA66605438D378CE`
 - Asset_wmxWOMPool_WOM (LP-WOM) => `0xb826313c8B122757e617c0Ea963a4310c14a8Cc8`
 
+### Scroll mainnet
+
+#### Cross chain pool
+- CoreV3 => `0x9a59F56F96A780F74167eC911ca59699bfc73bA6`
+- CrossChainPool_Stablecoin_Pool_Proxy => `0x80f088ae72DB6d1AC337340cd6Aa0EB1F67337CE`
+- Asset_Stablecoin_Pool_USDC => `0xE2a60C52C4abB9fbc3f711da3cb9E633269DBC67`
+- Asset_Stablecoin_Pool_USDT => `0xe43c1695df76CcA4D6079061924D7150Fd553c21`
+
+#### Wombat Governance
+- WombatRouter => `0x010931D4d82ff3F5Ae8bD94e0752570711f78959`
+- DefaultProxyAdmin => `0x20d7B9Ed2c4E2DCC55F9B463975b21bBf2A6eCd1`
+- BoostedMasterWombat Proxy => `0xbc007EEA00EA4b240E803A7dD39026554fBbA64a`
+
 ### BSC testnet
 
 #### BSC Wallet Accounts
