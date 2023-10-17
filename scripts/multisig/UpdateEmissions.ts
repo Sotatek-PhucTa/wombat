@@ -22,14 +22,14 @@ runScript('UpdateEmission', async () => {
   } else if (network == Network.ARBITRUM_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissionsAndTopUp(
-        _.pick(getRewarders(), ['Asset_fUSDC_Pool_fUSDC', 'Asset_fUSDC_Pool_USDCe']),
+        _.pick(getRewarders(), ['Asset_mPendle_Pool_PENDLE', 'Asset_mPendle_Pool_mPendle']),
         getRewarderDeploymentName
       )
     )
   } else if (network == Network.ETHEREUM_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissionsAndTopUp(
-        _.pick(getRewarders(), ['Asset_ETHx_Pool_WETH', 'Asset_ETHx_Pool_ETHx']),
+        _.pick(getRewarders(), ['Asset_frxETH_Pool_WETH', 'Asset_frxETH_Pool_frxETH', 'Asset_frxETH_Pool_sfrxETH']),
         getRewarderDeploymentName
       )
     )

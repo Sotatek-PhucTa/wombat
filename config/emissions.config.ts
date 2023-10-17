@@ -298,12 +298,12 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_PENDLE', {
       rewardTokens: [Token.PNP, Token.WOM],
-      tokenPerSec: ['3220634910000000', convertTokenPerEpochToTokenPerSec(parseEther('5688'))],
+      tokenPerSec: ['3220634910000000', convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_mPendle_Pool_mPendle', {
       rewardTokens: [Token.PNP, Token.WOM],
-      tokenPerSec: ['1660317450000000', convertTokenPerEpochToTokenPerSec(parseEther('2275'))],
+      tokenPerSec: ['1660317450000000', convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_fUSDC', {
@@ -381,7 +381,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('25')),
-        convertTokenPerEpochToTokenPerSec(parseEther('3889')),
+        convertTokenPerEpochToTokenPerSec(parseEther('5116')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
@@ -389,7 +389,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('34')),
-        convertTokenPerEpochToTokenPerSec(parseEther('5289')),
+        convertTokenPerEpochToTokenPerSec(parseEther('6958')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
@@ -397,7 +397,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('25')),
-        convertTokenPerEpochToTokenPerSec(parseEther('3889')),
+        convertTokenPerEpochToTokenPerSec(parseEther('5166')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
