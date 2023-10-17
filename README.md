@@ -696,6 +696,21 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_Stablecoin_Pool_USDC => `0xd05CF2BCaaee3a221E9effF58bF2874b9F11E47b`
 - Asset_Stablecoin_Pool_USDT => `0x375883a1F801138B6f5EE953a7A11072129Ac624`
 
+### Polygon mainnet
+#### Wombat Governance
+- DefaultProxyAdmin => `0x6521a549834F5E6d253CD2e5F4fbe4048f86cd7b`
+- BoostedMasterWombat_Proxy => `0xE85f625404eef8a55D9A8B385777d7C8E45E0C73`
+- WombatRouter => `0x34E2F923bBa206358EcE221af73E8d121837F873`
+- VeWom_Proxy => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
+- Whitelist => `0x5dacE27D0b921b177Cd9C6706c6ACDeb3EC7bEa7`
+
+#### Cross chain pool
+- CoreV3 => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
+- CrossChainPool_Stablecoin_Pool_Proxy => `0x4705b477d35112f7B7cA2Bc5059eD9b78bb46134`
+- WormholeAdaptor_Stablecoin_Pool_Proxy => `0x9da4edBed6068666ea8EF6505C909e1ff8eA5725`
+- Asset_Stablecoin_Pool_USDC => `0x4f5FA194C19f24aDB09c1742817C6E92D84Fc467`
+- Asset_Stablecoin_Pool_USDT => `0xb789d438CE654E324f17543512E0706F0E6273dB`
+
 ### BSC testnet
 
 #### BSC Wallet Accounts
