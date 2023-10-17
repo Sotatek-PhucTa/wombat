@@ -123,7 +123,8 @@ const config: HardhatUserConfig = {
       mainnet: secrets.etherscan_api_key,
       scrollSepolia: 'abc',
       skaleTestnet: 'abc',
-      base: secrets.base_api_key,
+      // FIXME: https://app.clickup.com/t/865d89hfw
+      // base: secrets.base_api_key,
       scroll: 'abc',
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
