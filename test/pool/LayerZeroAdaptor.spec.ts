@@ -1,7 +1,8 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Asset, CoreV3, CrossChainPool, LZEndpointMock, LayerZeroAdaptor, TestERC20 } from '../../build/typechain'
 import { ethers } from 'hardhat'
-import { parseEther, parseUnits } from 'ethers/lib/utils'
+import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils'
+import { expect } from 'chai'
 
 describe('LayerZeroAdaptor', function () {
   let owner: SignerWithAddress
@@ -86,7 +87,7 @@ describe('LayerZeroAdaptor', function () {
     await pool_c2.setAdaptorAddr(adaptor_c2.address)
 
     await adaptor_c1.initialize(lzEndpoint_c1.address, pool_c1.address)
-    await adaptor_c2.initialize(lzEndpoint_c2.address, pool_c1.address)
+    await adaptor_c2.initialize(lzEndpoint_c2.address, pool_c2.address)
 
     // Add trusted adaptor
     await adaptor_c1.setTrustedRemoteAddress(2, adaptor_c2.address)
@@ -104,10 +105,12 @@ describe('LayerZeroAdaptor', function () {
 
     await pool_c1.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
     await pool_c1.setMaximumOutboundCredit(parseEther('100000'))
+    await pool_c1.setMaximumInboundCredit(parseEther('100000'))
     await pool_c1.setSwapTokensForCreditEnabled(true)
     await pool_c1.setSwapCreditForTokensEnabled(true)
     await pool_c2.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
     await pool_c2.setMaximumOutboundCredit(parseEther('100000'))
+    await pool_c2.setMaximumInboundCredit(parseEther('100000'))
     await pool_c2.setSwapTokensForCreditEnabled(true)
     await pool_c2.setSwapCreditForTokensEnabled(true)
 
@@ -119,14 +122,23 @@ describe('LayerZeroAdaptor', function () {
     // faucet token
     await token0_c1.connect(user0).faucet(parseEther('10000'))
     await token0_c2.connect(user0).faucet(parseEther('10000'))
+    await token1_c1.connect(user0).faucet(parseEther('10000'))
+    await token1_c2.connect(user0).faucet(parseEther('10000'))
   })
 
   it('can swap crosschain', async function () {
     await token0_c1.connect(user0).approve(pool_c1.address, ethers.constants.MaxUint256)
     await token0_c2.connect(user0).approve(pool_c2.address, ethers.constants.MaxUint256)
+    await token1_c1.connect(user0).approve(pool_c1.address, ethers.constants.MaxUint256)
+    await token1_c2.connect(user0).approve(pool_c2.address, ethers.constants.MaxUint256)
 
     await pool_c1.connect(user0).deposit(token0_c1.address, parseEther('100'), 1, user0.address, 1000000000000, false)
+    await pool_c1.connect(user0).deposit(token1_c1.address, parseEther('100'), 1, user0.address, 1000000000000, false)
     await pool_c2.connect(user0).deposit(token0_c2.address, parseEther('100'), 1, user0.address, 1000000000000, false)
+    await pool_c2.connect(user0).deposit(token1_c2.address, parseEther('100'), 1, user0.address, 1000000000000, false)
+
+    const token0_c1_balanceBefore = await token0_c1.balanceOf(user0.address)
+    const token0_c2_balanceBefore = await token0_c2.balanceOf(user0.address)
 
     await pool_c1
       .connect(user0)
@@ -142,5 +154,11 @@ describe('LayerZeroAdaptor', function () {
         200000,
         { value: parseEther('0.02') }
       )
+
+    const token0_c1_balanceAfter = await token0_c1.balanceOf(user0.address)
+    const token0_c2_balanceAfter = await token0_c2.balanceOf(user0.address)
+
+    expect(token0_c1_balanceBefore.sub(token0_c1_balanceAfter)).eq(parseEther('1'))
+    expect(Number(formatEther(token0_c2_balanceAfter.sub(token0_c2_balanceBefore)))).closeTo(1, 0.01)
   })
 })
