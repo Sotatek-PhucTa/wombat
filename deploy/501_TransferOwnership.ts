@@ -5,9 +5,6 @@ import { confirmTxn } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 import assert from 'assert'
 
-// TODO: automatically discover proxy from deployments folder
-const deploymentNames = ['BribeRewarderFactory_Proxy', 'Voter_Proxy', 'VeWom_Proxy', 'Whitelist']
-
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const network = getCurrentNetwork()
   const { deployments, getNamedAccounts } = hre
@@ -15,6 +12,10 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const deployerSigner = await SignerWithAddress.create(ethers.provider.getSigner(deployer))
 
   deployments.log(`Step 501. Transfer ownerships on : ${network} with account : ${deployer}`)
+
+  const deploymentNames = Object.keys(await deployments.all())
+    .filter((name) => name.includes(network) && name.endsWith('_Proxy'))
+    .concat('Whitelist')
 
   for (const deploymentName of deploymentNames) {
     // Get deployed contract
