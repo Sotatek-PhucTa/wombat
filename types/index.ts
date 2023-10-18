@@ -12,6 +12,7 @@ export enum Network {
   BSC_TESTNET = 'bsc_testnet',
   POLYGON_MAINNET = 'polygon_mainnet',
   POLYGON_TESTNET = 'polygon_testnet',
+  POLYGON_ZKEVM_MAINNET = 'polygon_zkevm_mainnet',
   AVALANCHE_MAINNET = 'avax_mainnet',
   AVALANCHE_TESTNET = 'avax_testnet',
   ARBITRUM_MAINNET = 'arb_mainnet',
@@ -27,6 +28,8 @@ export enum Network {
   // We need it to config zksync https://era.zksync.io/docs/tools/hardhat/getting-started.html#hardhat-configuration
   GOERLI = 'goerli',
   ZKSYNC_TESTNET = 'zksync_testnet',
+  ZKSYNC_MAINNET = 'zksync_mainnet',
+  GNOSIS_MAINNET = 'gnosis_mainnet',
 }
 
 export interface DeploymentResult {

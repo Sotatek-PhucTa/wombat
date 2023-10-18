@@ -183,6 +183,16 @@ export function UsddAsset(): TokenMap<IAssetInfo> {
   }
 }
 
+export function WxdaiAsset(): TokenMap<IAssetInfo> {
+  return {
+    WxDAI: {
+      tokenName: 'Wrapped XDAI',
+      tokenSymbol: 'WXDAI',
+      underlyingToken: Token.WxDAI,
+    },
+  }
+}
+
 export function BobAsset(): TokenMap<IAssetInfo> {
   return {
     BOB: {

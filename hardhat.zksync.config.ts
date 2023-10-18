@@ -23,8 +23,8 @@ const config: HardhatUserConfig = {
   defaultNetwork: Network.HARDHAT,
   networks: {
     [Network.LOCALHOST]: {
-      chainId: 270,
-      url: 'http://localhost:3050',
+      chainId: 260,
+      url: 'http://127.0.0.1:8011',
       ethNetwork: 'http://localhost:8545',
       zksync: true,
       // zksync local node rich wallet preloaded
@@ -37,6 +37,20 @@ const config: HardhatUserConfig = {
       url: 'https://rpc.ankr.com/eth_goerli',
       accounts: [secrets.deployer.privateKey],
       zksync: false,
+    },
+    [Network.ETHEREUM_MAINNET]: {
+      chainId: 1,
+      url: 'https://eth.llamarpc.com',
+      accounts: [secrets.deployer.privateKey],
+      zksync: false,
+    },
+    [Network.ZKSYNC_MAINNET]: {
+      chainId: 324,
+      url: 'https://mainnet.era.zksync.io',
+      ethNetwork: Network.ETHEREUM_MAINNET,
+      accounts: [secrets.deployer.privateKey],
+      zksync: true,
+      verifyURL: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
     },
     [Network.ZKSYNC_TESTNET]: {
       chainId: 280,
@@ -100,6 +114,8 @@ const config: HardhatUserConfig = {
       [Network.HARDHAT]: 'deployer',
       [Network.LOCALHOST]: 'deployer',
       [Network.ZKSYNC_TESTNET]: 'deployer',
+      // TODO: change to gnosis safe
+      [Network.ZKSYNC_MAINNET]: 'deployer',
     },
   },
   docgen: {

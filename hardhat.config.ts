@@ -106,6 +106,16 @@ const config: HardhatUserConfig = {
       url: 'https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix/',
       accounts: [secrets.deployer.privateKey],
     },
+    [Network.POLYGON_ZKEVM_MAINNET]: {
+      url: 'https://zkevm-rpc.com/',
+      chainId: 1101,
+      accounts: [secrets.deployer.privateKey],
+    },
+    [Network.GNOSIS_MAINNET]: {
+      url: 'https://rpc.gnosischain.com/',
+      chainId: 100,
+      accounts: [secrets.deployer.privateKey],
+    },
   },
   etherscan: {
     apiKey: {
@@ -125,6 +135,8 @@ const config: HardhatUserConfig = {
       // FIXME: https://app.clickup.com/t/865d89hfw
       // base: secrets.base_api_key,
       scroll: 'abc',
+      zkevmPolygon: secrets.zkevm_polygonscan_api_key,
+      gnosis: secrets.gnosisscan_api_key,
     },
     // https://github.com/smartcontractkit/hardhat-starter-kit/issues/140
     customChains: [
@@ -150,6 +162,22 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://blockscout.scroll.io/api',
           browserURL: 'https://blockscout.scroll.io/',
+        },
+      },
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org/',
+        },
+      },
+      {
+        network: 'zkevmPolygon',
+        chainId: 1101,
+        urls: {
+          apiURL: 'https://api-zkevm.polygonscan.com/api',
+          browserURL: 'https://zkevm.polygonscan.com/',
         },
       },
     ],
@@ -234,6 +262,8 @@ const config: HardhatUserConfig = {
       [Network.AVALANCHE_MAINNET]: '0xcCD7D2cd47bf8130691397a6428Bb9E6bD1F2364',
       // TODO change to gnosis safe
       [Network.SCROLL_MAINNET]: 'deployer',
+      [Network.GNOSIS_MAINNET]: 'deployer',
+      [Network.POLYGON_ZKEVM_MAINNET]: 'deployer',
     },
   },
   docgen: {

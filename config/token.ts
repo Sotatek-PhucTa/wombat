@@ -58,6 +58,7 @@ export enum Token {
   WMATIC,
   WMX,
   WOM,
+  WxDAI,
   agEUR,
   ankrBNB,
   ankrETH,
@@ -139,6 +140,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.AVALANCHE_TESTNET]: Deployment('BUSD'),
     // https://bscscan.com/address/0xe9e7cea3dedca5984780bafc599bd69add087d56
     [Network.BSC_MAINNET]: Address('0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'),
+    [Network.ZKSYNC_MAINNET]: Address('0x2039bb4116B4EFc145Ec4f0e2eA75012D6C0f181'),
   },
   [Token.CUSD]: {
     [Network.BSC_MAINNET]: Address('0xFa4BA88Cf97e282c505BEa095297786c16070129'),
@@ -149,6 +151,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_TESTNET]: Deployment('DAI'),
     [Network.BSC_MAINNET]: Address('0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3'),
     [Network.ARBITRUM_MAINNET]: Address('0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'),
+    [Network.POLYGON_ZKEVM_MAINNET]: Address('0xC5015b9d9161Dca7e18e32f6f25C4aD850731Fd4'),
   },
   [Token.DAIPlus]: {
     [Network.ARBITRUM_MAINNET]: Address('0xeb8E93A0c7504Bffd8A8fFa56CD754c63aAeBFe8'),
@@ -298,6 +301,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BASE_MAINNET]: Address('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
     [Network.AVALANCHE_MAINNET]: Address('0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'),
     [Network.SCROLL_MAINNET]: Address('0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4'),
+    [Network.GNOSIS_MAINNET]: Address('0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'),
+    [Network.POLYGON_ZKEVM_MAINNET]: Address('0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035'),
+    [Network.ZKSYNC_MAINNET]: Address('0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4'),
   },
   [Token.USDCe]: {
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
@@ -329,6 +335,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_MAINNET]: Address('0xc2132D05D31c914a87C6611C10748AEb04B58e8F'),
     [Network.AVALANCHE_MAINNET]: Address('0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'),
     [Network.SCROLL_MAINNET]: Address('0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df'),
+    [Network.GNOSIS_MAINNET]: Address('0x4ECaBa5870353805a9F068101A40E0f32ed605C6'),
+    [Network.POLYGON_ZKEVM_MAINNET]: Address('0x1E4a5963aBFD975d8c9021ce480b42188849D41d'),
+    // https://explorer.zksync.io/tokenlist
+    [Network.ZKSYNC_MAINNET]: Address('0x493257fD37EDB34451f62EDf8D2a0C418852bA4C'),
   },
   [Token.USDTPlus]: {
     // not yet on coingecko.
@@ -360,6 +370,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BASE_MAINNET]: Address('0x4200000000000000000000000000000000000006'),
     // https://scrollscan.com/address/0x5300000000000000000000000000000000000004
     [Network.SCROLL_MAINNET]: Address('0x5300000000000000000000000000000000000004'),
+    // https://explorer.zksync.io/address/0x5aea5775959fbc2557cc8789bc1bf90a239d9a91#contract
+    [Network.ZKSYNC_MAINNET]: Address('0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91'),
+    // https://zkevm.polygonscan.com/address/0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9
+    [Network.POLYGON_ZKEVM_MAINNET]: Address('0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9'),
   },
   [Token.WMATIC]: {
     [Network.POLYGON_MAINNET]: Address('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'),
@@ -388,6 +402,12 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.OPTIMISM_MAINNET]: Address('0xD2612B256F6f76feA8C6fbca0BF3166D0d13a668'),
     [Network.ETHEREUM_MAINNET]: Address('0xc0B314a8c08637685Fc3daFC477b92028c540CFB'),
     [Network.SCROLL_MAINNET]: Address(ethers.constants.AddressZero),
+    [Network.GNOSIS_MAINNET]: Address(ethers.constants.AddressZero),
+    [Network.POLYGON_ZKEVM_MAINNET]: Address(ethers.constants.AddressZero),
+    [Network.ZKSYNC_MAINNET]: Address(ethers.constants.AddressZero),
+  },
+  [Token.WxDAI]: {
+    [Network.GNOSIS_MAINNET]: Address('0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'),
   },
   [Token.agEUR]: {
     // https://developers.angle.money/overview/smart-contracts/mainnet-contracts

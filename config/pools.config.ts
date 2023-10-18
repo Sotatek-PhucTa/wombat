@@ -61,6 +61,7 @@ import {
   zBNBAsset,
   zUSDAsset,
   UsdbcAsset,
+  WxdaiAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -692,6 +693,42 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdtAsset(),
         ...UsdcAsset(),
+      },
+    },
+  },
+  [Network.GNOSIS_MAINNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig(),
+      },
+      assets: {
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...WxdaiAsset(),
+      },
+    },
+  },
+  [Network.ZKSYNC_MAINNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig(),
+      },
+      assets: {
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...BusdAsset(),
+      },
+    },
+  },
+  [Network.POLYGON_ZKEVM_MAINNET]: {
+    MainPool: {
+      setting: {
+        ...defaultMainPoolConfig(),
+      },
+      assets: {
+        ...UsdtAsset(),
+        ...UsdcAsset(),
+        ...DaiAsset(),
       },
     },
   },
