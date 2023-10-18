@@ -381,7 +381,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('25')),
-        convertTokenPerEpochToTokenPerSec(parseEther('5116')),
+        convertTokenPerEpochToTokenPerSec(parseEther('2558')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
@@ -389,7 +389,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('34')),
-        convertTokenPerEpochToTokenPerSec(parseEther('6958')),
+        convertTokenPerEpochToTokenPerSec(parseEther('3479')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
@@ -397,7 +397,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.FXS, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('25')),
-        convertTokenPerEpochToTokenPerSec(parseEther('5166')),
+        convertTokenPerEpochToTokenPerSec(parseEther('2558')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
