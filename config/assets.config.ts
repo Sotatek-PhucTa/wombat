@@ -185,10 +185,10 @@ export function UsddAsset(): TokenMap<IAssetInfo> {
 
 export function WxdaiAsset(): TokenMap<IAssetInfo> {
   return {
-    WxDAI: {
+    WXDAI: {
       tokenName: 'Wrapped XDAI',
       tokenSymbol: 'WXDAI',
-      underlyingToken: Token.WxDAI,
+      underlyingToken: Token.WXDAI,
     },
   }
 }

@@ -58,7 +58,7 @@ export enum Token {
   WMATIC,
   WMX,
   WOM,
-  WxDAI,
+  WXDAI,
   agEUR,
   ankrBNB,
   ankrETH,
@@ -406,7 +406,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.POLYGON_ZKEVM_MAINNET]: Address(ethers.constants.AddressZero),
     [Network.ZKSYNC_MAINNET]: Address(ethers.constants.AddressZero),
   },
-  [Token.WxDAI]: {
+  [Token.WXDAI]: {
     [Network.GNOSIS_MAINNET]: Address('0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'),
   },
   [Token.agEUR]: {
