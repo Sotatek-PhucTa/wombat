@@ -667,6 +667,8 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 ### Base mainnet
 
 #### Wombat Governance
+
+- WOM (bridged ERC-20) => `0xD9541B08B375D58ae104EC247d7443D2D7235D64`
 - DefaultProxyAdmin => `0xd673F385624aC80b8Bc0436a566c6030f2C70fb8`
 - BoostedMasterWombat_Proxy => `0x6521a549834F5E6d253CD2e5F4fbe4048f86cd7b`
 - VeWom_Proxy => `0x34E2F923bBa206358EcE221af73E8d121837F873`
@@ -674,6 +676,7 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - WombatRouter => `0x4A88C44B8D9B9f3F2BA4D97236F737CF03DF76CD`
 
 #### Cross chain pool
+
 - CoreV3 => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
 - CrossChainPool_Stablecoin_Pool_Proxy => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
 - WormholeAdaptor_Stablecoin_Pool_Proxy => `0x489833311676B566f888119c29bd997Dc6C95830`
@@ -683,6 +686,8 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 ### AVAX mainnet
 
 #### Wombat Governance
+
+- WOM (bridged ERC-20) => `0xa15E4544D141aa98C4581a1EA10Eb9048c3b3382`
 - DefaultProxyAdmin => `0xd673F385624aC80b8Bc0436a566c6030f2C70fb8`
 - BoostedMasterWombat_Proxy => `0x6521a549834F5E6d253CD2e5F4fbe4048f86cd7b`
 - WombatRouter => `0x4A88C44B8D9B9f3F2BA4D97236F737CF03DF76CD`
@@ -690,6 +695,7 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Whitelist => `0x9A65781bFff8E43E4345D6B1b5157B2657F2735D`
 
 #### Cross chain pool
+
 - CoreV3 => `0xc6bc781E20f9323012F6e422bdf552Ff06bA6CD1`
 - CrossChainPool_Stablecoin_Pool_Proxy => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
 - WormholeAdaptor_Stablecoin_Pool_Proxy => `0x489833311676B566f888119c29bd997Dc6C95830`
@@ -697,7 +703,10 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_Stablecoin_Pool_USDT => `0x375883a1F801138B6f5EE953a7A11072129Ac624`
 
 ### Polygon mainnet
+
 #### Wombat Governance
+
+- WOM (bridged ERC-20) => `0x77749d37A87BFf80060c00152B213F61341A6de5`
 - DefaultProxyAdmin => `0x6521a549834F5E6d253CD2e5F4fbe4048f86cd7b`
 - BoostedMasterWombat_Proxy => `0xE85f625404eef8a55D9A8B385777d7C8E45E0C73`
 - WombatRouter => `0x34E2F923bBa206358EcE221af73E8d121837F873`
@@ -705,6 +714,7 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Whitelist => `0x5dacE27D0b921b177Cd9C6706c6ACDeb3EC7bEa7`
 
 #### Cross chain pool
+
 - CoreV3 => `0xC9bFC3eFeFe4CF96877009F75a61F5c1937e5d1a`
 - CrossChainPool_Stablecoin_Pool_Proxy => `0x4705b477d35112f7B7cA2Bc5059eD9b78bb46134`
 - WormholeAdaptor_Stablecoin_Pool_Proxy => `0x9da4edBed6068666ea8EF6505C909e1ff8eA5725`
