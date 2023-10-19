@@ -6,7 +6,7 @@ import '../libraries/BytesLib.sol';
 import '../libraries/ExcessivelySafeCall.sol';
 import '../interfaces/ILayerZeroEndpoint.sol';
 import '../interfaces/ILayerZeroReceiver.sol';
-import '../lz/NonblockingLzAppUpgradable.sol';
+import '../layerzero/NonblockingLzAppUpgradable.sol';
 
 contract LayerZeroAdaptor is Adaptor, NonblockingLzAppUpgradable {
     using BytesLib for bytes;

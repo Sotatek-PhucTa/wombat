@@ -1,3 +1,5 @@
+// copied at https://github.com/LayerZero-Labs/solidity-examples/blob/main/contracts/lzApp/NonblockingLzApp.sol
+// modified to make it upgradable
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;

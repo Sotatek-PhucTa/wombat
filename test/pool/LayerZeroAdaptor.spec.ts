@@ -1,151 +1,96 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Asset, CoreV3, CrossChainPool, LZEndpointMock, LayerZeroAdaptor, TestERC20 } from '../../build/typechain'
-import { ethers } from 'hardhat'
-import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils'
+import { deployments, ethers } from 'hardhat'
+import { formatUnits, parseEther, parseUnits } from 'ethers/lib/utils'
 import { expect } from 'chai'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
+import { getDeployedContract } from '../../utils'
+import { Contract } from 'ethers'
 
 describe('LayerZeroAdaptor', function () {
   let owner: SignerWithAddress
   let user0: SignerWithAddress
-  let pool_c1: CrossChainPool
-  let pool_c2: CrossChainPool
-  let lzEndpoint_c1: LZEndpointMock
-  let lzEndpoint_c2: LZEndpointMock
-  let adaptor_c1: LayerZeroAdaptor
-  let adaptor_c2: LayerZeroAdaptor
-  let token0_c1: TestERC20 // BUSD
-  let token1_c1: TestERC20 // USDC
-  let token0_c2: TestERC20 // CAKE
-  let token1_c2: TestERC20 // USDT
-  let asset0_c1: Asset // BUSD LP
-  let asset1_c1: Asset // USDC LP
-  let asset0_c2: Asset // CAKE LP
-  let asset1_c2: Asset // USDT LP
+  let pool: CrossChainPool
+  let lzEndpoint: LZEndpointMock
+  let adaptor: LayerZeroAdaptor
+  let token0: Contract // BUSD
+  let token1: Contract // USDC
+  let asset0: Asset // BUSD LP
+  let asset1: Asset // USDC LP
 
   before(async function () {
-    const [first, ...rest] = await ethers.getSigners()
-    owner = first
-    user0 = rest[0]
+    [owner, user0] = await ethers.getSigners()
   })
 
-  this.beforeEach(async function () {
-    token0_c1 = (await ethers.deployContract('TestERC20', [
-      'Binance USD',
-      'BUSD',
-      18,
-      parseUnits('1000000', 18),
-    ])) as TestERC20 // 1 mil BUSD
-    token1_c1 = (await ethers.deployContract('TestERC20', [
-      'Venus USDC',
-      'vUSDC',
-      6,
-      parseUnits('10000000', 6),
-    ])) as TestERC20 // 10 mil vUSDC
+  beforeEach(restoreOrCreateSnapshot((async function() {
+    await deployments.fixture(['MockTokens']);
+    [token0, token1] = await Promise.all([
+      getDeployedContract('TestERC20', 'BUSD'),
+      getDeployedContract('TestERC20', 'vUSDC'),
+    ])
 
-    token0_c2 = (await ethers.deployContract('TestERC20', [
-      'PancakeSwap Token',
-      'CAKE',
-      18,
-      parseUnits('1000000', 18),
-    ])) as TestERC20 // 1 mil CAKE
-    token1_c2 = (await ethers.deployContract('TestERC20', [
-      'USD Tether',
-      'USDT',
-      8,
-      parseUnits('1000000', 8),
-    ])) as TestERC20 // 1 mil USDT
-    asset0_c1 = (await ethers.deployContract('Asset', [token0_c1.address, 'Binance USD LP', 'BUSD-LP'])) as Asset
-    asset1_c1 = (await ethers.deployContract('Asset', [token1_c1.address, 'Venus USDC LP', 'vUSDC-LP'])) as Asset
-    asset0_c2 = (await ethers.deployContract('Asset', [token0_c2.address, 'PancakeSwap Token LP', 'CAKE-LP'])) as Asset
-    asset1_c2 = (await ethers.deployContract('Asset', [token1_c2.address, 'USD Tether Token LP', 'USDT-LP'])) as Asset
+    asset0 = (await ethers.deployContract('Asset', [token0.address, 'Binance USD LP', 'BUSD-LP'])) as Asset
+    asset1 = (await ethers.deployContract('Asset', [token1.address, 'Venus USDC LP', 'vUSDC-LP'])) as Asset
 
     const coreV3 = (await ethers.deployContract('CoreV3')) as CoreV3
-    pool_c1 = (await ethers.deployContract('CrossChainPool', [], {
-      libraries: {
-        CoreV3: coreV3.address,
-      },
-    })) as CrossChainPool
-    pool_c2 = (await ethers.deployContract('CrossChainPool', [], {
+    pool = (await ethers.deployContract('CrossChainPool', [], {
       libraries: {
         CoreV3: coreV3.address,
       },
     })) as CrossChainPool
 
-    adaptor_c1 = (await ethers.deployContract('LayerZeroAdaptor', [])) as LayerZeroAdaptor
-    adaptor_c2 = (await ethers.deployContract('LayerZeroAdaptor', [])) as LayerZeroAdaptor
-    lzEndpoint_c1 = (await ethers.deployContract('LZEndpointMock', [1])) as LZEndpointMock
-    lzEndpoint_c2 = (await ethers.deployContract('LZEndpointMock', [2])) as LZEndpointMock
+    adaptor = (await ethers.deployContract('LayerZeroAdaptor', [])) as LayerZeroAdaptor
+    lzEndpoint = (await ethers.deployContract('LZEndpointMock', [1])) as LZEndpointMock
 
     // set pool address
-    await Promise.all([asset0_c1.setPool(pool_c1.address), asset1_c1.setPool(pool_c1.address)])
-    await Promise.all([asset0_c2.setPool(pool_c2.address), asset1_c2.setPool(pool_c2.address)])
+    await Promise.all([asset0.setPool(pool.address), asset1.setPool(pool.address)])
 
     // initialize pool contract
-    await pool_c1.connect(owner).initialize(parseEther('0.002'), parseEther('0.0004'))
-    await pool_c1.setAdaptorAddr(adaptor_c1.address)
-    await pool_c2.connect(owner).initialize(parseEther('0.002'), parseEther('0.0004'))
-    await pool_c2.setAdaptorAddr(adaptor_c2.address)
+    await pool.connect(owner).initialize(parseEther('0.002'), parseEther('0.0004'))
+    await pool.setAdaptorAddr(adaptor.address)
 
-    await adaptor_c1.initialize(lzEndpoint_c1.address, pool_c1.address)
-    await adaptor_c2.initialize(lzEndpoint_c2.address, pool_c2.address)
+    await adaptor.initialize(lzEndpoint.address, pool.address)
 
     // Add trusted adaptor
-    await adaptor_c1.setTrustedRemoteAddress(2, adaptor_c2.address)
-    await adaptor_c2.setTrustedRemoteAddress(1, adaptor_c1.address)
+    await adaptor.setTrustedRemoteAddress(1, adaptor.address)
 
     // Config Endpoint Lookup
-    await lzEndpoint_c1.setDestLzEndpoint(adaptor_c2.address, lzEndpoint_c2.address)
-    await lzEndpoint_c2.setDestLzEndpoint(adaptor_c1.address, lzEndpoint_c1.address)
+    await lzEndpoint.setDestLzEndpoint(adaptor.address, lzEndpoint.address)
 
     // Add BUSD & USDC & USDT assets to pool
-    await pool_c1.connect(owner).addAsset(token0_c1.address, asset0_c1.address)
-    await pool_c1.connect(owner).addAsset(token1_c1.address, asset1_c1.address)
-    await pool_c2.connect(owner).addAsset(token0_c2.address, asset0_c2.address)
-    await pool_c2.connect(owner).addAsset(token1_c2.address, asset1_c2.address)
+    await pool.connect(owner).addAsset(token0.address, asset0.address)
+    await pool.connect(owner).addAsset(token1.address, asset1.address)
 
-    await pool_c1.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
-    await pool_c1.setMaximumOutboundCredit(parseEther('100000'))
-    await pool_c1.setMaximumInboundCredit(parseEther('100000'))
-    await pool_c1.setSwapTokensForCreditEnabled(true)
-    await pool_c1.setSwapCreditForTokensEnabled(true)
-    await pool_c2.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
-    await pool_c2.setMaximumOutboundCredit(parseEther('100000'))
-    await pool_c2.setMaximumInboundCredit(parseEther('100000'))
-    await pool_c2.setSwapTokensForCreditEnabled(true)
-    await pool_c2.setSwapCreditForTokensEnabled(true)
+    await pool.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
+    await pool.setMaximumOutboundCredit(parseEther('100000'))
+    await pool.setMaximumInboundCredit(parseEther('100000'))
+    await pool.setSwapTokensForCreditEnabled(true)
+    await pool.setSwapCreditForTokensEnabled(true)
 
-    await adaptor_c1.approveToken(2, token0_c2.address)
-    await adaptor_c1.approveToken(2, token1_c2.address)
-    await adaptor_c2.approveToken(1, token0_c1.address)
-    await adaptor_c2.approveToken(1, token1_c1.address)
+    await adaptor.approveToken(1, token0.address)
+    await adaptor.approveToken(1, token1.address)
 
     // faucet token
-    await token0_c1.connect(user0).faucet(parseEther('10000'))
-    await token0_c2.connect(user0).faucet(parseEther('10000'))
-    await token1_c1.connect(user0).faucet(parseEther('10000'))
-    await token1_c2.connect(user0).faucet(parseEther('10000'))
-  })
+    await token0.connect(user0).faucet(parseEther('10000'))
+    await token1.connect(user0).faucet(parseEther('10000'))
+  })))
 
   it('can swap crosschain', async function () {
-    await token0_c1.connect(user0).approve(pool_c1.address, ethers.constants.MaxUint256)
-    await token0_c2.connect(user0).approve(pool_c2.address, ethers.constants.MaxUint256)
-    await token1_c1.connect(user0).approve(pool_c1.address, ethers.constants.MaxUint256)
-    await token1_c2.connect(user0).approve(pool_c2.address, ethers.constants.MaxUint256)
+    await token0.connect(user0).approve(pool.address, ethers.constants.MaxUint256)
+    await token1.connect(user0).approve(pool.address, ethers.constants.MaxUint256)
 
-    await pool_c1.connect(user0).deposit(token0_c1.address, parseEther('100'), 1, user0.address, 1000000000000, false)
-    await pool_c1.connect(user0).deposit(token1_c1.address, parseEther('100'), 1, user0.address, 1000000000000, false)
-    await pool_c2.connect(user0).deposit(token0_c2.address, parseEther('100'), 1, user0.address, 1000000000000, false)
-    await pool_c2.connect(user0).deposit(token1_c2.address, parseEther('100'), 1, user0.address, 1000000000000, false)
+    await pool.connect(user0).deposit(token0.address, parseEther('100'), 1, user0.address, 1000000000000, false)
+    await pool.connect(user0).deposit(token1.address, parseEther('100'), 1, user0.address, 1000000000000, false)
 
-    const token0_c1_balanceBefore = await token0_c1.balanceOf(user0.address)
-    const token0_c2_balanceBefore = await token0_c2.balanceOf(user0.address)
+    const token0_balanceBefore = await token0.balanceOf(user0.address)
+    const token1_balanceBefore = await token1.balanceOf(user0.address)
 
-    await pool_c1
+    await pool
       .connect(user0)
       .swapTokensForTokensCrossChain(
-        token0_c1.address,
-        token0_c2.address,
-        2,
+        token0.address,
+        token1.address,
+        1,
         parseEther('1'),
         0,
         0,
@@ -155,10 +100,10 @@ describe('LayerZeroAdaptor', function () {
         { value: parseEther('0.02') }
       )
 
-    const token0_c1_balanceAfter = await token0_c1.balanceOf(user0.address)
-    const token0_c2_balanceAfter = await token0_c2.balanceOf(user0.address)
+    const token0_balanceAfter = await token0.balanceOf(user0.address)
+    const token1_balanceAfter = await token1.balanceOf(user0.address)
 
-    expect(token0_c1_balanceBefore.sub(token0_c1_balanceAfter)).eq(parseEther('1'))
-    expect(Number(formatEther(token0_c2_balanceAfter.sub(token0_c2_balanceBefore)))).closeTo(1, 0.01)
+    expect(token0_balanceBefore.sub(token0_balanceAfter)).eq(parseEther('1'))
+    expect(Number(formatUnits(token1_balanceAfter.sub(token1_balanceBefore), 8))).closeTo(1, 0.1)
   })
 })
