@@ -58,6 +58,11 @@ For example, you are deploying bribe contracts. First, do a dryrun:
 After you read the deployment log and there is nothing strange. You can proceed to actually deploy:
 - `hh deploy --tags Bribe --network bsc_testnet`
 
+Because hardhat node does not support `zksync`, so if you want to do a dryrun on `zksync` network, there are a few more steps you need to do:
+  - Install [era-test-node](https://github.com/matter-labs/era-test-node) 
+  - Run `era-test-node fork {network}` to run a forked in-memory node with `network` can be `mainnet` or `testnet`
+  - `FORK_NETWORK=zksync_mainnet yarn zksync:deploy --tags ... --network localhost`
+  
 ### Update README.md
 After deployment, update the README.md to contain latest addresses.
 
