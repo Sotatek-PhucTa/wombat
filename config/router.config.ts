@@ -26,7 +26,7 @@ const WRAPPED_NATIVE_TOKENS_MAP: Record<Network, Token> = {
   [Network.SCROLL_MAINNET]: Token.WETH,
   [Network.SKALE_TESTNET]: Token.NO_WRAPPED_NATIVE_TOKEN,
   [Network.ZKSYNC_TESTNET]: Token.WETH,
-  [Network.GNOSIS_MAINNET]: Token.WxDAI,
+  [Network.GNOSIS_MAINNET]: Token.WXDAI,
   [Network.POLYGON_ZKEVM_MAINNET]: Token.WETH,
   [Network.ZKSYNC_MAINNET]: Token.WETH,
 }
