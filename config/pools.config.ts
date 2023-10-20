@@ -63,7 +63,7 @@ import {
   UsdbcAsset,
   WxdaiAsset,
   WavaxAsset,
-  sAvaxAsset,
+  SavaxAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -959,8 +959,8 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         supportNativeToken: true,
       },
       assets: {
-        ...WavaxAsset(defaultSmallCapAVAXMuxSupply()),
-        ...sAvaxAsset(defaultSmallCapAVAXMuxSupply()),
+        ...WavaxAsset(defaultSmallCapAVAXMaxSupply()),
+        ...SavaxAsset(defaultSmallCapAVAXMaxSupply()),
       },
     },
   },
@@ -1189,7 +1189,7 @@ function defaultSmallCapBNBMaxSupply(): Partial<IAssetInfo> {
   }
 }
 
-function defaultSmallCapAVAXMuxSupply(): Partial<IAssetInfo> {
+function defaultSmallCapAVAXMaxSupply(): Partial<IAssetInfo> {
   return {
     maxSupply: parseEther('30000'),
   }

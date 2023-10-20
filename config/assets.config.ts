@@ -608,7 +608,7 @@ export function WavaxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> 
   }
 }
 
-export function sAvaxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+export function SavaxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     sAVAX: {
       tokenName: 'Staked AVAX',
