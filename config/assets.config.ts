@@ -616,7 +616,7 @@ export function sAvaxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> 
       underlyingToken: Token.sAVAX,
       oracle: ExternalContract.sAVAXOracle,
       assetContractName: 'sAVAXAsset',
-      ...partial
+      ...partial,
     },
   }
 }
