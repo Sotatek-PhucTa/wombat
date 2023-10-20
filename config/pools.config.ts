@@ -953,17 +953,14 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.AVALANCHE_MAINNET]: {
-    // TODO: Confirm the config
     sAVAX_Pool: {
       setting: {
         ...defaultDynamicPoolConfig(),
         supportNativeToken: true,
       },
       assets: {
-        ...WavaxAsset({ maxSupply: parseEther('11000') }),
-        ...sAvaxAsset({
-          maxSupply: parseEther('11000'),
-        }),
+        ...WavaxAsset(defaultSmallCapAVAXMuxSupply()),
+        ...sAvaxAsset(defaultSmallCapAVAXMuxSupply()),
       },
     },
   },
@@ -1189,5 +1186,11 @@ function defaultSmallCapUSDMaxSupply(): Partial<IAssetInfo> {
 function defaultSmallCapBNBMaxSupply(): Partial<IAssetInfo> {
   return {
     maxSupply: parseEther('1500'),
+  }
+}
+
+function defaultSmallCapAVAXMuxSupply(): Partial<IAssetInfo> {
+  return {
+    maxSupply: parseEther('30000'),
   }
 }
