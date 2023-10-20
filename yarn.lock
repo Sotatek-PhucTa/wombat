@@ -1416,10 +1416,10 @@
   resolved "https://registry.yarnpkg.com/@types/tmp/-/tmp-0.2.5.tgz#0f3a71d0a94cbd5de45b0aa641575dd503e43ed4"
   integrity sha512-KodRrjqWrk/3VyzfR4aeXkf2n5Ssg+bvVUhXlvHVffLiIHriLlrO3vYobB+Kvnr9DkNzMiyWHT3G6hT/xX0ryQ==
 
-"@types/utf8@^3.0.0":
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/@types/utf8/-/utf8-3.0.1.tgz"
-  integrity sha512-1EkWuw7rT3BMz2HpmcEOr/HL61mWNA6Ulr/KdbXR9AI0A55wD4Qfv8hizd8Q1DnknSIzzDvQmvvY/guvX7jjZA==
+"@types/utf8@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/utf8/-/utf8-3.0.2.tgz#98139a5cff54b23f610f24f88fbd8e1eed839c09"
+  integrity sha512-yT2dyNcirLj+qwYekmH1F0lQtXoT7HyV6tVFYh0Ay4miNaujL2BnL3P3Pn1N+SMuLqkGk8BR1h8OkxbpFw0ysg==
 
 "@types/yauzl@^2.9.1":
   version "2.10.0"
