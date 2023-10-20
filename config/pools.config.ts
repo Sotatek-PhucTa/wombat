@@ -62,6 +62,8 @@ import {
   zUSDAsset,
   UsdbcAsset,
   WxdaiAsset,
+  WavaxAsset,
+  sAvaxAsset,
 } from './assets.config'
 import { Token } from './token'
 import { getCurrentNetwork, isForkNetwork } from '../types/network'
@@ -947,6 +949,21 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...EthxAsset({ maxSupply: parseEther('11000') }),
         ...WethAsset({ maxSupply: parseEther('11000') }),
+      },
+    },
+  },
+  [Network.AVALANCHE_MAINNET]: {
+    // TODO: Confirm the config
+    sAVAX_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig(),
+        supportNativeToken: true,
+      },
+      assets: {
+        ...WavaxAsset({ maxSupply: parseEther('11000') }),
+        ...sAvaxAsset({
+          maxSupply: parseEther('11000'),
+        }),
       },
     },
   },

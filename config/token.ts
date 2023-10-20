@@ -38,6 +38,7 @@ export enum Token {
   RT1,
   RT2,
   SABLE,
+  sAVAX,
   SD,
   SPELL,
   SnBNB,
@@ -253,6 +254,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.SABLE]: {
     [Network.BSC_MAINNET]: Address('0x1eE098cBaF1f846d5Df1993f7e2d10AFb35A878d'),
+  },
+  [Token.sAVAX]: {
+    [Network.AVALANCHE_MAINNET]: Address('0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE'),
   },
   [Token.SD]: {
     // https://www.coingecko.com/en/coins/stader

@@ -21,6 +21,7 @@ export enum ExternalContract {
   QuollBribeOperator,
   QuollVeWomProxy,
   SableOperator,
+  sAVAXOracle,
   SkimAdmin,
   SnBNBOracle,
   StaderETHxStakingManager,
@@ -122,6 +123,10 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.SableOperator]: {
     // https://bscscan.com/address/0x57e56130B9Ca6653F390239Fd31f1cdff7f73dc9
     [Network.BSC_MAINNET]: Address('0x57e56130B9Ca6653F390239Fd31f1cdff7f73dc9'),
+  },
+  [ExternalContract.sAVAXOracle]: {
+    // https://snowtrace.io/address/0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE
+    [Network.AVALANCHE_MAINNET]: Address('0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE'),
   },
   [ExternalContract.SkimAdmin]: {
     [Network.BSC_MAINNET]: Address('0xa772b0BA6042b9416a619f6638dcfEaC4a8B31fF'),

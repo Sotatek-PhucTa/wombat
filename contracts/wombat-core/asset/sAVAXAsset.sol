@@ -22,7 +22,9 @@ contract sAVAXAsset is DynamicAsset {
         string memory name_,
         string memory symbol_,
         IStakedAvax _exchangeRateOracle
-    ) DynamicAsset(underlyingToken_, name_, symbol_) {}
+    ) DynamicAsset(underlyingToken_, name_, symbol_) {
+        exchangeRateOracle = _exchangeRateOracle;
+    }
 
     /**
      * @notice get the relative price of 1 unit of token in WAD

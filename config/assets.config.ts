@@ -595,3 +595,28 @@ export function EureAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
     },
   }
 }
+
+export function WavaxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    WAVAX: {
+      tokenName: 'Wrapped AVAX',
+      tokenSymbol: 'WAVAX',
+      underlyingToken: Token.WAVAX,
+      assetContractName: 'DynamicAsset',
+      ...partial,
+    },
+  }
+}
+
+export function sAvaxAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    sAVAX: {
+      tokenName: 'Staked AVAX',
+      tokenSymbol: 'sAVAX',
+      underlyingToken: Token.sAVAX,
+      oracle: ExternalContract.sAVAXOracle,
+      assetContractName: 'sAVAXAsset',
+      ...partial
+    },
+  }
+}
