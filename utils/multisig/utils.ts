@@ -27,6 +27,7 @@ import { ExternalContract, getContractAddress } from '../../config/contract'
 import { isSameAddress } from '../addresses'
 import {
   DeploymentOrAddress,
+  ICrossChainPoolConfig,
   IPoolConfig,
   IRewardInfoStruct,
   IRewarder,
@@ -691,28 +692,36 @@ export async function setBribeAllocPercent(bribeAllocationPercent: number): Prom
   }
 }
 
-export async function syncCrossChainPool(poolType: CrossChainPoolType, network: Network): Promise<BatchTransaction[]> {
+export async function syncCrossChainPool(
+  poolType: CrossChainPoolType,
+  network: Network,
+  networks: Network[] | undefined = undefined
+): Promise<BatchTransaction[]> {
   const txns: BatchTransaction[] = []
   const wormholeAdaptor = await getDeployedContract('WormholeAdaptor', getWormholeAdaptorDeploymentName(poolType))
   await loopAdaptorInGroup(
     poolType,
     network,
     async (otherNetwork: Network, wormholeId: number, otherAdaptorAddr: string) => {
-      const currentAdaptor = await wormholeAdaptor.adaptorAddress(wormholeId)
-      if (currentAdaptor === ethers.constants.AddressZero) {
-        console.log(`Add adaptor: ${otherAdaptorAddr} - ${otherNetwork}`)
-        txns.push(Safe(wormholeAdaptor).setAdaptorAddress(wormholeId, otherAdaptorAddr))
-      } else if (currentAdaptor !== otherAdaptorAddr) {
-        throw new Error(
-          `Adaptor ${otherAdaptorAddr} does not match with contract ${wormholeAdaptor.address}'s state for ${wormholeId}`
-        )
+      if (networks === undefined || networks.includes(otherNetwork)) {
+        const currentAdaptor = await wormholeAdaptor.adaptorAddress(wormholeId)
+        if (currentAdaptor === ethers.constants.AddressZero) {
+          console.log(`Add adaptor: ${otherAdaptorAddr} - ${otherNetwork}`)
+          txns.push(Safe(wormholeAdaptor).setAdaptorAddress(wormholeId, otherAdaptorAddr))
+        } else if (currentAdaptor !== otherAdaptorAddr) {
+          throw new Error(
+            `Adaptor ${otherAdaptorAddr} does not match with contract ${wormholeAdaptor.address}'s state for ${wormholeId}`
+          )
+        }
       }
     },
     async (otherNetwork: Network, wormholeId: number, tokenAddr: string) => {
-      const validToken = await wormholeAdaptor.validToken(wormholeId, tokenAddr)
-      if (!validToken && wormholeId) {
-        console.log(`Approve token: ${tokenAddr} - ${otherNetwork}`)
-        txns.push(Safe(wormholeAdaptor).approveToken(wormholeId, tokenAddr))
+      if (networks === undefined || networks.includes(otherNetwork)) {
+        const validToken = await wormholeAdaptor.validToken(wormholeId, tokenAddr)
+        if (!validToken && wormholeId) {
+          console.log(`Approve token: ${tokenAddr} - ${otherNetwork}`)
+          txns.push(Safe(wormholeAdaptor).approveToken(wormholeId, tokenAddr))
+        }
       }
     }
   )
@@ -818,7 +827,40 @@ export async function revokeRewardTokenForBribeRewarderFactory(tokens: Token[]):
   )
 }
 
-export async function setCrossChainSwapEnabled(poolDeployment: string, enable: boolean): Promise<BatchTransaction[]> {
-  const pool = await getDeployedContract('CrossChainPool', poolDeployment)
-  return [Safe(pool).setSwapTokensForCreditEnabled(enable), Safe(pool).setSwapCreditForTokensEnabled(enable)]
+export async function updateCrossChainSwapSettings(
+  poolNames: string[], // the pool name used in pools.config.ts
+  poolConfig: NetworkPoolInfo<ICrossChainPoolConfig>
+): Promise<BatchTransaction[]> {
+  const txns = []
+
+  for (const poolName of poolNames) {
+    assert(poolConfig[poolName] !== undefined, "poolConfig doesn't contain pool")
+    const {
+      setting: { swapTokensForCreditEnabled, swapCreditForTokensEnabled, deploymentNamePrefix },
+    } = poolConfig[poolName]
+    const poolDeploymentName = getPoolDeploymentName(deploymentNamePrefix, poolName)
+    const pool = await getDeployedContract('CrossChainPool', getProxyName(poolDeploymentName))
+
+    const currentSwapTokensForCreditEnabled = await pool.swapTokensForCreditEnabled()
+    if (currentSwapTokensForCreditEnabled != swapTokensForCreditEnabled) {
+      console.log(
+        `Changing from current swapTokensForCreditEnabled: ${currentSwapTokensForCreditEnabled} to ${swapTokensForCreditEnabled}`
+      )
+      txns.push(Safe(pool).setSwapTokensForCreditEnabled(swapTokensForCreditEnabled))
+    } else {
+      console.log(`Keep current swapTokensForCreditEnabled: ${currentSwapTokensForCreditEnabled}`)
+    }
+
+    const currentSwapCreditForTokensEnabled = await pool.swapCreditForTokensEnabled()
+    if (currentSwapCreditForTokensEnabled != swapCreditForTokensEnabled) {
+      console.log(
+        `Changing from current swapTokensForCreditEnabled: ${currentSwapCreditForTokensEnabled} to ${swapCreditForTokensEnabled}`
+      )
+      txns.push(Safe(pool).setSwapCreditForTokensEnabled(swapCreditForTokensEnabled))
+    } else {
+      console.log(`Keep current swapTokensForCreditEnabled: ${currentSwapCreditForTokensEnabled}`)
+    }
+  }
+
+  return txns
 }
