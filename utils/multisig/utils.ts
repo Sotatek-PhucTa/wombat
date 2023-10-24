@@ -8,6 +8,7 @@ import {
   isForkedNetwork,
 } from '..'
 import {
+  getAssetDeploymentName,
   getBribeDeploymentName,
   getPoolDeploymentName,
   getProxyName,
@@ -695,7 +696,7 @@ export async function setBribeAllocPercent(bribeAllocationPercent: number): Prom
 export async function syncCrossChainPool(
   poolType: CrossChainPoolType,
   network: Network,
-  networks: Network[] | undefined = undefined
+  targetNetworks: Network[] | undefined = undefined
 ): Promise<BatchTransaction[]> {
   const txns: BatchTransaction[] = []
   const wormholeAdaptor = await getDeployedContract('WormholeAdaptor', getWormholeAdaptorDeploymentName(poolType))
@@ -703,7 +704,7 @@ export async function syncCrossChainPool(
     poolType,
     network,
     async (otherNetwork: Network, wormholeId: number, otherAdaptorAddr: string) => {
-      if (networks === undefined || networks.includes(otherNetwork)) {
+      if (targetNetworks === undefined || targetNetworks.includes(otherNetwork)) {
         const currentAdaptor = await wormholeAdaptor.adaptorAddress(wormholeId)
         if (currentAdaptor === ethers.constants.AddressZero) {
           console.log(`Add adaptor: ${otherAdaptorAddr} - ${otherNetwork}`)
@@ -716,7 +717,7 @@ export async function syncCrossChainPool(
       }
     },
     async (otherNetwork: Network, wormholeId: number, tokenAddr: string) => {
-      if (networks === undefined || networks.includes(otherNetwork)) {
+      if (targetNetworks === undefined || targetNetworks.includes(otherNetwork)) {
         const validToken = await wormholeAdaptor.validToken(wormholeId, tokenAddr)
         if (!validToken && wormholeId) {
           console.log(`Approve token: ${tokenAddr} - ${otherNetwork}`)
@@ -837,10 +838,25 @@ export async function updateCrossChainSwapSettings(
     assert(poolConfig[poolName] !== undefined, "poolConfig doesn't contain pool")
     const {
       setting: { swapTokensForCreditEnabled, swapCreditForTokensEnabled, deploymentNamePrefix },
+      assets,
     } = poolConfig[poolName]
     const poolDeploymentName = getPoolDeploymentName(deploymentNamePrefix, poolName)
+    // Update asset maxSupply
+    for (const [symbol, assetConfig] of Object.entries(assets)) {
+      const assetDeploymentName = getAssetDeploymentName(poolName, symbol)
+      const asset = await getDeployedContract('Asset', assetDeploymentName)
+      const { maxSupply } = assetConfig
+      const currentMaxSupply = await asset.maxSupply()
+      if (maxSupply !== undefined && !currentMaxSupply.eq(maxSupply)) {
+        console.log(`Changing from current maxSupply: ${formatEther(currentMaxSupply)} to ${formatEther(maxSupply)}`)
+        txns.push(Safe(asset).setMaxSupply(maxSupply))
+      } else {
+        console.log(`Keep current maxSupply: ${formatEther(currentMaxSupply)}`)
+      }
+    }
     const pool = await getDeployedContract('CrossChainPool', getProxyName(poolDeploymentName))
 
+    // Update pool swapTokensForCreditEnabled
     const currentSwapTokensForCreditEnabled = await pool.swapTokensForCreditEnabled()
     if (currentSwapTokensForCreditEnabled != swapTokensForCreditEnabled) {
       console.log(
@@ -851,14 +867,15 @@ export async function updateCrossChainSwapSettings(
       console.log(`Keep current swapTokensForCreditEnabled: ${currentSwapTokensForCreditEnabled}`)
     }
 
+    // Update pool swapCreditForTokensEnabled
     const currentSwapCreditForTokensEnabled = await pool.swapCreditForTokensEnabled()
     if (currentSwapCreditForTokensEnabled != swapCreditForTokensEnabled) {
       console.log(
-        `Changing from current swapTokensForCreditEnabled: ${currentSwapCreditForTokensEnabled} to ${swapCreditForTokensEnabled}`
+        `Changing from current swapCreditForTokensEnabled: ${currentSwapCreditForTokensEnabled} to ${swapCreditForTokensEnabled}`
       )
       txns.push(Safe(pool).setSwapCreditForTokensEnabled(swapCreditForTokensEnabled))
     } else {
-      console.log(`Keep current swapTokensForCreditEnabled: ${currentSwapCreditForTokensEnabled}`)
+      console.log(`Keep current swapCreditForTokensEnabled: ${currentSwapCreditForTokensEnabled}`)
     }
   }
 

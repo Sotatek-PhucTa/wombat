@@ -1153,10 +1153,12 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
   },
   [Network.AVALANCHE_MAINNET]: {
     Stablecoin_Pool: {
-      setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
+      setting: {
+        ...defaultCrossChainPoolConfig,
+      },
       assets: {
-        ...UsdcAsset({ maxSupply: parseEther('100000') }),
-        ...UsdtAsset({ maxSupply: parseEther('100000') }),
+        ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
   },
