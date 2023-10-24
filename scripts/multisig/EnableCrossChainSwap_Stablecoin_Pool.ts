@@ -7,9 +7,7 @@ runScript('EnableCrossChainSwap_Stablecoin_Pool', async () => {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
   if (network == Network.AVALANCHE_MAINNET) {
-    return concatAll(
-      multisig.utils.setCrossChainSwapEnabled('CrossChainPool_Stablecoin_Pool', true)
-    )
+    return concatAll(multisig.utils.setCrossChainSwapEnabled('CrossChainPool_Stablecoin_Pool', true))
   } else {
     return []
   }

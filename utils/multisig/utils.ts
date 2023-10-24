@@ -820,8 +820,5 @@ export async function revokeRewardTokenForBribeRewarderFactory(tokens: Token[]):
 
 export async function setCrossChainSwapEnabled(poolDeployment: string, enable: boolean): Promise<BatchTransaction[]> {
   const pool = await getDeployedContract('CrossChainPool', poolDeployment)
-  return [
-    Safe(pool).setSwapTokensForCreditEnabled(enable),
-    Safe(pool).setSwapCreditForTokensEnabled(enable),
-  ]
+  return [Safe(pool).setSwapTokensForCreditEnabled(enable), Safe(pool).setSwapCreditForTokensEnabled(enable)]
 }
