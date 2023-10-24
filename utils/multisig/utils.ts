@@ -818,8 +818,10 @@ export async function revokeRewardTokenForBribeRewarderFactory(tokens: Token[]):
   )
 }
 
-export async function unpauseVeWom(): Promise<BatchTransaction[]> {
-  const vewom = await getDeployedContract('VeWom')
-  assert(await vewom.paused(), 'VeWom is not paused')
-  return [Safe(vewom).unpause()]
+export async function setCrossChainSwapEnabled(poolDeployment: string, enable: boolean): Promise<BatchTransaction[]> {
+  const pool = await getDeployedContract('CrossChainPool', poolDeployment)
+  return [
+    Safe(pool).setSwapTokensForCreditEnabled(enable),
+    Safe(pool).setSwapCreditForTokensEnabled(enable),
+  ]
 }
