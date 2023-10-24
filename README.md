@@ -710,6 +710,11 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_Stablecoin_Pool_USDC => `0xd05CF2BCaaee3a221E9effF58bF2874b9F11E47b`
 - Asset_Stablecoin_Pool_USDT => `0x375883a1F801138B6f5EE953a7A11072129Ac624`
 
+#### SAvax pool
+- DynamicPools_sAVAX_Pool_Proxy => `0xE3Abc29B035874a9f6dCDB06f8F20d9975069D87`
+- Asset_sAVAX_Pool_WAVAX => `0x29eeB257a2A6eCDE2984aCeDF80A1B687f18eC91`
+- Asset_sAVAX_Pool_sAVAX => `0xC096FF2606152eD2A06dd12F15A3c0466Aa5A9fa`
+
 ### Polygon mainnet
 
 #### Wombat Governance
