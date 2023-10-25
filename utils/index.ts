@@ -8,7 +8,7 @@ import { ValidationOptions } from '@openzeppelin/upgrades-core'
 import _ from 'lodash'
 import { DeploymentOrAddress, IAssetInfo, Network } from '../types'
 import { getTokenAddress } from '../config/token'
-import { HighCovRatioFeePoolV3, TestERC20 } from '../build/typechain'
+import { BoostedMasterWombat, HighCovRatioFeePoolV3, TestERC20 } from '../build/typechain'
 import hre from 'hardhat'
 import { setBalance } from '@nomicfoundation/hardhat-network-helpers'
 import { getCurrentNetwork } from '../types/network'
@@ -37,6 +37,16 @@ export async function impersonateAsMultisig(fn: (signer: SignerWithAddress) => P
 export async function concatAll<T>(...promises: Promise<T[]>[]): Promise<T[]> {
   const txns = await Promise.all(promises)
   return txns.flat()
+}
+
+export async function isContractAddress(address: string): Promise<boolean> {
+  try {
+    const code = await ethers.provider.getCode(address)
+    if (code !== '0x') return true
+  } catch (error) {
+    return false
+  }
+  return false
 }
 
 export async function getAddress(deploymentOrAddress: DeploymentOrAddress): Promise<string> {
@@ -75,6 +85,13 @@ export async function getLatestMasterWombat() {
     return getDeployedContract('MasterWombatV3')
   }
   return await ethers.getContractAt('BoostedMasterWombat', mw.address)
+}
+
+export async function getBoostedRewarderAddress(asset: string) {
+  const bmw = (await getDeployedContract('BoostedMasterWombat')) as BoostedMasterWombat
+  const { address: assetAddress } = await getDeployedContract('Asset', asset)
+  const pid = await bmw.getAssetPid(assetAddress)
+  return await bmw.boostedRewarders(pid)
 }
 
 export async function getTestERC20(tokenSymbol: string): Promise<TestERC20> {

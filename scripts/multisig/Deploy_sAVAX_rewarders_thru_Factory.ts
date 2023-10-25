@@ -2,7 +2,7 @@ import { runScript } from '.'
 import { Network } from '../../types'
 import * as multisig from '../../utils/multisig'
 import { getCurrentNetwork } from '../../types/network'
-import { concatAll, getDeployedContract } from '../../utils'
+import { concatAll, getBoostedRewarderAddress, getDeployedContract, isContractAddress } from '../../utils'
 import assert from 'assert'
 import { Token, getTokenAddress } from '../../config/token'
 import { getNamedAccounts } from 'hardhat'
@@ -10,26 +10,7 @@ import { unsafeIsoStringToEpochSeconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { parseEther } from 'ethers/lib/utils'
 import { ExternalContract, getContractAddress } from '../../config/contract'
-import { ethers } from 'hardhat'
-import { BoostedMasterWombat, BribeRewarderFactory } from '../../build/typechain'
-
-async function getRewarderAddress(asset: string) {
-  const bmw = (await getDeployedContract('BoostedMasterWombat')) as BoostedMasterWombat
-  const { address: assetAddress } = await getDeployedContract('Asset', asset)
-  const pid = await bmw.getAssetPid(assetAddress)
-  return await bmw.boostedRewarders(pid)
-}
-
-async function isContractAddress(address: string): Promise<boolean> {
-  try {
-    const code = await ethers.provider.getCode(address)
-    if (code !== '0x') return true
-  } catch (error) {
-    return false
-  }
-  return false
-}
-
+import { BribeRewarderFactory } from '../../build/typechain'
 ;(async function () {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
@@ -46,21 +27,21 @@ async function isContractAddress(address: string): Promise<boolean> {
       const INITIAL_WOM_RATE = convertTokenPerEpochToTokenPerSec(EPOCH_AMOUNT)
 
       return concatAll(
-        // 0. set Bribe Rewarder Factory
+        // set Bribe Rewarder Factory
         multisig.utils.setBribeRewarderFactory(),
-        // 1, 2. whitelist reward tokens
+        // whitelist reward tokens
         multisig.utils.whitelistRewardTokenForBribeRewarderFactory([Token.WOM, Token.BENQI]),
-        // 3, 4. set deployer to multisig
+        // set deployer to multisig
         ...assetsToDeployRewarderFor.map((asset) =>
           multisig.utils.setRewarderDeployerInFactory(asset, multisigAddress)
         ),
-        // 5, 6. deploy rewarders
+        // deploy rewarders
         ...assetsToDeployRewarderFor.map((asset) =>
           multisig.utils.deployRewarderThroughFactory(asset, Token.WOM, rewarderStartTime, INITIAL_WOM_RATE)
         ),
-        // 7, 8. revoke WOM
+        // revoke WOM
         multisig.utils.revokeRewardTokenForBribeRewarderFactory([Token.WOM]),
-        // 9, 19. set deployer to Benqi operator
+        // set deployer to Benqi operator
         ...assetsToDeployRewarderFor.map((asset) =>
           multisig.utils.setRewarderDeployerInFactory(asset, BENQI_OPERATOR_ADDRESS)
         )
@@ -96,8 +77,8 @@ async function isContractAddress(address: string): Promise<boolean> {
       )
     },
     async () => {
-      const lpAvaxRewarder = await getRewarderAddress(assetsToDeployRewarderFor[0])
-      const lpSAvaxRewarder = await getRewarderAddress(assetsToDeployRewarderFor[1])
+      const lpAvaxRewarder = await getBoostedRewarderAddress(assetsToDeployRewarderFor[0])
+      const lpSAvaxRewarder = await getBoostedRewarderAddress(assetsToDeployRewarderFor[1])
 
       assert(await isContractAddress(lpSAvaxRewarder), 'Not a contract address')
       assert(await isContractAddress(lpAvaxRewarder), 'Not a contract address')
