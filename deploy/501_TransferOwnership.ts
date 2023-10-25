@@ -26,7 +26,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
       deployments.log(`Skipping ${deploymentName} (at ${address}) as it is already owned by multisig`)
       continue
     }
-    assert(deployer == currentOwner, `Expected deployer to be owner, but found ${currentOwner}`)
+    assert(deployer == currentOwner, `Expected ${deploymentName} deployer to be owner, but found ${currentOwner}`)
 
     // transfer contract ownership to multi-sig
     deployments.log(`Transferring ownership of ${deploymentName} (at ${address}) to multisig (at ${multisig})...`)
