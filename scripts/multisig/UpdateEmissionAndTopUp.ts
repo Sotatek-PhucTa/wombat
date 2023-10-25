@@ -9,7 +9,7 @@ import _ from 'lodash'
 import assert from 'assert'
 import { Token } from '../../config/token'
 
-runScript('UpdateEmission', async () => {
+runScript('UpdateEmissionAndTopUp', async () => {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
   if (network == Network.BSC_MAINNET) {
@@ -29,8 +29,14 @@ runScript('UpdateEmission', async () => {
   } else if (network == Network.ETHEREUM_MAINNET) {
     return concatAll(
       multisig.utils.updateEmissionsAndTopUp(
-        _.pick(getRewarders(), ['Asset_frxETH_Pool_WETH', 'Asset_frxETH_Pool_frxETH', 'Asset_frxETH_Pool_sfrxETH']),
+        _.pick(getRewarders(), ['Asset_ETHx_Pool_WETH']),
         getRewarderDeploymentName
+      ),
+      multisig.utils.updateEmissionsAndTopUp(
+        _.pick(getRewarders(), ['Asset_ETHx_Pool_ETHx']),
+        getRewarderDeploymentName,
+        2,
+        [Token.WOM]
       )
     )
   } else {

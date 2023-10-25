@@ -19,14 +19,14 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 398_000
-    BRIBE_ALLOC_PERCENT = 47.18
+    WOM_MONTHLY_EMISSION_RATE = 405_000
+    BRIBE_ALLOC_PERCENT = 47.04
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 2.01,
-      Asset_Stablecoin_Pool_USDC: 2.01,
+      Asset_Stablecoin_Pool_USDT: 1.98,
+      Asset_Stablecoin_Pool_USDC: 1.98,
       // Main Pool
-      Asset_MainPool_USDCe: 18.1,
+      Asset_MainPool_USDCe: 18.3,
       Asset_MainPool_USDT: 15.4,
       Asset_MainPool_DAI: 6.4,
       Asset_MainPool_USDC: 7.1,
@@ -41,17 +41,17 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_qWOM_Pool_WOM: 0.11,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 2_500_000
-    BRIBE_ALLOC_PERCENT = 90.82
+    WOM_MONTHLY_EMISSION_RATE = 2_200_000
+    BRIBE_ALLOC_PERCENT = 89.358
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1,
-      Asset_Stablecoin_Pool_USDC: 1,
+      Asset_Stablecoin_Pool_USDT: 1.15,
+      Asset_Stablecoin_Pool_USDC: 1.15,
       // Main Pool
-      Asset_MainPool_USDC: 3.074,
-      Asset_MainPool_USDT: 3.074,
+      Asset_MainPool_USDC: 3.639,
+      Asset_MainPool_USDT: 3.629,
       Asset_MainPool_BUSD: 0,
-      Asset_MainPool_DAI: 0.232,
+      Asset_MainPool_DAI: 0.274,
       // wmxWOM Pool
       Asset_wmxWOMPool_wmxWOM: 0.2,
       Asset_wmxWOMPool_WOM: 0.2,
@@ -66,12 +66,12 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_wBETH_Pool_ETH: 0,
     }
   } else if (network == Network.ETHEREUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 600_000
-    BRIBE_ALLOC_PERCENT = 91.7
+    WOM_MONTHLY_EMISSION_RATE = 630_000
+    BRIBE_ALLOC_PERCENT = 92.1
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 4.15,
-      Asset_Stablecoin_Pool_USDC: 4.15,
+      Asset_Stablecoin_Pool_USDT: 3.95,
+      Asset_Stablecoin_Pool_USDC: 3.95,
     }
   }
 

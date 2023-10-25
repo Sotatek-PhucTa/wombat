@@ -307,13 +307,13 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       operator: ExternalContract.MagpieBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_fUSDC', {
-      rewardTokens: [Token.fUSDC],
-      tokenPerSec: ['0'],
+      rewardTokens: [Token.fUSDC, Token.WOM],
+      tokenPerSec: ['0', convertTokenPerEpochToTokenPerSec(parseEther('1125'))],
       operator: ExternalContract.fUSDCBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_fUSDC_Pool_USDCe', {
-      rewardTokens: [Token.fUSDC],
-      tokenPerSec: ['0'],
+      rewardTokens: [Token.fUSDC, Token.WOM],
+      tokenPerSec: ['0', convertTokenPerEpochToTokenPerSec(parseEther('1125'))],
       operator: ExternalContract.fUSDCBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_ePendle_Pool_PENDLE', {
@@ -339,7 +339,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.SD, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('0')),
-        convertTokenPerEpochToTokenPerSec(parseEther('32918')),
+        convertTokenPerEpochToTokenPerSec(parseEther('0')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
@@ -347,7 +347,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.SD, Token.WOM],
       tokenPerSec: [
         convertTokenPerEpochToTokenPerSec(parseEther('0')),
-        convertTokenPerEpochToTokenPerSec(parseEther('24681')),
+        convertTokenPerEpochToTokenPerSec(parseEther('42056')),
       ],
       startTimestamp: ETH_LAUNCH_DATE,
     }),
