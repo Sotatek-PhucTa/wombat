@@ -41,6 +41,7 @@ import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { CrossChainPoolType, loopAdaptorInGroup } from '../../config/wormhole.config'
+import { BoostedMasterWombat } from '../../build/typechain'
 
 // This function will create two transactions:
 // 1. MasterWombatV3.add(lp, rewarder)
@@ -268,6 +269,41 @@ async function hasActiveRewards(rewarderOrBribe: Contract): Promise<boolean> {
     })
   )
   return tokenRates.every((tokenPerSec) => tokenPerSec == 0)
+}
+
+// for self-service rewarders that are deployed through factory
+export async function topUpBoostedRewarder(
+  assetDeployment: string,
+  token: Token,
+  amount: BigNumberish
+): Promise<BatchTransaction[]> {
+  const bmw = (await getDeployedContract('BoostedMasterWombat')) as BoostedMasterWombat
+  const { address: assetAddress } = await getDeployedContract('Asset', assetDeployment)
+  const pid = await bmw.getAssetPid(assetAddress)
+  const rewarderAddress = await bmw.boostedRewarders(pid)
+
+  const tokenAddress = await getTokenAddress(token)
+  const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
+  return [Safe(erc20).transfer(rewarderAddress, amount)]
+}
+
+// for self-service rewarders that are deployed through factory
+export async function addOperatorForRewarder(
+  assetDeployments: string[],
+  operator: string
+): Promise<BatchTransaction[]> {
+  const txns = []
+  for await (const assetDeployment of assetDeployments) {
+    const bmw = (await getDeployedContract('BoostedMasterWombat')) as BoostedMasterWombat
+    const { address: assetAddress } = await getDeployedContract('Asset', assetDeployment)
+    const pid = await bmw.getAssetPid(assetAddress)
+    const rewarderAddress = await bmw.boostedRewarders(pid)
+
+    const rewarder = await ethers.getContractAt('BoostedMultiRewarder', rewarderAddress)
+    txns.push(Safe(rewarder).addOperator(operator))
+  }
+
+  return txns
 }
 
 /**

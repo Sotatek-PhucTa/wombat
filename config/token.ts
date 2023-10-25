@@ -8,6 +8,7 @@ export enum Token {
   ANGLE,
   ANKR,
   ARB,
+  BENQI,
   BNBx,
   BNBy,
   BOB,
@@ -117,6 +118,9 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.ARB]: {
     [Network.ARBITRUM_MAINNET]: Address('0x912CE59144191C1204E64559FE8253a0e49E6548'),
+  },
+  [Token.BENQI]: {
+    [Network.AVALANCHE_MAINNET]: Address('0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5'),
   },
   [Token.BNBx]: {
     [Network.BSC_MAINNET]: Address('0x1bdd3Cf7F79cfB8EdbB955f20ad99211551BA275'),
@@ -234,6 +238,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/pstake-finance
     [Network.BSC_MAINNET]: Address('0x4C882ec256823eE773B25b414d36F92ef58a7c0C'),
   },
+  // note: not to be confused with BENQI
   [Token.QI]: {
     // https://docs.mai.finance/functions/smart-contract-addresses
     [Network.ARBITRUM_MAINNET]: Address('0xB9C8F0d3254007eE4b98970b94544e473Cd610EC'),

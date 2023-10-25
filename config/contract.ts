@@ -8,6 +8,7 @@ export enum ExternalContract {
   AnkrBNBOracle,
   AnkrBribeOperator,
   AnkrETHOracle,
+  BenqiOperator,
   BNBxOracle,
   BNByOracle,
   ChainlinkOracleWstETH,
@@ -71,6 +72,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.AnkrETHOracle]: {
     [Network.BSC_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
     [Network.ARBITRUM_MAINNET]: Address('0xe05A08226c49b636ACf99c40Da8DC6aF83CE5bB3'),
+  },
+  [ExternalContract.BenqiOperator]: {
+    [Network.AVALANCHE_MAINNET]: Address('0x6921B20F28dbD987f2634d76fEab357263defaFe'),
   },
   [ExternalContract.BNBxOracle]: {
     [Network.BSC_MAINNET]: Address('0x7276241a669489E4BBB76f63d2A43Bfe63080F2F'),
