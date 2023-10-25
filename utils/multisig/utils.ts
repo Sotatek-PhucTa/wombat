@@ -817,3 +817,9 @@ export async function revokeRewardTokenForBribeRewarderFactory(tokens: Token[]):
     tokens.map(async (token) => Safe(bribeRewarderFactory).revokeRewardToken(await getTokenAddress(token)))
   )
 }
+
+export async function unpauseVeWom(): Promise<BatchTransaction[]> {
+  const vewom = await getDeployedContract('VeWom')
+  assert(await vewom.paused(), 'VeWom is not paused')
+  return [Safe(vewom).unpause()]
+}
