@@ -6,7 +6,6 @@ pragma abicoder v2;
 
 import '../interfaces/ILayerZeroReceiver.sol';
 import '../interfaces/ILayerZeroEndpoint.sol';
-import 'hardhat/console.sol';
 
 library LzLib {
     // LayerZero communication
@@ -227,7 +226,6 @@ contract LZEndpointMock is ILayerZeroEndpoint {
             _zroPaymentAddress != address(0x0),
             adapterParams
         );
-        console.log('send', nativeFee);
         require(msg.value >= nativeFee, 'LayerZeroMock: not enough native for fees');
 
         uint64 nonce = ++outboundNonce[_chainId][msg.sender];
