@@ -8,7 +8,14 @@ import { getPoolDeploymentName, getProxyAdminOwner } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 import { getCurrentNetwork } from '../types/network'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Network } from '../types'
+import { CrossChainMessagerType, ILayerZeroConfig, IWormholeConfig, Network } from '../types'
+import {
+  CrossChainPoolType,
+  getAdaptorContracName,
+  getAdaptorMessagerType,
+  getCrossChainMessagerConfig,
+} from '../config/adaptor.config'
+import { LAYERZERO_CONFIG_MAPS } from '../config/layerzero.config'
 
 const contractName = 'WormholeAdaptor'
 
@@ -22,16 +29,14 @@ const deployFunc = async function () {
 
   deployments.log(`Step 061. Deploying on : ${network}...`)
 
-  const wormholeConfig = WORMHOLE_CONFIG_MAPS[network]
-  if (wormholeConfig === undefined) {
-    console.error('wormholeConfig is undefined')
-    throw 'wormholeConfig is undefined'
-  }
-
   const CROSS_CHAIN_POOL_TOKENS = CROSS_CHAIN_POOL_TOKENS_MAP[network] || {}
   for (const poolName of Object.keys(CROSS_CHAIN_POOL_TOKENS)) {
+    const adaptorType = getAdaptorMessagerType(poolName as CrossChainPoolType, network)
+    const contractName = getAdaptorContracName(adaptorType)
     const poolContractName = getPoolDeploymentName(contractNamePrefix, poolName)
     const pool = await getDeployedContract('CrossChainPool', poolContractName)
+
+    const messagerConfig = getCrossChainMessagerConfig(adaptorType, network)
 
     const deployResult = await deploy(contractName + '_' + poolName, {
       from: deployer,
@@ -45,11 +50,14 @@ const deployFunc = async function () {
         execute: {
           init: {
             methodName: 'initialize',
-            args: [
-              await getAddress(wormholeConfig.relayer),
-              await getAddress(wormholeConfig.wormholeBridge),
-              pool.address,
-            ],
+            args:
+              adaptorType == CrossChainMessagerType.WORMHOLE
+                ? [
+                    await getAddress((messagerConfig as IWormholeConfig).relayer),
+                    await getAddress((messagerConfig as IWormholeConfig).wormholeBridge),
+                    pool.address,
+                  ]
+                : [await getAddress((messagerConfig as ILayerZeroConfig).endpoint), pool.address],
           },
         },
       },
@@ -60,7 +68,7 @@ const deployFunc = async function () {
     const implAddr = await upgrades.erc1967.getImplementationAddress(deployResult.address)
     deployments.log('Contract address:', deployResult.address)
     deployments.log('Implementation address:', implAddr)
-    deployments.log('Please update WORMHOLE_ADAPTOR_CONFIG_MAP after deployment')
+    deployments.log('Please update ADAPTOR_CONFIG_MAP after deployment')
 
     if (deployResult.newlyDeployed) {
       logVerifyCommand(deployResult)
@@ -73,5 +81,5 @@ const deployFunc = async function () {
 }
 
 export default deployFunc
-deployFunc.tags = [contractName]
-deployFunc.dependencies = ['MockWormhole', 'CrossChainPool']
+deployFunc.tags = ['CrossChainAdaptor']
+deployFunc.dependencies = ['MockWormhole', 'MockLayerZero', 'CrossChainPool']

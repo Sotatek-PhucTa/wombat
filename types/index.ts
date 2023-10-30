@@ -103,14 +103,30 @@ export interface IMockTokenInfo {
   decimalForMockToken: number
 }
 
-export interface IWormholeConfig {
-  relayer: DeploymentOrAddress
-  wormholeBridge: DeploymentOrAddress
+export interface ICrossChainMessagerConfig {
+  chainId: number
 }
 
-export interface IWormholeAdaptorConfig {
+export interface IWormholeConfig extends ICrossChainMessagerConfig {
+  relayer: DeploymentOrAddress
+  wormholeBridge: DeploymentOrAddress
+  chainId: 0 | 2 | 4 | 5 | 6 | 10 | 23 | 30
+}
+
+export enum CrossChainMessagerType {
+  WORMHOLE,
+  LAYERZERO,
+}
+
+export interface IAdaptorConfig {
   adaptorAddr: DeploymentOrAddress
   tokens: Token[]
+  type: CrossChainMessagerType
+}
+
+export interface ILayerZeroConfig extends ICrossChainMessagerConfig {
+  endpoint: DeploymentOrAddress
+  chainId: 65535 | 10102 | 10106
 }
 
 export interface IPoolConfig {

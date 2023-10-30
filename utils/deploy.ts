@@ -32,6 +32,10 @@ export function getPoolDeploymentName(contractNamePrefix: string, poolName: stri
   return contractNamePrefix + '_' + poolName
 }
 
+export function getLayerZeroAdaptorDeploymentName(poolName: string) {
+  return 'LayerZeroAdaptor_' + poolName
+}
+
 export function getWormholeAdaptorDeploymentName(poolName: string) {
   return 'WormholeAdaptor_' + poolName
 }

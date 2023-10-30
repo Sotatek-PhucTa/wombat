@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { CrossChainPoolType, getOtherAdaptorsInGroup } from '../../config/wormhole.config'
+import { CrossChainPoolType, getOtherAdaptorsInGroup } from '../../config/adaptor.config'
 import { Network } from '../../types'
 
 describe('wormhole', function () {

@@ -165,7 +165,7 @@ describe('BribeRewarderFactory', function () {
       ).to.be.revertedWith('rewarder contract alrealdy exists')
 
       // rewarder.addRewardToken checks if token is whitelisted
-      const rewarderAddr = await mw.boostedRewarders(8)
+      const rewarderAddr = await mw.boostedRewarders(await mw.getAssetPid(lpToken1.address))
       const rewarder = (await ethers.getContractAt('BoostedMultiRewarder', rewarderAddr)) as BoostedMultiRewarder
       await expect(rewarder.addRewardToken(token2.address, 0, 0)).to.be.revertedWith(
         'reward token must be whitelisted by bribe factory'

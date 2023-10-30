@@ -48,7 +48,7 @@ describe('CrossChainPool Second class chain', async function () {
     })
 
     it('can swap crosschain after adaptor setup', async function () {
-      await deployments.fixture(['WormholeAdaptor', 'WormholeAdaptorSetup'], { keepExistingDeployments: true })
+      await deployments.fixture(['CrossChainAdaptor', 'CrossChainAdaptorSetup'], { keepExistingDeployments: true })
       await pool
         .connect(user)
         .swapTokensForTokensCrossChain(busd.address, vusdc.address, 0, parseEther('1'), 0, 0, user.address, 0, 0)

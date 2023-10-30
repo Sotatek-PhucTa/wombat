@@ -1056,6 +1056,15 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
         ...VusdcAsset(),
       },
     },
+    LayerZero_Stablecoin_Pool: {
+      setting: {
+        ...defaultCrossChainPoolConfig,
+      },
+      assets: {
+        ...BusdAsset(),
+        ...VusdcAsset(),
+      },
+    },
   },
   [Network.BSC_TESTNET]: {
     Stablecoin_Pool: {
