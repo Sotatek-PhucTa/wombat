@@ -2,15 +2,10 @@
 pragma solidity ^0.8.5;
 
 import '../libraries/Adaptor.sol';
-import '../libraries/BytesLib.sol';
-import '../libraries/ExcessivelySafeCall.sol';
-import '../interfaces/ILayerZeroEndpoint.sol';
-import '../interfaces/ILayerZeroReceiver.sol';
 import '../layerzero/NonblockingLzAppUpgradable.sol';
 
 contract LayerZeroAdaptor is Adaptor, NonblockingLzAppUpgradable {
     using BytesLib for bytes;
-    using ExcessivelySafeCall for address;
 
     function initialize(address _endpoint, ICrossChainPool _crossChainPool) public virtual initializer {
         __Adaptor_init(_crossChainPool);

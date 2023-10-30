@@ -277,6 +277,7 @@ const config: HardhatUserConfig = {
       '@openzeppelin/contracts/governance/TimelockController.sol',
       '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
       '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol',
+      '@layerzerolabs/solidity-examples/contracts/lzApp/mocks/LZEndpointMock.sol',
     ],
   },
   // Enable reading deployments from other chains.

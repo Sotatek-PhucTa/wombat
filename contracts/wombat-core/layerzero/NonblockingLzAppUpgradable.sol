@@ -4,8 +4,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./LzAppUpgradable.sol";
-import "../libraries/ExcessivelySafeCall.sol";
+import './LzAppUpgradable.sol';
+import '@layerzerolabs/solidity-examples/contracts/libraries/ExcessivelySafeCall.sol';
 
 
 /*
