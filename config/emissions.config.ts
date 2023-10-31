@@ -755,12 +755,12 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
       rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('25'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
       rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('25'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
     }),
     ...createRewarderForDeployedAsset('Asset_qWOM_Pool_qWOM', {
       rewardTokens: [Token.QUO],

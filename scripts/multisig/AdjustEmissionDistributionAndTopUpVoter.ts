@@ -19,59 +19,59 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 405_000
-    BRIBE_ALLOC_PERCENT = 47.04
+    WOM_MONTHLY_EMISSION_RATE = 450_000
+    BRIBE_ALLOC_PERCENT = 54.84
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.98,
-      Asset_Stablecoin_Pool_USDC: 1.98,
+      Asset_Stablecoin_Pool_USDT: 1.78,
+      Asset_Stablecoin_Pool_USDC: 1.78,
       // Main Pool
-      Asset_MainPool_USDCe: 18.3,
-      Asset_MainPool_USDT: 15.4,
-      Asset_MainPool_DAI: 6.4,
-      Asset_MainPool_USDC: 7.1,
+      Asset_MainPool_USDCe: 15.51,
+      Asset_MainPool_USDT: 13.05,
+      Asset_MainPool_DAI: 5.42,
+      Asset_MainPool_USDC: 6.02,
       // wmxWOM Pool
-      Asset_wmxWOM_Pool_wmxWOM: 0.44,
-      Asset_wmxWOM_Pool_WOM: 0.44,
+      Asset_wmxWOM_Pool_wmxWOM: 0.39,
+      Asset_wmxWOM_Pool_WOM: 0.39,
       // mWOM Pool
-      Asset_mWOM_Pool_mWOM: 0.35,
-      Asset_mWOM_Pool_WOM: 0.35,
+      Asset_mWOM_Pool_mWOM: 0.31,
+      Asset_mWOM_Pool_WOM: 0.31,
       // qWOM Pool
-      Asset_qWOM_Pool_qWOM: 0.11,
-      Asset_qWOM_Pool_WOM: 0.11,
+      Asset_qWOM_Pool_qWOM: 0.1,
+      Asset_qWOM_Pool_WOM: 0.1,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 2_200_000
-    BRIBE_ALLOC_PERCENT = 89.358
+    WOM_MONTHLY_EMISSION_RATE = 2_400_000
+    BRIBE_ALLOC_PERCENT = 90.8
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.15,
-      Asset_Stablecoin_Pool_USDC: 1.15,
+      Asset_Stablecoin_Pool_USDT: 1.05,
+      Asset_Stablecoin_Pool_USDC: 1.05,
       // Main Pool
-      Asset_MainPool_USDC: 3.639,
-      Asset_MainPool_USDT: 3.629,
+      Asset_MainPool_USDC: 3.1,
+      Asset_MainPool_USDT: 3.2,
       Asset_MainPool_BUSD: 0,
-      Asset_MainPool_DAI: 0.274,
+      Asset_MainPool_DAI: 0.2,
       // wmxWOM Pool
-      Asset_wmxWOMPool_wmxWOM: 0.2,
-      Asset_wmxWOMPool_WOM: 0.2,
+      Asset_wmxWOMPool_wmxWOM: 0.15,
+      Asset_wmxWOMPool_WOM: 0.15,
       // mWOM Pool
-      Asset_mWOMPool_mWOM: 0.168,
-      Asset_mWOMPool_WOM: 0.168,
+      Asset_mWOMPool_mWOM: 0.125,
+      Asset_mWOMPool_WOM: 0.125,
       // qWOM Pool
-      Asset_qWOMPool_qWOM: 0.032,
-      Asset_qWOMPool_WOM: 0.032,
+      Asset_qWOMPool_qWOM: 0.025,
+      Asset_qWOMPool_WOM: 0.025,
       // wBETH Pool
       Asset_wBETH_Pool_wBETH: 0,
       Asset_wBETH_Pool_ETH: 0,
     }
   } else if (network == Network.ETHEREUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 630_000
-    BRIBE_ALLOC_PERCENT = 92.1
+    WOM_MONTHLY_EMISSION_RATE = 680_000
+    BRIBE_ALLOC_PERCENT = 92.6
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 3.95,
-      Asset_Stablecoin_Pool_USDC: 3.95,
+      Asset_Stablecoin_Pool_USDT: 3.7,
+      Asset_Stablecoin_Pool_USDC: 3.7,
     }
   }
 
