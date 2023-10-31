@@ -8,6 +8,7 @@ import { getProxyAdminOwner } from '../utils/deploy'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 const contractName = 'BribeRewarderFactory'
+const tags = ['FirstClass']
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -73,5 +74,5 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 export default deployFunc
-deployFunc.tags = [contractName]
+deployFunc.tags = [contractName, ...tags]
 deployFunc.dependencies = ['BribeRewarderBeacon']

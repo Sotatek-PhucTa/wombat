@@ -5,6 +5,7 @@ import { confirmTxn, getDeployedContract, logVerifyCommand } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'VeWomSetup'
+const tags = ['FirstClass']
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -49,5 +50,5 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 }
 
 export default deployFunc
-deployFunc.tags = [contractName]
+deployFunc.tags = [contractName, ...tags]
 deployFunc.dependencies = ['VeWom']

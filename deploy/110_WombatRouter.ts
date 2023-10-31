@@ -12,6 +12,7 @@ import { Token, getTokenAddress } from '../config/token'
 import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'WombatRouter'
+const tags = ['FirstClass']
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -101,4 +102,4 @@ async function isApproved(token: string, owner: string, spender: string) {
 }
 
 export default deployFunc
-deployFunc.tags = [contractName]
+deployFunc.tags = [contractName, ...tags]

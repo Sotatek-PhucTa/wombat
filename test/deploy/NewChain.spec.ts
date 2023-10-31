@@ -25,21 +25,7 @@ describe('New chain', function () {
 
   beforeEach(async function () {
     ;[multisig, user, project] = await getSignersFromCurrentNetwork()
-    await deployments.fixture([
-      'MockTokens',
-      'WombatToken',
-      'CrossChainPool',
-      'CrossChainAdaptor',
-      'CrossChainPoolAssets',
-      'HighCovRatioFeePoolAssets',
-      'CrossChainAdaptorSetup',
-      'VeWom',
-      'BoostedMasterWombat',
-      'BribeRewarderBeacon',
-      'BribeRewarderFactory',
-      'VeWomSetup',
-      'BoostedMasterWombatSetup',
-    ])
+    await deployments.fixture(['FirstClass', 'CrossChainAdaptorSetup'])
     ;[masterWombat, vewom, busd, vusdc, busdAsset, wom, pool, bribeRewarderFactory] = await Promise.all([
       getDeployedContract('BoostedMasterWombat'),
       getDeployedContract('VeWom'),

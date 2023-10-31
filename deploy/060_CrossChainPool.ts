@@ -8,6 +8,7 @@ import { getCurrentNetwork } from '../types/network'
 import { ICrossChainPoolConfig } from '../types'
 
 export const contractNamePrefix = 'CrossChainPool'
+const tags = ['FirstClass']
 
 const deployFunc = async function () {
   const { deployer } = await getNamedAccounts()
@@ -51,5 +52,5 @@ async function configureCrossChainPool(
 // - https://testnet.bscscan.com/tx/0x46fd8910593dd81ee03994a04efe88456e690108544afb1fe6c78ea4276a228e
 
 export default deployFunc
-deployFunc.tags = [contractNamePrefix]
+deployFunc.tags = [contractNamePrefix, ...tags]
 deployFunc.dependencies = ['MockTokens', 'CoreV3']

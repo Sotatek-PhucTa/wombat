@@ -12,6 +12,7 @@ export const WOMBAT_TOKENS_ARGS: IWombatToken = {
 }
 
 const contractName = 'WombatToken'
+const tags = ['FirstClass']
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -54,7 +55,7 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   return womDeployResult
 }
 export default deployFunc
-deployFunc.tags = [contractName]
+deployFunc.tags = [contractName, ...tags]
 deployFunc.skip = async () => {
   // skip if we are not going to resolve from deployment
   const deploymentOrAddress = getTokenDeploymentOrAddress(Token.WOM)

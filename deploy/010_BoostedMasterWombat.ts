@@ -7,6 +7,7 @@ import { deployProxy, getProxyAdminOwner } from '../utils/deploy'
 import { ethers } from 'hardhat'
 
 const contractName = 'BoostedMasterWombat'
+const tags = ['FirstClass']
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -29,4 +30,4 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 export default deployFunc
-deployFunc.tags = [contractName]
+deployFunc.tags = [contractName, ...tags]

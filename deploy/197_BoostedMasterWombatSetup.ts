@@ -9,6 +9,8 @@ import { Contract } from 'ethers'
 import { getAssetDeploymentName } from '../utils/deploy'
 import { CROSS_CHAIN_POOL_TOKENS_MAP, DYNAMICPOOL_TOKENS_MAP, FACTORYPOOL_TOKENS_MAP } from '../config/pools.config'
 
+const tags = ['FirstClass']
+
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const network: Network = getCurrentNetwork()
   const { deployer } = await getNamedAccounts()
@@ -81,4 +83,4 @@ async function addAsset(masterWombat: Contract, owner: SignerWithAddress, assetA
 
 export default deployFunc
 deployFunc.dependencies = ['MasterWombatV3']
-deployFunc.tags = ['BoostedMasterWombatSetup']
+deployFunc.tags = ['BoostedMasterWombatSetup', ...tags]

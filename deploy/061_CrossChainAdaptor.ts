@@ -18,6 +18,7 @@ import {
 import { LAYERZERO_CONFIG_MAPS } from '../config/layerzero.config'
 
 const contractName = 'WormholeAdaptor'
+const tags = ['FirstClass']
 
 // Ref: Relayer testnet deployments: https://book.wormhole.com/reference/contracts.html#relayer-contracts
 
@@ -81,5 +82,5 @@ const deployFunc = async function () {
 }
 
 export default deployFunc
-deployFunc.tags = ['CrossChainAdaptor']
+deployFunc.tags = ['CrossChainAdaptor', ...tags]
 deployFunc.dependencies = ['MockWormhole', 'MockLayerZero', 'CrossChainPool']

@@ -8,6 +8,7 @@ import { contractNamePrefix } from './060_CrossChainPool'
 import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'CrossChainPoolAssets'
+const tags = ['FirstClass']
 
 const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, multisig } = await getNamedAccounts()
@@ -35,5 +36,5 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
 }
 
 export default deployFunc
-deployFunc.tags = [contractName]
+deployFunc.tags = [contractName, ...tags]
 deployFunc.dependencies = ['CrossChainPool']

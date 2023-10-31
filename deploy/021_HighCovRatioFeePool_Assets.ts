@@ -9,6 +9,7 @@ import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '..
 import { getCurrentNetwork } from '../types/network'
 
 const contractName = 'HighCovRatioFeePoolAssets'
+const tags = ['FirstClass']
 
 const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -42,5 +43,5 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 }
 
 export default deployFunc
-deployFunc.tags = [contractName]
+deployFunc.tags = [contractName, ...tags]
 deployFunc.dependencies = ['MockTokens', 'HighCovRatioFeePool']
