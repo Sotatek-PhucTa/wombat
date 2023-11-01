@@ -32,7 +32,7 @@
     "@types/dedent": "^0.7.1",
     "@types/lodash": "^4.14.200",
     "@types/mocha": "^10.0.3",
-    "@types/node": "^20.8.9",
+    "@types/node": "^20.8.10",
     "@types/random": "^3.0.1",
     "@types/seedrandom": "^3.0.7",
     "@types/tmp": "^0.2.5",
