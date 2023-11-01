@@ -40,7 +40,7 @@ import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { convertTokenPerMonthToTokenPerSec } from '../../config/emission'
 import { duration } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 import { formatEther, parseEther } from 'ethers/lib/utils'
-import { CrossChainPoolType, loopAdaptorInGroup } from '../../config/wormhole.config'
+import { CrossChainPoolType, loopAdaptorInGroup } from '../../config/adaptor.config'
 import { BoostedMasterWombat } from '../../build/typechain'
 
 // This function will create two transactions:
