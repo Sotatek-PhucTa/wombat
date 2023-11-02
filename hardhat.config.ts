@@ -132,8 +132,7 @@ const config: HardhatUserConfig = {
       mainnet: secrets.etherscan_api_key,
       scrollSepolia: 'abc',
       skaleTestnet: 'abc',
-      // FIXME: https://app.clickup.com/t/865d89hfw
-      // base: secrets.base_api_key,
+      base: secrets.base_api_key,
       scroll: 'abc',
       zkevmPolygon: secrets.zkevm_polygonscan_api_key,
       gnosis: secrets.gnosisscan_api_key,
