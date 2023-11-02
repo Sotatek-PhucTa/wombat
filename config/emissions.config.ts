@@ -334,6 +334,14 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.ARBITRUM_TESTNET]: {},
   [Network.OPTIMISM_MAINNET]: {},
   [Network.OPTIMISM_TESTNET]: {},
+  [Network.SCROLL_MAINNET]: {},
+  [Network.SCROLL_TESTNET]: {},
+  [Network.POLYGON_ZKEVM_MAINNET]: {},
+  [Network.BASE_MAINNET]: {},
+  [Network.SKALE_TESTNET]: {},
+  [Network.GNOSIS_MAINNET]: {},
+  [Network.GOERLI]: {},
+  [Network.ZKSYNC_MAINNET]: {},
   [Network.ETHEREUM_MAINNET]: {
     ...createRewarderForDeployedAsset('Asset_ETHx_Pool_WETH', {
       rewardTokens: [Token.SD, Token.WOM],
@@ -420,6 +428,20 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.WOM],
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('5833'))],
       startTimestamp: Epochs.Sep06,
+    }),
+  },
+  [Network.AVALANCHE_MAINNET]: {
+    ...createRewarderForDeployedAsset('Asset_sAVAX_Pool_WAVAX', {
+      rewardTokens: [Token.WOM, Token.BENQI],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('17316')), '378086408730158750'],
+      isV2: true,
+      address: Address('0x09EaF2821728A380Bd111fb2d42BB43bb01984a6'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_sAVAX_Pool_sAVAX', {
+      rewardTokens: [Token.WOM, Token.BENQI],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('7426')), '162037037037037030'],
+      isV2: true,
+      address: Address('0x53BDB6De1dF8C869420dD8363dD90A8b9eeeb80A'),
     }),
   },
 }
@@ -824,7 +846,30 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
   [Network.ARBITRUM_TESTNET]: {},
   [Network.OPTIMISM_MAINNET]: {},
   [Network.OPTIMISM_TESTNET]: {},
-  [Network.ETHEREUM_MAINNET]: {},
+  [Network.ETHEREUM_MAINNET]: {
+    ...createRewarderForDeployedAsset('Asset_ETHx_Pool_ETHx', {
+      rewardTokens: [Token.SD],
+      tokenPerSec: ['4133597883597883'],
+      isV2: true,
+      address: Address('0x2eafed8cb5928A1E0DaA994684Cb64d447249c9D'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_ETHx_Pool_WETH', {
+      rewardTokens: [Token.SD],
+      tokenPerSec: ['1653439153439153'],
+      isV2: true,
+      address: Address('0x52A1B915e8C42757c99f9b3C6BcC03EeD057F306'),
+    }),
+  },
+  [Network.SCROLL_MAINNET]: {},
+  [Network.SCROLL_TESTNET]: {},
+  [Network.POLYGON_ZKEVM_MAINNET]: {},
+  [Network.BASE_MAINNET]: {},
+  [Network.SKALE_TESTNET]: {},
+  [Network.GNOSIS_MAINNET]: {},
+  [Network.GOERLI]: {},
+  [Network.ZKSYNC_MAINNET]: {},
+  [Network.ZKSYNC_TESTNET]: {},
+  [Network.AVALANCHE_MAINNET]: {},
 }
 
 function createRewarderForDeployedAsset(deploymentName: string, config: Partial<IRewarder>): TokenMap<IRewarder> {
@@ -846,10 +891,17 @@ function defaultRewarder(): IRewarder {
     // Use empty reward token here as we expect config to override it.
     rewardTokens: [],
     tokenPerSec: [0],
+    isV2: false,
   }
 }
 
 function isValid(rewarder: IRewarder) {
+  if (rewarder.isV2 && !rewarder.address) {
+    console.log(
+      'V2 contracts should have been deployed through BribeRewarderFactory. Please add the address in the config.'
+    )
+    return false
+  }
   return (
     rewarder.rewardTokens.length > 0 &&
     (rewarder.secondsToStart || rewarder.startTimestamp) &&

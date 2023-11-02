@@ -89,6 +89,9 @@ export interface IRewarder {
   // see https://github.com/wighawag/hardhat-deploy/issues/439
   tokenPerSec: BigNumberish[]
   operator?: ExternalContract
+  isV2: boolean // whether the rewarder has interface of MultiRewarderPerSecV2. otherwise the interface is MultiRewarderPerSec.
+  address?: Address // address needs to be configured here for self-deployed rewarder/bribe
+  // as they are deployed through BribeRewarderFactory and not in the deployments folder
 }
 
 // interface for RewardInfo struct in solidity

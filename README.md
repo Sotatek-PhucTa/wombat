@@ -643,6 +643,8 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_ETHx_Pool_WETH => `0x75Eaa804518a66196946598317Aed57Ef86235Fe`
 - MultiRewarderPerSec_V3_Asset_ETHx_Pool_WETH => `0x8df1126de13bcfef999556899F469d64021adBae`
 - MultiRewarderPerSec_V3_Asset_ETHx_Pool_ETHx => `0xc693F3b22d44C43371726AE1D3FBf0Cd0D113c82`
+- BribeV2_Asset_ETHx_Pool_ETHx => `0x2eafed8cb5928A1E0DaA994684Cb64d447249c9D`
+- BribeV2_Asset_ETHx_Pool_WETH => `0x52A1B915e8C42757c99f9b3C6BcC03EeD057F306`
 
 #### mWom Pool
 
@@ -714,6 +716,8 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - DynamicPools_sAVAX_Pool_Proxy => `0xE3Abc29B035874a9f6dCDB06f8F20d9975069D87`
 - Asset_sAVAX_Pool_WAVAX => `0x29eeB257a2A6eCDE2984aCeDF80A1B687f18eC91`
 - Asset_sAVAX_Pool_sAVAX => `0xC096FF2606152eD2A06dd12F15A3c0466Aa5A9fa`
+- BoostedMultiRewarder_Asset_sAVAX_Pool_WAVAX => `0x09EaF2821728A380Bd111fb2d42BB43bb01984a6`
+- BoostedMultiRewarder_Asset_sAVAX_Pool_sAVAX => `0x53BDB6De1dF8C869420dD8363dD90A8b9eeeb80A`
 
 ### Polygon mainnet
 

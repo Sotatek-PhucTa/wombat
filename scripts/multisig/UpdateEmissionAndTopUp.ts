@@ -39,6 +39,13 @@ runScript('UpdateEmissionAndTopUp', async () => {
         [Token.WOM]
       )
     )
+  } else if (network == Network.AVALANCHE_MAINNET) {
+    return concatAll(
+      multisig.utils.updateEmissionsAndTopUp(
+        _.pick(getRewarders(), ['Asset_sAVAX_Pool_WAVAX', 'Asset_sAVAX_Pool_sAVAX']),
+        getRewarderDeploymentName
+      )
+    )
   } else {
     assert(false, `Network ${network} is not supported.`)
   }

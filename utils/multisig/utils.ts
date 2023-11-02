@@ -548,7 +548,11 @@ export async function updateEmissionsAndTopUp(
           console.log(`${name}: ${Token[rewardToken]} does not need to be updated.`)
         } else {
           console.log(`${name}: Expected ${Token[rewardToken]} to be ${expected} but got ${actual}.`)
-          txns.push(Safe(rewarder).setRewardRate(i, expected))
+          if (info.isV2) {
+            txns.push(Safe(rewarder).setRewardRate(i, expected, 0))
+          } else {
+            txns.push(Safe(rewarder).setRewardRate(i, expected))
+          }
         }
         // top up if needed
         if (
@@ -631,7 +635,13 @@ async function loopRewarder(
   // Run this in a await for-loop to avoid creating too many RPCs at the same time.
   for await (const [token, info] of Object.entries(config)) {
     const name = getDeploymentName(token)
-    const rewarder = await getDeployedContract('MultiRewarderPerSec', name)
+    let rewarder: Contract
+    if (info.isV2) {
+      assert(info.address !== undefined, 'Unknown address for V2 rewarders/bribes.')
+      rewarder = await ethers.getContractAt('MultiRewarderPerSecV2', await getAddress(info.address))
+    } else {
+      rewarder = await getDeployedContract('MultiRewarderPerSec', name)
+    }
     const rewardLength = await rewarder.rewardLength()
     const rewardInfos = await Promise.all(_.range(0, rewardLength).map((i) => rewarder.rewardInfo(i)))
     assert(
