@@ -15,12 +15,14 @@ describe('WombatERC20', function () {
   let user2: SignerWithAddress
   let tokenContract: Contract
 
-  beforeEach(async function () {
+  before(async function () {
     const [first, ...rest] = await ethers.getSigners()
     owner = first
     user1 = rest[0]
     user2 = rest[1]
+  })
 
+  beforeEach(async function () {
     // Get Factories
     const TestWombatERC20Factory = await ethers.getContractFactory('WombatERC20')
 

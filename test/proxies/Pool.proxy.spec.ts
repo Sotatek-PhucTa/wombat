@@ -6,6 +6,7 @@ import { Contract, ContractFactory } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { ethers, upgrades } from 'hardhat'
 import { latest } from '../helpers/time'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const proxyImplAddr = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc' // EIP1967
 
@@ -34,32 +35,34 @@ describe('Asset (proxy)', function () {
     DummyPoolFactory = await ethers.getContractFactory('TestPoolV2', poolOwner)
   })
 
-  beforeEach(async function () {
-    // Deploy with factories
-    token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8))
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
-    asset1 = await AssetFactory.deploy(token1.address, 'Venus USD LP', 'vUSDC-LP')
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      // Deploy with factories
+      token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
+      token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8))
+      asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+      asset1 = await AssetFactory.deploy(token1.address, 'Venus USD LP', 'vUSDC-LP')
 
-    // wait for transactions to be mined
-    await token0.deployed()
-    await token1.deployed()
-    await asset0.deployed()
-    await asset1.deployed()
+      // wait for transactions to be mined
+      await token0.deployed()
+      await token1.deployed()
+      await asset0.deployed()
+      await asset1.deployed()
 
-    // initialize pool contract
-    poolContract = await upgrades.deployProxy(PoolFactory, [parseEther('0.05'), parseEther('0.0004')], {
-      unsafeAllow: ['delegatecall'], // allow unsafe delegate call as SafeERC20 is no upgradable
+      // initialize pool contract
+      poolContract = await upgrades.deployProxy(PoolFactory, [parseEther('0.05'), parseEther('0.0004')], {
+        unsafeAllow: ['delegatecall'], // allow unsafe delegate call as SafeERC20 is no upgradable
+      })
+
+      // set pool address
+      await asset0.setPool(poolContract.address)
+      await asset1.setPool(poolContract.address)
+
+      // Add BUSD & USDC assets to pool
+      await poolContract.connect(poolOwner).addAsset(token0.address, asset0.address)
+      await poolContract.connect(poolOwner).addAsset(token1.address, asset1.address)
     })
-
-    // set pool address
-    await asset0.setPool(poolContract.address)
-    await asset1.setPool(poolContract.address)
-
-    // Add BUSD & USDC assets to pool
-    await poolContract.connect(poolOwner).addAsset(token0.address, asset0.address)
-    await poolContract.connect(poolOwner).addAsset(token1.address, asset1.address)
-  })
+  )
 
   describe('deploy', function () {
     it('should initialize correctly', async function () {

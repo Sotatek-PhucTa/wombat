@@ -13,6 +13,7 @@ import {
   TestERC20,
   WormholeAdaptor,
 } from '../../build/typechain'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const MOCK_CHAIN_ID = 2
 
@@ -49,70 +50,72 @@ describe('WormholeAdaptor', function () {
     fiveSecondsSince = lastBlockTime + 5 * 1000
   })
 
-  beforeEach(async function () {
-    // Deploy with factories
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      // Deploy with factories
 
-    token0 = (await ethers.deployContract('TestERC20', [
-      'Binance USD',
-      'BUSD',
-      18,
-      parseUnits('1000000', 18),
-    ])) as TestERC20 // 1 mil BUSD
-    token1 = (await ethers.deployContract('TestERC20', [
-      'Venus USDC',
-      'vUSDC',
-      6,
-      parseUnits('10000000', 6),
-    ])) as TestERC20 // 10 mil vUSDC
+      token0 = (await ethers.deployContract('TestERC20', [
+        'Binance USD',
+        'BUSD',
+        18,
+        parseUnits('1000000', 18),
+      ])) as TestERC20 // 1 mil BUSD
+      token1 = (await ethers.deployContract('TestERC20', [
+        'Venus USDC',
+        'vUSDC',
+        6,
+        parseUnits('10000000', 6),
+      ])) as TestERC20 // 10 mil vUSDC
 
-    token2 = (await ethers.deployContract('TestERC20', [
-      'PancakeSwap Token',
-      'CAKE',
-      18,
-      parseUnits('1000000', 18),
-    ])) as TestERC20 // 1 mil CAKE
-    token3 = (await ethers.deployContract('TestERC20', [
-      'USD Tether',
-      'USDT',
-      8,
-      parseUnits('1000000', 8),
-    ])) as TestERC20 // 1 mil USDT
-    asset0 = (await ethers.deployContract('Asset', [token0.address, 'Binance USD LP', 'BUSD-LP'])) as Asset
-    asset1 = (await ethers.deployContract('Asset', [token1.address, 'Venus USDC LP', 'vUSDC-LP'])) as Asset
-    asset2 = (await ethers.deployContract('Asset', [token2.address, 'PancakeSwap Token LP', 'CAKE-LP'])) as Asset
-    asset3 = (await ethers.deployContract('Asset', [token3.address, 'USD Tether Token LP', 'USDT-LP'])) as Asset
-    const coreV3 = (await ethers.deployContract('CoreV3')) as CoreV3
-    pool0 = (await ethers.deployContract('CrossChainPool', [], {
-      libraries: {
-        CoreV3: coreV3.address,
-      },
-    })) as CrossChainPool
-    adaptor0 = (await ethers.deployContract('WormholeAdaptor', [])) as WormholeAdaptor
-    relayer0 = (await ethers.deployContract('MockRelayer')) as MockRelayer
-    mockWormhole0 = (await ethers.deployContract('MockWormhole')) as MockWormhole
+      token2 = (await ethers.deployContract('TestERC20', [
+        'PancakeSwap Token',
+        'CAKE',
+        18,
+        parseUnits('1000000', 18),
+      ])) as TestERC20 // 1 mil CAKE
+      token3 = (await ethers.deployContract('TestERC20', [
+        'USD Tether',
+        'USDT',
+        8,
+        parseUnits('1000000', 8),
+      ])) as TestERC20 // 1 mil USDT
+      asset0 = (await ethers.deployContract('Asset', [token0.address, 'Binance USD LP', 'BUSD-LP'])) as Asset
+      asset1 = (await ethers.deployContract('Asset', [token1.address, 'Venus USDC LP', 'vUSDC-LP'])) as Asset
+      asset2 = (await ethers.deployContract('Asset', [token2.address, 'PancakeSwap Token LP', 'CAKE-LP'])) as Asset
+      asset3 = (await ethers.deployContract('Asset', [token3.address, 'USD Tether Token LP', 'USDT-LP'])) as Asset
+      const coreV3 = (await ethers.deployContract('CoreV3')) as CoreV3
+      pool0 = (await ethers.deployContract('CrossChainPool', [], {
+        libraries: {
+          CoreV3: coreV3.address,
+        },
+      })) as CrossChainPool
+      adaptor0 = (await ethers.deployContract('WormholeAdaptor', [])) as WormholeAdaptor
+      relayer0 = (await ethers.deployContract('MockRelayer')) as MockRelayer
+      mockWormhole0 = (await ethers.deployContract('MockWormhole')) as MockWormhole
 
-    // set pool address
-    await Promise.all([asset0.setPool(pool0.address), asset1.setPool(pool0.address)])
+      // set pool address
+      await Promise.all([asset0.setPool(pool0.address), asset1.setPool(pool0.address)])
 
-    // initialize pool contract
-    await pool0.connect(owner).initialize(parseEther('0.002'), parseEther('0.0004'))
-    await pool0.setAdaptorAddr(adaptor0.address)
+      // initialize pool contract
+      await pool0.connect(owner).initialize(parseEther('0.002'), parseEther('0.0004'))
+      await pool0.setAdaptorAddr(adaptor0.address)
 
-    await adaptor0.initialize(relayer0.address, mockWormhole0.address, pool0.address)
-    await adaptor0.setAdaptorAddress(MOCK_CHAIN_ID, adaptor0.address)
+      await adaptor0.initialize(relayer0.address, mockWormhole0.address, pool0.address)
+      await adaptor0.setAdaptorAddress(MOCK_CHAIN_ID, adaptor0.address)
 
-    // Add BUSD & USDC & USDT assets to pool
-    await pool0.connect(owner).addAsset(token0.address, asset0.address)
-    await pool0.connect(owner).addAsset(token1.address, asset1.address)
+      // Add BUSD & USDC & USDT assets to pool
+      await pool0.connect(owner).addAsset(token0.address, asset0.address)
+      await pool0.connect(owner).addAsset(token1.address, asset1.address)
 
-    await pool0.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
-    await pool0.setMaximumOutboundCredit(parseEther('100000'))
-    await pool0.setSwapTokensForCreditEnabled(true)
-    await pool0.setSwapCreditForTokensEnabled(true)
+      await pool0.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
+      await pool0.setMaximumOutboundCredit(parseEther('100000'))
+      await pool0.setSwapTokensForCreditEnabled(true)
+      await pool0.setSwapCreditForTokensEnabled(true)
 
-    await adaptor0.approveToken(1, token2.address)
-    await adaptor0.approveToken(1, token3.address)
-  })
+      await adaptor0.approveToken(1, token2.address)
+      await adaptor0.approveToken(1, token3.address)
+    })
+  )
 
   it('receiveWormholeMessages ignore the last message (since it should be verified by the relayer)', async function () {
     const payload = await mockWormhole0.generatePayload(

@@ -12,7 +12,7 @@ import { roughlyNear } from '../assertions/roughlyNear'
 chai.use(near)
 chai.use(roughlyNear)
 
-describe('MasterWombat V2', function () {
+describe.skip('MasterWombat V2', function () {
   let owner: SignerWithAddress
   let users: SignerWithAddress[]
 

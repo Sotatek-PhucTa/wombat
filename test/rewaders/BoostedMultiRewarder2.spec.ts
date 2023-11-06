@@ -9,6 +9,7 @@ import { getDeployedContract, getTestERC20 } from '../../utils'
 import { near } from '../assertions/near'
 import { roughlyNear } from '../assertions/roughlyNear'
 import { advanceTimeAndBlock, latest } from '../helpers'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 chai.use(near)
 chai.use(roughlyNear)
@@ -30,140 +31,140 @@ describe('BoostedMultiRewarder 2', function () {
     ;[owner, ...users] = await ethers.getSigners()
   })
 
-  beforeEach(async function () {
-    await deployments.fixture(['MockTokens', 'MasterWombatV3', 'WombatToken', 'Voter', 'VeWom'])
-    startTime = (await latest()).add(60)
-
-    // dummyToken = await getTestERC20('USDC')
-    // expect(await dummyToken.decimals()).to.eq(6)
-
-    axlUSDC = await getTestERC20('axlUSDC')
-    expect(await axlUSDC.decimals()).to.eq(6)
-
-    master = (await ethers.deployContract('BoostedMasterWombat')) as BoostedMasterWombat
-    voter = (await getDeployedContract('Voter')) as Voter
-    wom = (await getDeployedContract('WombatERC20', 'WombatToken')) as WombatERC20
-    veWom = (await getDeployedContract('VeWom')) as VeWom
-
-    await master.initialize(wom.address, veWom.address, voter.address, 375)
-    await veWom.setVoter(voter.address)
-    await veWom.setMasterWombat(master.address)
-
-    // transfer 40% of wom supply to voter contract
-    const womTotalSupply = await wom.totalSupply()
-    const amount = parseInt(formatEther(womTotalSupply)) * 0.4
-    const amountInWei = parseEther(amount.toString())
-    await wom.transfer(voter.address, amountInWei)
-
-    for (let i = 0; i <= 6; i++) {
-      await wom.transfer(users[i].address, parseEther('20000000'))
-      await wom.connect(users[i]).approve(veWom.address, parseEther('20000000'))
-    }
-  })
-
   describe('[All pools] Dialuting + non-dialuting pool', function () {
     let usdc: Contract
     let usdt: Contract
     let mim: Contract
     let dai: Contract
 
-    beforeEach(async function () {
-      const emissionsPerSec = parseEther('0.91324200913242')
-      const partnerRewardPerSec = parseUnits('0.273972', 6) // 0.91324200913242 * 0.3
+    beforeEach(
+      restoreOrCreateSnapshot(async function () {
+        await deployments.fixture(['MockTokens', 'MasterWombatV3', 'WombatToken', 'Voter', 'VeWom'])
+        startTime = (await latest()).add(60)
 
-      await voter.setWomPerSec(emissionsPerSec)
+        // dummyToken = await getTestERC20('USDC')
+        // expect(await dummyToken.decimals()).to.eq(6)
 
-      // deploy usdc and the other tokens
-      usdc = await ethers.deployContract('TestERC20', ['USDC', 'LP-USDC', 18, parseUnits('10000000000', 18)])
-      await usdc.deployed()
+        axlUSDC = await getTestERC20('axlUSDC')
+        expect(await axlUSDC.decimals()).to.eq(6)
 
-      usdt = await ethers.deployContract('TestERC20', ['USDT', 'LP-USDT', 18, parseUnits('10000000000', 18)])
-      await usdt.deployed()
+        master = (await ethers.deployContract('BoostedMasterWombat')) as BoostedMasterWombat
+        voter = (await getDeployedContract('Voter')) as Voter
+        wom = (await getDeployedContract('WombatERC20', 'WombatToken')) as WombatERC20
+        veWom = (await getDeployedContract('VeWom')) as VeWom
 
-      mim = await ethers.deployContract('TestERC20', ['MIM', 'LP-MIM', 18, parseEther('10000000000')])
-      await mim.deployed()
+        await master.initialize(wom.address, veWom.address, voter.address, 375)
+        await veWom.setVoter(voter.address)
+        await veWom.setMasterWombat(master.address)
 
-      dai = await ethers.deployContract('TestERC20', ['DAI', 'LP-DAI', 18, parseEther('10000000000')])
-      await dai.deployed()
+        // transfer 40% of wom supply to voter contract
+        const womTotalSupply = await wom.totalSupply()
+        const amount = parseInt(formatEther(womTotalSupply)) * 0.4
+        const amountInWei = parseEther(amount.toString())
+        await wom.transfer(voter.address, amountInWei)
 
-      // credit users with usdc
-      await usdc.transfer(users[1].address, parseUnits('60000'))
-      await usdc.transfer(users[2].address, parseUnits('90000'))
-      await usdc.transfer(users[3].address, parseUnits('700000'))
-      await usdc.transfer(users[4].address, parseUnits('1500000'))
-      await usdc.transfer(users[5].address, parseUnits('18000000'))
-      await usdc.transfer(users[6].address, parseUnits('30000000'))
+        for (let i = 0; i <= 6; i++) {
+          await wom.transfer(users[i].address, parseEther('20000000'))
+          await wom.connect(users[i]).approve(veWom.address, parseEther('20000000'))
+        }
 
-      // credit users with mockveWom
-      await veWom.connect(users[0]).mint(parseEther('100'), 1461)
-      await veWom.connect(users[1]).mint(parseEther('22000'), 1461)
-      // await veWom.connect(users[2]).faucet(parseEther('0')) // users[2] has no veWom.
-      await veWom.connect(users[3]).mint(parseEther('3000'), 1461)
-      await veWom.connect(users[4]).mint(parseEther('128000'), 1461)
-      await veWom.connect(users[5]).mint(parseEther('5129300'), 1461)
-      await veWom.connect(users[6]).mint(parseEther('16584200'), 1461)
+        const emissionsPerSec = parseEther('0.91324200913242')
+        const partnerRewardPerSec = parseUnits('0.273972', 6) // 0.91324200913242 * 0.3
 
-      // approve spending by pool
-      await usdc.connect(users[1]).approve(master.address, parseUnits('60000'))
-      await usdc.connect(users[2]).approve(master.address, parseUnits('90000'))
-      await usdc.connect(users[3]).approve(master.address, parseUnits('700000'))
-      await usdc.connect(users[4]).approve(master.address, parseUnits('1500000'))
-      await usdc.connect(users[5]).approve(master.address, parseUnits('18000000'))
-      await usdc.connect(users[6]).approve(master.address, parseUnits('30000000'))
+        await voter.setWomPerSec(emissionsPerSec)
 
-      /// other tokens
-      await usdt.transfer(users[7].address, parseUnits('50000000'))
-      await usdt.connect(users[7]).approve(master.address, parseUnits('50000000'))
+        // deploy usdc and the other tokens
+        usdc = await ethers.deployContract('TestERC20', ['USDC', 'LP-USDC', 18, parseUnits('10000000000', 18)])
+        await usdc.deployed()
 
-      await dai.transfer(users[8].address, parseEther('40000000'))
-      await dai.connect(users[8]).approve(master.address, parseUnits('40000000', 18))
+        usdt = await ethers.deployContract('TestERC20', ['USDT', 'LP-USDT', 18, parseUnits('10000000000', 18)])
+        await usdt.deployed()
 
-      await mim.transfer(users[9].address, parseEther('20000000'))
-      await mim.connect(users[9]).approve(master.address, parseUnits('20000000', 18))
+        mim = await ethers.deployContract('TestERC20', ['MIM', 'LP-MIM', 18, parseEther('10000000000')])
+        await mim.deployed()
 
-      rewarder = (await ethers.deployContract('BoostedMultiRewarder')) as BoostedMultiRewarder
-      await rewarder.initialize(
-        AddressZero,
-        master.address,
-        usdc.address,
-        startTime,
-        axlUSDC.address,
-        partnerRewardPerSec
-      )
-      await axlUSDC.faucet(parseEther('1000000000'))
-      await axlUSDC.transfer(rewarder.address, parseEther('1000000000'))
+        dai = await ethers.deployContract('TestERC20', ['DAI', 'LP-DAI', 18, parseEther('10000000000')])
+        await dai.deployed()
 
-      // add lp-tokens to the wombat master with correct weighing
-      await master.add(usdt.address, ethers.constants.AddressZero)
-      await master.add(usdc.address, rewarder.address) // Use rewarder for dummyToken
-      await master.add(dai.address, ethers.constants.AddressZero)
-      await master.add(mim.address, ethers.constants.AddressZero)
-      await voter.connect(owner).add(master.address, usdt.address, AddressZero)
-      await voter.connect(owner).add(master.address, usdc.address, AddressZero)
-      await voter.connect(owner).add(master.address, dai.address, AddressZero)
-      await voter.connect(owner).add(master.address, mim.address, AddressZero)
+        // credit users with usdc
+        await usdc.transfer(users[1].address, parseUnits('60000'))
+        await usdc.transfer(users[2].address, parseUnits('90000'))
+        await usdc.transfer(users[3].address, parseUnits('700000'))
+        await usdc.transfer(users[4].address, parseUnits('1500000'))
+        await usdc.transfer(users[5].address, parseUnits('18000000'))
+        await usdc.transfer(users[6].address, parseUnits('30000000'))
 
-      await voter
-        .connect(users[1])
-        .vote(
-          [usdt.address, usdc.address, dai.address, mim.address],
-          [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
+        // credit users with mockveWom
+        await veWom.connect(users[0]).mint(parseEther('100'), 1461)
+        await veWom.connect(users[1]).mint(parseEther('22000'), 1461)
+        // await veWom.connect(users[2]).faucet(parseEther('0')) // users[2] has no veWom.
+        await veWom.connect(users[3]).mint(parseEther('3000'), 1461)
+        await veWom.connect(users[4]).mint(parseEther('128000'), 1461)
+        await veWom.connect(users[5]).mint(parseEther('5129300'), 1461)
+        await veWom.connect(users[6]).mint(parseEther('16584200'), 1461)
+
+        // approve spending by pool
+        await usdc.connect(users[1]).approve(master.address, parseUnits('60000'))
+        await usdc.connect(users[2]).approve(master.address, parseUnits('90000'))
+        await usdc.connect(users[3]).approve(master.address, parseUnits('700000'))
+        await usdc.connect(users[4]).approve(master.address, parseUnits('1500000'))
+        await usdc.connect(users[5]).approve(master.address, parseUnits('18000000'))
+        await usdc.connect(users[6]).approve(master.address, parseUnits('30000000'))
+
+        /// other tokens
+        await usdt.transfer(users[7].address, parseUnits('50000000'))
+        await usdt.connect(users[7]).approve(master.address, parseUnits('50000000'))
+
+        await dai.transfer(users[8].address, parseEther('40000000'))
+        await dai.connect(users[8]).approve(master.address, parseUnits('40000000', 18))
+
+        await mim.transfer(users[9].address, parseEther('20000000'))
+        await mim.connect(users[9]).approve(master.address, parseUnits('20000000', 18))
+
+        rewarder = (await ethers.deployContract('BoostedMultiRewarder')) as BoostedMultiRewarder
+        await rewarder.initialize(
+          AddressZero,
+          master.address,
+          usdc.address,
+          startTime,
+          axlUSDC.address,
+          partnerRewardPerSec
         )
+        await axlUSDC.faucet(parseEther('1000000000'))
+        await axlUSDC.transfer(rewarder.address, parseEther('1000000000'))
 
-      /// deposits
-      // deposit full balance of each user into usdc pool
-      await master.connect(users[1]).deposit(1, parseUnits('60000')) // usdc
-      await master.connect(users[2]).deposit(1, parseUnits('90000')) // usdc
-      await master.connect(users[3]).deposit(1, parseUnits('350000')) // usdc
-      await master.connect(users[4]).deposit(1, parseUnits('1500000')) // usdc
-      await master.connect(users[5]).deposit(1, parseUnits('18000000')) // usdc
-      await master.connect(users[6]).deposit(1, parseUnits('30000000')) // usdc
+        // add lp-tokens to the wombat master with correct weighing
+        await master.add(usdt.address, ethers.constants.AddressZero)
+        await master.add(usdc.address, rewarder.address) // Use rewarder for dummyToken
+        await master.add(dai.address, ethers.constants.AddressZero)
+        await master.add(mim.address, ethers.constants.AddressZero)
+        await voter.connect(owner).add(master.address, usdt.address, AddressZero)
+        await voter.connect(owner).add(master.address, usdc.address, AddressZero)
+        await voter.connect(owner).add(master.address, dai.address, AddressZero)
+        await voter.connect(owner).add(master.address, mim.address, AddressZero)
 
-      // deposit for other tokens
-      await master.connect(users[7]).deposit(0, parseUnits('50000000')) // usdt
-      await master.connect(users[8]).deposit(2, parseUnits('40000000', 18)) // dai
-      await master.connect(users[9]).deposit(3, parseUnits('20000000', 18)) // mim
-    })
+        await voter
+          .connect(users[1])
+          .vote(
+            [usdt.address, usdc.address, dai.address, mim.address],
+            [parseEther('30'), parseEther('30'), parseEther('25'), parseEther('15')]
+          )
+
+        /// deposits
+        // deposit full balance of each user into usdc pool
+        await master.connect(users[1]).deposit(1, parseUnits('60000')) // usdc
+        await master.connect(users[2]).deposit(1, parseUnits('90000')) // usdc
+        await master.connect(users[3]).deposit(1, parseUnits('350000')) // usdc
+        await master.connect(users[4]).deposit(1, parseUnits('1500000')) // usdc
+        await master.connect(users[5]).deposit(1, parseUnits('18000000')) // usdc
+        await master.connect(users[6]).deposit(1, parseUnits('30000000')) // usdc
+
+        // deposit for other tokens
+        await master.connect(users[7]).deposit(0, parseUnits('50000000')) // usdt
+        await master.connect(users[8]).deposit(2, parseUnits('40000000', 18)) // dai
+        await master.connect(users[9]).deposit(3, parseUnits('20000000', 18)) // mim
+      })
+    )
 
     it('should withdraw and claim wom', async function () {
       await advanceTimeAndBlock(60 * 60 * 24 * 365) // advance one year

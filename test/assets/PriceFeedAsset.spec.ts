@@ -6,6 +6,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
 import { Asset, GovernedPriceFeed, PoolV3, PriceFeedAsset, TestERC20 } from '../../build/typechain'
 import { latest } from '../helpers'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const { expect } = chai
 
@@ -20,54 +21,61 @@ describe('Price Feed Asset', function () {
   let asset2: PriceFeedAsset
   let priceFeed: GovernedPriceFeed
 
-  beforeEach(async function () {
-    ;[owner, ...rest] = await ethers.getSigners()
-    user = rest[0]
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      ;[owner, ...rest] = await ethers.getSigners()
+      user = rest[0]
 
-    const coreV3 = await ethers.deployContract('CoreV3')
-    token = (await ethers.deployContract('TestERC20', ['frxETH', 'frxETH', 6, parseUnits('10000000', 6)])) as TestERC20
-    token2 = (await ethers.deployContract('TestERC20', [
-      'sfrxETH',
-      'sfrxETH',
-      8,
-      parseUnits('10000000', 8),
-    ])) as TestERC20
-    asset = (await ethers.deployContract('DynamicAsset', [token.address, 'frxETH LP', 'frxETH LP'])) as Asset
-    asset2 = (await ethers.deployContract('PriceFeedAsset', [
-      token2.address,
-      'sfrxETH LP',
-      'sfrxETH LP',
-    ])) as PriceFeedAsset
-    pool = (await ethers.deployContract('DynamicPoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
+      const coreV3 = await ethers.deployContract('CoreV3')
+      token = (await ethers.deployContract('TestERC20', [
+        'frxETH',
+        'frxETH',
+        6,
+        parseUnits('10000000', 6),
+      ])) as TestERC20
+      token2 = (await ethers.deployContract('TestERC20', [
+        'sfrxETH',
+        'sfrxETH',
+        8,
+        parseUnits('10000000', 8),
+      ])) as TestERC20
+      asset = (await ethers.deployContract('DynamicAsset', [token.address, 'frxETH LP', 'frxETH LP'])) as Asset
+      asset2 = (await ethers.deployContract('PriceFeedAsset', [
+        token2.address,
+        'sfrxETH LP',
+        'sfrxETH LP',
+      ])) as PriceFeedAsset
+      pool = (await ethers.deployContract('DynamicPoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
 
-    await pool.initialize(parseEther('0.05'), parseEther('0.004'))
-    await pool.addAsset(token.address, asset.address)
-    await pool.addAsset(token2.address, asset2.address)
+      await pool.initialize(parseEther('0.05'), parseEther('0.004'))
+      await pool.addAsset(token.address, asset.address)
+      await pool.addAsset(token2.address, asset2.address)
 
-    // set dummy pool address
-    await asset.setPool(pool.address)
-    await asset2.setPool(pool.address)
+      // set dummy pool address
+      await asset.setPool(pool.address)
+      await asset2.setPool(pool.address)
 
-    priceFeed = (await ethers.deployContract('GovernedPriceFeed', [
-      token2.address,
-      parseEther('1'),
-      parseEther('0.01'),
-    ])) as GovernedPriceFeed
+      priceFeed = (await ethers.deployContract('GovernedPriceFeed', [
+        token2.address,
+        parseEther('1'),
+        parseEther('0.01'),
+      ])) as GovernedPriceFeed
 
-    await asset2.setPriceFeed(priceFeed.address)
+      await asset2.setPriceFeed(priceFeed.address)
 
-    await token.connect(owner).transfer(user.address, parseUnits('100000', 6))
-    await token2.connect(owner).transfer(user.address, parseUnits('100000', 8))
+      await token.connect(owner).transfer(user.address, parseUnits('100000', 6))
+      await token2.connect(owner).transfer(user.address, parseUnits('100000', 8))
 
-    await token.connect(user).approve(pool.address, ethers.constants.MaxUint256)
-    await token2.connect(user).approve(pool.address, ethers.constants.MaxUint256)
+      await token.connect(user).approve(pool.address, ethers.constants.MaxUint256)
+      await token2.connect(user).approve(pool.address, ethers.constants.MaxUint256)
 
-    // deposit 10k BUSD and 1k vUSDC and 1k USDT to pool
-    const lastBlockTime = await latest()
-    const fiveSecondsSince = lastBlockTime.add(5)
-    await pool.connect(user).deposit(token.address, parseUnits('1000', 6), 0, user.address, fiveSecondsSince, false)
-    await pool.connect(user).deposit(token2.address, parseUnits('1000', 8), 0, user.address, fiveSecondsSince, false)
-  })
+      // deposit 10k BUSD and 1k vUSDC and 1k USDT to pool
+      const lastBlockTime = await latest()
+      const fiveSecondsSince = lastBlockTime.add(5)
+      await pool.connect(user).deposit(token.address, parseUnits('1000', 6), 0, user.address, fiveSecondsSince, false)
+      await pool.connect(user).deposit(token2.address, parseUnits('1000', 8), 0, user.address, fiveSecondsSince, false)
+    })
+  )
 
   it('setLatestPrice should work', async function () {
     await expect(priceFeed.getLatestPrice(token.address)).to.be.rejected // invalid token address

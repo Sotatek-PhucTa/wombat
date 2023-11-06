@@ -22,6 +22,7 @@ import {
 import { near } from '../assertions/near'
 import { roughlyNear } from '../assertions/roughlyNear'
 import { advanceTimeAndBlock, latest, sqrt } from '../helpers'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 chai.use(near)
 chai.use(roughlyNear)
@@ -79,59 +80,63 @@ describe('MasterWombatV3', function () {
     return asset
   }
 
-  beforeEach(async function () {
-    wom = await Wom.deploy(owner.address, parseEther('1000000000'))
-    await wom.deployed()
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      wom = await Wom.deploy(owner.address, parseEther('1000000000'))
+      await wom.deployed()
 
-    // deploy master wombat
-    mw = await MasterWombat.deploy()
-    await mw.deployed()
+      // deploy master wombat
+      mw = await MasterWombat.deploy()
+      await mw.deployed()
 
-    voter = await Voter.deploy()
-    await voter.deployed()
+      voter = await Voter.deploy()
+      await voter.deployed()
 
-    // deploy dommy token - 6 d.p.
-    dummyAsset = await deployAsset('Dummy', 'DUMMY', 6, parseUnits('100', 6))
+      // deploy dommy token - 6 d.p.
+      dummyAsset = await deployAsset('Dummy', 'DUMMY', 6, parseUnits('100', 6))
 
-    // veWom - 18 d.p
-    veWom = await VeWom.deploy()
-    await veWom.deployed()
+      // veWom - 18 d.p
+      veWom = await VeWom.deploy()
+      await veWom.deployed()
 
-    await mw.initialize(
-      wom.address,
-      veWom.address,
-      voter.address,
-      1000 // 100% dialutng
-    )
+      await mw.initialize(
+        wom.address,
+        veWom.address,
+        voter.address,
+        1000 // 100% dialutng
+      )
 
-    await veWom.initialize(wom.address, mw.address)
-    await veWom.connect(users[0]).faucet(parseEther('10000'))
-    await veWom.setVoter(voter.address)
+      await veWom.initialize(wom.address, mw.address)
+      await veWom.connect(users[0]).faucet(parseEther('10000'))
+      await veWom.setVoter(voter.address)
 
-    const startTime = await latest()
-    await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7), 0)
+      const startTime = await latest()
+      await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7), 0)
 
-    await wom.transfer(voter.address, parseEther('100000000'))
-  })
+      await wom.transfer(voter.address, parseEther('100000000'))
+    })
+  )
 
   describe('Master wombat Utils', function () {
+    let lp: Asset
+    let lp2: Asset
     beforeEach(async function () {
       await mw.updateEmissionPartition(1000) // 100% dialutng
 
-      this.lp = await deployAsset('LPToken', 'LP', 18, parseEther('10000000000'))
-      await this.lp.deployed()
-      await this.lp.transfer(owner.address, parseEther('1000'))
-      await this.lp.transfer(users[1].address, parseEther('1000'))
-      await this.lp.transfer(users[2].address, parseEther('1000'))
+      lp = await deployAsset('LPToken', 'LP', 18, parseEther('10000000000'))
+      await lp.deployed()
+      await lp.transfer(owner.address, parseEther('1000'))
+      await lp.transfer(users[1].address, parseEther('1000'))
+      await lp.transfer(users[2].address, parseEther('1000'))
 
-      this.lp2 = await deployAsset('LPToken2', 'LP2', 6, parseUnits('10000000000', 6))
-      await this.lp2.deployed()
-      await this.lp2.transfer(owner.address, parseUnits('1000', 6))
-      await this.lp2.transfer(users[1].address, parseUnits('1000', 6))
-      await this.lp2.transfer(users[2].address, parseUnits('1000', 6))
+      lp2 = await deployAsset('LPToken2', 'LP2', 6, parseUnits('10000000000', 6))
+      await lp2.deployed()
+      await lp2.transfer(owner.address, parseUnits('1000', 6))
+      await lp2.transfer(users[1].address, parseUnits('1000', 6))
+      await lp2.transfer(users[2].address, parseUnits('1000', 6))
 
-      await voter.add(mw.address, this.lp.address, AddressZero)
-      await voter.add(mw.address, this.lp2.address, AddressZero)
+      await voter.add(mw.address, lp.address, AddressZero)
+      await voter.add(mw.address, lp2.address, AddressZero)
     })
 
     it('should pause and unpause', async function () {
@@ -177,18 +182,18 @@ describe('MasterWombatV3', function () {
     })
 
     it('should revert if the same lpToken is added into the pool', async function () {
-      await mw.add(this.lp.address, AddressZero)
+      await mw.add(lp.address, AddressZero)
 
-      await expect(mw.add(this.lp.address, AddressZero)).to.be.revertedWith('add: LP already added')
+      await expect(mw.add(lp.address, AddressZero)).to.be.revertedWith('add: LP already added')
     })
 
     it('should set correct state variables womPerSec, veWom and emission repartition', async function () {
       // update veWom
       expect(await mw.veWom()).to.be.equal(veWom.address)
-      const receipt1 = await mw.setVeWom(this.lp2.address)
-      expect(await mw.veWom()).to.be.equal(this.lp2.address)
+      const receipt1 = await mw.setVeWom(lp2.address)
+      expect(await mw.veWom()).to.be.equal(lp2.address)
 
-      expect(receipt1).to.emit(mw, 'UpdateVeWOM').withArgs(owner.address, veWom.address, this.lp2.address)
+      expect(receipt1).to.emit(mw, 'UpdateVeWOM').withArgs(owner.address, veWom.address, lp2.address)
 
       // update emissions repartition
       expect(await mw.basePartition()).to.be.equal(1000)
@@ -197,11 +202,9 @@ describe('MasterWombatV3', function () {
 
     it('should check rewarder added and set properly', async function () {
       // Try to add rewarder that is neither zero address or contract address
-      await expect(mw.add(this.lp.address, users[1].address)).to.be.revertedWith(
-        'add: rewarder must be contract or zero'
-      )
+      await expect(mw.add(lp.address, users[1].address)).to.be.revertedWith('add: rewarder must be contract or zero')
 
-      await mw.add(this.lp.address, dummyAsset.address)
+      await mw.add(lp.address, dummyAsset.address)
 
       // Try to set rewarder that is neither zero address or contract address
       await expect(mw.setRewarder('0', users[1].address)).to.be.revertedWith('set: rewarder must be contract or zero')
@@ -210,17 +213,17 @@ describe('MasterWombatV3', function () {
     })
 
     it('should allow emergency withdraw from MasterWombat', async function () {
-      await mw.add(this.lp.address, AddressZero)
+      await mw.add(lp.address, AddressZero)
 
-      await this.lp.connect(users[1]).approve(mw.address, parseEther('1000'))
+      await lp.connect(users[1]).approve(mw.address, parseEther('1000'))
 
       await mw.connect(users[1]).deposit(0, parseEther('100'))
 
-      expect(await this.lp.balanceOf(users[1].address)).to.equal(parseEther('900'))
+      expect(await lp.balanceOf(users[1].address)).to.equal(parseEther('900'))
 
       await mw.connect(users[1]).emergencyWithdraw(0)
 
-      expect(await this.lp.balanceOf(users[1].address)).to.equal(parseEther('1000'))
+      expect(await lp.balanceOf(users[1].address)).to.equal(parseEther('1000'))
     })
   })
 

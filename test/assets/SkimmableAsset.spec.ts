@@ -7,6 +7,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
 import { PoolV3 } from '../../build/typechain'
 import { latest } from '../helpers'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const { expect } = chai
 
@@ -20,38 +21,40 @@ describe('SkimmableAsset Asset', function () {
   let asset: Contract
   let asset2: Contract
 
-  beforeEach(async function () {
-    ;[owner, ...rest] = await ethers.getSigners()
-    user = rest[0]
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      ;[owner, ...rest] = await ethers.getSigners()
+      user = rest[0]
 
-    const coreV3 = await ethers.deployContract('CoreV3')
-    token = await ethers.deployContract('TestERC20', ['USD+', 'USD+ Token', 6, parseUnits('10000000', 8)])
-    token2 = await ethers.deployContract('TestERC20', ['Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)])
-    asset = await ethers.deployContract('SkimmableAsset', [token.address, 'USD+ LP', 'USD+-LP'])
-    asset2 = await ethers.deployContract('Asset', [token2.address, 'Venus USD LP', 'vUSDC-LP'])
-    pool = (await ethers.deployContract('PoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
+      const coreV3 = await ethers.deployContract('CoreV3')
+      token = await ethers.deployContract('TestERC20', ['USD+', 'USD+ Token', 6, parseUnits('10000000', 8)])
+      token2 = await ethers.deployContract('TestERC20', ['Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)])
+      asset = await ethers.deployContract('SkimmableAsset', [token.address, 'USD+ LP', 'USD+-LP'])
+      asset2 = await ethers.deployContract('Asset', [token2.address, 'Venus USD LP', 'vUSDC-LP'])
+      pool = (await ethers.deployContract('PoolV3', { libraries: { CoreV3: coreV3.address } })) as PoolV3
 
-    await pool.connect(owner).initialize(parseEther('0.05'), parseEther('0.004'))
-    await pool.connect(owner).addAsset(token.address, asset.address)
-    await pool.connect(owner).addAsset(token2.address, asset2.address)
+      await pool.connect(owner).initialize(parseEther('0.05'), parseEther('0.004'))
+      await pool.connect(owner).addAsset(token.address, asset.address)
+      await pool.connect(owner).addAsset(token2.address, asset2.address)
 
-    // set dummy pool address
-    await asset.setPool(pool.address)
-    await asset2.setPool(pool.address)
-    await asset.addSkimAdmin(owner.address)
+      // set dummy pool address
+      await asset.setPool(pool.address)
+      await asset2.setPool(pool.address)
+      await asset.addSkimAdmin(owner.address)
 
-    await token.connect(owner).transfer(user.address, parseUnits('100000', 6))
-    await token2.connect(owner).transfer(user.address, parseUnits('100000', 8))
+      await token.connect(owner).transfer(user.address, parseUnits('100000', 6))
+      await token2.connect(owner).transfer(user.address, parseUnits('100000', 8))
 
-    await token.connect(user).approve(pool.address, ethers.constants.MaxUint256)
-    await token2.connect(user).approve(pool.address, ethers.constants.MaxUint256)
+      await token.connect(user).approve(pool.address, ethers.constants.MaxUint256)
+      await token2.connect(user).approve(pool.address, ethers.constants.MaxUint256)
 
-    // deposit 10k BUSD and 1k vUSDC and 1k USDT to pool
-    const lastBlockTime = await latest()
-    const fiveSecondsSince = lastBlockTime.add(5)
-    await pool.connect(user).deposit(token.address, parseUnits('1000', 6), 0, user.address, fiveSecondsSince, false)
-    await pool.connect(user).deposit(token2.address, parseUnits('1000', 8), 0, user.address, fiveSecondsSince, false)
-  })
+      // deposit 10k BUSD and 1k vUSDC and 1k USDT to pool
+      const lastBlockTime = await latest()
+      const fiveSecondsSince = lastBlockTime.add(5)
+      await pool.connect(user).deposit(token.address, parseUnits('1000', 6), 0, user.address, fiveSecondsSince, false)
+      await pool.connect(user).deposit(token2.address, parseUnits('1000', 8), 0, user.address, fiveSecondsSince, false)
+    })
+  )
 
   it('skim work with lpDividend', async function () {
     // all fees is shared to LP

@@ -4,6 +4,7 @@ import chai from 'chai'
 
 import { Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { restoreOrCreateSnapshot } from './fixtures/executions'
 
 const { expect } = chai
 
@@ -25,42 +26,44 @@ describe('TokenVesting', function () {
   let startTimestamp: number // start timestamp of vesting period
   let durationSeconds: number // vesting duration of the vesting period
 
-  beforeEach(async function () {
-    const [first, ...rest] = await ethers.getSigners()
-    owner = first
-    user1 = rest[0]
-    user2 = rest[1]
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      const [first, ...rest] = await ethers.getSigners()
+      owner = first
+      user1 = rest[0]
+      user2 = rest[1]
 
-    // get last block time
-    const lastBlock = await ethers.provider.getBlock('latest')
-    lastBlockTime = lastBlock.timestamp
-    sixMonths = (60 * 60 * 24 * 365) / 2 // 15768000
-    startCliff = 60 * 60 * 24 * 30 // 30 days cliff
-    startTimestamp = lastBlockTime + startCliff // 30 days later, i.e. 30 days cliff
-    durationSeconds = 60 * 60 * 24 * 365 * 5 // 1825 days, i.e. 5 years vesting period
+      // get last block time
+      const lastBlock = await ethers.provider.getBlock('latest')
+      lastBlockTime = lastBlock.timestamp
+      sixMonths = (60 * 60 * 24 * 365) / 2 // 15768000
+      startCliff = 60 * 60 * 24 * 30 // 30 days cliff
+      startTimestamp = lastBlockTime + startCliff // 30 days later, i.e. 30 days cliff
+      durationSeconds = 60 * 60 * 24 * 365 * 5 // 1825 days, i.e. 5 years vesting period
 
-    tenMonthsSince = lastBlockTime + 60 * 60 * 24 * 300 // 10 months later, i.e. _unlockIntervalsCount = 1
-    twentyMonthsSince = lastBlockTime + 60 * 60 * 24 * 600 // 20 months later, i.e. _unlockIntervalsCount = 3
-    fiftyMonthsSince = lastBlockTime + 60 * 60 * 24 * 1500 // 50 months later, i.e. _unlockIntervalsCount = 8
-    sixtyMonthsSince = lastBlockTime + 60 * 60 * 24 * 1825 // 60 months later, i.e. _unlockIntervalsCount = 10
+      tenMonthsSince = lastBlockTime + 60 * 60 * 24 * 300 // 10 months later, i.e. _unlockIntervalsCount = 1
+      twentyMonthsSince = lastBlockTime + 60 * 60 * 24 * 600 // 20 months later, i.e. _unlockIntervalsCount = 3
+      fiftyMonthsSince = lastBlockTime + 60 * 60 * 24 * 1500 // 50 months later, i.e. _unlockIntervalsCount = 8
+      sixtyMonthsSince = lastBlockTime + 60 * 60 * 24 * 1825 // 60 months later, i.e. _unlockIntervalsCount = 10
 
-    // Get Factories
-    const TestWombatERC20Factory = await ethers.getContractFactory('WombatERC20')
-    const TestTokenVestingFactory = await ethers.getContractFactory('TestTokenVesting')
+      // Get Factories
+      const TestWombatERC20Factory = await ethers.getContractFactory('WombatERC20')
+      const TestTokenVestingFactory = await ethers.getContractFactory('TestTokenVesting')
 
-    // Deploy with factories
-    tokenContract = await TestWombatERC20Factory.connect(owner).deploy(owner.address, parseUnits('1000000', 18)) // 1 mil WOM
-    vestingContract = await TestTokenVestingFactory.connect(owner).deploy(
-      tokenContract.address,
-      startTimestamp,
-      durationSeconds,
-      sixMonths
-    )
+      // Deploy with factories
+      tokenContract = await TestWombatERC20Factory.connect(owner).deploy(owner.address, parseUnits('1000000', 18)) // 1 mil WOM
+      vestingContract = await TestTokenVestingFactory.connect(owner).deploy(
+        tokenContract.address,
+        startTimestamp,
+        durationSeconds,
+        sixMonths
+      )
 
-    // wait for transactions to be mined
-    await tokenContract.deployTransaction.wait()
-    await vestingContract.deployTransaction.wait()
-  })
+      // wait for transactions to be mined
+      await tokenContract.deployTransaction.wait()
+      await vestingContract.deployTransaction.wait()
+    })
+  )
 
   describe('[initial deploy]', function () {
     it('Should return correct start timestamp', async function () {

@@ -22,6 +22,7 @@ import {
 import { near } from './assertions/near'
 import { roughlyNear } from './assertions/roughlyNear'
 import { advanceTimeAndBlock, latest } from './helpers'
+import { restoreOrCreateSnapshot } from './fixtures/executions'
 
 chai.use(near)
 chai.use(roughlyNear)
@@ -75,51 +76,53 @@ describe('Voter', function () {
     partnerRewardPerSec = parseEther('0.380517503805175')
   })
 
-  beforeEach(async function () {
-    wom = await Wom.deploy(owner.address, owner.address)
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      wom = await Wom.deploy(owner.address, owner.address)
 
-    mw = await MasterWombat.deploy()
-    veWom = await VeWom.deploy()
-    voter = await Voter.deploy()
+      mw = await MasterWombat.deploy()
+      veWom = await VeWom.deploy()
+      voter = await Voter.deploy()
 
-    await wom.deployed()
-    await mw.deployed()
-    await mw.initialize(wom.address, veWom.address, voter.address, 1000)
+      await wom.deployed()
+      await mw.deployed()
+      await mw.initialize(wom.address, veWom.address, voter.address, 1000)
 
-    await veWom.deployed()
-    await veWom.initialize(wom.address, mw.address)
+      await veWom.deployed()
+      await veWom.initialize(wom.address, mw.address)
 
-    await voter.deployed()
-    const startTime = await latest()
-    await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7), 0)
+      await voter.deployed()
+      const startTime = await latest()
+      await voter.initialize(wom.address, veWom.address, womPerSec, startTime, startTime.add(86400 * 7), 0)
 
-    await veWom.setVoter(voter.address)
-    await wom.transfer(voter.address, parseEther('100000000'))
+      await veWom.setVoter(voter.address)
+      await wom.transfer(voter.address, parseEther('100000000'))
 
-    await veWom.connect(users[0]).faucet(parseEther('10000'))
-    await veWom.connect(users[1]).faucet(parseEther('10000'))
+      await veWom.connect(users[0]).faucet(parseEther('10000'))
+      await veWom.connect(users[1]).faucet(parseEther('10000'))
 
-    token1 = await TestERC20.deploy('USDC Token', 'USDC', 6, 0)
-    token2 = await TestERC20.deploy('USDT Token', 'USDT', 6, 0)
-    token3 = await TestERC20.deploy('DAI Token', 'DAI', 18, 0)
+      token1 = await TestERC20.deploy('USDC Token', 'USDC', 6, 0)
+      token2 = await TestERC20.deploy('USDT Token', 'USDT', 6, 0)
+      token3 = await TestERC20.deploy('DAI Token', 'DAI', 18, 0)
 
-    await token1.deployed()
-    await token2.deployed()
-    await token3.deployed()
+      await token1.deployed()
+      await token2.deployed()
+      await token3.deployed()
 
-    lpToken1 = await Asset.deploy(token1.address, 'USDC', 'LP-USDC')
-    lpToken2 = await Asset.deploy(token2.address, 'USDT', 'LP-USDT')
-    lpToken3 = await Asset.deploy(token3.address, 'DAI', 'LP-DAI')
+      lpToken1 = await Asset.deploy(token1.address, 'USDC', 'LP-USDC')
+      lpToken2 = await Asset.deploy(token2.address, 'USDT', 'LP-USDT')
+      lpToken3 = await Asset.deploy(token3.address, 'DAI', 'LP-DAI')
 
-    // grant owner permission to mint
-    await lpToken1.setPool(owner.address)
-    await lpToken2.setPool(owner.address)
-    await lpToken3.setPool(owner.address)
+      // grant owner permission to mint
+      await lpToken1.setPool(owner.address)
+      await lpToken2.setPool(owner.address)
+      await lpToken3.setPool(owner.address)
 
-    await lpToken1.mint(owner.address, parseUnits('10000000000'))
-    await lpToken2.mint(owner.address, parseUnits('10000000000'))
-    await lpToken3.mint(owner.address, parseUnits('10000000000'))
-  })
+      await lpToken1.mint(owner.address, parseUnits('10000000000'))
+      await lpToken2.mint(owner.address, parseUnits('10000000000'))
+      await lpToken3.mint(owner.address, parseUnits('10000000000'))
+    })
+  )
 
   describe('Vote', function () {
     beforeEach(async function () {

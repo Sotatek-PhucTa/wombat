@@ -19,6 +19,7 @@ import {
 } from '../../build/typechain'
 import { near } from '../assertions/near'
 import { expectAssetValues } from '../helpers/helper'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const { expect } = chai
 chai.use(near)
@@ -79,116 +80,121 @@ describe('WombatRouter', function () {
     })) as DynamicPool__factory
   })
 
-  beforeEach(async function () {
-    // get last block time
-    const lastBlock = await ethers.provider.getBlock('latest')
-    lastBlockTime = lastBlock.timestamp
-    fiveSecondsSince = lastBlockTime + 5 * 1000
-    fiveSecondsAgo = lastBlockTime - 5 * 1000
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      // get last block time
+      const lastBlock = await ethers.provider.getBlock('latest')
+      lastBlockTime = lastBlock.timestamp
+      fiveSecondsSince = lastBlockTime + 5 * 1000
+      fiveSecondsAgo = lastBlockTime - 5 * 1000
 
-    // Deploy with factories
-    BUSD = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('10000000', 18)) // 10 mil BUSD
-    USDC = await TestERC20Factory.deploy('USD Coin', 'USDC', 18, parseUnits('10000000', 18)) // 10 mil USDC
-    USDT = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('10000000', 18)) // 10 mil USDT
-    vUSDC = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
-    vUSDT = await TestERC20Factory.deploy('Venus USDT', 'vUSDT', 8, parseUnits('10000000', 8)) // 10 mil vUSDT
-    UST = await TestERC20Factory.deploy('TerraUSD', 'UST', 18, parseUnits('10000000', 18)) // 10 mil UST
-    assetBUSD = await AssetFactory.deploy(BUSD.address, 'Binance USD LP 1', 'BUSD-LP01')
-    assetBUSD2 = await AssetFactory.deploy(BUSD.address, 'Binance USD LP 2', 'BUSD-LP02')
-    assetUSDC = await AssetFactory.deploy(USDC.address, 'USD Coin LP', 'USDC-LP')
-    assetUSDT = await AssetFactory.deploy(USDT.address, 'USD Tether LP', 'USDT-LP')
-    assetvUSDC = await AssetFactory.deploy(vUSDC.address, 'Venus USDC LP', 'vUSDC-LP')
-    assetvUSDT = await AssetFactory.deploy(vUSDT.address, 'Venus USDT LP', 'vUSDT-LP')
-    assetUST = await AssetFactory.deploy(UST.address, 'TerraUST LP', 'UST-LP')
-    assetUST2 = await AssetFactory.deploy(UST.address, 'TerraUST LP 2', 'UST-LP02')
+      // Deploy with factories
+      BUSD = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('10000000', 18)) // 10 mil BUSD
+      USDC = await TestERC20Factory.deploy('USD Coin', 'USDC', 18, parseUnits('10000000', 18)) // 10 mil USDC
+      USDT = await TestERC20Factory.deploy('USD Tether', 'USDT', 18, parseUnits('10000000', 18)) // 10 mil USDT
+      vUSDC = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 8, parseUnits('10000000', 8)) // 10 mil vUSDC
+      vUSDT = await TestERC20Factory.deploy('Venus USDT', 'vUSDT', 8, parseUnits('10000000', 8)) // 10 mil vUSDT
+      UST = await TestERC20Factory.deploy('TerraUSD', 'UST', 18, parseUnits('10000000', 18)) // 10 mil UST
+      assetBUSD = await AssetFactory.deploy(BUSD.address, 'Binance USD LP 1', 'BUSD-LP01')
+      assetBUSD2 = await AssetFactory.deploy(BUSD.address, 'Binance USD LP 2', 'BUSD-LP02')
+      assetUSDC = await AssetFactory.deploy(USDC.address, 'USD Coin LP', 'USDC-LP')
+      assetUSDT = await AssetFactory.deploy(USDT.address, 'USD Tether LP', 'USDT-LP')
+      assetvUSDC = await AssetFactory.deploy(vUSDC.address, 'Venus USDC LP', 'vUSDC-LP')
+      assetvUSDT = await AssetFactory.deploy(vUSDT.address, 'Venus USDT LP', 'vUSDT-LP')
+      assetUST = await AssetFactory.deploy(UST.address, 'TerraUST LP', 'UST-LP')
+      assetUST2 = await AssetFactory.deploy(UST.address, 'TerraUST LP 2', 'UST-LP02')
 
-    WBNB = await WBNBFactory.deploy()
+      WBNB = await WBNBFactory.deploy()
 
-    pool1 = await PoolFactory.connect(owner).deploy() // Main Pool
-    pool2 = await PoolFactory.connect(owner).deploy() // Alt Pool 1
-    pool3 = await PoolFactory.connect(owner).deploy() // Alt Pool 2
+      pool1 = await PoolFactory.connect(owner).deploy() // Main Pool
+      pool2 = await PoolFactory.connect(owner).deploy() // Alt Pool 1
+      pool3 = await PoolFactory.connect(owner).deploy() // Alt Pool 2
 
-    // set main pool address
-    await assetBUSD.setPool(pool1.address)
-    await assetUSDC.setPool(pool1.address)
-    await assetUSDT.setPool(pool1.address)
+      // set main pool address
+      await assetBUSD.setPool(pool1.address)
+      await assetUSDC.setPool(pool1.address)
+      await assetUSDT.setPool(pool1.address)
 
-    // set alt pool 1 address
-    await assetBUSD2.setPool(pool2.address)
-    await assetUST.setPool(pool2.address)
+      // set alt pool 1 address
+      await assetBUSD2.setPool(pool2.address)
+      await assetUST.setPool(pool2.address)
 
-    // set alt pool 2 address
-    await assetUST2.setPool(pool3.address)
-    await assetvUSDC.setPool(pool3.address)
-    await assetvUSDT.setPool(pool3.address)
+      // set alt pool 2 address
+      await assetUST2.setPool(pool3.address)
+      await assetvUSDC.setPool(pool3.address)
+      await assetvUSDT.setPool(pool3.address)
 
-    // initialize pool contract
-    await pool1.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
-    await pool2.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
-    await pool3.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+      // initialize pool contract
+      await pool1.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+      await pool2.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
+      await pool3.connect(owner).initialize(parseEther('0.05'), parseEther('0.0004'))
 
-    // Add BUSD & USDC & USDT assets to main pool
-    await pool1.connect(owner).addAsset(BUSD.address, assetBUSD.address)
-    await pool1.connect(owner).addAsset(USDC.address, assetUSDC.address)
-    await pool1.connect(owner).addAsset(USDT.address, assetUSDT.address)
+      // Add BUSD & USDC & USDT assets to main pool
+      await pool1.connect(owner).addAsset(BUSD.address, assetBUSD.address)
+      await pool1.connect(owner).addAsset(USDC.address, assetUSDC.address)
+      await pool1.connect(owner).addAsset(USDT.address, assetUSDT.address)
 
-    // Add BUSD and UST assets to alt pool 1
-    await pool2.connect(owner).addAsset(BUSD.address, assetBUSD2.address)
-    await pool2.connect(owner).addAsset(UST.address, assetUST.address)
+      // Add BUSD and UST assets to alt pool 1
+      await pool2.connect(owner).addAsset(BUSD.address, assetBUSD2.address)
+      await pool2.connect(owner).addAsset(UST.address, assetUST.address)
 
-    // Add UST & vUSDC & vUSDT assets to alt pool 2
-    await pool3.connect(owner).addAsset(UST.address, assetUST2.address)
-    await pool3.connect(owner).addAsset(vUSDC.address, assetvUSDC.address)
-    await pool3.connect(owner).addAsset(vUSDT.address, assetvUSDT.address)
+      // Add UST & vUSDC & vUSDT assets to alt pool 2
+      await pool3.connect(owner).addAsset(UST.address, assetUST2.address)
+      await pool3.connect(owner).addAsset(vUSDC.address, assetvUSDC.address)
+      await pool3.connect(owner).addAsset(vUSDT.address, assetvUSDT.address)
 
-    // deploy Router
-    this.router = router = await Router.deploy(WBNB.address)
+      // deploy Router
+      router = await Router.deploy(WBNB.address)
 
-    // IMPORTANT FOR THE ROUTER TO WORK EFFICIENTLY
-    // approve pool spending tokens from router
-    await this.router.connect(owner).approveSpendingByPool([BUSD.address, USDC.address, USDT.address], pool1.address)
-    await this.router.connect(owner).approveSpendingByPool([BUSD.address, UST.address], pool2.address)
-    await this.router.connect(owner).approveSpendingByPool([UST.address, vUSDC.address, vUSDT.address], pool3.address)
+      // IMPORTANT FOR THE ROUTER TO WORK EFFICIENTLY
+      // approve pool spending tokens from router
+      await router.connect(owner).approveSpendingByPool([BUSD.address, USDC.address, USDT.address], pool1.address)
+      await router.connect(owner).approveSpendingByPool([BUSD.address, UST.address], pool2.address)
+      await router.connect(owner).approveSpendingByPool([UST.address, vUSDC.address, vUSDT.address], pool3.address)
 
-    // Transfer 100k of stables to user1
-    await BUSD.connect(owner).transfer(user1.address, parseEther('200000'))
-    await USDC.connect(owner).transfer(user1.address, parseEther('100000'))
-    await USDT.connect(owner).transfer(user1.address, parseEther('100000'))
-    await vUSDC.connect(owner).transfer(user1.address, parseUnits('100000', 8))
-    await vUSDT.connect(owner).transfer(user1.address, parseUnits('100000', 8))
-    await UST.connect(owner).transfer(user1.address, parseEther('200000'))
+      // Transfer 100k of stables to user1
+      await BUSD.connect(owner).transfer(user1.address, parseEther('200000'))
+      await USDC.connect(owner).transfer(user1.address, parseEther('100000'))
+      await USDT.connect(owner).transfer(user1.address, parseEther('100000'))
+      await vUSDC.connect(owner).transfer(user1.address, parseUnits('100000', 8))
+      await vUSDT.connect(owner).transfer(user1.address, parseUnits('100000', 8))
+      await UST.connect(owner).transfer(user1.address, parseEther('200000'))
 
-    // Approve max allowance of tokens from users to pool
-    await BUSD.connect(user1).approve(pool1.address, ethers.constants.MaxUint256)
-    await USDC.connect(user1).approve(pool1.address, ethers.constants.MaxUint256)
-    await USDT.connect(user1).approve(pool1.address, ethers.constants.MaxUint256)
+      // Approve max allowance of tokens from users to pool
+      await BUSD.connect(user1).approve(pool1.address, ethers.constants.MaxUint256)
+      await USDC.connect(user1).approve(pool1.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(pool1.address, ethers.constants.MaxUint256)
 
-    await BUSD.connect(user1).approve(pool2.address, ethers.constants.MaxUint256)
-    await UST.connect(user1).approve(pool2.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(pool2.address, ethers.constants.MaxUint256)
+      await UST.connect(user1).approve(pool2.address, ethers.constants.MaxUint256)
 
-    await UST.connect(user1).approve(pool3.address, ethers.constants.MaxUint256)
-    await vUSDC.connect(user1).approve(pool3.address, ethers.constants.MaxUint256)
-    await vUSDT.connect(user1).approve(pool3.address, ethers.constants.MaxUint256)
+      await UST.connect(user1).approve(pool3.address, ethers.constants.MaxUint256)
+      await vUSDC.connect(user1).approve(pool3.address, ethers.constants.MaxUint256)
+      await vUSDT.connect(user1).approve(pool3.address, ethers.constants.MaxUint256)
 
-    // deposit
-    await pool1.connect(user1).deposit(BUSD.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
-    await pool1.connect(user1).deposit(USDC.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
-    await pool1.connect(user1).deposit(USDT.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+      // deposit
+      await pool1.connect(user1).deposit(BUSD.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+      await pool1.connect(user1).deposit(USDC.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+      await pool1.connect(user1).deposit(USDT.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
 
-    await pool2.connect(user1).deposit(BUSD.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
-    await pool2.connect(user1).deposit(UST.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+      await pool2.connect(user1).deposit(BUSD.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+      await pool2.connect(user1).deposit(UST.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
 
-    await pool3.connect(user1).deposit(UST.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
-    await pool3.connect(user1).deposit(vUSDC.address, parseUnits('10000', 8), 0, user1.address, fiveSecondsSince, false)
-    await pool3.connect(user1).deposit(vUSDT.address, parseUnits('10000', 8), 0, user1.address, fiveSecondsSince, false)
-  })
-
+      await pool3.connect(user1).deposit(UST.address, parseEther('10000'), 0, user1.address, fiveSecondsSince, false)
+      await pool3
+        .connect(user1)
+        .deposit(vUSDC.address, parseUnits('10000', 8), 0, user1.address, fiveSecondsSince, false)
+      await pool3
+        .connect(user1)
+        .deposit(vUSDT.address, parseUnits('10000', 8), 0, user1.address, fiveSecondsSince, false)
+    })
+  )
   describe('Router', function () {
     it('reverts if expired', async function () {
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
       // swap via router
       await expect(
-        this.router.connect(user1).swapExactTokensForTokens(
+        router.connect(user1).swapExactTokensForTokens(
           [BUSD.address, USDT.address],
           [pool1.address],
           parseEther('100'),
@@ -200,15 +206,15 @@ describe('WombatRouter', function () {
     })
 
     it('reverts if invalid from amount', async function () {
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
       await expect(
-        this.router.connect(user1).getAmountOut([BUSD.address, USDT.address], [pool1.address], 0)
+        router.connect(user1).getAmountOut([BUSD.address, USDT.address], [pool1.address], 0)
       ).to.be.revertedWithCustomError(pool1, 'WOMBAT_ZERO_AMOUNT')
 
       // swap via router
       await expect(
-        this.router
+        router
           .connect(user1)
           .swapExactTokensForTokens(
             [BUSD.address, USDT.address],
@@ -222,15 +228,15 @@ describe('WombatRouter', function () {
     })
 
     it('reverts if invalid token path', async function () {
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
       await expect(
-        this.router.connect(user1).getAmountOut([BUSD.address], [pool1.address], parseEther('100'))
+        router.connect(user1).getAmountOut([BUSD.address], [pool1.address], parseEther('100'))
       ).to.be.revertedWith('invalid token path')
 
       // swap via router
       await expect(
-        this.router
+        router
           .connect(user1)
           .swapExactTokensForTokens(
             [BUSD.address],
@@ -244,17 +250,17 @@ describe('WombatRouter', function () {
     })
 
     it('reverts if invalid token path', async function () {
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
       await expect(
-        this.router
+        router
           .connect(user1)
           .getAmountOut([BUSD.address, USDT.address], [pool1.address, pool1.address], parseEther('100'))
       ).to.be.revertedWith('invalid pool path')
 
       // swap via router
       await expect(
-        this.router
+        router
           .connect(user1)
           .swapExactTokensForTokens(
             [BUSD.address, USDT.address],
@@ -268,10 +274,10 @@ describe('WombatRouter', function () {
     })
 
     it('reverts if zero address', async function () {
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
       // swap via router
       await expect(
-        this.router
+        router
           .connect(user1)
           .swapExactTokensForTokens(
             [BUSD.address, USDT.address],
@@ -285,14 +291,14 @@ describe('WombatRouter', function () {
     })
 
     it('reverts if amountOut too low', async function () {
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
       // swap via router
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountOut([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
 
       await expect(
-        this.router
+        router
           .connect(user1)
           .swapExactTokensForTokens(
             [BUSD.address, USDT.address],
@@ -311,13 +317,13 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await BUSD.balanceOf(user1.address)
       const beforeToBalance = await USDT.balanceOf(user1.address)
 
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountOut([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
       // swap via router
-      const receipt = await this.router.connect(user1).swapExactTokensForTokens(
+      const receipt = await router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, USDT.address],
         [pool1.address],
         parseEther('100'),
@@ -347,7 +353,7 @@ describe('WombatRouter', function () {
       expect(receipt)
         .to.emit(pool1, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           BUSD.address,
           USDT.address,
           parseEther('100'),
@@ -366,13 +372,13 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await BUSD.balanceOf(user1.address)
       const beforeToBalance = await USDT.balanceOf(user1.address)
 
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountOut([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
       // swap via router
-      const receipt = await this.router.connect(user1).swapExactTokensForTokens(
+      const receipt = await router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, USDT.address],
         [pool1.address],
         parseEther('100'),
@@ -407,7 +413,7 @@ describe('WombatRouter', function () {
       expect(receipt)
         .to.emit(pool1, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           BUSD.address,
           USDT.address,
           parseEther('100'),
@@ -423,14 +429,14 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await UST.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountOut([USDT.address, BUSD.address, UST.address], [pool1.address, pool2.address], parseEther('100'))
 
       // swap via router
-      const receipt = await this.router.connect(user1).swapExactTokensForTokens(
+      const receipt = await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address],
         [pool1.address, pool2.address],
         parseEther('100'),
@@ -470,18 +476,18 @@ describe('WombatRouter', function () {
       expect(receipt)
         .to.emit(pool1, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           USDT.address,
           BUSD.address,
           parseEther('100'),
           parseEther('99.864882399989350224'),
-          this.router.address
+          router.address
         )
 
       expect(receipt)
         .to.emit(pool2, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           BUSD.address,
           UST.address,
           parseEther('99.864882399989350224'),
@@ -499,14 +505,14 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await UST.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountOut([USDT.address, BUSD.address, UST.address], [pool1.address, pool2.address], parseEther('100'))
 
       // swap via router
-      const receipt = await this.router.connect(user1).swapExactTokensForTokens(
+      const receipt = await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address],
         [pool1.address, pool2.address],
         parseEther('100'),
@@ -546,18 +552,18 @@ describe('WombatRouter', function () {
       expect(receipt)
         .to.emit(pool1, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           USDT.address,
           BUSD.address,
           parseEther('100'),
           parseEther('99.90484433772444'),
-          this.router.address
+          router.address
         )
 
       expect(receipt)
         .to.emit(pool2, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           BUSD.address,
           UST.address,
           parseEther('99.90484433772444'),
@@ -572,9 +578,9 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountOut(
           [USDT.address, BUSD.address, UST.address, vUSDC.address],
@@ -583,7 +589,7 @@ describe('WombatRouter', function () {
         )
 
       // swap via router
-      const receipt = await this.router.connect(user1).swapExactTokensForTokens(
+      const receipt = await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address, vUSDC.address],
         [pool1.address, pool2.address, pool3.address],
         parseEther('100'),
@@ -633,29 +639,29 @@ describe('WombatRouter', function () {
       expect(receipt)
         .to.emit(pool1, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           USDT.address,
           BUSD.address,
           parseEther('100'),
           parseEther('99.864882399989350224'),
-          this.router.address
+          router.address
         )
 
       expect(receipt)
         .to.emit(pool2, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           BUSD.address,
           UST.address,
           parseEther('99.864882399989350224'),
           parseEther('99.730075614659868756'),
-          this.router.address
+          router.address
         )
 
       expect(receipt)
         .to.emit(pool3, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           UST.address,
           vUSDC.address,
           parseEther('99.730075614659868756'),
@@ -676,9 +682,9 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountOut(
           [USDT.address, BUSD.address, UST.address, vUSDC.address],
@@ -687,7 +693,7 @@ describe('WombatRouter', function () {
         )
 
       // swap via router
-      const receipt = await this.router.connect(user1).swapExactTokensForTokens(
+      const receipt = await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address, vUSDC.address],
         [pool1.address, pool2.address, pool3.address],
         parseEther('100'),
@@ -737,29 +743,29 @@ describe('WombatRouter', function () {
       expect(receipt)
         .to.emit(pool1, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           USDT.address,
           BUSD.address,
           parseEther('100'),
           parseEther('99.90484433772444'),
-          this.router.address
+          router.address
         )
 
       expect(receipt)
         .to.emit(pool2, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           BUSD.address,
           UST.address,
           parseEther('99.90484433772444'),
           parseEther('99.80986961082596'),
-          this.router.address
+          router.address
         )
 
       expect(receipt)
         .to.emit(pool3, 'Swap')
         .withArgs(
-          this.router.address,
+          router.address,
           UST.address,
           vUSDC.address,
           parseEther('99.80986961082596'),
@@ -777,16 +783,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await BUSD.balanceOf(user1.address)
       const beforeToBalance = await USDT.balanceOf(user1.address)
 
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.13542948011617'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, USDT.address],
         [pool1.address],
         parseEther('100.13542948011617'), // input to get exact 100 output
@@ -809,16 +815,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await vUSDC.balanceOf(user1.address)
       const beforeToBalance = await UST.balanceOf(user1.address)
 
-      await vUSDC.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await vUSDC.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([vUSDC.address, UST.address], [pool3.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.13542948', 8))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [vUSDC.address, UST.address],
         [pool3.address],
         parseUnits('100.13542948', 8), // input to get exact 100 output
@@ -841,16 +847,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await UST.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await UST.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await UST.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([UST.address, vUSDC.address], [pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.13542948011617'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [UST.address, vUSDC.address],
         [pool3.address],
         parseEther('100.13542947370139'), // input to get exact 100 output
@@ -876,16 +882,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await BUSD.balanceOf(user1.address)
       const beforeToBalance = await USDT.balanceOf(user1.address)
 
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([BUSD.address, USDT.address], [pool1.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.09533711523749'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, USDT.address],
         [pool1.address],
         parseEther('100.09533711523749'), // input to get exact 100 output
@@ -911,16 +917,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await vUSDC.balanceOf(user1.address)
       const beforeToBalance = await UST.balanceOf(user1.address)
 
-      await vUSDC.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await vUSDC.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([vUSDC.address, UST.address], [pool3.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.09533711', 8))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [vUSDC.address, UST.address],
         [pool3.address],
         parseUnits('100.09533711', 8), // input to get exact 100 output
@@ -946,16 +952,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await UST.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await UST.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await UST.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([UST.address, vUSDC.address], [pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.09533711523749'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [UST.address, vUSDC.address],
         [pool3.address],
         parseEther('100.09533710521842'), // input to get exact 100 output
@@ -978,16 +984,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await UST.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([UST.address, BUSD.address, USDT.address], [pool2.address, pool1.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.27117191063727'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address],
         [pool1.address, pool2.address],
         parseEther('100.27117191063727'), // input to get exact 100 output
@@ -1010,16 +1016,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await BUSD.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([BUSD.address, UST.address, vUSDC.address], [pool2.address, pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.27117191063727'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, UST.address, vUSDC.address],
         [pool2.address, pool3.address],
         parseEther('100.27117190420765'), // input to get exact 100 output
@@ -1042,16 +1048,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await vUSDC.balanceOf(user1.address)
       const beforeToBalance = await BUSD.balanceOf(user1.address)
 
-      await vUSDC.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await vUSDC.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([vUSDC.address, UST.address, BUSD.address], [pool3.address, pool2.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.27117191', 8))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [vUSDC.address, UST.address, BUSD.address],
         [pool3.address, pool2.address],
         parseUnits('100.27117191', 8), // input to get exact 100 output
@@ -1078,16 +1084,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await UST.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([USDT.address, BUSD.address, UST.address], [pool1.address, pool2.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.19085620299796'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address],
         [pool1.address, pool2.address],
         parseEther('100.19085620299796'), // input to get exact 100 output
@@ -1114,16 +1120,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await BUSD.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await BUSD.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await BUSD.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([BUSD.address, UST.address, vUSDC.address], [pool2.address, pool3.address], parseUnits('100', 8))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.19085620299796'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [BUSD.address, UST.address, vUSDC.address],
         [pool2.address, pool3.address],
         parseEther('100.19085619295976'), // input to get exact 100 output
@@ -1150,16 +1156,16 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await vUSDC.balanceOf(user1.address)
       const beforeToBalance = await BUSD.balanceOf(user1.address)
 
-      await vUSDC.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await vUSDC.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn([vUSDC.address, UST.address, BUSD.address], [pool3.address, pool2.address], parseEther('100'))
 
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseUnits('100.19085620', 8))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [vUSDC.address, UST.address, BUSD.address],
         [pool3.address, pool2.address],
         parseUnits('100.19085620', 8), // input to get exact 100 output
@@ -1182,9 +1188,9 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn(
           [USDT.address, BUSD.address, UST.address, vUSDC.address],
@@ -1195,7 +1201,7 @@ describe('WombatRouter', function () {
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.40722836676563'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address, vUSDC.address],
         [pool1.address, pool2.address, pool3.address],
         parseEther('100.40722836032113'), // input to get exact 100 output
@@ -1223,9 +1229,9 @@ describe('WombatRouter', function () {
       const beforeFromBalance = await USDT.balanceOf(user1.address)
       const beforeToBalance = await vUSDC.balanceOf(user1.address)
 
-      await USDT.connect(user1).approve(this.router.address, ethers.constants.MaxUint256)
+      await USDT.connect(user1).approve(router.address, ethers.constants.MaxUint256)
 
-      const [quotedAmount] = await this.router
+      const [quotedAmount] = await router
         .connect(user1)
         .getAmountIn(
           [USDT.address, BUSD.address, UST.address, vUSDC.address],
@@ -1236,7 +1242,7 @@ describe('WombatRouter', function () {
       // check if input token amount is correct
       expect(quotedAmount).to.be.equal(parseEther('100.28655778482811'))
 
-      await this.router.connect(user1).swapExactTokensForTokens(
+      await router.connect(user1).swapExactTokensForTokens(
         [USDT.address, BUSD.address, UST.address, vUSDC.address],
         [pool1.address, pool2.address, pool3.address],
         parseEther('100.28655777477072'), // input to get exact 100 output

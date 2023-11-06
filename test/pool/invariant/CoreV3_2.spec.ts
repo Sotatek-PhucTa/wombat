@@ -1,11 +1,11 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import _ from 'lodash'
-import { CoreV3 } from '../../build/typechain'
+import { CoreV3 } from '../../../build/typechain'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
-describe('CoreV3', function () {
+describe('CoreV3 (2)', function () {
   let core: CoreV3
 
   const tvl = parseEther('1000')

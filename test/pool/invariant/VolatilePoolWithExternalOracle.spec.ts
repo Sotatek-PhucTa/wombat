@@ -17,6 +17,7 @@ import { roughlyNear } from '../../assertions/roughlyNear'
 import { veryNear } from '../../assertions/veryNear'
 import { latest } from '../../helpers'
 import { near } from '../../assertions/near'
+import { restoreOrCreateSnapshot } from '../../fixtures/executions'
 
 chai.use(near)
 chai.use(veryNear)
@@ -123,26 +124,28 @@ describe('VolatilePoolWithExternalOracle - invariant', function () {
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 
-    beforeEach(async function () {
-      ;({ pool, assets, priceFeeds } = await createPool({
-        assetConfig: [
-          { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
-          { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
-          { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
-        ],
-      }))
+    beforeEach(
+      restoreOrCreateSnapshot(async function () {
+        ;({ pool, assets, priceFeeds } = await createPool({
+          assetConfig: [
+            { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
+            { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
+            { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
+          ],
+        }))
 
-      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+        await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+        await priceFeeds[1].setLatestPrice(parseEther('1200'))
 
-      await token0.approve(pool.address, ethers.constants.MaxUint256)
-      await token1.approve(pool.address, ethers.constants.MaxUint256)
+        await token0.approve(pool.address, ethers.constants.MaxUint256)
+        await token1.approve(pool.address, ethers.constants.MaxUint256)
 
-      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
-      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+        await assets[0].approve(pool.address, ethers.constants.MaxUint256)
+        await assets[1].approve(pool.address, ethers.constants.MaxUint256)
 
-      expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('0.4775'))
-    })
+        expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('0.4775'))
+      })
+    )
 
     it('r* is not changed by swaps', async function () {
       const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
@@ -207,28 +210,30 @@ describe('VolatilePoolWithExternalOracle - invariant', function () {
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 
-    beforeEach(async function () {
-      ;({ pool, assets, priceFeeds } = await createPool({
-        assetConfig: [
-          { cash: parseEther('80000'), liability: parseEther('100000'), underlyingToken: token0 },
-          { cash: parseEther('130'), liability: parseEther('200'), underlyingToken: token1 },
-          { cash: parseEther('2000000'), liability: parseEther('1000000'), underlyingToken: token2 },
-        ],
-      }))
+    beforeEach(
+      restoreOrCreateSnapshot(async function () {
+        ;({ pool, assets, priceFeeds } = await createPool({
+          assetConfig: [
+            { cash: parseEther('80000'), liability: parseEther('100000'), underlyingToken: token0 },
+            { cash: parseEther('130'), liability: parseEther('200'), underlyingToken: token1 },
+            { cash: parseEther('2000000'), liability: parseEther('1000000'), underlyingToken: token2 },
+          ],
+        }))
 
-      await pool.setShouldCapEquilCovRatio(false)
+        await pool.setShouldCapEquilCovRatio(false)
 
-      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+        await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+        await priceFeeds[1].setLatestPrice(parseEther('1200'))
 
-      await token0.approve(pool.address, ethers.constants.MaxUint256)
-      await token1.approve(pool.address, ethers.constants.MaxUint256)
+        await token0.approve(pool.address, ethers.constants.MaxUint256)
+        await token1.approve(pool.address, ethers.constants.MaxUint256)
 
-      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
-      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+        await assets[0].approve(pool.address, ethers.constants.MaxUint256)
+        await assets[1].approve(pool.address, ethers.constants.MaxUint256)
 
-      expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('1.638'))
-    })
+        expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('1.638'))
+      })
+    )
 
     it('r* is not changed by swaps', async function () {
       const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
@@ -293,28 +298,30 @@ describe('VolatilePoolWithExternalOracle - invariant', function () {
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 
-    beforeEach(async function () {
-      ;({ pool, assets, priceFeeds } = await createPool({
-        assetConfig: [
-          { cash: parseEther('80000'), liability: parseEther('100000'), underlyingToken: token0 },
-          { cash: parseEther('130'), liability: parseEther('200'), underlyingToken: token1 },
-          { cash: parseEther('2000000'), liability: parseEther('1000000'), underlyingToken: token2 },
-        ],
-      }))
+    beforeEach(
+      restoreOrCreateSnapshot(async function () {
+        ;({ pool, assets, priceFeeds } = await createPool({
+          assetConfig: [
+            { cash: parseEther('80000'), liability: parseEther('100000'), underlyingToken: token0 },
+            { cash: parseEther('130'), liability: parseEther('200'), underlyingToken: token1 },
+            { cash: parseEther('2000000'), liability: parseEther('1000000'), underlyingToken: token2 },
+          ],
+        }))
 
-      await pool.setShouldCapEquilCovRatio(true)
+        await pool.setShouldCapEquilCovRatio(true)
 
-      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+        await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+        await priceFeeds[1].setLatestPrice(parseEther('1200'))
 
-      await token0.approve(pool.address, ethers.constants.MaxUint256)
-      await token1.approve(pool.address, ethers.constants.MaxUint256)
+        await token0.approve(pool.address, ethers.constants.MaxUint256)
+        await token1.approve(pool.address, ethers.constants.MaxUint256)
 
-      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
-      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+        await assets[0].approve(pool.address, ethers.constants.MaxUint256)
+        await assets[1].approve(pool.address, ethers.constants.MaxUint256)
 
-      expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('1.638'))
-    })
+        expect((await pool.globalEquilCovRatio()).equilCovRatio).to.be.near(parseEther('1.638'))
+      })
+    )
 
     it('r* is not changed by swaps', async function () {
       const equilCovRatio0 = (await pool.globalEquilCovRatio()).equilCovRatio
@@ -370,21 +377,23 @@ describe('VolatilePoolWithExternalOracle - invariant', function () {
     let assets: PriceFeedAsset[]
     let priceFeeds: GovernedPriceFeed[]
 
-    beforeEach(async function () {
-      ;({ pool, assets, priceFeeds } = await createPool({
-        assetConfig: [
-          { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
-          { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
-          { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
-        ],
-      }))
+    beforeEach(
+      restoreOrCreateSnapshot(async function () {
+        ;({ pool, assets, priceFeeds } = await createPool({
+          assetConfig: [
+            { cash: parseEther('150000'), liability: parseEther('100000'), underlyingToken: token0 },
+            { cash: parseEther('50'), liability: parseEther('200'), underlyingToken: token1 },
+            { cash: parseEther('10000'), liability: parseEther('10000'), underlyingToken: token2 },
+          ],
+        }))
 
-      await priceFeeds[0].setLatestPrice(parseEther('1.06'))
-      await priceFeeds[1].setLatestPrice(parseEther('1200'))
+        await priceFeeds[0].setLatestPrice(parseEther('1.06'))
+        await priceFeeds[1].setLatestPrice(parseEther('1200'))
 
-      await assets[1].approve(pool.address, ethers.constants.MaxUint256)
-      await assets[0].approve(pool.address, ethers.constants.MaxUint256)
-    })
+        await assets[1].approve(pool.address, ethers.constants.MaxUint256)
+        await assets[0].approve(pool.address, ethers.constants.MaxUint256)
+      })
+    )
 
     it('withdrawal haircut is applied', async function () {
       // quote withdrawal, haircut = 0.005

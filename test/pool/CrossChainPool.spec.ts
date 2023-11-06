@@ -15,6 +15,7 @@ import {
   MockAdaptor__factory,
   TestERC20__factory,
 } from '../../build/typechain'
+import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 describe('CrossChainPool', function () {
   let owner: SignerWithAddress
@@ -58,45 +59,47 @@ describe('CrossChainPool', function () {
     })) as CrossChainPool__factory
   })
 
-  beforeEach(async function () {
-    // Deploy with factories
-    token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
-    token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 6, parseUnits('10000000', 6)) // 10 mil vUSDC
-    token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
-    token3 = await TestERC20Factory.deploy('USD Tether', 'USDT', 8, parseUnits('1000000', 8)) // 1 mil USDT
-    asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
-    asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
-    asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
-    asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP')
-    pool = await PoolFactory.connect(owner).deploy()
-    mockAdaptor = await MockAdaptorFactory.deploy()
+  beforeEach(
+    restoreOrCreateSnapshot(async function () {
+      // Deploy with factories
+      token0 = await TestERC20Factory.deploy('Binance USD', 'BUSD', 18, parseUnits('1000000', 18)) // 1 mil BUSD
+      token1 = await TestERC20Factory.deploy('Venus USDC', 'vUSDC', 6, parseUnits('10000000', 6)) // 10 mil vUSDC
+      token2 = await TestERC20Factory.deploy('PancakeSwap Token', 'CAKE', 18, parseUnits('1000000', 18)) // 1 mil CAKE
+      token3 = await TestERC20Factory.deploy('USD Tether', 'USDT', 8, parseUnits('1000000', 8)) // 1 mil USDT
+      asset0 = await AssetFactory.deploy(token0.address, 'Binance USD LP', 'BUSD-LP')
+      asset1 = await AssetFactory.deploy(token1.address, 'Venus USDC LP', 'vUSDC-LP')
+      asset2 = await AssetFactory.deploy(token2.address, 'PancakeSwap Token LP', 'CAKE-LP')
+      asset3 = await AssetFactory.deploy(token3.address, 'USD Tether Token LP', 'USDT-LP')
+      pool = await PoolFactory.connect(owner).deploy()
+      mockAdaptor = await MockAdaptorFactory.deploy()
 
-    // set pool address
-    await Promise.all([
-      asset0.setPool(pool.address),
-      asset1.setPool(pool.address),
-      asset2.setPool(pool.address),
-      asset3.setPool(pool.address),
-    ])
+      // set pool address
+      await Promise.all([
+        asset0.setPool(pool.address),
+        asset1.setPool(pool.address),
+        asset2.setPool(pool.address),
+        asset3.setPool(pool.address),
+      ])
 
-    // initialize pool contract
-    await pool.initialize(parseEther('0.002'), parseEther('0.0004'))
-    await pool.setAdaptorAddr(mockAdaptor.address)
+      // initialize pool contract
+      await pool.initialize(parseEther('0.002'), parseEther('0.0004'))
+      await pool.setAdaptorAddr(mockAdaptor.address)
 
-    await mockAdaptor.initialize(0, pool.address)
+      await mockAdaptor.initialize(0, pool.address)
 
-    // Add BUSD & USDC & USDT assets to pool
-    await pool.connect(owner).addAsset(token0.address, asset0.address)
-    await pool.connect(owner).addAsset(token1.address, asset1.address)
-    await pool.connect(owner).addAsset(token2.address, asset2.address)
-    await pool.connect(owner).addAsset(token3.address, asset3.address)
+      // Add BUSD & USDC & USDT assets to pool
+      await pool.connect(owner).addAsset(token0.address, asset0.address)
+      await pool.connect(owner).addAsset(token1.address, asset1.address)
+      await pool.connect(owner).addAsset(token2.address, asset2.address)
+      await pool.connect(owner).addAsset(token3.address, asset3.address)
 
-    await pool.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
-    await pool.setMaximumOutboundCredit(parseEther('100000'))
-    await pool.setSwapTokensForCreditEnabled(true)
-    await pool.setSwapCreditForTokensEnabled(true)
-    await mockAdaptor.approveToken(0, AddressZero)
-  })
+      await pool.connect(owner).setCrossChainHaircut(0, parseEther('0.004'))
+      await pool.setMaximumOutboundCredit(parseEther('100000'))
+      await pool.setSwapTokensForCreditEnabled(true)
+      await pool.setSwapCreditForTokensEnabled(true)
+      await mockAdaptor.approveToken(0, AddressZero)
+    })
+  )
 
   describe('Utils', function () {
     beforeEach(async function () {
