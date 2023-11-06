@@ -19,6 +19,7 @@ abstract contract LzAppUpgradable is Initializable, OwnableUpgradeable, ILayerZe
 
     // ua can not send payload larger than this by default, but it can be changed by the ua owner
     uint public constant DEFAULT_PAYLOAD_SIZE_LIMIT = 10000;
+    uint public constant DEFAULT_GAS_LIMIT_MINIMUM = 200000;
 
     ILayerZeroEndpoint public lzEndpoint;
     mapping(uint16 => bytes) public trustedRemoteLookup;
@@ -80,13 +81,13 @@ abstract contract LzAppUpgradable is Initializable, OwnableUpgradeable, ILayerZe
     function _checkGasLimit(
         uint16 _dstChainId,
         uint16 _type,
-        bytes memory _adapterParams,
-        uint _extraGas
+        uint _gasLimit
     ) internal view virtual {
-        uint providedGasLimit = _getGasLimit(_adapterParams);
         uint minGasLimit = minDstGasLookup[_dstChainId][_type];
-        require(minGasLimit > 0, "LzApp: minGasLimit not set");
-        require(providedGasLimit >= minGasLimit + _extraGas, "LzApp: gas limit is too low");
+        if (minGasLimit == 0) {
+            minGasLimit = DEFAULT_GAS_LIMIT_MINIMUM;
+        }
+        require(_gasLimit >= minGasLimit, "LzApp: gas limit is too low");
     }
 
     function _getGasLimit(bytes memory _adapterParams) internal pure virtual returns (uint gasLimit) {

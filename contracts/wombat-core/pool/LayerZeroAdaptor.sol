@@ -56,16 +56,16 @@ contract LayerZeroAdaptor is Adaptor, NonblockingLzAppUpgradable {
         // Unused `deliveryGasLimit` is sent to the `refundAddress` (`receiver`).
 
         require(toChain <= type(uint16).max, 'invalid chain ID');
+        _checkGasLimit(uint16(toChain), receiverValue > 0 ? 2 : 1, deliveryGasLimit);
 
-        // destChain(16bit) | nonce(64bit)
-        sequence = uint256(lzEndpoint.getOutboundNonce(uint16(toChain), address(this))) + 1;
-        lzEndpoint.send{value: msg.value}(
+        sequence = 0;
+        _lzSend(
             uint16(toChain),
-            trustedRemoteLookup[uint16(toChain)],
             _encode(toToken, fromAmount, minimumToAmount, receiver),
             payable(receiver),
             address(0),
-            _getAdapterParams(receiver, receiverValue, deliveryGasLimit)
+            _getAdapterParams(receiver, receiverValue, deliveryGasLimit),
+            msg.value
         );
     }
 
