@@ -208,7 +208,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
 
         fromAsset.addCash(fromAmount - fromTokenFee);
         totalCreditMinted += _to128(creditAmount);
-        _feeCollected[fromAsset] += fromTokenFee; // unlike other swaps, fee is collected in from token
+        _feeAndReserve[fromAsset].feeCollected += fromTokenFee.to128(); // unlike other swaps, fee is collected in from token
 
         // Check it doesn't exceed maximum out-going credits
         if (totalCreditMinted > maximumOutboundCredit + totalCreditBurned) revert POOL__REACH_MAXIMUM_MINTED_CREDIT();
@@ -267,7 +267,7 @@ contract CrossChainPool is HighCovRatioFeePoolV3, ICrossChainPool {
         );
 
         _checkAmount(minimumToAmount, actualToAmount);
-        _feeCollected[toAsset] += toTokenFee;
+        _feeAndReserve[toAsset].feeCollected += toTokenFee.to128();
 
         // fee is removed from cash to maintain r* = 1. It is distributed during _mintFee()
         toAsset.removeCash(actualToAmount + toTokenFee);

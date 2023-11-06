@@ -34,19 +34,40 @@ contract DynamicPoolV3 is HighCovRatioFeePoolV3 {
         return (1e18 * fromAssetRelativePrice) / toAssetRelativePrice;
     }
 
+    function _globalInvariantFunc() internal view override returns (int256 D, int256 SL) {
+        uint256 assetCount = _sizeOfAssetList();
+
+        uint256[] memory cashes = new uint256[](assetCount);
+        uint256[] memory liabilities = new uint256[](assetCount);
+        uint256[] memory priceScales = new uint256[](assetCount);
+
+        for (uint256 i; i < assetCount; ++i) {
+            IAsset asset = _getAsset(_getKeyAtIndex(i));
+
+            cashes[i] = asset.cash();
+            liabilities[i] = asset.liability();
+            priceScales[i] = IRelativePriceProvider(address(asset)).getRelativePrice();
+        }
+
+        return _globalInvariantFunc(cashes, liabilities, priceScales);
+    }
+
     /**
      * @dev Invariant: D = Sum of P_i * L_i * (r_i - A / r_i)
      */
-    function _globalInvariantFunc() internal view override returns (int256 D, int256 SL) {
+    function _globalInvariantFunc(
+        uint256[] memory cashes,
+        uint256[] memory liabilities,
+        uint256[] memory priceScales
+    ) internal view returns (int256 D, int256 SL) {
         int256 A = ampFactor.toInt256();
+        uint256 assetCount = cashes.length;
 
-        for (uint256 i; i < _sizeOfAssetList(); ++i) {
-            IAsset asset = _getAsset(_getKeyAtIndex(i));
-
+        for (uint256 i; i < assetCount; ++i) {
             // overflow is unrealistic
-            int256 A_i = int256(uint256(asset.cash()));
-            int256 L_i = int256(uint256(asset.liability()));
-            int256 P_i = IRelativePriceProvider(address(asset)).getRelativePrice().toInt256();
+            int256 A_i = int256(cashes[i]);
+            int256 L_i = int256(liabilities[i]);
+            int256 P_i = priceScales[i].toInt256();
 
             // Assume when L_i == 0, A_i always == 0
             if (L_i == 0) {

@@ -52,6 +52,11 @@ contract PoolV3 is
         mapping(address => uint256) indexOf;
     }
 
+    struct FeeAndReserve {
+        uint128 feeCollected; // 18 decimals
+        uint128 reserveForRepegging; // 18 decimals
+    }
+
     int256 internal constant WAD_I = 10 ** 18;
     uint256 internal constant WAD = 10 ** 18;
 
@@ -80,7 +85,7 @@ contract PoolV3 is
     address public masterWombat;
 
     /// @notice Dividend collected by each asset (unit: WAD)
-    mapping(IAsset => uint256) internal _feeCollected;
+    mapping(IAsset => FeeAndReserve) internal _feeAndReserve;
 
     /// @notice A record of assets inside Pool
     AssetMap internal _assets;
@@ -146,7 +151,7 @@ contract PoolV3 is
     error WOMBAT_AMOUNT_TOO_LOW();
     error WOMBAT_CASH_NOT_ENOUGH();
 
-    /* Pesudo modifiers to safe gas */
+    /* Pesudo modifiers to save gas */
 
     function _checkLiquidity(uint256 liquidity) internal pure {
         if (liquidity == 0) revert WOMBAT_ZERO_LIQUIDITY();
@@ -570,8 +575,15 @@ contract PoolV3 is
             revert WOMBAT_FORBIDDEN();
 
         if (withdrawalHaircut > 0) {
-            _feeCollected[asset] += withdrawalHaircut;
+            _accumulateFee(asset, withdrawalHaircut);
         }
+    }
+
+    /**
+     * @notice Accumulate fee collected into the fee counter
+     */
+    function _accumulateFee(IAsset asset, uint256 amount) internal virtual {
+        _feeAndReserve[asset].feeCollected += amount.to128();
     }
 
     /**
@@ -756,7 +768,7 @@ contract PoolV3 is
         (actualToAmount, toTokenFee) = _quoteFrom(fromAsset, toAsset, fromAmount.toInt256());
         _checkAmount(minimumToAmount, actualToAmount);
 
-        _feeCollected[toAsset] += toTokenFee;
+        _accumulateFee(toAsset, toTokenFee);
 
         fromAsset.addCash(fromAmount);
 
@@ -768,7 +780,14 @@ contract PoolV3 is
 
         // revert if cov ratio < 1% to avoid precision error
         if (uint256(toAsset.cash()).wdiv(toAsset.liability()) < WAD / 100) revert WOMBAT_FORBIDDEN();
+
+        _postSwapHook();
     }
+
+    /**
+     * @notice This function is called after a swap, to be overridden
+     */
+    function _postSwapHook() internal virtual {}
 
     /**
      * @notice Swap fromToken for toToken, ensures deadline and minimumToAmount and sends quoted amount to `to` address
@@ -883,10 +902,15 @@ contract PoolV3 is
         equilCovRatio = CoreV3.equilCovRatio(invariant, SL, ampFactor.toInt256());
     }
 
+    /**
+     * @dev return balance in WAD
+     */
     function tipBucketBalance(address token) public view returns (uint256 balance) {
         IAsset asset = _assetOf(token);
         return
-            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) - asset.cash() - _feeCollected[asset];
+            asset.underlyingTokenBalance().toWad(asset.underlyingTokenDecimals()) -
+            asset.cash() -
+            _feeAndReserve[asset].feeCollected;
     }
 
     /* Utils */
@@ -924,7 +948,7 @@ contract PoolV3 is
     }
 
     function _mintFeeIfNeeded(IAsset asset) internal {
-        uint256 feeCollected = _feeCollected[asset];
+        uint256 feeCollected = _feeAndReserve[asset].feeCollected;
         if (feeCollected == 0 || feeCollected < mintFeeThreshold) {
             return;
         } else {
@@ -937,7 +961,7 @@ contract PoolV3 is
      * @param asset The address of the asset to collect fee
      */
     function _mintFee(IAsset asset) internal returns (uint256 feeCollected) {
-        feeCollected = _feeCollected[asset];
+        feeCollected = _feeAndReserve[asset].feeCollected;
         if (feeCollected == 0) {
             // early return
             return 0;
@@ -968,7 +992,7 @@ contract PoolV3 is
         }
         // remainings are sent to the tipbucket
 
-        _feeCollected[asset] = 0;
+        _feeAndReserve[asset].feeCollected = 0;
     }
 
     function _mintAllFees() internal {

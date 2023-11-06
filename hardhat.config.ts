@@ -23,7 +23,7 @@ const config: HardhatUserConfig = {
       // Use free gas so any test account works.
       gasPrice: 0,
       initialBaseFeePerGas: 0,
-      allowUnlimitedContractSize: false,
+      allowUnlimitedContractSize: true, // TODO: unset after reducing contract size for volatile pool
     },
     [Network.LOCALHOST]: {},
     [Network.BSC_TESTNET]: {
