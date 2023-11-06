@@ -6,7 +6,7 @@ import { Contract, ContractFactory } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { parseEther } from 'ethers/lib/utils'
 import { latest } from '../helpers'
-import { CrossChainPool__factory } from '../../build/typechain'
+import { CoreV4, CrossChainPool__factory } from '../../build/typechain'
 import { restoreOrCreateSnapshot } from '../fixtures/executions'
 
 const { expect } = chai
@@ -17,6 +17,7 @@ describe('Pool - Utils', function () {
   let AssetFactory: ContractFactory
   let TestERC20Factory: ContractFactory
   let PoolFactory: ContractFactory
+  let coreV4: CoreV4
   let poolContract: Contract
   let token0: Contract // BUSD
   let token1: Contract // USDC
@@ -32,10 +33,10 @@ describe('Pool - Utils', function () {
       // Get Factories
       AssetFactory = await ethers.getContractFactory('Asset')
       TestERC20Factory = await ethers.getContractFactory('TestERC20')
-      const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-      const coreV3 = await CoreV3Factory.deploy()
-      PoolFactory = (await ethers.getContractFactory('PoolV3', {
-        libraries: { CoreV3: coreV3.address },
+      const CoreV4Factory = await ethers.getContractFactory('CoreV4')
+      coreV4 = (await CoreV4Factory.deploy()) as CoreV4
+      PoolFactory = (await ethers.getContractFactory('PoolV4', {
+        libraries: { CoreV4: coreV4.address },
       })) as CrossChainPool__factory
 
       // Deploy with factories

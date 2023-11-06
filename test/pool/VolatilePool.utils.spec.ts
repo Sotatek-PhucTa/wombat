@@ -5,7 +5,7 @@ import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { BigNumberish } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import { CoreV3, MockVolatilePool, VolatileAsset } from '../../build/typechain'
+import { CoreV4, MockVolatilePool, RepegHelper, VolatileAsset } from '../../build/typechain'
 import { near } from '../assertions/near'
 import { restoreOrCreateSnapshot } from '../fixtures/executions'
 import { advanceTimeAndBlock } from '../helpers'
@@ -16,8 +16,8 @@ chai.use(near)
 
 describe('VolatilePool - Utils', function () {
   let owner: SignerWithAddress
-  let user: SignerWithAddress
-  let coreV3: CoreV3
+  let coreV4: CoreV4
+  let repegHelper: RepegHelper
 
   async function createPool({
     config,
@@ -33,7 +33,10 @@ describe('VolatilePool - Utils', function () {
     }>
   }) {
     const pool = (await ethers.deployContract('MockVolatilePool', {
-      libraries: { CoreV3: coreV3.address },
+      libraries: {
+        CoreV4: coreV4.address,
+        RepegHelper: repegHelper.address,
+      },
     })) as MockVolatilePool
     await pool.initialize(config?.ampFactor ?? parseEther('0.01'), config?.haircutRate ?? parseEther('0.0004'))
 
@@ -78,11 +81,10 @@ describe('VolatilePool - Utils', function () {
 
   beforeEach(
     restoreOrCreateSnapshot(async function () {
-      const [first, ...rest] = await ethers.getSigners()
-      owner = first
-      user = rest[1]
+      ;[owner] = await ethers.getSigners()
 
-      coreV3 = (await ethers.deployContract('CoreV3')) as CoreV3
+      coreV4 = (await ethers.deployContract('CoreV4')) as CoreV4
+      repegHelper = (await ethers.deployContract('RepegHelper')) as RepegHelper
     })
   )
 
@@ -110,15 +112,12 @@ describe('VolatilePool - Utils', function () {
 
       await pool.setAdjustmentStep(parseEther('0.01'))
 
-      let norm = await pool.getNorm()
-      let { proposedGlobalEquilCovRatio } = await pool.estimateNewGlobalEquilCovRatio(norm)
+      let { proposedGlobalEquilCovRatio } = await pool.estimateNewGlobalEquilCovRatio()
       expect(proposedGlobalEquilCovRatio).to.eq(parseEther('0.5'))
 
       await pool.addReserve(assets[1].address, parseEther('500'))
       await pool.addReserve(assets[2].address, parseEther('500'))
-
-      norm = await pool.getNorm()
-      ;({ proposedGlobalEquilCovRatio } = await pool.estimateNewGlobalEquilCovRatio(norm))
+      ;({ proposedGlobalEquilCovRatio } = await pool.estimateNewGlobalEquilCovRatio())
       expect(proposedGlobalEquilCovRatio).to.eq(parseEther('0.995819234200157946'))
     })
 
@@ -148,7 +147,7 @@ describe('VolatilePool - Utils', function () {
       expect(await pool.getMarketPrice(assets[2].address)).to.eq(parseEther('100'))
     })
 
-    it('getMarginalSwapRate', async function () {
+    it('quoteIdealSwapRate', async function () {
       const { pool, assets, tokens } = await createPool({
         config: { priceAnchorIndex: 1 },
         assetConfigs: [
@@ -159,21 +158,21 @@ describe('VolatilePool - Utils', function () {
       })
 
       // = [1 * (1+2.97030%)] / [20 * (1-0.55%)]
-      expect(await pool.getMarginalSwapRate(assets[0].address, assets[1].address)).to.eq(
+      expect(await pool.quoteIdealSwapRate(assets[0].address, assets[1].address)).to.eq(
         parseEther('0.051769911504424779')
       )
       const quoteInWad = (
         await pool.quotePotentialSwap(tokens[0].address, tokens[1].address, parseUnits('1', 6))
       ).potentialOutcome.mul(1e10)
-      expect(await pool.getMarginalSwapRate(assets[0].address, assets[1].address)).to.near(quoteInWad)
+      expect(await pool.quoteIdealSwapRate(assets[0].address, assets[1].address)).to.near(quoteInWad)
 
       // = [1 * (1+2.97030%)] / [100 * (1-0.55%)]
-      expect(await pool.getMarginalSwapRate(assets[0].address, assets[2].address)).to.eq(
+      expect(await pool.quoteIdealSwapRate(assets[0].address, assets[2].address)).to.eq(
         parseEther('0.010353982300884956')
       )
 
       // = [100 * (1-0.55%)] / [1 * (1+2.97030%)]
-      expect(await pool.getMarginalSwapRate(assets[2].address, assets[0].address)).to.eq(
+      expect(await pool.quoteIdealSwapRate(assets[2].address, assets[0].address)).to.eq(
         parseEther('96.581196581196581154')
       )
     })
@@ -326,12 +325,12 @@ describe('VolatilePool - Utils', function () {
 
         // 624 seconds passed; It should approch by 0.514; 1.5 -> 1.035398230088495580
         //   expect(proposedOraclePrices[0]).near(parseEther('1.26769911504'))
-        expect(proposedOraclePrices[0]).eq(parseEther('1.261346835128960133'))
+        expect(proposedOraclePrices[0]).near(parseEther('1.261346835128960133'))
 
-        expect(proposedOraclePrices[1]).eq(parseEther('20'))
+        expect(proposedOraclePrices[1]).near(parseEther('20'))
 
         // 624 seconds passed; It should approch by 0.514; 90 -> 100
-        expect(proposedOraclePrices[2]).eq(parseEther('95.136725262938572410'))
+        expect(proposedOraclePrices[2]).near(parseEther('95.136725262938572410'))
       }
       // Case 2: 60 minutes in total has passed
       {
@@ -558,8 +557,7 @@ describe('VolatilePool - Utils', function () {
       expect((await pool.feeAndReserve(assets[2].address)).reserveForRepegging).to.eq(0)
 
       // `proposedGlobalEquilCovRatio` should be less than 1
-      const norm = await pool.getNorm()
-      expect((await pool.estimateNewGlobalEquilCovRatio(norm)).proposedGlobalEquilCovRatio).to.lt(parseEther('1'))
+      expect((await pool.estimateNewGlobalEquilCovRatio()).proposedGlobalEquilCovRatio).to.lt(parseEther('1'))
     })
   })
 

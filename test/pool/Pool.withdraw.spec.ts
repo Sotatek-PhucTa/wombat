@@ -23,7 +23,7 @@ describe('Pool - Withdraw', function () {
   let asset0: Contract // BUSD LP
   let asset1: Contract // vUSDC LP
   let asset2: Contract // CAKE LP
-  let coreV3: Contract
+  let coreV4: Contract
   let lastBlockTime: number
   let fiveSecondsSince: number
   let fiveSecondsAgo: number
@@ -44,10 +44,10 @@ describe('Pool - Withdraw', function () {
       // Get Factories
       AssetFactory = await ethers.getContractFactory('Asset')
       TestERC20Factory = await ethers.getContractFactory('TestERC20')
-      const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-      coreV3 = await CoreV3Factory.deploy()
-      PoolFactory = (await ethers.getContractFactory('PoolV3', {
-        libraries: { CoreV3: coreV3.address },
+      const CoreV4Factory = await ethers.getContractFactory('CoreV4')
+      coreV4 = await CoreV4Factory.deploy()
+      PoolFactory = (await ethers.getContractFactory('PoolV4', {
+        libraries: { CoreV4: coreV4.address },
       })) as CrossChainPool__factory
 
       // Deploy with factories
@@ -250,7 +250,7 @@ describe('Pool - Withdraw', function () {
 
       it('reverts when withdraw all liquidity', async function () {
         await expect(withdrawFromOtherAsset(owner, parseEther('10.1'), token1, token0)).to.be.revertedWithCustomError(
-          coreV3,
+          coreV4,
           'CORE_UNDERFLOW'
         )
       })

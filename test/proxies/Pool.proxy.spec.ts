@@ -1,6 +1,6 @@
 import { parseEther } from '@ethersproject/units'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import chai, { expect } from 'chai'
+import { expect } from 'chai'
 
 import { Contract, ContractFactory } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'

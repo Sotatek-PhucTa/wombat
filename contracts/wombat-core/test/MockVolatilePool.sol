@@ -5,28 +5,32 @@ import '../pool/VolatilePool.sol';
 
 contract MockVolatilePool is VolatilePool {
     function getNormalizedAdjustmentStep(uint256 norm) external view returns (uint256) {
-        return super._getNormalizedAdjustmentStep(norm);
+        return RepegHelper._getNormalizedAdjustmentStep(repegData, norm);
     }
 
     function getCashValuesWithReserve() external view returns (uint256[] memory cashValuesWithReserve) {
-        return super._getCashValuesWithReserve();
+        return RepegHelper._getCashValuesWithReserve(poolData.assets, poolData.feeAndReserve);
     }
 
     function getProposedPriceScales(
         uint256 normalizedAdjustmentStep
     ) external view returns (uint256[] memory proposedScales) {
-        return super._getProposedPriceScales(normalizedAdjustmentStep);
+        return RepegHelper._getProposedPriceScales(repegData, poolData.assets, normalizedAdjustmentStep);
     }
 
     function getProposedOraclePrices() external view returns (uint256[] memory proposedOracles) {
-        return super._getProposedOraclePrices();
+        return RepegHelper._getProposedOraclePrices(repegData, poolData.assets, poolData.ampFactor);
+    }
+
+    function getNorm() external view returns (uint256) {
+        return RepegHelper._getNorm(poolData.assets);
     }
 
     function addReserve(IAsset asset, uint128 amount) external {
-        _feeAndReserve[asset].reserveForRepegging += amount;
+        poolData.feeAndReserve[asset].reserveForRepegging += amount;
     }
 
     function feeAndReserve(IAsset asset) external view returns (FeeAndReserve memory) {
-        return _feeAndReserve[asset];
+        return poolData.feeAndReserve[asset];
     }
 }

@@ -35,10 +35,10 @@ describe('Pool - Fee', function () {
     // Get Factories
     AssetFactory = await ethers.getContractFactory('Asset')
     TestERC20Factory = await ethers.getContractFactory('TestERC20')
-    const CoreV3Factory = await ethers.getContractFactory('CoreV3')
-    const coreV3 = await CoreV3Factory.deploy()
-    PoolFactory = (await ethers.getContractFactory('PoolV3', {
-      libraries: { CoreV3: coreV3.address },
+    const CoreV4Factory = await ethers.getContractFactory('CoreV4')
+    const coreV4 = await CoreV4Factory.deploy()
+    PoolFactory = (await ethers.getContractFactory('PoolV4', {
+      libraries: { CoreV4: coreV4.address },
     })) as CrossChainPool__factory
   })
 
@@ -514,7 +514,7 @@ describe('Pool - Fee', function () {
           fiveSecondsSince
         )
 
-        // trigger PoolV3._mintAllFees
+        // trigger PoolV4._mintAllFees
         await poolContract.setFee(0, 0)
 
         // mint fee immediately
