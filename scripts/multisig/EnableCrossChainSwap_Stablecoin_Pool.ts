@@ -12,6 +12,7 @@ const NETWORKS = [
   Network.ETHEREUM_MAINNET,
   Network.ARBITRUM_MAINNET,
   Network.BASE_MAINNET,
+  Network.OPTIMISM_MAINNET,
 ]
 
 runScript('EnableCrossChainSwap_Stablecoin_Pool', async () => {
