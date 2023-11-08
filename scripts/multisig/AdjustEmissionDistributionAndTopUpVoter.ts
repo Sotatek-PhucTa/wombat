@@ -19,17 +19,17 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 450_000
-    BRIBE_ALLOC_PERCENT = 54.84
+    WOM_MONTHLY_EMISSION_RATE = 370_000
+    BRIBE_ALLOC_PERCENT = 54.1
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.78,
-      Asset_Stablecoin_Pool_USDC: 1.78,
+      Asset_Stablecoin_Pool_USDT: 2.16,
+      Asset_Stablecoin_Pool_USDC: 2.16,
       // Main Pool
       Asset_MainPool_USDCe: 15.51,
       Asset_MainPool_USDT: 13.05,
       Asset_MainPool_DAI: 5.42,
-      Asset_MainPool_USDC: 6.02,
+      Asset_MainPool_USDC: 6,
       // wmxWOM Pool
       Asset_wmxWOM_Pool_wmxWOM: 0.39,
       Asset_wmxWOM_Pool_WOM: 0.39,
@@ -41,20 +41,20 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_qWOM_Pool_WOM: 0.1,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 2_400_000
-    BRIBE_ALLOC_PERCENT = 90.8
+    WOM_MONTHLY_EMISSION_RATE = 1_950_000
+    BRIBE_ALLOC_PERCENT = 90.34
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.05,
-      Asset_Stablecoin_Pool_USDC: 1.05,
+      Asset_Stablecoin_Pool_USDT: 1.3,
+      Asset_Stablecoin_Pool_USDC: 1.3,
       // Main Pool
       Asset_MainPool_USDC: 3.1,
       Asset_MainPool_USDT: 3.2,
       Asset_MainPool_BUSD: 0,
       Asset_MainPool_DAI: 0.2,
       // wmxWOM Pool
-      Asset_wmxWOMPool_wmxWOM: 0.15,
-      Asset_wmxWOMPool_WOM: 0.15,
+      Asset_wmxWOMPool_wmxWOM: 0.13,
+      Asset_wmxWOMPool_WOM: 0.13,
       // mWOM Pool
       Asset_mWOMPool_mWOM: 0.125,
       Asset_mWOMPool_WOM: 0.125,
@@ -66,12 +66,12 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_wBETH_Pool_ETH: 0,
     }
   } else if (network == Network.ETHEREUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 680_000
-    BRIBE_ALLOC_PERCENT = 92.6
+    WOM_MONTHLY_EMISSION_RATE = 550_000
+    BRIBE_ALLOC_PERCENT = 90.91
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 3.7,
-      Asset_Stablecoin_Pool_USDC: 3.7,
+      Asset_Stablecoin_Pool_USDT: 4.55,
+      Asset_Stablecoin_Pool_USDC: 4.55,
     }
   }
 

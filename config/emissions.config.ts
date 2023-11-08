@@ -94,11 +94,13 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       ...defaultRewarder(),
       lpToken: Address('0x16B37225889A038FAD42efdED462821224A509A7'),
       rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('17040'))],
     },
     BnbxPool_WBNB: {
       ...defaultRewarder(),
       lpToken: Address('0x0321D1D769cc1e81Ba21a157992b635363740f86'),
       rewardTokens: [Token.WOM],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1225'))],
     },
     stkBnb: {
       ...defaultRewarder(),
@@ -433,13 +435,13 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.AVALANCHE_MAINNET]: {
     ...createRewarderForDeployedAsset('Asset_sAVAX_Pool_WAVAX', {
       rewardTokens: [Token.WOM, Token.BENQI],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('17316')), '378086408730158750'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('39143')), '378086408730158750'],
       isV2: true,
       address: Address('0x09EaF2821728A380Bd111fb2d42BB43bb01984a6'),
     }),
     ...createRewarderForDeployedAsset('Asset_sAVAX_Pool_sAVAX', {
       rewardTokens: [Token.WOM, Token.BENQI],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('7426')), '162037037037037030'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('16775')), '162037037037037030'],
       isV2: true,
       address: Address('0x53BDB6De1dF8C869420dD8363dD90A8b9eeeb80A'),
     }),
