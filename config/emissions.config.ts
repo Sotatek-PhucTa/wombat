@@ -172,7 +172,7 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
     }),
     ...createRewarderForDeployedAsset('Asset_stables_01_FRAX', {
       rewardTokens: [Token.WOM],
-      tokenPerSec: [0],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('3898'))],
     }),
     ...createRewarderForDeployedAsset('Asset_BNBy_Pool_WBNB', {
       rewardTokens: [Token.TENFI],
