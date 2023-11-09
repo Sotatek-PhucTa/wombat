@@ -78,6 +78,28 @@ export function UsdtAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   }
 }
 
+export function UsdvAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    USDV: {
+      tokenName: 'USDV',
+      tokenSymbol: 'USDV',
+      underlyingToken: Token.USDV,
+      ...partial,
+    },
+  }
+}
+
+export function DolaAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
+  return {
+    DOLA: {
+      tokenName: 'Dola USD Stablecoin',
+      tokenSymbol: 'DOLA',
+      underlyingToken: Token.DOLA,
+      ...partial,
+    },
+  }
+}
+
 export function DaiAsset(partial?: Partial<IAssetInfo>): TokenMap<IAssetInfo> {
   return {
     DAI: {

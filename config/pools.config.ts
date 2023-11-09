@@ -21,6 +21,7 @@ import {
   CusdAsset,
   DaiAsset,
   DaiPlusAsset,
+  DolaAsset,
   EthAsset,
   FraxAsset,
   FrxEthAsset,
@@ -44,6 +45,7 @@ import {
   UsdsAsset,
   UsdtAsset,
   UsdtPlusAsset,
+  UsdvAsset,
   VusdcAsset,
   WbethAsset,
   WbnbAsset,
@@ -734,6 +736,35 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
     },
   },
+  [Network.OPTIMISM_MAINNET]: {
+    Frax_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...FraxAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
+      },
+    },
+    USDV_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...UsdvAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
+      },
+    },
+    Dola_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
+        ...DolaAsset(defaultLargeCapUSDMaxSupply()),
+      },
+    },
+  },
 })
 
 export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
@@ -961,6 +992,24 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...WavaxAsset(defaultSmallCapAVAXMaxSupply()),
         ...SavaxAsset(defaultSmallCapAVAXMaxSupply()),
+      },
+    },
+  },
+  [Network.OPTIMISM_MAINNET]: {
+    frxETH_Pool: {
+      setting: {
+        ...defaultDynamicPoolConfig(),
+        supportNativeToken: true,
+      },
+      assets: {
+        ...FrxEthAsset(defaultLargeCapETHMaxSupply()),
+        ...WethAsset(defaultLargeCapETHMaxSupply()),
+        ...SfrxEthAsset({
+          ...defaultLargeCapETHMaxSupply(),
+          assetContractName: 'PriceFeedAsset',
+          // TODO: Need to verify if sfrxETH has ORACLE or not
+          priceFeed: sfrxETHGovernedPriceFeed(),
+        }),
       },
     },
   },
@@ -1207,5 +1256,11 @@ function defaultSmallCapBNBMaxSupply(): Partial<IAssetInfo> {
 function defaultSmallCapAVAXMaxSupply(): Partial<IAssetInfo> {
   return {
     maxSupply: parseEther('30000'),
+  }
+}
+
+function defaultLargeCapETHMaxSupply(): Partial<IAssetInfo> {
+  return {
+    maxSupply: parseEther('1600'),
   }
 }

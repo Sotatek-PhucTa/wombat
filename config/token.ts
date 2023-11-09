@@ -17,6 +17,7 @@ export enum Token {
   CUSD,
   DAI,
   DAIPlus,
+  DOLA,
   ETH,
   ETHx,
   EUROC,
@@ -54,6 +55,7 @@ export enum Token {
   USDS,
   USDT,
   USDTPlus,
+  USDV,
   WAVAX,
   WBNB,
   WETH,
@@ -161,6 +163,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.DAIPlus]: {
     [Network.ARBITRUM_MAINNET]: Address('0xeb8E93A0c7504Bffd8A8fFa56CD754c63aAeBFe8'),
   },
+  [Token.DOLA]: {
+    // https://optimistic.etherscan.io/address/0x8aE125E8653821E851F12A49F7765db9a9ce7384
+    [Network.OPTIMISM_MAINNET]: Address('0x8aE125E8653821E851F12A49F7765db9a9ce7384'),
+  },
   [Token.ETH]: {
     [Network.BSC_TESTNET]: Deployment('ETH'),
     // https://bscscan.com/address/0x2170Ed0880ac9A755fd29B2688956BD959F933F8
@@ -186,6 +192,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40'),
     [Network.ARBITRUM_MAINNET]: Address('0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F'),
     [Network.ETHEREUM_MAINNET]: Address('0x853d955aCEf822Db058eb8505911ED77F175b99e'),
+    [Network.OPTIMISM_MAINNET]: Address('0x2E3D870790dC77A83DD1d18184Acc7439A53f475'),
   },
   [Token.FXS]: {
     // https://www.coingecko.com/en/coins/frax-share
@@ -354,6 +361,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://bscscan.com/address/0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C
     [Network.BSC_MAINNET]: Address('0x5335E87930b410b8C5BB4D43c3360ACa15ec0C8C'),
   },
+  [Token.USDV]: {
+    // https://docs.usdv.money/docs/contracts/mainnet
+    [Network.OPTIMISM_MAINNET]: Address('0x323665443CEf804A3b5206103304BD4872EA4253'),
+  },
   [Token.WAVAX]: {
     [Network.AVALANCHE_TESTNET]: Address('0x1D308089a2D1Ced3f1Ce36B1FcaF815b07217be3'),
     // https://snowtrace.io/address/0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7
@@ -450,6 +461,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x64048A7eEcF3a2F1BA9e144aAc3D7dB6e58F555e'),
     [Network.ARBITRUM_MAINNET]: Address('0x178412e79c25968a32e89b11f63B33F733770c2A'),
     [Network.ETHEREUM_MAINNET]: Address('0x5E8422345238F34275888049021821E8E08CAa1f'),
+    [Network.OPTIMISM_MAINNET]: Address('0x6806411765Af15Bddd26f8f544A34cC40cb9838B'),
   },
   [Token.stkBNB]: {
     [Network.BSC_MAINNET]: Address('0xc2E9d07F66A89c44062459A47a0D2Dc038E4fb16'),
@@ -488,6 +500,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0x3Cd55356433C89E50DC51aB07EE0fa0A95623D53'),
     [Network.ARBITRUM_MAINNET]: Address('0x95aB45875cFFdba1E5f451B950bC2E42c0053f39'),
     [Network.ETHEREUM_MAINNET]: Address('0xac3E018457B222d93114458476f3E3416Abbe38F'),
+    [Network.OPTIMISM_MAINNET]: Address('0x484c2D6e3cDd945a8B2DF735e079178C1036578c'),
   },
   [Token.testFRAX]: {
     // TestERC20
