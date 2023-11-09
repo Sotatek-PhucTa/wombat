@@ -379,6 +379,15 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
       assets: {},
     },
+    USDV_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...UsdvAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
+      },
+    },
   },
   [Network.BSC_TESTNET]: {
     MainPool: {
@@ -612,6 +621,15 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...EPendleAsset(),
       },
     },
+    USDV_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...UsdvAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
+      },
+    },
   },
   [Network.ETHEREUM_MAINNET]: {
     FRAX_Pool: {
@@ -649,6 +667,15 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...WomAsset(),
         ...MwomAsset(),
+      },
+    },
+    USDV_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...UsdvAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
   },
@@ -762,6 +789,17 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
         ...DolaAsset(defaultLargeCapUSDMaxSupply()),
+      },
+    },
+  },
+  [Network.AVALANCHE_MAINNET]: {
+    USDV_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...UsdvAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
   },

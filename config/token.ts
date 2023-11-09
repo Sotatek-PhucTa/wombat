@@ -364,6 +364,10 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.USDV]: {
     // https://docs.usdv.money/docs/contracts/mainnet
     [Network.OPTIMISM_MAINNET]: Address('0x323665443CEf804A3b5206103304BD4872EA4253'),
+    [Network.ETHEREUM_MAINNET]: Address('0x0E573Ce2736Dd9637A0b21058352e1667925C7a8'),
+    [Network.BSC_MAINNET]: Address('0x323665443CEf804A3b5206103304BD4872EA4253'),
+    [Network.AVALANCHE_MAINNET]: Address('0x323665443CEf804A3b5206103304BD4872EA4253'),
+    [Network.ARBITRUM_MAINNET]: Address('0x323665443CEf804A3b5206103304BD4872EA4253'),
   },
   [Token.WAVAX]: {
     [Network.AVALANCHE_TESTNET]: Address('0x1D308089a2D1Ced3f1Ce36B1FcaF815b07217be3'),
