@@ -1,4 +1,4 @@
-import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
 import { getCurrentNetwork } from '../types/network'
 import { getAddress } from '../utils'
 
@@ -30,6 +30,7 @@ export enum ExternalContract {
   StafiOperator,
   StkBNBOracle,
   TenFiBribeOperator,
+  USDVOperator,
   WombexBribeOperator,
   WombexVeWomProxy,
   fUSDCBribeOperator,
@@ -154,6 +155,13 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   },
   [ExternalContract.TenFiBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x393c7C3EbCBFf2c1138D123df5827e215458F0c4'),
+  },
+  [ExternalContract.USDVOperator]: {
+    [Network.ARBITRUM_MAINNET]: Unknown(),
+    [Network.AVALANCHE_MAINNET]: Unknown(),
+    [Network.BSC_MAINNET]: Unknown(),
+    [Network.OPTIMISM_MAINNET]: Unknown(),
+    [Network.ETHEREUM_MAINNET]: Unknown(),
   },
   [ExternalContract.WombexBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x35D32110d9a6f02d403061C851618756B3bC597F'),

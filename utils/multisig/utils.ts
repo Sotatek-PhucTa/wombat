@@ -2,6 +2,7 @@ import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import {
   concatAll,
   getAddress,
+  getBoostedRewarderAddress,
   getDeployedContract,
   getLatestMasterWombat,
   impersonateAsMultisig,
