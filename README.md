@@ -199,6 +199,12 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Bribe_Asset_USDS_Pool_USDS => `0x401384D834be6197853682d4138588591d71b804`
 - Bribe_Asset_USDS_Pool_USDT => `0x299642F43D18a88871E63302b032A4fE32143B6b`
 
+#### USDV Pool
+
+- Pool Proxy (Main entry) => `0xC897a2Ae2E45f0D7ba8cbE397208C3e9f8914A9f`
+- Asset_USDV_Pool_USDV (LP-USDV) => `0x17AdeD6D50d9f9311cEE5C1746a0284F4d163500`
+- Asset_USDV_Pool_USDT (LP-USDT) => `0x591cCb3Bac62f1710d013E090E36Ee760D70EF87`
+
 #### BNBx Pool
 
 - Pool Proxy (Main entry) => `0x8df1126de13bcfef999556899F469d64021adBae`
@@ -457,6 +463,12 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Bribe_Asset_BOB_Pool_BOB => `0xe933e227315FeA19A4130F65EFfF7A12F50f762E`
 - Bribe_Asset_BOB_Pool_USDCe => `0xA1fdb8D04C2950D163017B990230bD1784692979`
 
+#### USDV Pool
+
+- Pool Proxy (Main entry) => `0xa6eF6C45EbFDBc13f6D032fbDFeC9b389C1603E5`
+- Asset_USDV_Pool_USDV (LP-USDV) => `0x87800497C0f2b565578A483E6Ea06744F15eD525`
+- Asset_USDV_Pool_USDT (LP-USDT) => `0x08C6E91BDF4b7133381a3CC06e497bF14Bd3Fd4D`
+
 #### mWom Pool
 
 - Pool Proxy (HighCovRatioFeePoolV2) => `0x90eCddEC4E4116E30769A4e1EA52c319aca338B6`
@@ -610,6 +622,12 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_FRAX_Pool_FRAX => `0x04D4e1C1F3D6539071b6D3849fDaED04d48D563d`
 - Asset_FRAX_Pool_USDT => `0x62A83C6791A3d7950D823BB71a38e47252b6b6F4`
 
+#### USDV Pool
+
+- Pool Proxy (Main entry) => `0x05A33c0eaf81367Ce953d2dCd4ea1BE8758f4D32`
+- Asset_USDV_Pool_USDV (LP-USDV) => `0x4dFa92842d05a790252A7f374323b9C86D7b7E12`
+- Asset_USDV_Pool_USDT (LP-USDT) => `0x7bB67CfE4134d4c485659ff7769EC98d1C1DCdba`
+
 #### agEUR Pool
 
 - FactoryPools_agEUR_Pool_Proxy => `0x0020A8890e723CD94660A5404C4BCCBB91680db6`
@@ -718,6 +736,12 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_sAVAX_Pool_sAVAX => `0xC096FF2606152eD2A06dd12F15A3c0466Aa5A9fa`
 - BoostedMultiRewarder_Asset_sAVAX_Pool_WAVAX => `0x09EaF2821728A380Bd111fb2d42BB43bb01984a6`
 - BoostedMultiRewarder_Asset_sAVAX_Pool_sAVAX => `0x53BDB6De1dF8C869420dD8363dD90A8b9eeeb80A`
+
+#### USDV Pool
+
+- Pool Proxy (Main entry) => `0x108c990c93Fa8E3cD88DDb13594D39f09D9B3C02`
+- Asset_USDV_Pool_USDV (LP-USDV) => `0x8B2aB4EB32695cB3Fc0D6Ac440dC6b90fE18a09D`
+- Asset_USDV_Pool_USDT (LP-USDT) => `0xAB8D5b703edBed5733271d1Af5134e1C667dda0D`
 
 ### Polygon mainnet
 
