@@ -19,6 +19,8 @@ runScript('AddAssets_CrossChain_Pool', async () => {
         multisig.utils.addAssetToMasterWombat(assetDeployment)
       )
     )
+  } else if ([Network.OPTIMISM_MAINNET].includes(network)) {
+    return multisig.utils.addAssetToMasterWombat('Asset_Stablecoin_Pool_USDCe')
   } else {
     throw new Error(`Unsupported network: ${network}`)
   }

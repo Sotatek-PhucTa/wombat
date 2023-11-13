@@ -1,4 +1,4 @@
-import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord } from '../types'
+import { Address, Deployment, DeploymentOrAddress, Network, PartialRecord, Unknown } from '../types'
 import { getAddress } from '../utils'
 import { getCurrentNetwork } from '../types/network'
 import { ethers } from 'hardhat'
@@ -323,6 +323,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.USDCe]: {
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
+    [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
   },
   [Token.USDD]: {
     [Network.BSC_MAINNET]: Address('0xd17479997F34dd9156Deef8F95A52D81D265be9c'),

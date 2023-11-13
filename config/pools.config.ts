@@ -1228,6 +1228,7 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
         ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdceAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
   },
