@@ -157,11 +157,11 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.BSC_MAINNET]: Address('0x393c7C3EbCBFf2c1138D123df5827e215458F0c4'),
   },
   [ExternalContract.USDVOperator]: {
-    [Network.ARBITRUM_MAINNET]: Unknown(),
-    [Network.AVALANCHE_MAINNET]: Unknown(),
-    [Network.BSC_MAINNET]: Unknown(),
-    [Network.OPTIMISM_MAINNET]: Unknown(),
-    [Network.ETHEREUM_MAINNET]: Unknown(),
+    [Network.ARBITRUM_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
+    [Network.AVALANCHE_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
+    [Network.BSC_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
+    [Network.OPTIMISM_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
+    [Network.ETHEREUM_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
   },
   [ExternalContract.WombexBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x35D32110d9a6f02d403061C851618756B3bC597F'),
