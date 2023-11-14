@@ -308,6 +308,18 @@ export async function addOperatorForRewarder(
   return txns
 }
 
+// Top up exact amount token to rewarder without changing rewarder emission rate
+export async function topUpRewarderExactAmount(
+  rewarderOrBribeDeployment: string,
+  token: Token,
+  amount: BigNumberish
+): Promise<BatchTransaction[]> {
+  const rewarder = await getDeployedContract('MultiRewarderPerSec', rewarderOrBribeDeployment)
+  const tokenAddress = await getTokenAddress(token)
+  const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
+  return [Safe(erc20).transfer(rewarder.address, amount)]
+}
+
 /**
  * @remarks if changing the rate, prefer updating emissions.config.ts and use updateEmissionsAndTopUp(). It ensures we can keep emissions.config.ts as a single source of truth for emissions rates
  * @param {string} rewarderOrBribeDeployment - The address of the rewarder or bribe deployment.

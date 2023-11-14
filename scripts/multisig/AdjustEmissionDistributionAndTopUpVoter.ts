@@ -19,14 +19,14 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 370_000
-    BRIBE_ALLOC_PERCENT = 54.1
+    WOM_MONTHLY_EMISSION_RATE = 270_000
+    BRIBE_ALLOC_PERCENT = 52.5
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 2.16,
-      Asset_Stablecoin_Pool_USDC: 2.16,
+      Asset_Stablecoin_Pool_USDT: 2.965,
+      Asset_Stablecoin_Pool_USDC: 2.965,
       // Main Pool
-      Asset_MainPool_USDCe: 15.51,
+      Asset_MainPool_USDCe: 15.5,
       Asset_MainPool_USDT: 13.05,
       Asset_MainPool_DAI: 5.42,
       Asset_MainPool_USDC: 6,
@@ -41,20 +41,20 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_qWOM_Pool_WOM: 0.1,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 1_950_000
-    BRIBE_ALLOC_PERCENT = 90.34
+    WOM_MONTHLY_EMISSION_RATE = 2_000_000
+    BRIBE_ALLOC_PERCENT = 90.4
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.3,
-      Asset_Stablecoin_Pool_USDC: 1.3,
+      Asset_Stablecoin_Pool_USDT: 1.25,
+      Asset_Stablecoin_Pool_USDC: 1.25,
       // Main Pool
       Asset_MainPool_USDC: 3.1,
       Asset_MainPool_USDT: 3.2,
       Asset_MainPool_BUSD: 0,
       Asset_MainPool_DAI: 0.2,
       // wmxWOM Pool
-      Asset_wmxWOMPool_wmxWOM: 0.13,
-      Asset_wmxWOMPool_WOM: 0.13,
+      Asset_wmxWOMPool_wmxWOM: 0.15,
+      Asset_wmxWOMPool_WOM: 0.15,
       // mWOM Pool
       Asset_mWOMPool_mWOM: 0.125,
       Asset_mWOMPool_WOM: 0.125,
@@ -66,12 +66,12 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_wBETH_Pool_ETH: 0,
     }
   } else if (network == Network.ETHEREUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 550_000
-    BRIBE_ALLOC_PERCENT = 90.91
+    WOM_MONTHLY_EMISSION_RATE = 630_000
+    BRIBE_ALLOC_PERCENT = 92.06
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 4.55,
-      Asset_Stablecoin_Pool_USDC: 4.55,
+      Asset_Stablecoin_Pool_USDT: 3.97,
+      Asset_Stablecoin_Pool_USDC: 3.97,
     }
   }
 
