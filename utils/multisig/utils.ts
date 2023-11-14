@@ -418,6 +418,31 @@ export async function setMaxSupply(assetDeployment: string, maxSupply: BigNumber
   return Safe(asset).setMaxSupply(maxSupply)
 }
 
+export async function updateMaxSupply(
+  poolNames: string[], // the pool name used in pools.config.ts
+  poolConfig: NetworkPoolInfo<IPoolConfig>
+): Promise<BatchTransaction[]> {
+  const txns = []
+  for (const poolName of poolNames) {
+    assert(poolConfig[poolName] !== undefined, "poolConfig doesn't contain pool")
+    const assets = poolConfig[poolName].assets
+    // Update asset maxSupply
+    for (const [symbol, assetConfig] of Object.entries(assets)) {
+      const assetDeploymentName = getAssetDeploymentName(poolName, symbol)
+      const asset = await getDeployedContract('Asset', assetDeploymentName)
+      const { maxSupply } = assetConfig
+      const currentMaxSupply = await asset.maxSupply()
+      if (maxSupply !== undefined && !currentMaxSupply.eq(maxSupply)) {
+        console.log(`Changing from current maxSupply: ${formatEther(currentMaxSupply)} to ${formatEther(maxSupply)}`)
+        txns.push(Safe(asset).setMaxSupply(maxSupply))
+      } else {
+        console.log(`Keep current maxSupply: ${formatEther(currentMaxSupply)}`)
+      }
+    }
+  }
+  return txns
+}
+
 export async function scheduleTimelock(txns: BatchTransaction[]): Promise<BatchTransaction> {
   const timelockController = await getDeployedContract('TimelockController')
   const delay = await timelockController.getMinDelay()

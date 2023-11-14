@@ -1028,8 +1028,8 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         supportNativeToken: true,
       },
       assets: {
-        ...WavaxAsset(defaultSmallCapAVAXMaxSupply()),
-        ...SavaxAsset(defaultSmallCapAVAXMaxSupply()),
+        ...WavaxAsset(defaultLargeCapAVAXMaxSupply()),
+        ...SavaxAsset(defaultLargeCapAVAXMaxSupply()),
       },
     },
   },
@@ -1295,6 +1295,12 @@ function defaultSmallCapBNBMaxSupply(): Partial<IAssetInfo> {
 function defaultSmallCapAVAXMaxSupply(): Partial<IAssetInfo> {
   return {
     maxSupply: parseEther('30000'),
+  }
+}
+
+function defaultLargeCapAVAXMaxSupply(): Partial<IAssetInfo> {
+  return {
+    maxSupply: parseEther('180000'),
   }
 }
 
