@@ -11,10 +11,12 @@ import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { parseEther } from 'ethers/lib/utils'
 import { ExternalContract, getContractAddress } from '../../config/contract'
 import { BribeRewarderFactory } from '../../build/typechain'
+import { isForkedNetwork } from '../../utils'
 ;(async function () {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
   assert(network == Network.AVALANCHE_MAINNET, `Network ${network} is not supported.`)
+  assert(isForkedNetwork(), 'multi-stage proposal requires running in a forked network')
   const assetsToDeployRewarderFor = ['Asset_sAVAX_Pool_WAVAX', 'Asset_sAVAX_Pool_sAVAX']
   const rewarderStartTime = unsafeIsoStringToEpochSeconds('2023-10-25T06:00Z') // 2023 Oct 25 2PM HKT
   const EPOCH_AMOUNT = parseEther('32429')

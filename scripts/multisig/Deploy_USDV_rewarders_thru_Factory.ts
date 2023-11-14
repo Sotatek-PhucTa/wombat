@@ -9,7 +9,8 @@ import { getNamedAccounts } from 'hardhat'
 import { Epochs } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { parseEther } from 'ethers/lib/utils'
-import { BribeRewarderFactory } from '../../build/typechain'
+import { BoostedMasterWombat, BribeRewarderFactory } from '../../build/typechain'
+import { isForkedNetwork } from '../../utils'
 ;(async function () {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
@@ -19,6 +20,7 @@ import { BribeRewarderFactory } from '../../build/typechain'
     ),
     `Network ${network} is not supported.`
   )
+  assert(isForkedNetwork(), 'multi-stage proposal requires running in a forked network')
   const assetsToDeployRewarderFor = ['Asset_USDV_Pool_USDV', 'Asset_USDV_Pool_USDT']
   const rewarderStartTime = Epochs.Nov15
   const WOM_EPOCH_AMOUNT = network === Network.ETHEREUM_MAINNET ? parseEther('11174') : parseEther('3724')
@@ -56,10 +58,14 @@ import { BribeRewarderFactory } from '../../build/typechain'
         await bribeRewarderFactory.isRewardTokenWhitelisted(await getTokenAddress(Token.USDV)),
         'USDV should be whitelisted after the operation'
       )
-    }
+      // check boosted rewarder for each asset is deployed
+      for await (const asset of assetsToDeployRewarderFor) {
+        const rewarderAddress = await getBoostedRewarderAddress(asset)
+        assert(await isContractAddress(rewarderAddress), 'Not a contract address')
+      }
+    },
+    true
   )
-
-  // TODO: run the following separately (read the deployed contract addresses from mainnet), after the above are executed.
 
   await runScript(
     'Top_up_USDV_rewarders_and_add_operator',
@@ -75,6 +81,7 @@ import { BribeRewarderFactory } from '../../build/typechain'
 
       assert(await isContractAddress(lpUsdvRewarder), 'Not a contract address')
       assert(await isContractAddress(lpUsdtRewarder), 'Not a contract address')
-    }
+    },
+    true
   )
 })()

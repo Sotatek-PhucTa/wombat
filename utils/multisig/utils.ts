@@ -283,6 +283,7 @@ export async function topUpBoostedRewarder(
   const pid = await bmw.getAssetPid(assetAddress)
   const rewarderAddress = await bmw.boostedRewarders(pid)
 
+  assert(rewarderAddress !== ethers.constants.AddressZero, 'invalid adddress')
   const tokenAddress = await getTokenAddress(token)
   const erc20 = await ethers.getContractAt('ERC20', tokenAddress)
   return [Safe(erc20).transfer(rewarderAddress, amount)]
