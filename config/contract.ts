@@ -31,6 +31,7 @@ export enum ExternalContract {
   StkBNBOracle,
   TenFiBribeOperator,
   USDVOperator,
+  USDVEoaOperator,
   WombexBribeOperator,
   WombexVeWomProxy,
   fUSDCBribeOperator,
@@ -162,6 +163,13 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.BSC_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
     [Network.OPTIMISM_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
     [Network.ETHEREUM_MAINNET]: Address('0x32b57Af95B01CfCb3840d60A7A9b36378285ec25'),
+  },
+  [ExternalContract.USDVEoaOperator]: {
+    [Network.ARBITRUM_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
+    [Network.AVALANCHE_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
+    [Network.BSC_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
+    [Network.OPTIMISM_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
+    [Network.ETHEREUM_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
   },
   [ExternalContract.WombexBribeOperator]: {
     [Network.BSC_MAINNET]: Address('0x35D32110d9a6f02d403061C851618756B3bC597F'),

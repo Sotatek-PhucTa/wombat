@@ -16,7 +16,7 @@ runScript('SetOperator_Rewarder_USDV', async () => {
     `Network ${network} is not supported.`
   )
   const assetsToDeployRewarderFor = ['Asset_USDV_Pool_USDV', 'Asset_USDV_Pool_USDT']
-  const USDV_OPERATOR_ADDRESS = await getContractAddress(ExternalContract.USDVOperator)
+  const USDV_OPERATOR_ADDRESS = await getContractAddress(ExternalContract.USDVEoaOperator)
 
   return concatAll(
     ...assetsToDeployRewarderFor.map((asset) =>
