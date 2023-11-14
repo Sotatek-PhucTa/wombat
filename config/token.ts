@@ -311,9 +311,8 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     // https://www.coingecko.com/en/coins/usd-coin
     [Network.BSC_MAINNET]: Address('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'),
     [Network.ARBITRUM_MAINNET]: Address('0xaf88d065e77c8cC2239327C5EDb3A432268e5831'),
-    [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
+    [Network.OPTIMISM_MAINNET]: Address('0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85'),
     [Network.ETHEREUM_MAINNET]: Address('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'),
-    [Network.POLYGON_MAINNET]: Address('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'),
     [Network.BASE_MAINNET]: Address('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
     [Network.AVALANCHE_MAINNET]: Address('0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'),
     [Network.SCROLL_MAINNET]: Address('0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4'),
@@ -324,6 +323,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   [Token.USDCe]: {
     [Network.ARBITRUM_MAINNET]: Address('0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'),
     [Network.OPTIMISM_MAINNET]: Address('0x7F5c764cBc14f9669B88837ca1490cCa17c31607'),
+    [Network.POLYGON_MAINNET]: Address('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'),
   },
   [Token.USDD]: {
     [Network.BSC_MAINNET]: Address('0xd17479997F34dd9156Deef8F95A52D81D265be9c'),
