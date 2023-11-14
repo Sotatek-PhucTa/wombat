@@ -1300,7 +1300,7 @@ function defaultSmallCapAVAXMaxSupply(): Partial<IAssetInfo> {
 
 function defaultLargeCapAVAXMaxSupply(): Partial<IAssetInfo> {
   return {
-    maxSupply: parseEther('180000'),
+    maxSupply: parseEther('300000'),
   }
 }
 
