@@ -770,7 +770,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
       assets: {
         ...FraxAsset(defaultLargeCapUSDMaxSupply()),
-        ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
     USDV_Pool: {
