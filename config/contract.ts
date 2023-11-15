@@ -12,6 +12,7 @@ export enum ExternalContract {
   BNBxOracle,
   BNByOracle,
   ChainlinkOracleWstETH,
+  DOLAOperator,
   EquilibriaFiOperator,
   FraxBribeOperator,
   JonesDaoBribeOperator,
@@ -90,6 +91,9 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.ARBITRUM_MAINNET]: Address('0xB1552C5e96B312d0Bf8b554186F846C40614a540'),
     [Network.ETHEREUM_MAINNET]: Address('0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'),
   },
+  [ExternalContract.DOLAOperator]: {
+    [Network.OPTIMISM_MAINNET]: Address('0xa283139017a2f5BAdE8d8e25412C600055D318F8'),
+  },
   [ExternalContract.EquilibriaFiOperator]: {
     [Network.ARBITRUM_MAINNET]: Address('0x2de0637a9B3BBa9972514290B90685CeBB3828C1'),
   },
@@ -97,6 +101,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.BSC_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
     [Network.ARBITRUM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
     [Network.ETHEREUM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
+    [Network.OPTIMISM_MAINNET]: Address('0x6e74053a3798e0fC9a9775F7995316b27f21c4D2'),
   },
   [ExternalContract.JonesDaoBribeOperator]: {
     [Network.ARBITRUM_MAINNET]: Address('0xDD0556DDCFE7CdaB3540E7F09cB366f498d90774'),

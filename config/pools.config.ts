@@ -787,7 +787,10 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...defaultFactoryPoolConfig(),
       },
       assets: {
-        ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdceAsset({
+          ...defaultLargeCapUSDMaxSupply(),
+          tokenName: 'USD Coin (Bridged from Ethereum)',
+        }),
         ...DolaAsset(defaultLargeCapUSDMaxSupply()),
       },
     },

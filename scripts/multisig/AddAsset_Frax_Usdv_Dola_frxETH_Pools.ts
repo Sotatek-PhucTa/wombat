@@ -11,7 +11,7 @@ const assets = [
   'Asset_USDV_Pool_USDV',
   'Asset_USDV_Pool_USDT',
   'Asset_Dola_Pool_DOLA',
-  'Asset_Dola_Pool_USDC',
+  'Asset_Dola_Pool_USDCe',
 ]
 
 runScript('AddAsset_Frax_Usdv_Dola_frxETH_Pools', async () => {
