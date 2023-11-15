@@ -41,15 +41,15 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_qWOM_Pool_WOM: 0.1,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 2_000_000
-    BRIBE_ALLOC_PERCENT = 90.4
+    WOM_MONTHLY_EMISSION_RATE = 1_650_000
+    BRIBE_ALLOC_PERCENT = 89.87
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.25,
-      Asset_Stablecoin_Pool_USDC: 1.25,
+      Asset_Stablecoin_Pool_USDT: 1.5,
+      Asset_Stablecoin_Pool_USDC: 1.5,
       // Main Pool
       Asset_MainPool_USDC: 3.1,
-      Asset_MainPool_USDT: 3.2,
+      Asset_MainPool_USDT: 3.23,
       Asset_MainPool_BUSD: 0,
       Asset_MainPool_DAI: 0.2,
       // wmxWOM Pool
