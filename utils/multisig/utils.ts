@@ -966,3 +966,14 @@ export async function updateCrossChainSwapSettings(
 
   return txns
 }
+
+// One-time function to update the newly deployed MasterWombat
+export async function setMasterWombatToDependencies(): Promise<BatchTransaction[]> {
+  const vewom = await getDeployedContract('VeWom')
+  const mw = await getDeployedContract('BoostedMasterWombat')
+
+  const poolDeployment = getPoolDeploymentName('CrossChainPool', 'Stablecoin_Pool')
+  const pool = await getDeployedContract('CrossChainPool', poolDeployment)
+
+  return [Safe(pool).setMasterWombat(mw.address), Safe(vewom).setMasterWombat(mw.address)]
+}

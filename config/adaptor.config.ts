@@ -107,7 +107,7 @@ export const ADAPTOR_CONFIG_MAP: PartialRecord<
   [Network.OPTIMISM_MAINNET]: {
     [CrossChainPoolType.stablecoin]: {
       adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.OPTIMISM_MAINNET),
-      tokens: [Token.USDC, Token.USDT],
+      tokens: [Token.USDCe, Token.USDC, Token.USDT],
       type: CrossChainMessagerType.WORMHOLE,
     },
   },
@@ -121,7 +121,7 @@ export const ADAPTOR_CONFIG_MAP: PartialRecord<
   [Network.POLYGON_MAINNET]: {
     [CrossChainPoolType.stablecoin]: {
       adaptorAddr: Deployment('WormholeAdaptor_Stablecoin_Pool_Proxy', Network.POLYGON_MAINNET),
-      tokens: [Token.USDC, Token.USDT],
+      tokens: [Token.USDCe, Token.USDT],
       type: CrossChainMessagerType.WORMHOLE,
     },
   },

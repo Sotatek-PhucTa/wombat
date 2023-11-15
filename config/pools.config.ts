@@ -1228,7 +1228,10 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
       assets: {
         ...UsdcAsset(defaultLargeCapUSDMaxSupply()),
         ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
-        ...UsdceAsset(defaultLargeCapUSDMaxSupply()),
+        ...UsdceAsset({
+          ...defaultLargeCapUSDMaxSupply(),
+          tokenName: 'USD Coin (Bridged from Ethereum)',
+        }),
       },
     },
   },
@@ -1247,7 +1250,10 @@ export const CROSS_CHAIN_POOL_TOKENS_MAP: PartialRecord<
     Stablecoin_Pool: {
       setting: disableCrossChainSwap(defaultCrossChainPoolConfig),
       assets: {
-        ...UsdcAsset({ maxSupply: parseEther('100000') }),
+        ...UsdceAsset({
+          maxSupply: parseEther('100000'),
+          tokenName: 'USD Coin (PoS)',
+        }),
         ...UsdtAsset({ maxSupply: parseEther('100000') }),
       },
     },
