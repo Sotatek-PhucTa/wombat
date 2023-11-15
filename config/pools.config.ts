@@ -791,6 +791,12 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...DolaAsset(defaultLargeCapUSDMaxSupply()),
       },
     },
+    StandalonePool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {},
+    },
   },
   [Network.AVALANCHE_MAINNET]: {
     USDV_Pool: {
@@ -801,6 +807,14 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...UsdvAsset(defaultLargeCapUSDMaxSupply()),
         ...UsdtAsset(defaultLargeCapUSDMaxSupply()),
       },
+    },
+  },
+  [Network.POLYGON_MAINNET]: {
+    StandalonePool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {},
     },
   },
 })
