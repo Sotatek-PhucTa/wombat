@@ -271,6 +271,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.SABLE]: {
     [Network.BSC_MAINNET]: Address('0x1eE098cBaF1f846d5Df1993f7e2d10AFb35A878d'),
+    [Network.BASE_MAINNET]: Address('0xE5393cdBC4Fe7B62F1d76A990Ca7Da17ad718313'),
   },
   [Token.sAVAX]: {
     [Network.AVALANCHE_MAINNET]: Address('0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE'),
@@ -340,6 +341,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
   },
   [Token.USDS]: {
     [Network.BSC_MAINNET]: Address('0x0c6Ed1E73BA73B8441868538E210ebD5DD240FA0'),
+    [Network.BASE_MAINNET]: Address('0xecf3e9B8ccb6F4A6EFD68058FD706561c1727031'),
   },
   [Token.USDT]: {
     [Network.HARDHAT]: Deployment('USDT'),

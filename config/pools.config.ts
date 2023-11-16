@@ -821,6 +821,17 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       assets: {},
     },
   },
+  [Network.BASE_MAINNET]: {
+    USDV_Pool: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {
+        ...UsdsAsset(defaultSmallCapUSDMaxSupply()),
+        ...UsdbcAsset(defaultSmallCapUSDMaxSupply()),
+      },
+    },
+  }
 })
 
 export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
