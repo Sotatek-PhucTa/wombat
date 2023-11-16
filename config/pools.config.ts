@@ -831,7 +831,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
         ...UsdbcAsset(defaultSmallCapUSDMaxSupply()),
       },
     },
-  }
+  },
 })
 
 export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
