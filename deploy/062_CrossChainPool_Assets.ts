@@ -2,7 +2,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { deployments, ethers, getNamedAccounts } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { CROSS_CHAIN_POOL_TOKENS_MAP } from '../config/pools.config'
-import { confirmTxn, getDeployedContract } from '../utils'
+import { confirmTxn, getDeployedContract, isOwner } from '../utils'
 import { deployAssetV2, getAssetDeploymentName, getPoolDeploymentName } from '../utils/deploy'
 import { contractNamePrefix } from './060_CrossChainPool'
 import { getCurrentNetwork } from '../types/network'
@@ -28,10 +28,15 @@ const deployFunc = async function (hre: HardhatRuntimeEnvironment) {
     }
 
     // finally transfer pool contract ownership to Gnosis Safe after admin scripts completed
-    deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
     // The owner of the pool contract is very powerful!
-    await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
-    deployments.log(`Transferred ownership of pool ${pool.address} to ${multisig}...`)
+    if (await isOwner(pool, multisig)) {
+      deployments.log('Pool is already owned by multisig')
+    } else if (await isOwner(pool, deployer)) {
+      deployments.log(`Transferring ownership of pool ${pool.address} to ${multisig}...`)
+      await confirmTxn(pool.connect(deployerSigner).transferOwnership(multisig))
+    } else {
+      throw new Error(`Unknown owner: ${await pool.owner()} who is not multisig nor deployer`)
+    }
   }
 }
 
