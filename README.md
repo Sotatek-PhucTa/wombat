@@ -580,7 +580,8 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Wombat Token (WOM) => `0xd2612b256f6f76fea8c6fbca0bf3166d0d13a668`
 - WombatRouter => `0x35d531Fd45D5E3A5d407A4898360c757C98Bdf79`
 - DefaultProxyAdmin => `0xe5e36816e9c237447Cead58DCc79eEc5D662E44C`
-- BoostedMasterWombat_Proxy => `0x82E62f4e174E3C5e1641Df670c91Ac6Ab8541518`
+- BoostedMasterWombat_Proxy => `0x25C9dd8a3774EF7C918cd28ff59cF9e29504C914`
+- BoostedMasterWombat_Proxy_Old => `0x82E62f4e174E3C5e1641Df670c91Ac6Ab8541518`
 - VeWom_Proxy => `0xE91cfd7f8e5A5a1EA4803FcF781e1C8d6FfCa279`
 - Whitelist => `0xfa9576f5Ac8F676aa3aC3B1F78850c495Bf69BFb`
 
@@ -590,6 +591,31 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - WormholeAdaptor_Stablecoin_Pool_Proxy => `0x3ccC0dC754E380cDA16EF94292F278bbc4Ff463E`
 - Asset_Stablecoin_Pool_USDC => `0x96b1B2F764e90BAF53FCbe149f157ded5F69F197`
 - Asset_Stablecoin_Pool_USDT => `0xEE9b42b40852a53c7361F527e638B485D49750cD`
+
+#### Frax Pool
+- FactoryPools_Frax_Pool_Proxy => `0x6BB82A9b0b9b9716B885baeEfDBE47b685a0F919`
+- Asset_Frax_Pool_FRAX => `0x8F5e6fD62B4385E74E35D2B93034DbBc353B62dE`
+- Asset_Frax_Pool_USDC => `0x0321D1D769cc1e81Ba21a157992b635363740f86`
+
+#### USDV Pool
+- FactoryPools_USDV_Pool_Proxy => `0x1a023186eF2994249120CC7fAEdBEA07F40C6fbd`
+- Asset_USDV_Pool_USDV => `0x49db5F5b460f41c0a4cD5751413236BA55523330`
+- Asset_USDV_Pool_USDT => `0xe933e227315FeA19A4130F65EFfF7A12F50f762E`
+
+#### Dola Pool
+- FactoryPools_Dola_Pool_Proxy => `0x489818F2eeAef737105887710F7C5b9323Ad3d01`
+- Asset_Dola_Pool_USDCe => `0xE314d3cD7ccFf1bA32abA52E4215fA338D7F9b2C`
+- Asset_Dola_Pool_DOLA => `0x12491142cBE5Da821D9F08327bcbF881aDed89d3`
+
+#### frxETH Pool
+- DynamicPools_frxETH_Pool_Proxy => `0xB86BA65b75D34402bf377cF83b184554a18Fcafa`
+- Asset_frxETH_Pool_frxETH => `0xCaA5A97037a4695D0E96Cb4d564d0Acb24848555`
+- Asset_frxETH_Pool_WETH => `0xEF0B4d9Dba6ea82B59437Fe5E37b16A2896aAF94`
+- Asset_frxETH_Pool_sfrxETH => `0x2bb4Ea0266734Fdaa1d255Db7A2651C27990e29C`
+- PriceFeed_GovernedPriceFeed_Asset_frxETH_Pool_sfrxETH => `0xB98aB93942d7614071f7C3aF1F3B898214BC04Af`
+
+#### Standalone pool
+- FactoryPools_StandalonePool_Proxy => `0x7B1f9C537efCa25501d15a77Bdc1d23287839623`
 
 ### Ethereum mainnet
 

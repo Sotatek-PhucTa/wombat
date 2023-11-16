@@ -84,8 +84,9 @@ function sfrxETHGovernedPriceFeed(): IGovernedPriceFeed {
   return {
     ...defaultGovernedPriceFeed(),
     token: Token.sfrxETH,
+    // TODO: fetch initial price from on-chain similar to updateSfrxEthPrice srcipt. However, we need to handle async
     // initial price. See pricePerShare() at https://monobase.xyz/address/0xac3E018457B222d93114458476f3E3416Abbe38F#call
-    initialPrice: parseEther('1.0342029648225833'),
+    initialPrice: parseEther('1.064824882536441618'),
     maxDeviation: parseEther('0.01'),
   }
 }
@@ -1062,7 +1063,6 @@ export const DYNAMICPOOL_TOKENS_MAP: PartialRecord<
         ...SfrxEthAsset({
           ...defaultLargeCapETHMaxSupply(),
           assetContractName: 'PriceFeedAsset',
-          // TODO: Need to verify if sfrxETH has ORACLE or not
           priceFeed: sfrxETHGovernedPriceFeed(),
         }),
       },
