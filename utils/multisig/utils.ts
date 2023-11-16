@@ -926,10 +926,29 @@ export async function updateCrossChainSwapSettings(
       assets,
     } = poolConfig[poolName]
     const poolDeploymentName = getPoolDeploymentName(deploymentNamePrefix, poolName)
-    // Update asset maxSupply
+    const pool = await getDeployedContract('CrossChainPool', getProxyName(poolDeploymentName))
     for (const [symbol, assetConfig] of Object.entries(assets)) {
       const assetDeploymentName = getAssetDeploymentName(poolName, symbol)
       const asset = await getDeployedContract('Asset', assetDeploymentName)
+      const assetTokenAddress = await asset.underlyingToken()
+      const poolAssetAddress = await addressOfAsset(pool, assetTokenAddress)
+
+      // Update pool asset
+      if (poolAssetAddress == ethers.constants.AddressZero) {
+        console.log(`Adding Asset ${assetDeploymentName} to Pool ${poolDeploymentName}`)
+        txns.push(Safe(pool).addAsset(assetTokenAddress, asset.address))
+      } else {
+        assert(
+          poolAssetAddress == asset.address,
+          `Pool ${poolDeploymentName} does not contain Asset ${assetDeploymentName}`
+        )
+      }
+      assert(
+        pool.address == (await asset.pool()),
+        `Asset ${assetDeploymentName} does not belong to Pool ${poolDeploymentName}`
+      )
+
+      // Update asset maxSupply
       const { maxSupply } = assetConfig
       const currentMaxSupply = await asset.maxSupply()
       if (maxSupply !== undefined && !currentMaxSupply.eq(maxSupply)) {
@@ -939,7 +958,6 @@ export async function updateCrossChainSwapSettings(
         console.log(`Keep current maxSupply: ${formatEther(currentMaxSupply)}`)
       }
     }
-    const pool = await getDeployedContract('CrossChainPool', getProxyName(poolDeploymentName))
 
     // Update pool swapTokensForCreditEnabled
     const currentSwapTokensForCreditEnabled = await pool.swapTokensForCreditEnabled()
@@ -976,4 +994,15 @@ export async function setMasterWombatToDependencies(): Promise<BatchTransaction[
   const pool = await getDeployedContract('CrossChainPool', poolDeployment)
 
   return [Safe(pool).setMasterWombat(mw.address), Safe(vewom).setMasterWombat(mw.address)]
+}
+
+// Smart contract throws exception if asset does not exist.
+// Return AddressZero here instead of crashing.
+async function addressOfAsset(pool: Contract, token: string): Promise<string> {
+  assert(token != ethers.constants.AddressZero, 'invalid token address')
+  try {
+    return await pool.addressOfAsset(token)
+  } catch (e) {
+    return ethers.constants.AddressZero
+  }
 }
