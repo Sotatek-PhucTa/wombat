@@ -589,7 +589,6 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - CoreV3 => `0x1414CD7F8e384B875bFBbabcacAAE592C2B4f8f8`
 - CrossChainPool_Stablecoin_Pool_Proxy => `0x50a39b94B1Dc8472faa08c36a3Ef5b0A01c5BD10`
 - WormholeAdaptor_Stablecoin_Pool_Proxy => `0x3ccC0dC754E380cDA16EF94292F278bbc4Ff463E`
-- Asset_Stablecoin_Pool_USDC => `0x96b1B2F764e90BAF53FCbe149f157ded5F69F197`
 - Asset_Stablecoin_Pool_USDT => `0xEE9b42b40852a53c7361F527e638B485D49750cD`
 
 #### Frax Pool
@@ -616,6 +615,7 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 
 #### Standalone pool
 - FactoryPools_StandalonePool_Proxy => `0x7B1f9C537efCa25501d15a77Bdc1d23287839623`
+- Asset_Stablecoin_Pool_USDC_Old => `0x96b1B2F764e90BAF53FCbe149f157ded5F69F197`
 
 ### Ethereum mainnet
 
