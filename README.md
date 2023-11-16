@@ -590,6 +590,8 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - CrossChainPool_Stablecoin_Pool_Proxy => `0x50a39b94B1Dc8472faa08c36a3Ef5b0A01c5BD10`
 - WormholeAdaptor_Stablecoin_Pool_Proxy => `0x3ccC0dC754E380cDA16EF94292F278bbc4Ff463E`
 - Asset_Stablecoin_Pool_USDT => `0xEE9b42b40852a53c7361F527e638B485D49750cD`
+- Asset_Stablecoin_Pool_USDC => `0x20D7ee728900848752FA280fAD51aF40c47302f1`
+- Asset_Stablecoin_Pool_USDCe => `0x2943f5d7428A8B9fC849E9C33Fa46d32c272936E`
 
 #### Frax Pool
 - FactoryPools_Frax_Pool_Proxy => `0x6BB82A9b0b9b9716B885baeEfDBE47b685a0F919`
