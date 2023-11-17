@@ -584,6 +584,9 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - BoostedMasterWombat_Proxy_Old => `0x82E62f4e174E3C5e1641Df670c91Ac6Ab8541518`
 - VeWom_Proxy => `0xE91cfd7f8e5A5a1EA4803FcF781e1C8d6FfCa279`
 - Whitelist => `0xfa9576f5Ac8F676aa3aC3B1F78850c495Bf69BFb`
+- BoostedMultiRewarder_Beacon => `0x1790F93cFE1A4DdBCD776D5FD4B9aa231919919b`
+- BribeV2_Beacon => `0x9eD3dEa66F7Fad7cc13e5eD119cc0529Eb656D5c`
+- BribeRewarderFactory_Proxy => `0x160eE9Edb41d241fCAf4ea8fEdb64Aa9a8511a97`
 
 #### Cross chain pool
 - CoreV3 => `0x1414CD7F8e384B875bFBbabcacAAE592C2B4f8f8`

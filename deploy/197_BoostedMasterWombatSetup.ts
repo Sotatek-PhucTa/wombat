@@ -40,16 +40,16 @@ const deployFunc: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   }
 
   deployments.log('Setting up dynamic pool')
-  await deployPools(masterWombat, owner, DYNAMICPOOL_TOKENS_MAP[network] || {})
+  await addPool(masterWombat, owner, DYNAMICPOOL_TOKENS_MAP[network] || {})
 
   deployments.log('Setting up factory pool')
-  await deployPools(masterWombat, owner, FACTORYPOOL_TOKENS_MAP[network] || {})
+  await addPool(masterWombat, owner, FACTORYPOOL_TOKENS_MAP[network] || {})
 
   deployments.log('Setting up cross chain pool')
-  await deployPools(masterWombat, owner, CROSS_CHAIN_POOL_TOKENS_MAP[network] || {})
+  await addPool(masterWombat, owner, CROSS_CHAIN_POOL_TOKENS_MAP[network] || {})
 }
 
-async function deployPools(masterWombat: Contract, owner: SignerWithAddress, poolConfig: NetworkPoolInfo<IPoolConfig>) {
+async function addPool(masterWombat: Contract, owner: SignerWithAddress, poolConfig: NetworkPoolInfo<IPoolConfig>) {
   for (const [poolName, poolInfo] of Object.entries(poolConfig)) {
     for (const [, assetInfo] of Object.entries(poolInfo.assets)) {
       const assetContractName = getAssetDeploymentName(poolName, assetInfo.tokenSymbol)
