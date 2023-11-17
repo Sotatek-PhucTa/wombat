@@ -96,7 +96,8 @@ function getRewarderConfig(operator: string, rate: string) {
         await bribeRewarderFactory.isRewardTokenWhitelisted(await getTokenAddress(Token.OP)),
         'OP should be whitelisted after the operation'
       )
-    }
+    },
+    true
   )
 
   await runScript(
@@ -122,6 +123,7 @@ function getRewarderConfig(operator: string, rate: string) {
         const rewarderAddress = await getBoostedRewarderAddress(asset)
         assert(await isContractAddress(rewarderAddress), 'Not a contract address')
       }
-    }
+    },
+    true
   )
 })()

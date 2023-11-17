@@ -819,12 +819,20 @@ export async function setBribeRewarderFactory(): Promise<BatchTransaction[]> {
   const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
 
   const mw = await getDeployedContract('BoostedMasterWombat')
-  txns.push(Safe(mw).setBribeRewarderFactory(bribeRewarderFactory.address))
+  const mwCurrentFactory = await mw.bribeRewarderFactory()
+  if (mwCurrentFactory === ethers.constants.AddressZero) {
+    console.log(`MasterWombat set bribeRewarderFactory to ${bribeRewarderFactory.address}`)
+    txns.push(Safe(mw).setBribeRewarderFactory(bribeRewarderFactory.address))
+  }
 
   const voterDeployment = await deployments.getOrNull('Voter')
   if (voterDeployment != null) {
     const voter = await ethers.getContractAt('Voter', voterDeployment.address)
-    txns.push(Safe(voter).setBribeFactory(bribeRewarderFactory.address))
+    const voterCurrentFactory = await voter.bribeFactory()
+    if (voterCurrentFactory === ethers.constants.AddressZero) {
+      console.log(`Voter set bribeFactory to ${bribeRewarderFactory.address}`)
+      txns.push(Safe(voter).setBribeFactory(bribeRewarderFactory.address))
+    }
   } else {
     console.log('Voter is not deployed, skip Voter.setBribeFactory')
   }
