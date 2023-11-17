@@ -35,7 +35,7 @@ function getRewarderConfig(operator: string, rate: string) {
   ])
   const REWARDER_CONFIG = {
     Asset_Frax_Pool_FRAX: getRewarderConfig(fraxBribeOperator, '191'),
-    Asset_Frax_Pool_USDT: getRewarderConfig(fraxBribeOperator, '95'),
+    Asset_Frax_Pool_USDC: getRewarderConfig(fraxBribeOperator, '95'),
     Asset_frxETH_Pool_sfrxETH: getRewarderConfig(fraxBribeOperator, '95'),
     Asset_frxETH_Pool_frxETH: getRewarderConfig(fraxBribeOperator, '191'),
     Asset_frxETH_Pool_WETH: getRewarderConfig(fraxBribeOperator, '95'),

@@ -200,6 +200,7 @@ const tokenRegistry: Record<Token, PartialRecord<Network, DeploymentOrAddress>> 
     [Network.BSC_MAINNET]: Address('0xe48A3d7d0Bc88d552f730B62c006bC925eadB9eE'),
     [Network.ARBITRUM_MAINNET]: Address('0x9d2F299715D94d8A7E6F5eaa8E654E8c74a988A7'),
     [Network.ETHEREUM_MAINNET]: Address('0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0'),
+    [Network.OPTIMISM_MAINNET]: Address('0x67CCEA5bb16181E7b4109c9c2143c24a1c2205Be'),
   },
   [Token.HAY]: {
     // https://www.coingecko.com/en/coins/destablecoin-hay
