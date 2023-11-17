@@ -41,8 +41,8 @@ function getRewarderConfig(operator: string, rate: string) {
     Asset_frxETH_Pool_WETH: getRewarderConfig(fraxBribeOperator, '95'),
     Asset_USDV_Pool_USDV: getRewarderConfig(usdvOperator, '240'),
     Asset_USDV_Pool_USDT: getRewarderConfig(usdvOperator, '240'),
-    Asset_Dola_Pool_DOLA: getRewarderConfig(dolaOperator, '1200'),
-    Asset_Dola_Pool_USDCe: getRewarderConfig(dolaOperator, '800'),
+    Asset_Dola_Pool_DOLA: getRewarderConfig(dolaOperator, '600'),
+    Asset_Dola_Pool_USDCe: getRewarderConfig(dolaOperator, '400'),
   }
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
@@ -110,7 +110,7 @@ function getRewarderConfig(operator: string, rate: string) {
             multisig.utils.topUpBoostedRewarder(
               asset,
               Token.OP,
-              asset.includes('DOLA') ? rewardConfig.opRatePerEpoch.mul(2) : rewardConfig.opRatePerEpoch.mul(4)
+              rewardConfig.opRatePerEpoch.mul(4)
             ),
             // Add operator for rewarder
             multisig.utils.addOperatorForRewarder([asset], rewardConfig.operator)
