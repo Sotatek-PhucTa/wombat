@@ -107,11 +107,7 @@ function getRewarderConfig(operator: string, rate: string) {
         ...Object.entries(REWARDER_CONFIG).map(([asset, rewardConfig]) => {
           return concatAll(
             // Top up OP
-            multisig.utils.topUpBoostedRewarder(
-              asset,
-              Token.OP,
-              rewardConfig.opRatePerEpoch.mul(4)
-            ),
+            multisig.utils.topUpBoostedRewarder(asset, Token.OP, rewardConfig.opRatePerEpoch.mul(4)),
             // Add operator for rewarder
             multisig.utils.addOperatorForRewarder([asset], rewardConfig.operator)
           )

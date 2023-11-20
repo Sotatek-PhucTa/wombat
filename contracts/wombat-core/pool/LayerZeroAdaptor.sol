@@ -31,7 +31,12 @@ contract LayerZeroAdaptor is Adaptor, NonblockingLzAppUpgradable {
             );
     }
 
-    function _nonblockingLzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, bytes memory payload) internal override {
+    function _nonblockingLzReceive(
+        uint16 srcChainId,
+        bytes memory srcAddress,
+        uint64,
+        bytes memory payload
+    ) internal override {
         (address toToken, uint256 creditAmount, uint256 minimumToAmount, address receiver) = _decode(payload);
         _swapCreditForTokens(
             srcChainId,
