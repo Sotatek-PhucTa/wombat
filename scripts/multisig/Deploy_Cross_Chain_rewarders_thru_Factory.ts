@@ -1,5 +1,5 @@
 import { runScript } from '.'
-import { Network } from '../../types'
+import { Network, PartialRecord } from '../../types'
 import * as multisig from '../../utils/multisig'
 import { getCurrentNetwork } from '../../types/network'
 import { concatAll, getBoostedRewarderAddress, getDeployedContract, isContractAddress } from '../../utils'
@@ -10,13 +10,32 @@ import { unsafeIsoStringToEpochSeconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { parseEther } from 'ethers/lib/utils'
 import { BribeRewarderFactory } from '../../build/typechain'
+import { BigNumber } from 'ethers'
+
+interface IRewarderConfig {
+  assetsToDeployRewarderFor: string[]
+  epochAmount: BigNumber
+  rewarderStartTime: number
+}
+
+const rewardersNetworkConfig: PartialRecord<Network, IRewarderConfig> = {
+  [Network.AVALANCHE_MAINNET]: {
+    assetsToDeployRewarderFor: ['Asset_Stablecoin_Pool_USDC', 'Asset_Stablecoin_Pool_USDT'],
+    epochAmount: parseEther('1875'),
+    rewarderStartTime: unsafeIsoStringToEpochSeconds('2023-10-25T10:00Z'), // 2023 Oct 25 6PM HKT
+  },
+  [Network.BASE_MAINNET]: {
+    assetsToDeployRewarderFor: ['Asset_Stablecoin_Pool_USDC', 'Asset_Stablecoin_Pool_USDbC'],
+    epochAmount: parseEther('6250'),
+    rewarderStartTime: unsafeIsoStringToEpochSeconds('2023-11-22T06:00Z'), // 2023 Nov 22 2PM HKT
+  },
+}
+
 ;(async function () {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
-  assert(network == Network.AVALANCHE_MAINNET, `Network ${network} is not supported.`)
-  const assetsToDeployRewarderFor = ['Asset_Stablecoin_Pool_USDC', 'Asset_Stablecoin_Pool_USDT']
-  const rewarderStartTime = unsafeIsoStringToEpochSeconds('2023-10-25T10:00Z') // 2023 Oct 25 6PM HKT
-  const EPOCH_AMOUNT = parseEther('1875')
+  assert([Network.AVALANCHE_MAINNET, Network.BASE_MAINNET].includes(network), `Network ${network} is not supported.`)
+  const { assetsToDeployRewarderFor, rewarderStartTime, epochAmount: EPOCH_AMOUNT } = rewardersNetworkConfig[network]!
 
   const INITIAL_WOM_RATE = convertTokenPerEpochToTokenPerSec(EPOCH_AMOUNT)
 
@@ -26,6 +45,8 @@ import { BribeRewarderFactory } from '../../build/typechain'
       const { multisig: multisigAddress } = await getNamedAccounts()
 
       return concatAll(
+        // set Bribe Rewarder Factory if needed
+        multisig.utils.setBribeRewarderFactory(),
         // whitelist reward tokens
         multisig.utils.whitelistRewardTokenForBribeRewarderFactory([Token.WOM]),
         // set deployer to multisig
@@ -55,16 +76,16 @@ import { BribeRewarderFactory } from '../../build/typechain'
     'Top_up_Cross_Chain_rewarders',
     async () => {
       return concatAll(
-        multisig.utils.topUpBoostedRewarder('Asset_Stablecoin_Pool_USDC', Token.WOM, EPOCH_AMOUNT.mul(4)),
-        multisig.utils.topUpBoostedRewarder('Asset_Stablecoin_Pool_USDT', Token.WOM, EPOCH_AMOUNT.mul(4))
+        ...assetsToDeployRewarderFor.map((asset) =>
+          multisig.utils.topUpBoostedRewarder(asset, Token.WOM, EPOCH_AMOUNT.mul(4))
+        )
       )
     },
     async () => {
-      const lpUsdcRewarder = await getBoostedRewarderAddress('Asset_Stablecoin_Pool_USDC')
-      const lpUsdtRewarder = await getBoostedRewarderAddress('Asset_Stablecoin_Pool_USDT')
-
-      assert(await isContractAddress(lpUsdcRewarder), 'Not a contract address')
-      assert(await isContractAddress(lpUsdtRewarder), 'Not a contract address')
+      for (const asset of assetsToDeployRewarderFor) {
+        const lpRewarder = await getBoostedRewarderAddress(asset)
+        assert(await isContractAddress(lpRewarder), 'Not a contract address')
+      }
     },
     true
   )
