@@ -1014,3 +1014,42 @@ async function addressOfAsset(pool: Contract, token: string): Promise<string> {
     return ethers.constants.AddressZero
   }
 }
+
+export async function unpauseVeWom(): Promise<BatchTransaction[]> {
+  const vewom = await getDeployedContract('VeWom')
+  assert(await vewom.paused(), 'VeWom is not paused')
+  return [Safe(vewom).unpause()]
+}
+
+export async function setupMasterWombat(): Promise<BatchTransaction[]> {
+  const txns = []
+  const mw = await getDeployedContract('BoostedMasterWombat')
+
+  const voterDeployment = await deployments.getOrNull('Voter')
+  if (voterDeployment != null) {
+    const currentVoter = await mw.voter()
+    if (currentVoter === ethers.constants.AddressZero) {
+      console.log(`MasterWombat set voter to ${voterDeployment.address}`)
+      txns.push(Safe(mw).setVoter(voterDeployment.address))
+    }
+  }
+
+  const vewomDeployment = await deployments.getOrNull('VeWom')
+  if (vewomDeployment != null) {
+    const currentVeWom = await mw.veWom()
+    if (currentVeWom === ethers.constants.AddressZero) {
+      console.log(`MasterWombat set vewom to ${vewomDeployment.address}`)
+      txns.push(Safe(mw).setVeWom(vewomDeployment.address))
+    }
+  }
+
+  const bribeFactoryDeployment = await deployments.getOrNull('BribeRewarderFactory')
+  if (bribeFactoryDeployment != null) {
+    const currentFactory = await mw.bribeRewarderFactory()
+    if (currentFactory === ethers.constants.AddressZero) {
+      console.log(`MasterWombat set bribeRewarderFactory to ${bribeFactoryDeployment.address}`)
+      txns.push(Safe(mw).setBribeRewarderFactory(bribeFactoryDeployment.address))
+    }
+  }
+  return txns
+}
