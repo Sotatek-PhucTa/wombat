@@ -739,6 +739,12 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_Stablecoin_Pool_USDC => `0xd05CF2BCaaee3a221E9effF58bF2874b9F11E47b`
 - Asset_Stablecoin_Pool_USDbC => `0x375883a1F801138B6f5EE953a7A11072129Ac624`
 
+#### USDS Pool
+
+- Pool Proxy (Main entry) => `0x20d7B9Ed2c4E2DCC55F9B463975b21bBf2A6eCd1`
+- Asset_USDS_Pool_USDS (LP-USDS) => `0xe07829c8B7F934e03C83B0dC1fd2cCC9b62036D8`
+- Asset_USDS_Pool_USDbC  (LP-USDbC) => `0xE2a60C52C4abB9fbc3f711da3cb9E633269DBC67`
+
 ### AVAX mainnet
 
 #### Wombat Governance
