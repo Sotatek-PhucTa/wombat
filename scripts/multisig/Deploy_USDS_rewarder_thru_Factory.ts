@@ -32,6 +32,8 @@ import { ExternalContract, getContractAddress } from '../../config/contract'
       const INITIAL_RATE = parseEther('500000').div(30 * 86400)
 
       return concatAll(
+        // MasterWombat add asset
+        ...assetsToDeployRewarderFor.map((asset) => multisig.utils.addAssetToMasterWombat(asset)),
         // whitelist reward tokens
         multisig.utils.whitelistRewardTokenForBribeRewarderFactory([Token.SABLE]),
         // set deployer to multisig
@@ -50,7 +52,7 @@ import { ExternalContract, getContractAddress } from '../../config/contract'
     },
     async () => {
       const bribeRewarderFactory = (await getDeployedContract('BribeRewarderFactory')) as BribeRewarderFactory
-      // USDV is whitelisted
+      // USDS is whitelisted
       assert(
         await bribeRewarderFactory.isRewardTokenWhitelisted(await getTokenAddress(Token.SABLE)),
         'SABLE should be whitelisted after the operation'
