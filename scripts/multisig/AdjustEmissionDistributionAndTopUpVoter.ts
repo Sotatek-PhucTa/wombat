@@ -19,20 +19,20 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
   let GAUGE_ALLOC_PERCENTS
 
   if (network == Network.ARBITRUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 270_000
-    BRIBE_ALLOC_PERCENT = 52.5
+    WOM_MONTHLY_EMISSION_RATE = 370_000
+    BRIBE_ALLOC_PERCENT = 55.2
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 2.965,
-      Asset_Stablecoin_Pool_USDC: 2.965,
+      Asset_Stablecoin_Pool_USDT: 2.16,
+      Asset_Stablecoin_Pool_USDC: 2.16,
       // Main Pool
-      Asset_MainPool_USDCe: 15.5,
-      Asset_MainPool_USDT: 13.05,
-      Asset_MainPool_DAI: 5.42,
+      Asset_MainPool_USDCe: 15,
+      Asset_MainPool_USDT: 13,
+      Asset_MainPool_DAI: 5,
       Asset_MainPool_USDC: 6,
       // wmxWOM Pool
-      Asset_wmxWOM_Pool_wmxWOM: 0.39,
-      Asset_wmxWOM_Pool_WOM: 0.39,
+      Asset_wmxWOM_Pool_wmxWOM: 0.33,
+      Asset_wmxWOM_Pool_WOM: 0.33,
       // mWOM Pool
       Asset_mWOM_Pool_mWOM: 0.31,
       Asset_mWOM_Pool_WOM: 0.31,
@@ -41,15 +41,15 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_qWOM_Pool_WOM: 0.1,
     }
   } else if (network == Network.BSC_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 1_650_000
-    BRIBE_ALLOC_PERCENT = 89.87
+    WOM_MONTHLY_EMISSION_RATE = 2_100_000
+    BRIBE_ALLOC_PERCENT = 89.32
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 1.5,
-      Asset_Stablecoin_Pool_USDC: 1.5,
+      Asset_Stablecoin_Pool_USDT: 1.2,
+      Asset_Stablecoin_Pool_USDC: 1.2,
       // Main Pool
-      Asset_MainPool_USDC: 3.1,
-      Asset_MainPool_USDT: 3.23,
+      Asset_MainPool_USDC: 3.27,
+      Asset_MainPool_USDT: 4.21,
       Asset_MainPool_BUSD: 0,
       Asset_MainPool_DAI: 0.2,
       // wmxWOM Pool
@@ -66,12 +66,12 @@ runScript('AdjustEmissionDistributionAndTopUpVoter', async () => {
       Asset_wBETH_Pool_ETH: 0,
     }
   } else if (network == Network.ETHEREUM_MAINNET) {
-    WOM_MONTHLY_EMISSION_RATE = 630_000
-    BRIBE_ALLOC_PERCENT = 92.06
+    WOM_MONTHLY_EMISSION_RATE = 720_000
+    BRIBE_ALLOC_PERCENT = 93.06
     GAUGE_ALLOC_PERCENTS = {
       // Cross chain pool
-      Asset_Stablecoin_Pool_USDT: 3.97,
-      Asset_Stablecoin_Pool_USDC: 3.97,
+      Asset_Stablecoin_Pool_USDT: 3.47,
+      Asset_Stablecoin_Pool_USDC: 3.47,
     }
   }
 

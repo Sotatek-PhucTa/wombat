@@ -449,13 +449,13 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.AVALANCHE_MAINNET]: {
     ...createRewarderForDeployedAsset('Asset_sAVAX_Pool_WAVAX', {
       rewardTokens: [Token.WOM, Token.BENQI],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('48758')), '378086408730158750'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('61215')), '378086408730158750'],
       isV2: true,
       address: Address('0x09EaF2821728A380Bd111fb2d42BB43bb01984a6'),
     }),
     ...createRewarderForDeployedAsset('Asset_sAVAX_Pool_sAVAX', {
       rewardTokens: [Token.WOM, Token.BENQI],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('20896')), '162037037037037030'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('26235')), '162037037037037030'],
       isV2: true,
       address: Address('0x53BDB6De1dF8C869420dD8363dD90A8b9eeeb80A'),
     }),
