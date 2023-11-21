@@ -6,6 +6,7 @@ import { ETH_LAUNCH_DATE, Epochs } from './epoch'
 import { Token } from './token'
 import { getCurrentNetwork } from '../types/network'
 import assert from 'assert'
+import { ethers } from 'hardhat'
 
 export function getRewarders(): TokenMap<IRewarder> {
   const network = getCurrentNetwork()
@@ -339,7 +340,20 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
   [Network.SCROLL_MAINNET]: {},
   [Network.SCROLL_TESTNET]: {},
   [Network.POLYGON_ZKEVM_MAINNET]: {},
-  [Network.BASE_MAINNET]: {},
+  [Network.BASE_MAINNET]: {
+    ...createRewarderForDeployedAsset('Asset_USDS_Pool_USDS', {
+      rewardTokens: [Token.SABLE],
+      tokenPerSec: [parseEther('500000').div(30 * 86400)],
+      isV2: true,
+      address: Address(ethers.constants.AddressZero), // Update after deploy
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDS_Pool_USDbC', {
+      rewardTokens: [Token.SABLE],
+      tokenPerSec: [parseEther('500000').div(30 * 86400)],
+      isV2: true,
+      address: Address(ethers.constants.AddressZero), // Update after deploy
+    }),
+  },
   [Network.SKALE_TESTNET]: {},
   [Network.GNOSIS_MAINNET]: {},
   [Network.GOERLI]: {},

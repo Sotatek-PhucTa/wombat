@@ -822,7 +822,7 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
     },
   },
   [Network.BASE_MAINNET]: {
-    USDV_Pool: {
+    USDS_Pool: {
       setting: {
         ...defaultFactoryPoolConfig(),
       },

@@ -134,6 +134,8 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
   [ExternalContract.SableOperator]: {
     // https://bscscan.com/address/0x57e56130B9Ca6653F390239Fd31f1cdff7f73dc9
     [Network.BSC_MAINNET]: Address('0x57e56130B9Ca6653F390239Fd31f1cdff7f73dc9'),
+    // https://basescan.org/address/0x3d7C9f013443abc3cCa17e00ED294B77A6dd9F96
+    [Network.BASE_MAINNET]: Address('0x3d7C9f013443abc3cCa17e00ED294B77A6dd9F96'),
   },
   [ExternalContract.sAVAXOracle]: {
     // https://snowtrace.io/address/0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE
