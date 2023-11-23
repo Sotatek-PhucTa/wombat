@@ -133,7 +133,7 @@ const config: HardhatUserConfig = {
       scrollSepolia: 'abc',
       skaleTestnet: 'abc',
       base: secrets.base_api_key,
-      scroll: 'abc',
+      scroll: secrets.scroll_api_key,
       zkevmPolygon: secrets.zkevm_polygonscan_api_key,
       gnosis: secrets.gnosisscan_api_key,
     },
@@ -159,8 +159,8 @@ const config: HardhatUserConfig = {
         network: 'scroll',
         chainId: 534352,
         urls: {
-          apiURL: 'https://blockscout.scroll.io/api',
-          browserURL: 'https://blockscout.scroll.io/',
+          apiURL: 'https://api.scrollscan.com/api',
+          browserURL: 'https://scrollscan.com/',
         },
       },
       {
