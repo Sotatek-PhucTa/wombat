@@ -79,6 +79,11 @@ export async function getDeployedContract(contract: string, deploymentName = con
   return ethers.getContractAt(contract, deployment.address)
 }
 
+export async function getDeploymentAddress(deploymentName: string): Promise<string> {
+  const deployment = await deployments.get(deploymentName)
+  return deployment.address
+}
+
 export async function getLatestMasterWombat() {
   const mw = await deployments.getOrNull('BoostedMasterWombat')
   if (!mw) {

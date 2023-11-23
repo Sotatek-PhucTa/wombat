@@ -124,6 +124,7 @@ export async function pausePool(poolDeployment: string): Promise<BatchTransactio
 export async function unpausePool(poolDeployment: string): Promise<BatchTransaction[]> {
   assert(poolDeployment.includes('Proxy'), 'Must use proxy')
   const pool = await getDeployedContract('PoolV2', poolDeployment)
+  assert(await pool.paused(), `Pool ${poolDeployment} is not paused!`)
   return [Safe(pool).unpause()]
 }
 
