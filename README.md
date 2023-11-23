@@ -147,6 +147,10 @@ This proposal will then be uploaded to the gnosis UI and signed by other multisi
 - Asset_frxETH_Pool_WETH (deprecated) => `0xb268c3181921747379271B9BFfCE8B16311656e3`
 - Asset_HAY_Pool_HAY (LP-HAY) => `0xa393D61fE1532257B69b753aF7d1EfB0e22f1A6E`
 
+#### Standalone Pool 2 (for removed assets that cannot be added to Standalone Pool because of duplication)
+
+- FactoryPools_StandalonePool2_Proxy => `0xfcd11c01c14e4c12C3F9835CD5192fE774038d46`
+
 #### Factory Pool Stables 01
 
 - Pool Proxy (Main entry) => `0x48f6A8a0158031BaF8ce3e45344518f1e69f2A14`

@@ -380,6 +380,12 @@ export const FACTORYPOOL_TOKENS_MAP: PartialRecord<
       },
       assets: {},
     },
+    StandalonePool2: {
+      setting: {
+        ...defaultFactoryPoolConfig(),
+      },
+      assets: {},
+    },
     USDV_Pool: {
       setting: {
         ...defaultFactoryPoolConfig(),
