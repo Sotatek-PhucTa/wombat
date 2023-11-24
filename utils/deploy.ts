@@ -20,6 +20,7 @@ import { DeployResult } from 'hardhat-deploy/types'
 import { BribeRewarderFactory } from '../build/typechain'
 import {} from '@matterlabs/hardhat-zksync-upgradable'
 import { deployProxyZksync, isZkSync } from './zksync'
+import { getCurrentNetwork } from '../types/network'
 
 export async function deployTestAsset(tokenSymbol: string) {
   const erc20 = await getTestERC20(tokenSymbol)
@@ -298,6 +299,9 @@ export async function deployPriceFeed(
 
       deployments.log('Setting price feed for asset...')
       await confirmTxn(asset.connect(deployerSigner).setPriceFeed(deployResult.address))
+      deployments.log(
+        `Please add operators to the priceFeed: hh run scripts/multisig/AddOperator_GovernedPriceFeed.ts --network ${getCurrentNetwork()}`
+      )
     }
     logVerifyCommand(deployResult)
   } else if (['ChainlinkPriceFeed', 'PythPriceFeed'].includes(assetInfo.priceFeed.contract)) {

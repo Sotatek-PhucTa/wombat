@@ -1054,3 +1054,11 @@ export async function setupMasterWombat(): Promise<BatchTransaction[]> {
   }
   return txns
 }
+
+export async function addOperatorsToGovernedPriceFeed(
+  priceFeedDeployment: string,
+  addresses: string[]
+): Promise<BatchTransaction[]> {
+  const governedPriceFeed = await getDeployedContract('GovernedPriceFeed', priceFeedDeployment)
+  return addresses.map((address) => Safe(governedPriceFeed).addOperator(address))
+}
