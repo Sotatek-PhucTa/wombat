@@ -197,6 +197,24 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: ['826719570000000'],
       operator: ExternalContract.StafiOperator,
     }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDV', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('3724')),
+        convertTokenPerEpochToTokenPerSec(parseEther('125')),
+      ],
+      isV2: true,
+      address: Address('0x4906e4BBCB6cfC04093fa45b41dd39a59237d0A3'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDT', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('3724')),
+        convertTokenPerEpochToTokenPerSec(parseEther('125')),
+      ],
+      isV2: true,
+      address: Address('0x2cb8c53fb1660bd7Ec3C379e448799F23B00919e'),
+    }),
   },
   [Network.BSC_TESTNET]: {
     BUSD: {
@@ -329,13 +347,110 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       startTimestamp: Epochs.Jul05,
       operator: ExternalContract.EquilibriaFiOperator,
     }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDV', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('3724')),
+        convertTokenPerEpochToTokenPerSec(parseEther('125')),
+      ],
+      isV2: true,
+      address: Address('0x9F2cAbC39ebf9B048F76E092809f683a83De0E0D'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDT', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('3724')),
+        convertTokenPerEpochToTokenPerSec(parseEther('125')),
+      ],
+      isV2: true,
+      address: Address('0x25B06da06F427aC468d34dAa0c4EeFBfec980896'),
+    }),
   },
   [Network.LOCALHOST]: {},
   [Network.POLYGON_MAINNET]: {},
   [Network.POLYGON_TESTNET]: {},
   [Network.AVALANCHE_TESTNET]: {},
   [Network.ARBITRUM_TESTNET]: {},
-  [Network.OPTIMISM_MAINNET]: {},
+  [Network.OPTIMISM_MAINNET]: {
+    ...createRewarderForDeployedAsset('Asset_Frax_Pool_USDC', {
+      rewardTokens: [Token.OP, Token.FXS],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('95')),
+        convertTokenPerEpochToTokenPerSec(parseEther('25')),
+      ],
+      isV2: true,
+      address: Address('0x97BbF3071C3C17e1F02694074024206923378f2C'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_Frax_Pool_FRAX', {
+      rewardTokens: [Token.OP, Token.FXS],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('191')),
+        convertTokenPerEpochToTokenPerSec(parseEther('50')),
+      ],
+      isV2: true,
+      address: Address('0x0417afEdd1DD463799cf8035F3E2b6282768c541'),
+    }),
+
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
+      rewardTokens: [Token.OP, Token.FXS],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('191')),
+        convertTokenPerEpochToTokenPerSec(parseEther('50')),
+      ],
+      isV2: true,
+      address: Address('0x8880fa2155562D7eDC1182aFd8558e8e47F24C6b'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
+      rewardTokens: [Token.OP, Token.FXS],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('95')),
+        convertTokenPerEpochToTokenPerSec(parseEther('25')),
+      ],
+      isV2: true,
+      address: Address('0xD56fc5719b2AA689b193Ca3477c7711B5741E3a1'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
+      rewardTokens: [Token.OP, Token.FXS],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('95')),
+        convertTokenPerEpochToTokenPerSec(parseEther('25')),
+      ],
+      isV2: true,
+      address: Address('0x84a6F35Bf2233fBcA1683b5aeD24E7051641ada0'),
+    }),
+
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDT', {
+      rewardTokens: [Token.OP, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('240')),
+        convertTokenPerEpochToTokenPerSec(parseEther('375')),
+      ],
+      isV2: true,
+      address: Address('0x08d458DCB26B1303E4A42D34c4865F5c2fD1B0FC'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDV', {
+      rewardTokens: [Token.OP, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('240')),
+        convertTokenPerEpochToTokenPerSec(parseEther('375')),
+      ],
+      isV2: true,
+      address: Address('0x567a90d4D7aeCBa374d1Bc87Ffe4c2eB79900751'),
+    }),
+
+    ...createRewarderForDeployedAsset('Asset_Dola_Pool_DOLA', {
+      rewardTokens: [Token.OP],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('600'))],
+      isV2: true,
+      address: Address('0xEb5D37E099055d74D741984976f893b68dFC893F'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_Dola_Pool_USDCe', {
+      rewardTokens: [Token.OP],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('400'))],
+      isV2: true,
+      address: Address('0x9c78ECCa24d1b3c5F32b6dA4A9D71bcEa39A515f'),
+    }),
+  },
   [Network.OPTIMISM_TESTNET]: {},
   [Network.SCROLL_MAINNET]: {},
   [Network.SCROLL_TESTNET]: {},
@@ -445,6 +560,24 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('5833'))],
       startTimestamp: Epochs.Sep06,
     }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDV', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('11174')),
+        convertTokenPerEpochToTokenPerSec(parseEther('375')),
+      ],
+      isV2: true,
+      address: Address('0x9370d180855224a4E6705b8102108C7C48fb27A7'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDT', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('11174')),
+        convertTokenPerEpochToTokenPerSec(parseEther('375')),
+      ],
+      isV2: true,
+      address: Address('0xB95Fb9BA377fAD97090b7052cbC45d848EC6aC29'),
+    }),
   },
   [Network.AVALANCHE_MAINNET]: {
     ...createRewarderForDeployedAsset('Asset_sAVAX_Pool_WAVAX', {
@@ -458,6 +591,24 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
       tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('26235')), '162037037037037030'],
       isV2: true,
       address: Address('0x53BDB6De1dF8C869420dD8363dD90A8b9eeeb80A'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDV', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('3724')),
+        convertTokenPerEpochToTokenPerSec(parseEther('125')),
+      ],
+      isV2: true,
+      address: Address('0x20E5794430ECB92BfED1FF091fe3539B22cDfEA8'),
+    }),
+    ...createRewarderForDeployedAsset('Asset_USDV_Pool_USDT', {
+      rewardTokens: [Token.WOM, Token.USDV],
+      tokenPerSec: [
+        convertTokenPerEpochToTokenPerSec(parseEther('3724')),
+        convertTokenPerEpochToTokenPerSec(parseEther('125')),
+      ],
+      isV2: true,
+      address: Address('0xd2CF8FCc82CE8FbB2E80b6088a9B64c232a35FA8'),
     }),
   },
 }
