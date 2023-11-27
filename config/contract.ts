@@ -175,7 +175,7 @@ const contractRegistry: Record<ExternalContract, PartialRecord<Network, Deployme
     [Network.ARBITRUM_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
     [Network.AVALANCHE_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
     [Network.BSC_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
-    [Network.OPTIMISM_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
+    [Network.OPTIMISM_MAINNET]: Address('0x77f68F27515304eB166A4653F6F75d31389beCED'),
     [Network.ETHEREUM_MAINNET]: Address('0xC9818495213D1E7D1E11e099b9C822d6169bad71'),
   },
   [ExternalContract.WombexBribeOperator]: {

@@ -10,9 +10,13 @@ runScript('SetOperator_Rewarder_USDV', async () => {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
   assert(
-    [Network.AVALANCHE_MAINNET, Network.ARBITRUM_MAINNET, Network.BSC_MAINNET, Network.ETHEREUM_MAINNET].includes(
-      network
-    ),
+    [
+      Network.AVALANCHE_MAINNET,
+      Network.ARBITRUM_MAINNET,
+      Network.BSC_MAINNET,
+      Network.ETHEREUM_MAINNET,
+      Network.OPTIMISM_MAINNET,
+    ].includes(network),
     `Network ${network} is not supported.`
   )
   const assetsToDeployRewarderFor = ['Asset_USDV_Pool_USDV', 'Asset_USDV_Pool_USDT']
