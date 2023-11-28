@@ -879,10 +879,14 @@ export async function whitelistForVeWom(contractToWhitelist: ExternalContract): 
 
 export async function whitelistRewardTokenForBribeRewarderFactory(tokens: Token[]): Promise<BatchTransaction[]> {
   const bribeRewarderFactory = await getDeployedContract('BribeRewarderFactory')
-
-  return Promise.all(
-    tokens.map(async (token) => Safe(bribeRewarderFactory).whitelistRewardToken(await getTokenAddress(token)))
-  )
+  const txns = []
+  for (const token of tokens) {
+    const tokenAddress = await getTokenAddress(token)
+    if (!(await bribeRewarderFactory.isRewardTokenWhitelisted(tokenAddress))) {
+      txns.push(Safe(bribeRewarderFactory).whitelistRewardToken(tokenAddress))
+    }
+  }
+  return txns
 }
 
 export async function setRewarderDeployerInFactory(
@@ -1061,4 +1065,28 @@ export async function addOperatorsToGovernedPriceFeed(
 ): Promise<BatchTransaction[]> {
   const governedPriceFeed = await getDeployedContract('GovernedPriceFeed', priceFeedDeployment)
   return addresses.map((address) => Safe(governedPriceFeed).addOperator(address))
+}
+
+export async function deployBoostedRewarderThroughFactory(
+  assets: string[],
+  rewardToken: Token,
+  rewarderStartTime: number,
+  initialRate: BigNumber
+): Promise<BatchTransaction[]> {
+  const { multisig: multisigAddress } = await getNamedAccounts()
+  const txns = concatAll(
+    // set Bribe Rewarder Factory if needed
+    setBribeRewarderFactory(),
+    // whitelist reward tokens
+    whitelistRewardTokenForBribeRewarderFactory([rewardToken]),
+    // set deployer to multisig
+    ...assets.map((asset) => setRewarderDeployerInFactory(asset, multisigAddress)),
+    // deploy rewarders
+    ...assets.map((asset) => deployRewarderThroughFactory(asset, rewardToken, rewarderStartTime, initialRate))
+  )
+  // revoke WOM if needed
+  if (rewardToken === Token.WOM) {
+    return concatAll(txns, revokeRewardTokenForBribeRewarderFactory([rewardToken]))
+  }
+  return txns
 }

@@ -5,17 +5,18 @@ import { getCurrentNetwork } from '../../types/network'
 import { concatAll, getBoostedRewarderAddress, getDeployedContract, isContractAddress } from '../../utils'
 import assert from 'assert'
 import { Token, getTokenAddress } from '../../config/token'
-import { getNamedAccounts } from 'hardhat'
 import { unsafeIsoStringToEpochSeconds } from '../../config/epoch'
 import { convertTokenPerEpochToTokenPerSec } from '../../config/emission'
 import { parseEther } from 'ethers/lib/utils'
 import { BribeRewarderFactory } from '../../build/typechain'
 import { BigNumber } from 'ethers'
+import { deployBoostedRewarderThroughFactory } from '../../utils/multisig/utils'
 
 interface IRewarderConfig {
   assetsToDeployRewarderFor: string[]
   epochAmount: BigNumber
   rewarderStartTime: number
+  rewardToken: Token
 }
 
 const rewardersNetworkConfig: PartialRecord<Network, IRewarderConfig> = {
@@ -23,42 +24,47 @@ const rewardersNetworkConfig: PartialRecord<Network, IRewarderConfig> = {
     assetsToDeployRewarderFor: ['Asset_Stablecoin_Pool_USDC', 'Asset_Stablecoin_Pool_USDT'],
     epochAmount: parseEther('1875'),
     rewarderStartTime: unsafeIsoStringToEpochSeconds('2023-10-25T10:00Z'), // 2023 Oct 25 6PM HKT
+    rewardToken: Token.WOM,
   },
   [Network.BASE_MAINNET]: {
     assetsToDeployRewarderFor: ['Asset_Stablecoin_Pool_USDC', 'Asset_Stablecoin_Pool_USDbC'],
     epochAmount: parseEther('6250'),
     rewarderStartTime: unsafeIsoStringToEpochSeconds('2023-11-22T06:00Z'), // 2023 Nov 22 2PM HKT
+    rewardToken: Token.WOM,
+  },
+  [Network.OPTIMISM_MAINNET]: {
+    assetsToDeployRewarderFor: [
+      'Asset_Stablecoin_Pool_USDC',
+      'Asset_Stablecoin_Pool_USDT',
+      'Asset_Stablecoin_Pool_USDCe',
+    ],
+    epochAmount: parseEther('76'),
+    rewarderStartTime: unsafeIsoStringToEpochSeconds('2023-11-29T06:00Z'), // 2023 Nov 29 2PM HKT
+    rewardToken: Token.OP,
   },
 }
 
 ;(async function () {
   const network: Network = getCurrentNetwork()
   console.log(`Running against network: ${network}`)
-  assert([Network.AVALANCHE_MAINNET, Network.BASE_MAINNET].includes(network), `Network ${network} is not supported.`)
-  const { assetsToDeployRewarderFor, rewarderStartTime, epochAmount: EPOCH_AMOUNT } = rewardersNetworkConfig[network]!
+  assert(Object.keys(rewardersNetworkConfig).includes(network), `Network ${network} is not supported.`)
+  const {
+    rewardToken,
+    assetsToDeployRewarderFor,
+    rewarderStartTime,
+    epochAmount: EPOCH_AMOUNT,
+  } = rewardersNetworkConfig[network]!
 
-  const INITIAL_WOM_RATE = convertTokenPerEpochToTokenPerSec(EPOCH_AMOUNT)
+  const INITIAL_RATE = convertTokenPerEpochToTokenPerSec(EPOCH_AMOUNT)
 
   await runScript(
     'Deploy_Cross_Chain_rewarders_thru_Factory',
     async () => {
-      const { multisig: multisigAddress } = await getNamedAccounts()
-
-      return concatAll(
-        // set Bribe Rewarder Factory if needed
-        multisig.utils.setBribeRewarderFactory(),
-        // whitelist reward tokens
-        multisig.utils.whitelistRewardTokenForBribeRewarderFactory([Token.WOM]),
-        // set deployer to multisig
-        ...assetsToDeployRewarderFor.map((asset) =>
-          multisig.utils.setRewarderDeployerInFactory(asset, multisigAddress)
-        ),
-        // deploy rewarders
-        ...assetsToDeployRewarderFor.map((asset) =>
-          multisig.utils.deployRewarderThroughFactory(asset, Token.WOM, rewarderStartTime, INITIAL_WOM_RATE)
-        ),
-        // revoke WOM
-        multisig.utils.revokeRewardTokenForBribeRewarderFactory([Token.WOM])
+      return deployBoostedRewarderThroughFactory(
+        assetsToDeployRewarderFor,
+        rewardToken,
+        rewarderStartTime,
+        INITIAL_RATE
       )
     },
     async () => {
@@ -77,7 +83,7 @@ const rewardersNetworkConfig: PartialRecord<Network, IRewarderConfig> = {
     async () => {
       return concatAll(
         ...assetsToDeployRewarderFor.map((asset) =>
-          multisig.utils.topUpBoostedRewarder(asset, Token.WOM, EPOCH_AMOUNT.mul(4))
+          multisig.utils.topUpBoostedRewarder(asset, rewardToken, EPOCH_AMOUNT.mul(4))
         )
       )
     },
