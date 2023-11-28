@@ -939,17 +939,17 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
       rewardTokens: [Token.WMX],
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_frxETH', {
-      rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('60'))],
+      rewardTokens: [Token.FXS, Token.ARB],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('60')), 0],
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_sfrxETH', {
-      rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      rewardTokens: [Token.FXS, Token.ARB],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0')), 0],
       operator: ExternalContract.FraxBribeOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_frxETH_Pool_WETH', {
-      rewardTokens: [Token.FXS],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0'))],
+      rewardTokens: [Token.FXS, Token.ARB],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('0')), 0],
     }),
     ...createRewarderForDeployedAsset('Asset_qWOM_Pool_qWOM', {
       rewardTokens: [Token.QUO],
