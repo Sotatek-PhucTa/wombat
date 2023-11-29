@@ -440,13 +440,13 @@ const REWARDERS_MAP: Record<Network, TokenMap<IRewarder>> = {
 
     ...createRewarderForDeployedAsset('Asset_Dola_Pool_DOLA', {
       rewardTokens: [Token.OP],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('600'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('1200'))],
       isV2: true,
       address: Address('0xEb5D37E099055d74D741984976f893b68dFC893F'),
     }),
     ...createRewarderForDeployedAsset('Asset_Dola_Pool_USDCe', {
       rewardTokens: [Token.OP],
-      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('400'))],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('800'))],
       isV2: true,
       address: Address('0x9c78ECCa24d1b3c5F32b6dA4A9D71bcEa39A515f'),
     }),
