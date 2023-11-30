@@ -842,13 +842,13 @@ const BRIBE_MAPS: Record<Network, TokenMap<IRewarder>> = {
     ...createRewarderForDeployedAsset('Asset_rBNB_Pool_rBNB', {
       startTimestamp: Epochs.Aug09,
       rewardTokens: [Token.FIS],
-      tokenPerSec: ['0'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('350'))],
       operator: ExternalContract.StafiOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_rBNB_Pool_WBNB', {
       startTimestamp: Epochs.Aug09,
       rewardTokens: [Token.FIS],
-      tokenPerSec: ['0'],
+      tokenPerSec: [convertTokenPerEpochToTokenPerSec(parseEther('350'))],
       operator: ExternalContract.StafiOperator,
     }),
     ...createRewarderForDeployedAsset('Asset_USDS_Pool_USDS', {
