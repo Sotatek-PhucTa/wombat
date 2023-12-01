@@ -7,9 +7,12 @@ import { Network } from '../../types'
 
 runScript('AddOperator_GovernedPriceFeed', async () => {
   const network = getCurrentNetwork()
-  assert(network === Network.OPTIMISM_MAINNET, 'Network not supported')
-  const { jack, tj, drop19 } = await getNamedAccounts()
-  const operators = [jack, tj, drop19]
+  assert(
+    network === Network.OPTIMISM_MAINNET || network === Network.ARBITRUM_MAINNET || network === Network.BSC_MAINNET,
+    'Network not supported'
+  )
+  const { sandy } = await getNamedAccounts()
+  const operators = [sandy]
   return multisig.utils.addOperatorsToGovernedPriceFeed(
     'PriceFeed_GovernedPriceFeed_Asset_frxETH_Pool_sfrxETH',
     operators

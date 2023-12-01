@@ -231,6 +231,7 @@ const config: HardhatUserConfig = {
     jack: '0xcB3Bb767104e0b3235520fafB182e005D7efD045',
     drop19: '0xc92b4ceF4BFA0EeFE16eDA4689da10df9Fe9e801',
     tj: '0x9e031064ce7C3E9b6dda1FfCF9E5D41AFBbdfEEa',
+    sandy: '0x9957a058588e77634c01dD49Ae13aF9DcB6E3B49',
     deployer: {
       default: 'jack',
       // Keep hardhat and localhost network using the first signers in ethers.getSigners().
